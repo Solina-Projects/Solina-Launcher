@@ -537,7 +537,7 @@ Essa nova versão é atualização Major e pode ser menos estável\".</string>
     Bug reporting
 
     -->
-    <string name="Solina Launcher_bug_report">Relatório de bugs do Solina Launcher</string>
+    <string name="lawnchair_bug_report">Relatório de bugs do Solina Launcher</string>
     <string name="crash_report_notif_title">%1$s crashou</string>
     <string name="action_upload_crash_report">Enviar registro de erro</string>
     <string name="action_upload_error">Falha no envio</string>
@@ -817,7 +817,7 @@ Essa nova versão é atualização Major e pode ser menos estável\".</string>
     <string name="grant_requested_permissions_tap">Toque para conceder permissões</string>
     <!-- Message shown when all home screen views are removed -->
     <string name="home_screen_all_views_removed_msg">Tela inicial limpada</string>
-    <string name="Solina Launcher_actions">Ações</string>
-    <string name="Solina Launcher_action_failed">Não foi possível realizar a ação</string>
+    <string name="lawnchair_actions">Ações</string>
+    <string name="lawnchair_action_failed">Não foi possível realizar a ação</string>
     <string name="please_wait">Por favor, aguarde…</string>
 </resources>
