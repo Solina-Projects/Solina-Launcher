@@ -117,8 +117,7 @@ allprojects {
                 compileOnly projects.compatLib.compatLibVR
                 compileOnly projects.compatLib.compatLibVS
                 compileOnly projects.compatLib.compatLibVT
-                compileOnly projects.compatLib.compatLibVU
-                compileOnly projects.compatLib.compatLibVV
+                compileOnly projects.compatLib.compatLibVU                compileOnly projects.compatLib.compatLibVV
                 compileOnly projects.compatLib.compatLibVBaklava
             }
         }
@@ -227,7 +226,7 @@ android {
 
         debug {
             applicationIdSuffix ".debug"
-            resValue("string", "derived_app_name", "Lawnchair (Debug)")
+            resValue("string", "derived_app_name", "Solina Launcher (Debug)")
 
             manifestPlaceholders.quickstepMinSdk = "0"
             manifestPlaceholders.quickstepMaxSdk = "100000"
@@ -236,9 +235,8 @@ android {
         }
 
         release {
-            resValue("string", "derived_app_name", "Lawnchair")
-            minifyEnabled true
-            shrinkResources true
+            resValue("string", "derived_app_name", "Solina Launcher")
+            minifyEnabled true            shrinkResources true
             pseudoLocalesEnabled false
             proguardFiles proguardFilesFromAosp + "proguard.pro"
         }
@@ -267,17 +265,17 @@ android {
         }
 
         github {
-            applicationId 'app.lawnchair'
+            applicationId 'app.solina.launcher'
             dimension "channel"
         }
 
         nightly {
-            applicationId 'app.lawnchair.nightly'
+            applicationId 'app.solina.launcher.nightly'
             dimension "channel"
         }
 
         play {
-            applicationId "app.lawnchair.play"
+            applicationId "app.solina.launcher.play"
             dimension "channel"
             isDefault true
         }
@@ -357,8 +355,7 @@ androidComponents {
         def generatedProtoJavaDir = layout.buildDirectory
             .dir("generated/java/generate${capitalizedVariantName}Proto/java")
             .get()
-            .asFile
-        variant.sources.java.addStaticSourceDirectory(generatedProtoJavaDir.absolutePath)
+            .asFile        variant.sources.java.addStaticSourceDirectory(generatedProtoJavaDir.absolutePath)
     }
 }
 
@@ -478,7 +475,6 @@ dependencies {
 
     // Compose drag and drop library
     implementation libs.reorderable
-
     // Smartspacer
     implementation(libs.smartspacer.sdk) {
         exclude group: "com.github.skydoves", module: "balloon"
