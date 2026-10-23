@@ -536,7 +536,7 @@
     Bug reporting
 
     -->
-    <string name="Solina Launcher_bug_report">Solina Launcher 错误报告</string>
+    <string name="lawnchair_bug_report">Solina Launcher 错误报告</string>
     <string name="crash_report_notif_title">%1$s 已崩溃</string>
     <string name="action_upload_crash_report">上传崩溃日志</string>
     <string name="action_upload_error">上传失败</string>
@@ -815,7 +815,7 @@
     <string name="grant_requested_permissions_tap">点击此处授权</string>
     <!-- Message shown when all home screen views are removed -->
     <string name="home_screen_all_views_removed_msg">已清空主屏幕</string>
-    <string name="Solina Launcher_actions">操作</string>
-    <string name="Solina Launcher_action_failed">未能触发操作</string>
+    <string name="lawnchair_actions">操作</string>
+    <string name="lawnchair_action_failed">未能触发操作</string>
     <string name="please_wait">请稍等…</string>
 </resources>
