@@ -61,7 +61,7 @@
     <string name="time_weeks_ago">%d周</string>
     <string name="time_months_ago">%d月</string>
     <string name="time_years_ago">%d年</string>
-    <string name="managed_by_Solina Launcher">由 Solina Launcher 管理</string>
+    <string name="managed_by_lawnchair">由 Solina Launcher 管理</string>
     <!-- When mentioning settings UI -->
     <string name="smartspace_preferences">首选项</string>
     <string name="settings_button_text">启动器设置</string>
