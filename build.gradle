@@ -151,8 +151,8 @@ android {
     namespace "com.android.launcher3"
     defaultConfig {
         /*
-         * Lawnchair Launcher 16.0 Beta 1.0
-         * see https://docs.lawnchair.app/developers/standards/development-workflow#versioning-scheme
+         * Solina Launcher development build
+         * see the project release notes for versioning details
          */
         versionCode 16_00_02_01_00
         versionName "${versionDisplayName}"
@@ -291,7 +291,7 @@ android {
         main {
             res.srcDirs = ['res']
 
-            // Lawnchair-TODO: Don't include Compose Disabled, but there's has to be another way of making this NOT long
+            // TODO: Avoid including Compose Disabled without expanding the variant configuration.
             java.srcDirs = ['src', 'src_plugins', 'compose/facade/core', 'compose/facade/enabled', 'compose/features']
             kotlin.directories.addAll('src', 'src_plugins', 'compose/facade/core', 'compose/facade/enabled', 'compose/features')
 
@@ -349,10 +349,10 @@ androidComponents {
     onVariants(selector().all()) { variant ->
         def channel = variant.productFlavors.last().second
         variant.outputs.forEach { output ->
-            output.outputFileName.set("Lawnchair.${output.versionName.get()}.$channel.${variant.buildType}.apk")
+            output.outputFileName.set("SolinaLauncher.${output.versionName.get()}.$channel.${variant.buildType}.apk")
         }
 
-        // Lawnchair-TODO: A better way to sync proto file to the IDE preventing missing or outdated result. Please remove if this is the best solution we have right now
+        // TODO: Improve IDE synchronization for generated proto files.
         def capitalizedVariantName = variant.name.substring(0, 1).toUpperCase(java.util.Locale.ROOT) + variant.name.substring(1)
         def generatedProtoJavaDir = layout.buildDirectory
             .dir("generated/java/generate${capitalizedVariantName}Proto/java")
