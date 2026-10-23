@@ -2,28 +2,17 @@
 
 ## Supported versions
 
-> [!WARNING]
-> [Lawnchair Legacy](https://play.google.com/store/apps/details?id=ch.deletescape.lawnchair.plah) is **unsupported**. Use the newer versions instead.
+Solina Launcher is under active development. Until a stable release is announced, development builds are provided for testing only and are not guaranteed to receive security fixes.
 
-The latest version of Lawnchair is the only supported version.
-
-| Version        | Supported          |
-|----------------|--------------------|
-| Nightly build  | :white_check_mark: |
-| 16             | :white_check_mark: |
-| 15             | :x:                |
-| 14             | :x:                |
-| 13             | :x:                |
-| 12.1           | :x:                |
-| 12             | :x:                |
-| 11             | :x:                |
-| Older (Legacy) | :x:                |
+| Version | Supported |
+| --- | --- |
+| Development branch | Best effort |
+| Stable release | Not published yet |
 
 ## Reporting security issues
 
-We appreciate your efforts to responsibly disclose your findings and will make every effort to
-acknowledge your contributions.
+Please do not publish exploitable vulnerabilities or private data in a public issue. Use GitHub's private vulnerability reporting for this repository when available:
 
-To report an issue, please file a [security advisory on GitHub](https://github.com/LawnchairLauncher/lawnchair/security/advisories/new).
+https://github.com/Solina-Projects/Solina-Launcher/security/advisories/new
 
-We'll endeavor to respond quickly, and will keep you updated throughout the process.
+If private reporting is unavailable, leave report details out of public issues. A dedicated security contact will be added when configured.
