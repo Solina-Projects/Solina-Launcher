@@ -51,7 +51,6 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import app.lawnchair.preferences.PreferenceManager
 import app.lawnchair.ui.preferences.LocalIsExpandedScreen
 import app.lawnchair.ui.preferences.components.NavigationActionPreference
-import app.lawnchair.ui.preferences.components.controls.ClickablePreference
 import app.lawnchair.ui.preferences.components.layout.PreferenceDivider
 import app.lawnchair.ui.preferences.components.layout.PreferenceGroupHeading
 import app.lawnchair.ui.preferences.components.layout.PreferenceGroupItem
@@ -151,7 +150,7 @@ fun About(
                             onClick = {},
                             onLongClick = {
                                 val commitUrl =
-                                    "https://github.com/LawnchairLauncher/lawnchair/commit/${BuildConfig.COMMIT_HASH}"
+                                    "https://github.com/Solina-Projects/Solina-Launcher/commit/${BuildConfig.COMMIT_HASH}"
                                 context.startActivity(Intent(Intent.ACTION_VIEW, commitUrl.toUri()))
                             },
                         ),
@@ -240,7 +239,7 @@ fun About(
         item {
             PreferenceGroupItem(
                 cutTop = false,
-                cutBottom = true,
+                cutBottom = false,
             ) {
                 NavigationActionPreference(
                     label = stringResource(id = R.string.acknowledgements),
@@ -248,27 +247,5 @@ fun About(
                 )
             }
         }
-        item {
-            Spacer(Modifier.height(3.dp))
-        }
-        item {
-            PreferenceGroupItem(
-                cutTop = true,
-                cutBottom = false,
-            ) {
-                ClickablePreference(
-                    label = stringResource(id = R.string.privacy_policy),
-                    onClick = {
-                        val webpage = PRIVACY_POLICY.toUri()
-                        val intent = Intent(Intent.ACTION_VIEW, webpage)
-                        if (intent.resolveActivity(context.packageManager) != null) {
-                            context.startActivity(intent)
-                        }
-                    },
-                )
-            }
-        }
     }
 }
-
-private const val PRIVACY_POLICY = "https://lawnchair.app/privacy_policy"
