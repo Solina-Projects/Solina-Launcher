@@ -9,7 +9,6 @@ import app.lawnchair.preferences2.firstCached
 import com.android.launcher3.BuildConfig
 import com.android.launcher3.R
 import java.io.File
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
@@ -50,15 +49,6 @@ class AboutViewModel(
             )
         }
 
-        viewModelScope.launch(Dispatchers.Default) {
-            val activeContributors = fetchActiveContributors()
-            val updatedCoreTeam = uiState.value.coreTeam.map { member ->
-                val status = if (member.githubUsername != null && activeContributors.contains(member.githubUsername.lowercase())) ContributorStatus.Active else ContributorStatus.Idle
-                member.copy(status = status)
-            }
-            uiState.update { it.copy(coreTeam = updatedCoreTeam) }
-        }
-
         // Check if the build variant is Nightly
         // AND check if user has enabled auto updater (available to Nightly variant)
         // OR check if user has overridden it in debug flags (available to All variant)
@@ -82,14 +72,6 @@ class AboutViewModel(
 
     fun resetToDownloaded(file: File) {
         nightlyBuildsRepository.resetToDownloaded(file)
-    }
-
-    private suspend fun fetchActiveContributors(): Set<String> {
-        return runCatching {
-            nightlyBuildsRepository.api.getRepositoryEvents("Solina-Projects", "Solina-Launcher")
-                .map { it.actor.login.lowercase() }
-                .toSet()
-        }.getOrDefault(emptySet())
     }
 
     companion object {
