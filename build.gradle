@@ -117,7 +117,8 @@ allprojects {
                 compileOnly projects.compatLib.compatLibVR
                 compileOnly projects.compatLib.compatLibVS
                 compileOnly projects.compatLib.compatLibVT
-                compileOnly projects.compatLib.compatLibVU                compileOnly projects.compatLib.compatLibVV
+                compileOnly projects.compatLib.compatLibVU
+                compileOnly projects.compatLib.compatLibVV
                 compileOnly projects.compatLib.compatLibVBaklava
             }
         }
@@ -236,7 +237,8 @@ android {
 
         release {
             resValue("string", "derived_app_name", "Solina Launcher")
-            minifyEnabled true            shrinkResources true
+            minifyEnabled true
+            shrinkResources true
             pseudoLocalesEnabled false
             proguardFiles proguardFilesFromAosp + "proguard.pro"
         }
@@ -355,7 +357,8 @@ androidComponents {
         def generatedProtoJavaDir = layout.buildDirectory
             .dir("generated/java/generate${capitalizedVariantName}Proto/java")
             .get()
-            .asFile        variant.sources.java.addStaticSourceDirectory(generatedProtoJavaDir.absolutePath)
+            .asFile
+        variant.sources.java.addStaticSourceDirectory(generatedProtoJavaDir.absolutePath)
     }
 }
 
@@ -475,6 +478,7 @@ dependencies {
 
     // Compose drag and drop library
     implementation libs.reorderable
+
     // Smartspacer
     implementation(libs.smartspacer.sdk) {
         exclude group: "com.github.skydoves", module: "balloon"
