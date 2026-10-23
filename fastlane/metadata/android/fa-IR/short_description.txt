@@ -1,1 +1,1 @@
-Homescreen based on Launcher3 from AOSP
+صفحهٔ اصلی متن‌باز و قابل‌شخصی‌سازی اندروید
