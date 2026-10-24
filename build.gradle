@@ -405,6 +405,9 @@ dependencies {
     implementation projects.viewcapturelib
     implementation projects.displaylib
     implementation projects.mechanics
+    // Required by shared launcher code in both Quickstep and standalone variants.
+    implementation projects.dagger
+    implementation projects.modules.widgetpicker
 
     // Recents lib dependency
     withQuickstepCompileOnly projects.hiddenApi
@@ -428,10 +431,8 @@ dependencies {
     withQuickstepImplementation projects.compatLib.compatLibVBaklava
     withQuickstepImplementation projects.wmshell
     withQuickstepImplementation projects.flags
-    withQuickstepImplementation projects.dagger
     withQuickstepImplementation projects.concurrent
 //    withQuickstepImplementation projects.compose
-    withQuickstepImplementation projects.modules.widgetpicker
     implementation libs.androidx.dynamicanimation
 
     implementation fileTree(dir: FRAMEWORK_PREBUILTS_DIR, include: 'SystemUI-statsd-16.jar')
