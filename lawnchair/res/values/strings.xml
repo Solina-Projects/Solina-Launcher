@@ -810,6 +810,7 @@
 
     <string name="qsb_hotseat_background_transparency">Background opacity</string>
     <string name="qsb_hotseat_stroke_width">Outline width</string>
+    <string name="dock_search_bar_vertical_position">Search bar vertical position</string>
     <string name="qsb_hotseat_stroke_color">Outline color</string>
     <string name="corner_radius_label">Corner radius</string>
     <string name="apply_accent_color_label">Apply accent color</string>
