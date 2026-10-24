@@ -26,4 +26,4 @@ The base package name lists are built by scraping the Play Store using `playstor
 
 ## Manually adding a rule
 
-If you want to manually add a rule to one of Lawnchair's rulesets you can simply add it to one of the static templates in the `templates/` directory. Create one with a categories name if none exists yet.
+If you want to manually add a rule to Solina Launcher's rulesets you can simply add it to one of the static templates in the `templates/` directory. Create one with a categories name if none exists yet.
