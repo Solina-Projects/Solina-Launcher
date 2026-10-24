@@ -257,7 +257,7 @@ android {
     flavorDimensions += ["app", "recents", "channel"]
 
     productFlavors {
-        lawn {
+        solina {
             dimension "app"
         }
 
@@ -307,7 +307,7 @@ android {
             }
         }
 
-        lawn {
+        solina {
             java.srcDirs = ['src_flags', 'src_shortcuts_overrides', 'lawnchair/src', 'tests/shared']
             kotlin.directories.addAll('src_flags', 'src_shortcuts_overrides', 'lawnchair/src', 'tests/shared')
             aidl.srcDirs = ['lawnchair/aidl']
@@ -330,28 +330,28 @@ android {
             res.srcDirs = ["nightly/res"]
         }
 
-        lawnWithQuickstepGithub {
+        solinaWithQuickstepGithub {
             manifest.srcFile "quickstep/AndroidManifest-launcher.xml"
         }
 
-        lawnWithQuickstepNightly {
+        solinaWithQuickstepNightly {
             manifest.srcFile "quickstep/AndroidManifest-launcher.xml"
         }
 
-        lawnWithQuickstepPlay {
+        solinaWithQuickstepPlay {
             manifest.srcFile "quickstep/AndroidManifest-launcher.xml"
         }
 
         // Use the standard Launcher3 manifest for variants without Quickstep.
-        lawnWithoutQuickstepGithub {
+        solinaWithoutQuickstepGithub {
             manifest.srcFile "AndroidManifest.xml"
         }
 
-        lawnWithoutQuickstepNightly {
+        solinaWithoutQuickstepNightly {
             manifest.srcFile "AndroidManifest.xml"
         }
 
-        lawnWithoutQuickstepPlay {
+        solinaWithoutQuickstepPlay {
             manifest.srcFile "AndroidManifest.xml"
         }
 
