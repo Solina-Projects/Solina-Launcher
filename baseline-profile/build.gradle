@@ -14,7 +14,8 @@ android {
 
     flavorDimensions += ["app", "recents", "channel"]
     productFlavors {
-        lawn { dimension = "app" }
+        solina { dimension = "app" }
+        withoutQuickstep { dimension = "recents" }
         withQuickstep { dimension = "recents" }
         github { dimension = "channel" }
         nightly { dimension = "channel" }
