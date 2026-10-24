@@ -23,7 +23,7 @@ jobs:
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v6
       - name: Build standalone APK without Quickstep
-        run: ./gradlew --no-daemon assembleLawnWithoutQuickstepGithubRelease
+        run: ./gradlew --no-daemon assembleSolinaWithoutQuickstepGithubRelease
       - name: Upload release candidate for review
         uses: actions/upload-artifact@v7
         with:
