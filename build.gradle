@@ -355,6 +355,15 @@ android {
             manifest.srcFile "AndroidManifest.xml"
         }
 
+        // Compile compatibility sources needed by shared Launcher3/Dagger code, but do not
+        // merge the Quickstep manifest into standalone variants.
+        withoutQuickstep {
+            res.srcDirs = ['quickstep/res', 'quickstep/recents_ui_overrides/res']
+            java.srcDirs = ['quickstep/src', 'quickstep/dagger', 'quickstep/recents_ui_overrides/src', 'quickstep/src_protolog']
+            kotlin.directories.addAll('quickstep/src', 'quickstep/dagger', 'quickstep/recents_ui_overrides/src', 'quickstep/src_protolog')
+            manifest.srcFile "AndroidManifest.xml"
+        }
+
         withQuickstep {
             res.srcDirs = ['quickstep/res', 'quickstep/recents_ui_overrides/res']
             java.srcDirs = ['quickstep/src', 'quickstep/dagger', 'quickstep/recents_ui_overrides/src', 'quickstep/src_protolog']
@@ -408,6 +417,29 @@ dependencies {
     // Required by shared launcher code in both Quickstep and standalone variants.
     implementation projects.dagger
     implementation projects.modules.widgetpicker
+
+    // Compile Quickstep support code required by shared launcher classes, without its manifest integration.
+    withoutQuickstepCompileOnly projects.hiddenApi
+    withoutQuickstepImplementation projects.shared
+    withoutQuickstepImplementation projects.animation
+    withoutQuickstepImplementation projects.unfold
+    withoutQuickstepImplementation projects.log
+    withoutQuickstepCompileOnly projects.plugin
+    withoutQuickstepImplementation projects.plugincore
+    withoutQuickstepCompileOnly projects.common
+    withoutQuickstepCompileOnly projects.utils
+    withoutQuickstepImplementation projects.compatLib
+    withoutQuickstepImplementation projects.compatLib.compatLibVQ
+    withoutQuickstepImplementation projects.compatLib.compatLibVR
+    withoutQuickstepImplementation projects.compatLib.compatLibVS
+    withoutQuickstepImplementation projects.compatLib.compatLibVT
+    withoutQuickstepImplementation projects.compatLib.compatLibVU
+    withoutQuickstepImplementation projects.compatLib.compatLibVV
+    withoutQuickstepImplementation projects.compatLib.compatLibVBaklava
+    withoutQuickstepImplementation projects.wmshell
+    withoutQuickstepImplementation projects.flags
+    withoutQuickstepImplementation projects.concurrent
+    withoutQuickstepCompileOnly fileTree(dir: FRAMEWORK_PREBUILTS_DIR, include: 'framework-16.jar')
 
     // Recents lib dependency
     withQuickstepCompileOnly projects.hiddenApi
