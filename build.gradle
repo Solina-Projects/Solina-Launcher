@@ -358,7 +358,7 @@ android {
         // Compile compatibility sources needed by shared Launcher3/Dagger code, but do not
         // merge the Quickstep manifest into standalone variants.
         withoutQuickstep {
-            res.srcDirs = ['quickstep/res', 'quickstep/recents_ui_overrides/res']
+            res.srcDirs = ['src/withoutQuickstep/res', 'quickstep/res', 'quickstep/recents_ui_overrides/res']
             java.srcDirs = ['quickstep/src', 'quickstep/dagger', 'quickstep/recents_ui_overrides/src', 'quickstep/src_protolog']
             kotlin.directories.addAll('quickstep/src', 'quickstep/dagger', 'quickstep/recents_ui_overrides/src', 'quickstep/src_protolog')
             manifest.srcFile "AndroidManifest.xml"
