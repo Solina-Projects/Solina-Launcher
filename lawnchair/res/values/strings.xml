@@ -324,6 +324,7 @@
     <string name="icon_sizes">Icon size</string>
 
     <string name="show_labels">Show labels</string>
+    <string name="dock_label_size">Dock label text size</string>
     <string name="label_size">Label size</string>
     <string name="twoline_label">Use multiple lines</string>
 
@@ -836,6 +837,8 @@
 
     <string name="dock_icons">Dock icons</string>
     <string name="dock_rows">Dock rows</string>
+    <string name="dock_vertical_padding">Dock row top/bottom spacing</string>
+    <string name="dock_icon_spacing">Spacing between dock icons</string>
     <string name="dock_pages">Dock pages</string>
     <string name="state_folded">%1$s (folded)</string>
     <string name="state_unfolded">%1$s (unfolded)</string>
