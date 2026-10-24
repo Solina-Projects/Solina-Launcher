@@ -26,7 +26,6 @@ import dagger.Provides;
 
 @Module(
         includes = {
-            WindowManagerProxyModule.class,
             ApiWrapperModule.class,
             PluginManagerWrapperModule.class,
             StaticObjectModule.class,
