@@ -26,10 +26,10 @@ on:
 
 
 jobs:
-  build-debug-apk:
+  build-apk:
     strategy:
       matrix:
-        build-variant: [ assembleLawnWithoutQuickstepNightlyRelease, assembleLawnWithoutQuickstepGithubDebug, assembleLawnWithoutQuickstepPlayDebug ]
+        build-variant: [ assembleLawnWithoutQuickstepGithubDebug, assembleLawnWithoutQuickstepGithubRelease ]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
@@ -79,7 +79,7 @@ jobs:
   # Status check that is required in branch protection rules.
   final-status:
     needs:
-      - build-debug-apk
+      - build-apk
       - check-style
     runs-on: ubuntu-slim
     if: always()
