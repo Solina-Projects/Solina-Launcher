@@ -31,7 +31,7 @@ jobs:
         uses: gradle/actions/setup-gradle@v6
 
       - name: Build debug APK
-        run: ./gradlew --no-daemon assembleLawnWithQuickstepGithubDebug
+        run: ./gradlew --no-daemon assembleLawnWithoutQuickstepGithubDebug
 
       - name: Upload test APK
         uses: actions/upload-artifact@v7
