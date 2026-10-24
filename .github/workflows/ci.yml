@@ -86,8 +86,8 @@ jobs:
       - name: Check
         run: |
           results=$(tr -d '\n' <<< '${{ toJSON(needs.*.result) }}')
-          if ! grep -q -v -E '(failure|cancelled)' <<< "$results"; then
-            echo "One or more required jobs failed"
+          if grep -q -E '"(failure|cancelled)"' <<< "$results"; then
+            echo "One or more required jobs failed or were cancelled"
             exit 1
           fi
           echo "All required jobs completed successfully."
