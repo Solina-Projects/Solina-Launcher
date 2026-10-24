@@ -138,6 +138,13 @@ fun DockSearchPreference(
                             if (qsbHotseatStrokeWidth.state.value > 0f) {
                                 ColorPreference(preference = prefs2.strokeColorStyle)
                             }
+                            SliderPreference(
+                                label = stringResource(id = R.string.dock_search_bar_vertical_position),
+                                adapter = prefs2.hotseatQsbVerticalOffset.getAdapter(),
+                                step = 2f,
+                                valueRange = -48f..48f,
+                                showUnit = "dp",
+                            )
                         }
                     }
                 }
