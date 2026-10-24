@@ -182,6 +182,14 @@ public class Hotseat extends FrameLayout implements Insettable {
 
         addView(mQsb);
 
+        // Apply the dock-specific search bar offset (in dp), independent of home-screen layout.
+        float qsbVerticalOffsetDp = PreferenceCacheExtensionsKt.firstCached(
+                preferenceManager2.getHotseatQsbVerticalOffset());
+        mQsb.setTranslationY(TypedValue.applyDimension(
+                TypedValue.COMPLEX_UNIT_DIP,
+                qsbVerticalOffsetDp,
+                getResources().getDisplayMetrics()));
+
         // Create an initial page so alpha/translation channels have a target during construction.
         mPagedView.resetPages(false, null, mActivity.getDeviceProfile());
 
