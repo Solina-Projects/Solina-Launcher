@@ -195,6 +195,7 @@ public class BubbleTextView extends TextView implements ItemInfoUpdateReceiver,
     private boolean mLayoutHorizontal;
     private final boolean mIsRtl;
     private final int mBaseIconSize;
+    private final float mBaseTextSize;
     private int mIconSize;
 
     @ViewDebug.ExportedProperty(category = "launcher")
@@ -318,6 +319,7 @@ public class BubbleTextView extends TextView implements ItemInfoUpdateReceiver,
         mBaseIconSize = a.getDimensionPixelSize(R.styleable.BubbleTextView_iconSizeOverride,
                 defaultIconSize);
         mIconSize = mBaseIconSize;
+        mBaseTextSize = getTextSize();
         a.recycle();
 
         mRunningAppIndicatorHeight =
@@ -1042,6 +1044,20 @@ public class BubbleTextView extends TextView implements ItemInfoUpdateReceiver,
         }
         mIconSize = newSize;
         applyCompoundDrawables(getIconOrTransparentColor());
+        requestLayout();
+        invalidate();
+    }
+
+    /**
+     * Applies a container-specific label text size without scaling the whole view.
+     */
+    public void setTextSizeFactor(float factor) {
+        float safeFactor = Math.max(0.5f, Math.min(1.5f, factor));
+        float newSize = mBaseTextSize * safeFactor;
+        if (Math.abs(getTextSize() - newSize) < 0.5f) {
+            return;
+        }
+        setTextSize(TypedValue.COMPLEX_UNIT_PX, newSize);
         requestLayout();
         invalidate();
     }
