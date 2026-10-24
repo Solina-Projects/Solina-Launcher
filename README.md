@@ -1,33 +1,30 @@
 # Solina Launcher
 
-Solina Launcher is an open-source Android home screen focused on customization, search, and a flexible everyday experience.
+Solina Launcher is the Solina-branded Android launcher project. The project name, public-facing identity, and release artifacts should use **Solina Launcher** / **solina-launcher**.
 
 ## Project goals
 
-- Solina branding and a consistent in-app experience
+- A consistent Solina-branded launcher experience
 - Home screen customization
 - App and web search
 - Backup and restore
 - Automated test APK builds
 
-## Test builds
+## Development builds
 
 Development APKs are built by GitHub Actions. These are test artifacts, not stable releases.
 
 [View build workflow](https://github.com/Solina-Projects/Solina-Launcher/actions)
 
-## Project links
+## Official project links
 
-Official website: 
+Official website: Not configured  
+Support contact: Not configured  
+Privacy policy: Not configured  
+Social accounts: Not configured
 
-Support contact: 
+## Source provenance and licensing
 
-Privacy policy: 
+The current source tree includes code derived from Android Open Source Project and other upstream open-source projects. Solina branding does not by itself make that code independently authored. Required copyright notices, license texts, and attribution must remain until the corresponding code is independently reimplemented or the applicable rights holder grants permission to remove them.
 
-Social accounts: 
-
-These destinations will remain blank until official Solina links are configured.
-
-## Open-source notices
-
-This project contains code derived from upstream open-source projects. Existing copyright notices, license files, and legally required attribution are retained in the source tree.
+Before a stable release, audit package identifiers, visible strings, icons, build metadata, dependency licenses, bundled notices, and source provenance. Any replacement of upstream implementation must preserve behavior, pass build and automated tests, and be reviewed before release.
