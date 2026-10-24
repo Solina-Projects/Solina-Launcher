@@ -25,6 +25,6 @@ Social accounts: Not configured
 
 ## Source provenance and licensing
 
-The current source tree includes code derived from Android Open Source Project and other upstream open-source projects. Solina branding does not by itself make that code independently authored. Required copyright notices, license texts, and attribution must remain until the corresponding code is independently reimplemented or the applicable rights holder grants permission to remove them.
+The current source tree includes code derived from Android Open Source Project Launcher3, Lawnchair, and other upstream open-source projects. Solina branding does not make inherited code independently authored. Required copyright notices, license texts, and attribution must remain unless the corresponding code is independently reimplemented or the relevant rights holder grants permission to remove them.
 
 Before a stable release, audit package identifiers, visible strings, icons, build metadata, dependency licenses, bundled notices, and source provenance. Any replacement of upstream implementation must preserve behavior, pass build and automated tests, and be reviewed before release.
