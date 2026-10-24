@@ -85,7 +85,7 @@
 
         <activity
             android:label="@string/lawnchair_actions"
-            android:icon="@mipmap/ic_launcher_home"
+            android:icon="@mipmap/solina_launcher_icon"
             android:name="app.lawnchair.gestures.ui.LawnchairShortcutActivity"
             android:exported="true"
             android:theme="@style/Theme.Lawnchair">

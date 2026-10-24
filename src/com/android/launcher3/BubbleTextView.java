@@ -194,7 +194,9 @@ public class BubbleTextView extends TextView implements ItemInfoUpdateReceiver,
 
     private boolean mLayoutHorizontal;
     private final boolean mIsRtl;
-    private final int mIconSize;
+    private final int mBaseIconSize;
+    private final float mBaseTextSize;
+    private int mIconSize;
 
     @ViewDebug.ExportedProperty(category = "launcher")
     private boolean mHideBadge = false;
@@ -314,8 +316,10 @@ public class BubbleTextView extends TextView implements ItemInfoUpdateReceiver,
         }
         FontManager.INSTANCE.get(context).overrideFont(this, attrs);
 
-        mIconSize = a.getDimensionPixelSize(R.styleable.BubbleTextView_iconSizeOverride,
+        mBaseIconSize = a.getDimensionPixelSize(R.styleable.BubbleTextView_iconSizeOverride,
                 defaultIconSize);
+        mIconSize = mBaseIconSize;
+        mBaseTextSize = getTextSize();
         a.recycle();
 
         mRunningAppIndicatorHeight =
@@ -1026,6 +1030,36 @@ public class BubbleTextView extends TextView implements ItemInfoUpdateReceiver,
 
     public boolean hasDot() {
         return mDotInfo != null;
+    }
+
+    /**
+     * Applies a container-specific icon-size factor without scaling the label text or touch view.
+     * The base size already includes the workspace's global factor, so the dock passes a ratio
+     * that compensates for it.
+     */
+    public void setIconSizeFactor(float factor) {
+        int newSize = Math.max(1, Math.round(mBaseIconSize * factor));
+        if (newSize == mIconSize) {
+            return;
+        }
+        mIconSize = newSize;
+        applyCompoundDrawables(getIconOrTransparentColor());
+        requestLayout();
+        invalidate();
+    }
+
+    /**
+     * Applies a container-specific label text size without scaling the whole view.
+     */
+    public void setTextSizeFactor(float factor) {
+        float safeFactor = Math.max(0.5f, Math.min(1.5f, factor));
+        float newSize = mBaseTextSize * safeFactor;
+        if (Math.abs(getTextSize() - newSize) < 0.5f) {
+            return;
+        }
+        setTextSize(TypedValue.COMPLEX_UNIT_PX, newSize);
+        requestLayout();
+        invalidate();
     }
 
     /**

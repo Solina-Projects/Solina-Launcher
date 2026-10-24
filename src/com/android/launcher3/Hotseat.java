@@ -182,6 +182,8 @@ public class Hotseat extends FrameLayout implements Insettable {
 
         addView(mQsb);
 
+        applyQsbVerticalOffset();
+
         // Create an initial page so alpha/translation channels have a target during construction.
         mPagedView.resetPages(false, null, mActivity.getDeviceProfile());
 
@@ -199,6 +201,15 @@ public class Hotseat extends FrameLayout implements Insettable {
         setUpBackground();
         setClipChildren(false);
         setClipToPadding(false);
+    }
+
+    private void applyQsbVerticalOffset() {
+        float offsetDp = PreferenceCacheExtensionsKt.firstCached(
+                preferenceManager2.getHotseatQsbVerticalOffset());
+        mQsb.setTranslationY(TypedValue.applyDimension(
+                TypedValue.COMPLEX_UNIT_DIP,
+                offsetDp,
+                getResources().getDisplayMetrics()));
     }
 
     private void setUpBackground() {
@@ -425,6 +436,7 @@ public class Hotseat extends FrameLayout implements Insettable {
         Rect padding = grid.getHotseatLayoutPadding(getContext());
         setPadding(padding.left, padding.top, padding.right, padding.bottom);
         setLayoutParams(lp);
+        applyQsbVerticalOffset();
         InsettableFrameLayout.dispatchInsets(this, insets);
     }
 

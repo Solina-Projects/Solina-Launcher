@@ -151,8 +151,8 @@ android {
     namespace "com.android.launcher3"
     defaultConfig {
         /*
-         * Lawnchair Launcher 16.0 Beta 1.0
-         * see https://docs.lawnchair.app/developers/standards/development-workflow#versioning-scheme
+         * Solina Launcher development build
+         * see the project release notes for versioning details
          */
         versionCode 16_00_02_01_00
         versionName "${versionDisplayName}"
@@ -227,7 +227,7 @@ android {
 
         debug {
             applicationIdSuffix ".debug"
-            resValue("string", "derived_app_name", "Lawnchair (Debug)")
+            resValue("string", "derived_app_name", "Solina Launcher (Debug)")
 
             manifestPlaceholders.quickstepMinSdk = "0"
             manifestPlaceholders.quickstepMaxSdk = "100000"
@@ -236,7 +236,7 @@ android {
         }
 
         release {
-            resValue("string", "derived_app_name", "Lawnchair")
+            resValue("string", "derived_app_name", "Solina Launcher")
             minifyEnabled true
             shrinkResources true
             pseudoLocalesEnabled false
@@ -257,7 +257,7 @@ android {
     flavorDimensions += ["app", "recents", "channel"]
 
     productFlavors {
-        lawn {
+        solina {
             dimension "app"
         }
 
@@ -266,18 +266,24 @@ android {
             minSdk = 26
         }
 
+        // Solina's standalone launcher build without Quickstep/Recents integration.
+        withoutQuickstep {
+            dimension "recents"
+            minSdk = 26
+        }
+
         github {
-            applicationId 'app.lawnchair'
+            applicationId 'app.solina.launcher'
             dimension "channel"
         }
 
         nightly {
-            applicationId 'app.lawnchair.nightly'
+            applicationId 'app.solina.launcher.nightly'
             dimension "channel"
         }
 
         play {
-            applicationId "app.lawnchair.play"
+            applicationId "app.solina.launcher.play"
             dimension "channel"
             isDefault true
         }
@@ -291,7 +297,7 @@ android {
         main {
             res.srcDirs = ['res']
 
-            // Lawnchair-TODO: Don't include Compose Disabled, but there's has to be another way of making this NOT long
+            // TODO: Avoid including Compose Disabled without expanding the variant configuration.
             java.srcDirs = ['src', 'src_plugins', 'compose/facade/core', 'compose/facade/enabled', 'compose/features']
             kotlin.directories.addAll('src', 'src_plugins', 'compose/facade/core', 'compose/facade/enabled', 'compose/features')
 
@@ -301,7 +307,7 @@ android {
             }
         }
 
-        lawn {
+        solina {
             java.srcDirs = ['src_flags', 'src_shortcuts_overrides', 'lawnchair/src', 'tests/shared']
             kotlin.directories.addAll('src_flags', 'src_shortcuts_overrides', 'lawnchair/src', 'tests/shared')
             aidl.srcDirs = ['lawnchair/aidl']
@@ -324,16 +330,38 @@ android {
             res.srcDirs = ["nightly/res"]
         }
 
-        lawnWithQuickstepGithub {
+        solinaWithQuickstepGithub {
             manifest.srcFile "quickstep/AndroidManifest-launcher.xml"
         }
 
-        lawnWithQuickstepNightly {
+        solinaWithQuickstepNightly {
             manifest.srcFile "quickstep/AndroidManifest-launcher.xml"
         }
 
-        lawnWithQuickstepPlay {
+        solinaWithQuickstepPlay {
             manifest.srcFile "quickstep/AndroidManifest-launcher.xml"
+        }
+
+        // Use the standard Launcher3 manifest for variants without Quickstep.
+        solinaWithoutQuickstepGithub {
+            manifest.srcFile "AndroidManifest.xml"
+        }
+
+        solinaWithoutQuickstepNightly {
+            manifest.srcFile "AndroidManifest.xml"
+        }
+
+        solinaWithoutQuickstepPlay {
+            manifest.srcFile "AndroidManifest.xml"
+        }
+
+        // Compile compatibility sources needed by shared Launcher3/Dagger code, but do not
+        // merge the Quickstep manifest into standalone variants.
+        withoutQuickstep {
+            res.srcDirs = ['src/withoutQuickstep/res', 'quickstep/res', 'quickstep/recents_ui_overrides/res']
+            java.srcDirs = ['quickstep/src', 'quickstep/dagger', 'quickstep/recents_ui_overrides/src', 'quickstep/src_protolog']
+            kotlin.directories.addAll('quickstep/src', 'quickstep/dagger', 'quickstep/recents_ui_overrides/src', 'quickstep/src_protolog')
+            manifest.srcFile "AndroidManifest.xml"
         }
 
         withQuickstep {
@@ -349,10 +377,10 @@ androidComponents {
     onVariants(selector().all()) { variant ->
         def channel = variant.productFlavors.last().second
         variant.outputs.forEach { output ->
-            output.outputFileName.set("Lawnchair.${output.versionName.get()}.$channel.${variant.buildType}.apk")
+            output.outputFileName.set("solina-launcher.${output.versionName.get()}.$channel.${variant.buildType}.apk")
         }
 
-        // Lawnchair-TODO: A better way to sync proto file to the IDE preventing missing or outdated result. Please remove if this is the best solution we have right now
+        // TODO: Improve IDE synchronization for generated proto files.
         def capitalizedVariantName = variant.name.substring(0, 1).toUpperCase(java.util.Locale.ROOT) + variant.name.substring(1)
         def generatedProtoJavaDir = layout.buildDirectory
             .dir("generated/java/generate${capitalizedVariantName}Proto/java")
@@ -386,6 +414,32 @@ dependencies {
     implementation projects.viewcapturelib
     implementation projects.displaylib
     implementation projects.mechanics
+    // Required by shared launcher code in both Quickstep and standalone variants.
+    implementation projects.dagger
+    implementation projects.modules.widgetpicker
+
+    // Compile Quickstep support code required by shared launcher classes, without its manifest integration.
+    withoutQuickstepCompileOnly projects.hiddenApi
+    withoutQuickstepImplementation projects.shared
+    withoutQuickstepImplementation projects.animation
+    withoutQuickstepImplementation projects.unfold
+    withoutQuickstepImplementation projects.log
+    withoutQuickstepCompileOnly projects.plugin
+    withoutQuickstepImplementation projects.plugincore
+    withoutQuickstepCompileOnly projects.common
+    withoutQuickstepCompileOnly projects.utils
+    withoutQuickstepImplementation projects.compatLib
+    withoutQuickstepImplementation projects.compatLib.compatLibVQ
+    withoutQuickstepImplementation projects.compatLib.compatLibVR
+    withoutQuickstepImplementation projects.compatLib.compatLibVS
+    withoutQuickstepImplementation projects.compatLib.compatLibVT
+    withoutQuickstepImplementation projects.compatLib.compatLibVU
+    withoutQuickstepImplementation projects.compatLib.compatLibVV
+    withoutQuickstepImplementation projects.compatLib.compatLibVBaklava
+    withoutQuickstepImplementation projects.wmshell
+    withoutQuickstepImplementation projects.flags
+    withoutQuickstepImplementation projects.concurrent
+    withoutQuickstepCompileOnly fileTree(dir: FRAMEWORK_PREBUILTS_DIR, include: 'framework-16.jar')
 
     // Recents lib dependency
     withQuickstepCompileOnly projects.hiddenApi
@@ -409,10 +463,8 @@ dependencies {
     withQuickstepImplementation projects.compatLib.compatLibVBaklava
     withQuickstepImplementation projects.wmshell
     withQuickstepImplementation projects.flags
-    withQuickstepImplementation projects.dagger
     withQuickstepImplementation projects.concurrent
 //    withQuickstepImplementation projects.compose
-    withQuickstepImplementation projects.modules.widgetpicker
     implementation libs.androidx.dynamicanimation
 
     implementation fileTree(dir: FRAMEWORK_PREBUILTS_DIR, include: 'SystemUI-statsd-16.jar')
@@ -496,8 +548,6 @@ dependencies {
 
     implementation libs.androidx.exifinterface
 
-    debugImplementation libs.leakcanary.android
-    debugImplementation libs.leakcanary.androidstudio
 }
 
 ksp {

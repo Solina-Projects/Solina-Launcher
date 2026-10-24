@@ -1,15 +1,13 @@
-Lawnchair 15 Beta 3 is here!
+# Solina Launcher — Release notes
 
-This release contains support for importing backups from Nova Launcher, which currently restores:
+Release notes for each Solina Launcher build will be added here after changes have been reviewed and tested.
 
-• Icon grid layout in home screen and dock
-• Widgets and folders
-• Selected icon pack
+## Current status
 
-To access this feature, open Home settings, tap the three-dots at the top right, and select "Restore Nova backup".
+- Development project
+- Test APK builds only
+- No stable release published
 
-Alongside that, this release contains miscellaneous bug fixes and performance improvements.
+## Changes
 
-[Donate on Open Collective](https://opencollective.com/lawnchair)
-
-Full changelog: https://github.com/LawnchairLauncher/lawnchair/compare/v15.0.0-beta2.1...v15.0.0-beta3
+- To be completed for the first reviewed Solina release.

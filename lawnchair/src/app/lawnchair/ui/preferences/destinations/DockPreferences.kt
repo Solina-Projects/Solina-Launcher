@@ -82,10 +82,27 @@ fun DockPreferences(modifier: Modifier = Modifier) {
             SearchBarPreference(SearchRoute.DOCK_SEARCH)
             GridSettings(prefs, prefs2)
             PreferenceGroup(heading = stringResource(id = R.string.icons)) {
+                SliderPreference(
+                    label = stringResource(id = R.string.icon_sizes),
+                    adapter = prefs2.hotseatIconSizeFactor.getAdapter(),
+                    step = 0.1f,
+                    valueRange = 0.5F..1.5F,
+                    showAsPercentage = true,
+                )
+                val dockLabelsAdapter = prefs2.enableLabelInDock.getAdapter()
                 SwitchPreference(
-                    adapter = prefs2.enableLabelInDock.getAdapter(),
+                    adapter = dockLabelsAdapter,
                     label = stringResource(id = R.string.show_labels),
                 )
+                ExpandAndShrink(visible = dockLabelsAdapter.state.value) {
+                    SliderPreference(
+                        label = stringResource(id = R.string.dock_label_size),
+                        adapter = prefs2.hotseatIconLabelSizeFactor.getAdapter(),
+                        step = 0.1f,
+                        valueRange = 0.5F..1.5F,
+                        showAsPercentage = true,
+                    )
+                }
             }
         }
     }
@@ -181,8 +198,24 @@ fun GridSettings(prefs: PreferenceManager, prefs2: PreferenceManager2) {
             label = stringResource(id = R.string.dock_rows),
             adapter = hotseatRowsAdapter,
             step = 1,
-            valueRange = 1..2,
+            valueRange = 1..3,
         )
+        SliderPreference(
+            label = stringResource(id = R.string.dock_vertical_padding),
+            adapter = prefs2.hotseatVerticalPaddingDp.getAdapter(),
+            step = 2f,
+            valueRange = 0f..32f,
+            showUnit = "dp",
+        )
+        ExpandAndShrink(visible = hotseatRowsAdapter.state.value > 1) {
+            SliderPreference(
+                label = stringResource(id = R.string.dock_icon_spacing),
+                adapter = prefs2.hotseatIconSpacingFactor.getAdapter(),
+                step = 0.1f,
+                valueRange = 0.5f..2.0f,
+                showAsPercentage = true,
+            )
+        }
         SliderPreference(
             label = stringResource(id = R.string.dock_pages),
             adapter = dockPagesAdapter,
