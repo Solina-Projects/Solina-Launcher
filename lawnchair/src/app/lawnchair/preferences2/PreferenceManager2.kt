@@ -509,11 +509,11 @@ class PreferenceManager2 @Inject constructor(
         onSet = { reloadHelper.reloadGrid() },
     )
 
-    // Vertical offset in dp for the dock search bar. Recreate to reapply the view offset.
+    // Vertical offset in dp for the dock search bar; refresh the launcher grid when changed.
     val hotseatQsbVerticalOffset = preference(
         key = floatPreferencesKey(name = "hotseat_qsb_vertical_offset"),
         defaultValue = 0.0f,
-        onSet = { reloadHelper.recreate() },
+        onSet = { reloadHelper.reloadGrid() },
     )
 
     val folderPreviewBackgroundOpacity = preference(
