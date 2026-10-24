@@ -349,7 +349,7 @@ androidComponents {
     onVariants(selector().all()) { variant ->
         def channel = variant.productFlavors.last().second
         variant.outputs.forEach { output ->
-            output.outputFileName.set("SolinaLauncher.${output.versionName.get()}.$channel.${variant.buildType}.apk")
+            output.outputFileName.set("solina-launcher.${output.versionName.get()}.$channel.${variant.buildType}.apk")
         }
 
         // TODO: Improve IDE synchronization for generated proto files.
