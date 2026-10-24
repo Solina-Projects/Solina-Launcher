@@ -795,8 +795,20 @@ public class CellLayout extends ViewGroup {
             bubbleChild.setTextVisibility(enableLabel);
         }
 
-        child.setScaleX(DEFAULT_SCALE);
-        child.setScaleY(DEFAULT_SCALE);
+        float childScale = DEFAULT_SCALE;
+        if (mContainerType == HOTSEAT && child instanceof BubbleTextView) {
+            // The home-screen factor also affects the base workspace icon size. Compensate for
+            // that factor here so the dock's own slider remains independent.
+            float homeIconFactor = PreferenceCacheExtensionsKt.firstCached(
+                    pref.getHomeIconSizeFactor());
+            float dockIconFactor = PreferenceCacheExtensionsKt.firstCached(
+                    pref.getHotseatIconSizeFactor());
+            if (homeIconFactor > 0f) {
+                childScale *= dockIconFactor / homeIconFactor;
+            }
+        }
+        child.setScaleX(childScale);
+        child.setScaleY(childScale);
 
         // Generate an id for each view, this assumes we have at most 256x256 cells
         // per workspace screen
