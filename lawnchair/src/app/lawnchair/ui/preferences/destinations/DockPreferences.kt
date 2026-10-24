@@ -82,6 +82,13 @@ fun DockPreferences(modifier: Modifier = Modifier) {
             SearchBarPreference(SearchRoute.DOCK_SEARCH)
             GridSettings(prefs, prefs2)
             PreferenceGroup(heading = stringResource(id = R.string.icons)) {
+                SliderPreference(
+                    label = stringResource(id = R.string.icon_sizes),
+                    adapter = prefs2.hotseatIconSizeFactor.getAdapter(),
+                    step = 0.1f,
+                    valueRange = 0.5F..1.5F,
+                    showAsPercentage = true,
+                )
                 SwitchPreference(
                     adapter = prefs2.enableLabelInDock.getAdapter(),
                     label = stringResource(id = R.string.show_labels),
