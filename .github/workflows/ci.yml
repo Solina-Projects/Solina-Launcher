@@ -71,7 +71,10 @@ jobs:
           distribution: 'zulu'
           java-version: 21
       - uses: gradle/actions/setup-gradle@v6
-      - run: ./gradlew spotlessCheck
+      - name: Check code formatting
+        run: ./gradlew --no-daemon spotlessCheck
+      - name: Audit dependency licenses
+        run: ./gradlew --no-daemon licensee
 
   # Status check that is required in branch protection rules.
   final-status:
