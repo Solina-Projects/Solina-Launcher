@@ -29,7 +29,7 @@ jobs:
   build-apk:
     strategy:
       matrix:
-        build-variant: [ assembleLawnWithoutQuickstepGithubDebug, assembleLawnWithoutQuickstepGithubRelease ]
+        build-variant: [ assembleSolinaWithoutQuickstepGithubDebug, assembleSolinaWithoutQuickstepGithubRelease ]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
