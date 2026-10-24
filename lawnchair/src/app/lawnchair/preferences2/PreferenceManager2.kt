@@ -502,6 +502,20 @@ class PreferenceManager2 @Inject constructor(
         onSet = { reloadHelper.reloadGrid() },
     )
 
+    // Independent dock icon scale; do not reuse the home-screen setting.
+    val hotseatIconSizeFactor = preference(
+        key = floatPreferencesKey(name = "hotseat_icon_size_factor"),
+        defaultValue = 1.0f,
+        onSet = { reloadHelper.reloadGrid() },
+    )
+
+    // Vertical offset in dp for the dock search bar. Recreate to reapply the view offset.
+    val hotseatQsbVerticalOffset = preference(
+        key = floatPreferencesKey(name = "hotseat_qsb_vertical_offset"),
+        defaultValue = 0.0f,
+        onSet = { reloadHelper.recreate() },
+    )
+
     val folderPreviewBackgroundOpacity = preference(
         key = floatPreferencesKey(name = "folder_preview_background_opacity"),
         defaultValue = resourceProvider.getFloat(R.dimen.config_default_folder_preview_background_opacity),
