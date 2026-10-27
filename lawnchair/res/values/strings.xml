@@ -1125,4 +1125,24 @@
     <string name="smart_category_shopping">Shopping and finance</string>
     <string name="smart_category_tools">Tools</string>
 
+
+    <string name="app_lock_title">App lock</string>
+    <string name="app_lock_description">Require your device screen lock before opening selected apps from Solina Launcher.</string>
+    <string name="app_lock_unlock_title">Unlock app</string>
+    <string name="app_lock_unlock_subtitle">Authenticate to open this app.</string>
+    <string name="app_lock_unavailable">Secure device authentication is not configured. Set a screen lock in Android settings.</string>
+    <string name="app_lock_apps_heading">Choose apps to lock</string>
+    <string name="app_lock_empty">No launchable apps were found.</string>
+    <string name="smart_categories_title">Smart app categories</string>
+    <string name="smart_categories_description">Create and refresh folders based on app types detected by Solina. Existing folders are kept.</string>
+    <string name="smart_categories_create">Create or refresh smart folders</string>
+    <string name="smart_categories_done">Smart folders updated.</string>
+    <string name="smart_category_social">Social</string>
+    <string name="smart_category_communication">Communication</string>
+    <string name="smart_category_media">Media</string>
+    <string name="smart_category_games">Games</string>
+    <string name="smart_category_productivity">Productivity</string>
+    <string name="smart_category_shopping">Shopping and finance</string>
+    <string name="smart_category_tools">Tools</string>
+
 </resources>

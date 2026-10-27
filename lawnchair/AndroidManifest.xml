@@ -56,7 +56,7 @@
         android:name="${packageName}.permission.HOTSEAT_EDU"
         tools:node="remove" />
 
-    <application>
+    <application android:localeConfig="@xml/solina_locales_config">
         <meta-data
             android:name="preloaded_fonts"
             android:resource="@array/preloaded_fonts" />
@@ -227,6 +227,10 @@
                 android:name="android.appwidget.provider"
                 android:resource="@xml/solina_persian_calendar_widget_info" />
         </receiver>
-
+        <activity
+            android:name="app.lawnchair.security.AppUnlockActivity"
+            android:exported="false"
+            android:excludeFromRecents="true"
+            android:theme="@style/Theme.Lawnchair" />
     </application>
 </manifest>

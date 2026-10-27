@@ -26,6 +26,7 @@ import app.lawnchair.ui.preferences.components.colorpreference.ColorSelection
 import app.lawnchair.ui.preferences.components.search.SearchProviderId
 import app.lawnchair.ui.preferences.components.search.SearchProviderPreferenceScreen
 import app.lawnchair.ui.preferences.destinations.AppDrawerFoldersPreference
+import app.lawnchair.ui.preferences.destinations.AppLockPreferences
 import app.lawnchair.ui.preferences.destinations.AppDrawerPreferences
 import app.lawnchair.ui.preferences.destinations.BackupAndRestorePreference
 import app.lawnchair.ui.preferences.destinations.CustomIconShapePreference
@@ -197,6 +198,10 @@ fun PreferenceNavigation(
         composable<Gestures>(
             deepLinks = getDeepLink(Gestures),
         ) { GesturePreferences() }
+
+        composable<AppLock>(
+            deepLinks = getDeepLink(AppLock),
+        ) { AppLockPreferences() }
         composable<GesturesPickApp> { PickAppForGesture() }
 
         composable<Quickstep>(

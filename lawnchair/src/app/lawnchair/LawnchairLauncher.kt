@@ -40,6 +40,9 @@ import app.lawnchair.gestures.VerticalSwipeTouchController
 import app.lawnchair.gestures.config.GestureHandlerConfig
 import app.lawnchair.gestures.ui.LawnchairShortcutActivity
 import app.lawnchair.nexuslauncher.OverlayCallbackImpl
+import app.lawnchair.security.AppLockStore
+import app.lawnchair.security.AppUnlockActivity
+import com.android.launcher3.model.data.ItemInfo
 import app.lawnchair.preferences.PreferenceManager
 import app.lawnchair.preferences2.PreferenceManager2
 import app.lawnchair.preferences2.firstCached
@@ -96,6 +99,18 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 
 class LawnchairLauncher : QuickstepLauncher() {
+    override fun startActivitySafely(v: View?, intent: Intent?, item: ItemInfo?): RunnableList? {
+        val packageName = intent?.component?.packageName
+        if (packageName != null && AppLockStore.isLocked(this, packageName)) {
+            startActivity(
+                Intent(this, AppUnlockActivity::class.java)
+                    .putExtra(AppUnlockActivity.EXTRA_TARGET_INTENT, intent),
+            )
+            return RunnableList()
+        }
+        return super.startActivitySafely(v, intent, item)
+    }
+
     private val defaultOverlay by unsafeLazy { OverlayCallbackImpl(this) }
     private val prefs by unsafeLazy { PreferenceManager.getInstance(this) }
     private val preferenceManager2 by unsafeLazy { PreferenceManager2.getInstance(this) }

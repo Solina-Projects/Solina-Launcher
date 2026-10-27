@@ -88,6 +88,11 @@ data object Gestures : PreferenceRootRoute, PreferenceDeepLink {
 }
 
 @Serializable
+data object AppLock : PreferenceRootRoute, PreferenceDeepLink {
+    override val deepLink = "$URI/app-lock"
+}
+
+@Serializable
 data object Smartspace : PreferenceRootRoute, PreferenceDeepLink {
     override val deepLink = "$URI/smartspace"
 }

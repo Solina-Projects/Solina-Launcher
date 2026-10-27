@@ -71,6 +71,7 @@ import app.lawnchair.ui.preferences.components.layout.PreferenceLayout
 import app.lawnchair.ui.preferences.components.layout.PreferenceTemplate
 import app.lawnchair.ui.preferences.components.layout.ProvideDescriptionTextStyle
 import app.lawnchair.ui.preferences.data.liveinfo.SyncLiveInformation
+import app.lawnchair.ui.preferences.navigation.AppLock
 import app.lawnchair.ui.preferences.navigation.About
 import app.lawnchair.ui.preferences.navigation.AppDrawer
 import app.lawnchair.ui.preferences.navigation.BackupAndRestore
@@ -198,6 +199,14 @@ fun PreferencesDashboard(
                 iconResource = R.drawable.ic_gestures,
                 onNavigate = { onNavigate(Gestures) },
                 isSelected = currentRoute is Gestures,
+            )
+
+            PreferenceCategory(
+                label = stringResource(R.string.app_lock_title),
+                description = stringResource(R.string.app_lock_description),
+                iconResource = R.drawable.ic_gestures,
+                onNavigate = { onNavigate(AppLock) },
+                isSelected = currentRoute is AppLock,
             )
 
             ExpandAndShrink(
