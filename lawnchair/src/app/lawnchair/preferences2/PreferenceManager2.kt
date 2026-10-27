@@ -591,7 +591,7 @@ class PreferenceManager2 @Inject constructor(
     val dockIconLabelColor = preference(
         key = stringPreferencesKey(name = "dock_icon_label_color"),
         parse = ColorOption::fromString,
-        save = ColorOption.toString,
+        save = { it.toString() },
         defaultValue = ColorOption.Default,
         onSet = { reloadHelper.reloadGrid() },
     )
