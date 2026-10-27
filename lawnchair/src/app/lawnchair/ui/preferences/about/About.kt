@@ -28,16 +28,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredHeight
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
@@ -51,18 +45,13 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import app.lawnchair.preferences.PreferenceManager
 import app.lawnchair.ui.preferences.LocalIsExpandedScreen
 import app.lawnchair.ui.preferences.components.NavigationActionPreference
-import app.lawnchair.ui.preferences.components.controls.ClickablePreference
-import app.lawnchair.ui.preferences.components.layout.PreferenceDivider
 import app.lawnchair.ui.preferences.components.layout.PreferenceGroupHeading
 import app.lawnchair.ui.preferences.components.layout.PreferenceGroupItem
 import app.lawnchair.ui.preferences.components.layout.PreferenceLayoutLazyColumn
-import app.lawnchair.ui.preferences.components.layout.preferenceGroupItems
 import app.lawnchair.ui.preferences.navigation.AboutLicenses
 import com.android.launcher3.BuildConfig
 import com.android.launcher3.R
-import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun About(
     modifier: Modifier = Modifier,
@@ -71,31 +60,7 @@ fun About(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
 
-    val sheetState = rememberModalBottomSheetState(true)
-    var openBottomSheet by remember { mutableStateOf(false) }
-    val scope = rememberCoroutineScope()
-
     val prefs: PreferenceManager = PreferenceManager.getInstance(context)
-
-    if (openBottomSheet) {
-        val updateState = uiState.updateState
-        if (updateState is UpdateState.Available) {
-            ChangesDialog(
-                changelogState = updateState.changelogState,
-                onDismiss = {
-                    scope.launch {
-                        sheetState.hide()
-                    }.invokeOnCompletion {
-                        openBottomSheet = false
-                    }
-                },
-                onDownload = {
-                    viewModel.downloadUpdate()
-                },
-                sheetState = sheetState,
-            )
-        }
-    }
 
     PreferenceLayoutLazyColumn(
         label = stringResource(id = R.string.about_label),
@@ -151,35 +116,12 @@ fun About(
                             onClick = {},
                             onLongClick = {
                                 val commitUrl =
-                                    "https://github.com/Solina-Projects/Solina-Launcher2/commit/${BuildConfig.COMMIT_HASH}"
+                                    "https://github.com/Solina-Projects/Solina-Launcher/commit/${BuildConfig.COMMIT_HASH}"
                                 context.startActivity(Intent(Intent.ACTION_VIEW, commitUrl.toUri()))
                             },
                         ),
                 )
             }
-        }
-        item {
-            Spacer(modifier = Modifier.height(8.dp))
-        }
-        item {
-            UpdateSection(
-                updateState = uiState.updateState,
-                onInstall = {
-                    viewModel.installUpdate(it)
-                },
-                onForceInstall = {
-                    viewModel.installUpdate(it, forceInstall = true)
-                },
-                onViewChanges = {
-                    openBottomSheet = true
-                    scope.launch {
-                        sheetState.show()
-                    }
-                },
-                onDismissMajorUpdate = {
-                    viewModel.resetToDownloaded(it)
-                },
-            )
         }
         item {
             Spacer(modifier = Modifier.requiredHeight(16.dp))
@@ -200,42 +142,6 @@ fun About(
                 }
             }
         }
-        preferenceGroupItems(
-            items = uiState.coreTeam,
-            isFirstChild = false,
-            heading = { stringResource(id = R.string.product) },
-            key = { _, it -> it.name },
-        ) { _, it ->
-            ContributorRow(
-                member = it,
-            )
-        }
-        if (uiState.supportAndPr.isNotEmpty()) {
-            preferenceGroupItems(
-                items = uiState.supportAndPr,
-                isFirstChild = false,
-                heading = { stringResource(id = R.string.support_and_pr) },
-                key = { _, it -> it.name },
-            ) { _, it ->
-                ContributorRow(
-                    member = it,
-                )
-            }
-        }
-        if (uiState.bottomLinks.isNotEmpty()) {
-            preferenceGroupItems(
-                items = uiState.bottomLinks,
-                isFirstChild = false,
-                heading = { stringResource(id = R.string.community) },
-                key = { _, it -> it.labelResId },
-            ) { _, it ->
-                HorizontalLawnchairLink(
-                    iconResId = it.iconResId,
-                    label = stringResource(id = it.labelResId),
-                    url = it.url,
-                )
-            }
-        }
         item {
             PreferenceGroupHeading(
                 stringResource(R.string.legal),
@@ -244,7 +150,7 @@ fun About(
         item {
             PreferenceGroupItem(
                 cutTop = false,
-                cutBottom = true,
+                cutBottom = false,
             ) {
                 NavigationActionPreference(
                     label = stringResource(id = R.string.acknowledgements),
@@ -252,48 +158,5 @@ fun About(
                 )
             }
         }
-        item {
-            Spacer(Modifier.height(3.dp))
-        }
-        item {
-            PreferenceGroupItem(
-                cutTop = true,
-                cutBottom = true,
-            ) {
-                ClickablePreference(
-                    label = stringResource(id = R.string.privacy_policy),
-                    onClick = {
-                        val webpage = PRIVACY_POLICY.toUri()
-                        val intent = Intent(Intent.ACTION_VIEW, webpage)
-                        if (intent.resolveActivity(context.packageManager) != null) {
-                            context.startActivity(intent)
-                        }
-                    },
-                )
-            }
-        }
-        item {
-            Spacer(Modifier.height(3.dp))
-        }
-        item {
-            PreferenceGroupItem(
-                cutTop = true,
-                cutBottom = false,
-            ) {
-                ClickablePreference(
-                    label = stringResource(id = R.string.source_and_licenses),
-                    onClick = {
-                        val webpage = NOTICE_URL.toUri()
-                        val intent = Intent(Intent.ACTION_VIEW, webpage)
-                        if (intent.resolveActivity(context.packageManager) != null) {
-                            context.startActivity(intent)
-                        }
-                    },
-                )
-            }
-        }
     }
 }
-
-private const val NOTICE_URL = "https://github.com/Solina-Projects/Solina-Launcher2/blob/main/NOTICE.md"
-private const val PRIVACY_POLICY = "https://github.com/Solina-Projects/Solina-Launcher2/blob/main/PRIVACY.md"

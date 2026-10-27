@@ -86,7 +86,7 @@ fun DockPreferences(modifier: Modifier = Modifier) {
                     label = stringResource(id = R.string.icon_sizes),
                     adapter = prefs2.hotseatIconSizeFactor.getAdapter(),
                     step = 0.1f,
-                    valueRange = 0.5f..1.5f,
+                    valueRange = 0.5F..1.5F,
                     showAsPercentage = true,
                 )
                 val dockLabelsAdapter = prefs2.enableLabelInDock.getAdapter()
@@ -99,7 +99,7 @@ fun DockPreferences(modifier: Modifier = Modifier) {
                         label = stringResource(id = R.string.dock_label_size),
                         adapter = prefs2.hotseatIconLabelSizeFactor.getAdapter(),
                         step = 0.1f,
-                        valueRange = 0.5f..1.5f,
+                        valueRange = 0.5F..1.5F,
                         showAsPercentage = true,
                     )
                     ColorPreference(preference = prefs2.dockIconLabelColor)

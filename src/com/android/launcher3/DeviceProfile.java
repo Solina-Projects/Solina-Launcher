@@ -519,7 +519,7 @@ public class DeviceProfile {
         boolean isQsbEnable = hotseatMode.getLayoutResourceId() != R.layout.empty_view;
 
         numShownHotseatIcons = displayOptionSpec.numShownHotseatIcons;
-        numHotseatRows = Math.max(1, Math.min(3, PreferenceManager.getInstance(context).getHotseatRows().get()));
+        numHotseatRows = Math.max(1, Math.min(2, PreferenceManager.getInstance(context).getHotseatRows().get()));
         numHotseatPages = Math.max(1, Math.min(5, PreferenceManager.getInstance(context).getDockPages().get()));
         mHotseatColumnSpan = inv.numColumns;
 
@@ -907,8 +907,6 @@ public class DeviceProfile {
         hotseatQsbSpace += isQsbEnable && isLabelInDock ? (iconTextHeight / 2) : 0;
         
         int space = Math.abs(hotseatCellHeightPx / 2) - 16;
-        int verticalPadding = Math.round(PreferenceCacheExtensionsKt.firstCached(
-                preferenceManager2.getHotseatVerticalPaddingDp()) * mMetrics.density);
 
         hotseatBarBottomSpacePx *= PreferenceCacheExtensionsKt
             .firstCached(preferenceManager2.getHotseatBottomFactor());
@@ -919,24 +917,24 @@ public class DeviceProfile {
         if (isVerticalBarLayout()) {
             hotseatBarSizePx = hotseatIconSizePx + getHotseatProfile().getBarEdgePaddingPx()
                     + getHotseatProfile().getBarWorkspaceSpacePx()
-                    + space + verticalPadding * 2;
+                    + space;
         } else if (isQsbInline) {
             hotseatBarSizePx = Math.max(hotseatIconSizePx, getHotseatProfile().getQsbVisualHeight())
                     + hotseatBarBottomSpacePx
-                    + extraRowsHeight + verticalPadding * 2;
+                    + extraRowsHeight;
         } else if (isQsbOnTop()) { // LC-Note: isQsbOnTop, this usually is a foldable device, not a tablet
             hotseatBarSizePx = hotseatIconSizePx
                     + hotseatQsbSpace
                     + getHotseatProfile().getQsbVisualHeight()
                     + hotseatBarBottomSpacePx
-                    + extraRowsHeight + verticalPadding * 2;
+                    + extraRowsHeight;
         } else {
             hotseatBarSizePx = hotseatIconSizePx
                     + hotseatQsbSpace
                     + getHotseatProfile().getQsbVisualHeight()
                     + hotseatBarBottomSpacePx
                     + space
-                    + extraRowsHeight + verticalPadding * 2;
+                    + extraRowsHeight;
         }
         var isHotseatEnabled = PreferenceCacheExtensionsKt.firstCached(preferenceManager2.isHotseatEnabled());
         if (!isHotseatEnabled) {

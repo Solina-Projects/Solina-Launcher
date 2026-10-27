@@ -502,6 +502,41 @@ class PreferenceManager2 @Inject constructor(
         onSet = { reloadHelper.reloadGrid() },
     )
 
+    // Independent dock icon scale; do not reuse the home-screen setting.
+    val hotseatIconSizeFactor = preference(
+        key = floatPreferencesKey(name = "hotseat_icon_size_factor"),
+        defaultValue = 1.0f,
+        onSet = { reloadHelper.reloadGrid() },
+    )
+
+    // Dock label text size, independent of the home-screen label size.
+    val hotseatIconLabelSizeFactor = preference(
+        key = floatPreferencesKey(name = "hotseat_icon_label_size_factor"),
+        defaultValue = 1.0f,
+        onSet = { reloadHelper.reloadGrid() },
+    )
+
+    // Extra vertical breathing room around dock rows, in dp.
+    val hotseatVerticalPaddingDp = preference(
+        key = floatPreferencesKey(name = "hotseat_vertical_padding_dp"),
+        defaultValue = 0.0f,
+        onSet = { reloadHelper.reloadGrid() },
+    )
+
+    // Scale the space between dock icons, especially useful for multi-row docks.
+    val hotseatIconSpacingFactor = preference(
+        key = floatPreferencesKey(name = "hotseat_icon_spacing_factor"),
+        defaultValue = 1.0f,
+        onSet = { reloadHelper.reloadGrid() },
+    )
+
+    // Vertical offset in dp for the dock search bar; refresh the launcher grid when changed.
+    val hotseatQsbVerticalOffset = preference(
+        key = floatPreferencesKey(name = "hotseat_qsb_vertical_offset"),
+        defaultValue = 0.0f,
+        onSet = { reloadHelper.reloadGrid() },
+    )
+
     val folderPreviewBackgroundOpacity = preference(
         key = floatPreferencesKey(name = "folder_preview_background_opacity"),
         defaultValue = resourceProvider.getFloat(R.dimen.config_default_folder_preview_background_opacity),
@@ -535,6 +570,29 @@ class PreferenceManager2 @Inject constructor(
     val showIconLabelsInDrawer = preference(
         key = booleanPreferencesKey(name = "show_icon_labels_in_drawer"),
         defaultValue = context.resources.getBoolean(R.bool.config_default_show_icon_labels_in_drawer),
+        onSet = { reloadHelper.reloadGrid() },
+    )
+    val homeIconLabelColor = preference(
+        key = stringPreferencesKey(name = "home_icon_label_color"),
+        parse = ColorOption::fromString,
+        save = ColorOption::toString,
+        defaultValue = ColorOption.Default,
+        onSet = { reloadHelper.reloadGrid() },
+    )
+
+    val drawerIconLabelColor = preference(
+        key = stringPreferencesKey(name = "drawer_icon_label_color"),
+        parse = ColorOption::fromString,
+        save = ColorOption::toString,
+        defaultValue = ColorOption.Default,
+        onSet = { reloadHelper.reloadGrid() },
+    )
+
+    val dockIconLabelColor = preference(
+        key = stringPreferencesKey(name = "dock_icon_label_color"),
+        parse = ColorOption::fromString,
+        save = { it.toString() },
+        defaultValue = ColorOption.Default,
         onSet = { reloadHelper.reloadGrid() },
     )
 
@@ -824,66 +882,6 @@ class PreferenceManager2 @Inject constructor(
     val enableLabelInDock = preference(
         key = booleanPreferencesKey(name = "enable_label_dock"),
         defaultValue = false,
-    )
-
-    val homeIconSizeFactor = preference(
-        key = floatPreferencesKey(name = "home_icon_size_factor"),
-        defaultValue = resourceProvider.getFloat(R.dimen.config_default_home_icon_size_factor),
-        onSet = { reloadHelper.reloadGrid() },
-    )
-
-    val hotseatIconSizeFactor = preference(
-        key = floatPreferencesKey(name = "hotseat_icon_size_factor"),
-        defaultValue = 1.0f,
-        onSet = { reloadHelper.reloadGrid() },
-    )
-
-    val hotseatIconLabelSizeFactor = preference(
-        key = floatPreferencesKey(name = "hotseat_icon_label_size_factor"),
-        defaultValue = 1.0f,
-        onSet = { reloadHelper.reloadGrid() },
-    )
-
-    val hotseatVerticalPaddingDp = preference(
-        key = floatPreferencesKey(name = "hotseat_vertical_padding_dp"),
-        defaultValue = 0.0f,
-        onSet = { reloadHelper.reloadGrid() },
-    )
-
-    val hotseatIconSpacingFactor = preference(
-        key = floatPreferencesKey(name = "hotseat_icon_spacing_factor"),
-        defaultValue = 1.0f,
-        onSet = { reloadHelper.reloadGrid() },
-    )
-
-    val hotseatQsbVerticalOffset = preference(
-        key = floatPreferencesKey(name = "hotseat_qsb_vertical_offset"),
-        defaultValue = 0.0f,
-        onSet = { reloadHelper.reloadGrid() },
-    )
-
-    val homeIconLabelColor = preference(
-        key = stringPreferencesKey(name = "home_icon_label_color"),
-        parse = ColorOption::fromString,
-        save = ColorOption::toString,
-        defaultValue = ColorOption.Default,
-        onSet = { reloadHelper.reloadGrid() },
-    )
-
-    val drawerIconLabelColor = preference(
-        key = stringPreferencesKey(name = "drawer_icon_label_color"),
-        parse = ColorOption::fromString,
-        save = ColorOption::toString,
-        defaultValue = ColorOption.Default,
-        onSet = { reloadHelper.reloadGrid() },
-    )
-
-    val dockIconLabelColor = preference(
-        key = stringPreferencesKey(name = "dock_icon_label_color"),
-        parse = ColorOption::fromString,
-        save = ColorOption::toString,
-        defaultValue = ColorOption.Default,
-        onSet = { reloadHelper.reloadGrid() },
     )
 
     val doubleTapGestureHandler = serializablePreference<GestureHandlerConfig>(

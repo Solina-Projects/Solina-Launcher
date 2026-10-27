@@ -38,6 +38,7 @@ import app.lawnchair.ui.preferences.components.GestureHandlerPreference
 import app.lawnchair.ui.preferences.components.HomeLayoutSettings
 import app.lawnchair.ui.preferences.components.NavigationActionPreference
 import app.lawnchair.ui.preferences.components.OverlayHandlerPreference
+import app.lawnchair.ui.preferences.components.colorpreference.ColorPreference
 import app.lawnchair.ui.preferences.components.controls.ClickablePreference
 import app.lawnchair.ui.preferences.components.controls.ListPreference
 import app.lawnchair.ui.preferences.components.controls.SliderPreference
@@ -221,6 +222,7 @@ fun HomeScreenPreferences(
                     valueRange = 0.5F..1.5F,
                     showAsPercentage = true,
                 )
+                ColorPreference(preference = prefs2.homeIconLabelColor)
             }
         }
         val overrideRepo = IconOverrideRepository.INSTANCE.get(LocalContext.current)

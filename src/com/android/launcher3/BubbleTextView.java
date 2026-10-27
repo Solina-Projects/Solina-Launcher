@@ -111,12 +111,12 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Objects;
 
-import app.lawnchair.preferences2.PreferenceCacheExtensionsKt;
-import app.lawnchair.theme.color.ColorOption;
 import app.lawnchair.font.FontManager;
 import app.lawnchair.gestures.IconGestureListener;
 import app.lawnchair.preferences.PreferenceManager;
 import app.lawnchair.preferences2.PreferenceManager2;
+import app.lawnchair.preferences2.PreferenceCacheExtensionsKt;
+import app.lawnchair.theme.color.ColorOption;
 import app.lawnchair.util.LawnchairUtilsKt;
 import app.lawnchair.animation.PhysicsAnimator;
 
@@ -653,6 +653,9 @@ public class BubbleTextView extends TextView implements ItemInfoUpdateReceiver,
         applyConfiguredLabelColor(info);
     }
 
+    /**
+     * Applies the independently configured label color for the current icon area.
+     */
     private void applyConfiguredLabelColor(ItemInfo info) {
         ColorOption colorOption = null;
         if (mDisplay == DISPLAY_ALL_APPS || mDisplay == DISPLAY_DRAWER_FOLDER) {
@@ -668,6 +671,9 @@ public class BubbleTextView extends TextView implements ItemInfoUpdateReceiver,
         }
     }
 
+    /**
+     * Apply an icon size multiplier without scaling the touch target or label.
+     */
     public void setIconSizeFactor(float factor) {
         int newSize = Math.max(1, Math.round(mBaseIconSize * factor));
         if (newSize == mIconSize) {
@@ -679,6 +685,9 @@ public class BubbleTextView extends TextView implements ItemInfoUpdateReceiver,
         invalidate();
     }
 
+    /**
+     * Apply a label size multiplier independently of the icon size.
+     */
     public void setTextSizeFactor(float factor) {
         float safeFactor = Math.max(0.5f, Math.min(1.5f, factor));
         float newSize = mBaseTextSize * safeFactor;

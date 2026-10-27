@@ -80,6 +80,8 @@ import dagger.assisted.AssistedInject;
 import java.net.URISyntaxException;
 import java.security.InvalidParameterException;
 
+import app.lawnchair.preferences.PreferenceManager;
+
 import app.lawnchair.preferences2.PreferenceCacheExtensionsKt;
 import app.lawnchair.LawnchairApp;
 import app.lawnchair.preferences2.PreferenceManager2;
@@ -608,9 +610,28 @@ public class LoaderCursor extends CursorWrapper {
      * Returns whether {@param item} is in the hotseat, at a position past the hotseat size of the
      * current grid.
      */
+    /**
+     * Returns the number of persisted hotseat ranks supported by the current dock settings.
+     * The database stores a multi-row, multi-page dock as a flat rank sequence.
+     */
+    @VisibleForTesting
+    static int getHotseatItemCapacity(int databaseHotseatIcons, int rows, int pages) {
+        int safeRows = Math.max(1, Math.min(3, rows));
+        int safePages = Math.max(1, Math.min(5, pages));
+        return Math.max(1, databaseHotseatIcons) * safeRows * safePages;
+    }
+
+    private int getHotseatItemCapacity() {
+        PreferenceManager preferences = PreferenceManager.getInstance(mContext);
+        return getHotseatItemCapacity(
+                mIDP.numDatabaseHotseatIcons,
+                preferences.getHotseatRows().get(),
+                preferences.getDockPages().get());
+    }
+
     private boolean isHotseatItemOutOfBounds(ItemInfo item) {
         return item.container == Favorites.CONTAINER_HOTSEAT
-                && item.screenId >= mIDP.numDatabaseHotseatIcons;
+                && item.screenId >= getHotseatItemCapacity();
     }
 
     /**
@@ -622,11 +643,11 @@ public class LoaderCursor extends CursorWrapper {
             final GridOccupancy hotseatOccupancy =
                     mOccupied.get(Favorites.CONTAINER_HOTSEAT);
 
-            if (item.screenId >= mIDP.numDatabaseHotseatIcons) {
+            int hotseatCapacity = getHotseatItemCapacity();
+            if (item.screenId < 0 || item.screenId >= hotseatCapacity) {
                 Log.e(TAG, "Error loading shortcut " + item
                         + " into hotseat position " + item.screenId
-                        + ", position out of bounds: (0 to " + (mIDP.numDatabaseHotseatIcons - 1)
-                        + ")");
+                        + ", position out of bounds: (0 to " + (hotseatCapacity - 1) + ")");
                 return false;
             }
 
@@ -641,7 +662,7 @@ public class LoaderCursor extends CursorWrapper {
                     return true;
                 }
             } else {
-                final GridOccupancy occupancy = new GridOccupancy(mIDP.numDatabaseHotseatIcons, 1);
+                final GridOccupancy occupancy = new GridOccupancy(getHotseatItemCapacity(), 1);
                 occupancy.cells[item.screenId][0] = true;
                 mOccupied.put(Favorites.CONTAINER_HOTSEAT, occupancy);
                 return true;

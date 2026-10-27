@@ -423,9 +423,12 @@ public class CellLayout extends ViewGroup {
             case HOTSEAT:
                 float spacingFactor = PreferenceCacheExtensionsKt.firstCached(
                         pref.getHotseatIconSpacingFactor(), pref);
-                mBorderSpace = new Point(
-                        Math.round(deviceProfile.hotseatBorderSpace * spacingFactor),
-                        Math.round(deviceProfile.hotseatBorderSpace * spacingFactor));
+                float verticalPaddingDp = PreferenceCacheExtensionsKt.firstCached(
+                        pref.getHotseatVerticalPaddingDp(), pref);
+                int spacingPx = Math.round(deviceProfile.hotseatBorderSpace * spacingFactor);
+                int verticalPaddingPx = Math.round(
+                        verticalPaddingDp * getResources().getDisplayMetrics().density);
+                mBorderSpace = new Point(spacingPx, spacingPx + verticalPaddingPx);
                 break;
             case WORKSPACE:
             default:
