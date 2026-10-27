@@ -3,7 +3,6 @@ package app.lawnchair.ui.preferences.about
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import com.android.launcher3.R
-import java.io.File
 
 /**
  * Represents the UI state for the "About" screen.
@@ -17,7 +16,6 @@ import java.io.File
  * @param coreTeam A list of [TeamMember] objects representing the core development team.
  * @param supportAndPr A list of [TeamMember] objects representing those involved in support and public relations.
  * @param topLinks A list of [Link] objects representing useful external links (e.g., social media, website).
- * @param updateState The current [UpdateState] of the application's update checker.
  */
 data class AboutUiState(
     val versionName: String = "",
@@ -26,7 +24,6 @@ data class AboutUiState(
     val supportAndPr: List<TeamMember> = emptyList(),
     val topLinks: List<Link> = emptyList(),
     val bottomLinks: List<Link> = emptyList(),
-    val updateState: UpdateState = UpdateState.Hidden,
 )
 
 /**
@@ -81,69 +78,6 @@ data class Link(
     @DrawableRes val iconResId: Int,
     @StringRes val labelResId: Int,
     val url: String,
-)
-
-/**
- * Sealed interface representing the state of the update checker.
- *
- * This interface defines the different states the update checker can be in,
- * from hidden to downloaded, including intermediate states like checking and downloading.
- */
-sealed interface UpdateState {
-    /** The update checker is hidden, typically because it's not a nightly build or update checking is disabled. */
-    data object Hidden : UpdateState
-
-    /** The update checker is currently checking for updates. */
-    data object Checking : UpdateState
-
-    /** The application is up to date, no new updates available. */
-    data object UpToDate : UpdateState
-
-    /**
-     * A new update is available. Contains the name and URL of the update.
-     * @param name The name of the available update (used in `Available` state).
-     * @param url The URL to download the update from (used in `Available` state).
-     * @param expectedSha256 The expected SHA256 hash of the APK for verification (optional).
-     */
-    data class Available(val name: String, val url: String, val changelogState: ChangelogState?, val expectedSha256: String? = null) : UpdateState
-
-    /**
-     * An update is currently being downloaded. Contains the download progress.
-     * @param progress The progress of the download, as a float between 0.0 and 1.0 (used in `Downloading` state).
-     */
-    data class Downloading(val progress: Float) : UpdateState
-
-    /**
-     * An update has been successfully downloaded. Contains the downloaded file.
-     * @param file The [File] object representing the downloaded update package (used in `Downloaded` state).
-     */
-    data class Downloaded(val file: File) : UpdateState
-
-    /** An update download has failed. */
-    data object Failed : UpdateState
-
-    /** An major update has detected. */
-    data class MajorUpdate(val file: File) : UpdateState
-
-    /** An major update has detected. */
-    data class Disabled(val reason: UpdateDisabledReason) : UpdateState
-}
-
-/**
- * Indicate why the auto-updater was disabled.
- *
- * @property USER_OVERRIDE Disabled because of user configuration.
- * @property MAJOR_IS_NEWER Disabled because of current build major version is higher than what is currently offered by updater source.
- */
-enum class UpdateDisabledReason {
-    /** Disabled because of current build major version is higher than what is currently offered by updater source. */
-    MAJOR_IS_NEWER,
-}
-
-data class ChangelogState(
-    val commits: List<GitHubCommit> = emptyList(),
-    val currentBuildNumber: Int = 0,
-    val latestBuildNumber: Int = 0,
 )
 
 /**
