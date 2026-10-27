@@ -22,17 +22,18 @@ class PersianCalendarWidgetProvider : AppWidgetProvider() {
 
     override fun onReceive(context: Context, intent: Intent) {
         super.onReceive(context, intent)
-        when (intent.action) {
-            IntentActions.DATE_CHANGED,
-            IntentActions.TIME_CHANGED,
-            IntentActions.TIMEZONE_CHANGED,
-            IntentActions.LOCALE_CHANGED -> {
-                val manager = AppWidgetManager.getInstance(context)
-                val ids = manager.getAppWidgetIds(
-                    ComponentName(context, PersianCalendarWidgetProvider::class.java),
-                )
-                ids.forEach { updateWidget(context, manager, it) }
-            }
+        if (intent.action in setOf(
+                IntentActions.DATE_CHANGED,
+                IntentActions.TIME_CHANGED,
+                IntentActions.TIMEZONE_CHANGED,
+                IntentActions.LOCALE_CHANGED,
+            )
+        ) {
+            val manager = AppWidgetManager.getInstance(context)
+            val ids = manager.getAppWidgetIds(
+                ComponentName(context, PersianCalendarWidgetProvider::class.java),
+            )
+            ids.forEach { updateWidget(context, manager, it) }
         }
     }
 
