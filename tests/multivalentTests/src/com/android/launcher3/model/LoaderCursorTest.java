@@ -333,6 +333,22 @@ public class LoaderCursorTest {
     }
 
 
+    @Test
+    public void hotseatCapacityIncludesConfiguredRowsAndPages() {
+        assertThat(LoaderCursor.getHotseatItemCapacity(5, 3, 2)).isEqualTo(30);
+    }
+
+    @Test
+    public void hotseatCapacityClampsUnsupportedSettings() {
+        assertThat(LoaderCursor.getHotseatItemCapacity(5, 99, 99)).isEqualTo(75);
+        assertThat(LoaderCursor.getHotseatItemCapacity(5, 0, 0)).isEqualTo(5);
+    }
+
+    @Test
+    public void hotseatCapacityNeverReturnsZero() {
+        assertThat(LoaderCursor.getHotseatItemCapacity(0, 1, 1)).isEqualTo(1);
+    }
+
     private ItemInfo newItemInfo(int cellX, int cellY, int spanX, int spanY,
             int container, int screenId) {
         ItemInfo info = new ItemInfo();
