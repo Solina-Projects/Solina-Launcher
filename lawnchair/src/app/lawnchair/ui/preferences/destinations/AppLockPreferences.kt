@@ -40,7 +40,10 @@ fun AppLockPreferences(modifier: Modifier = Modifier) {
             val pm = context.packageManager
             pm.getInstalledApplications(PackageManager.GET_META_DATA)
                 .mapNotNull { info ->
-                    if (info.packageName == context.packageName || pm.getLaunchIntentForPackage(info.packageName) == null) {
+                    if (
+                        info.packageName == context.packageName ||
+                        pm.getLaunchIntentForPackage(info.packageName) == null
+                    ) {
                         null
                     } else {
                         LockableApp(info.packageName, pm.getApplicationLabel(info).toString())
@@ -81,7 +84,11 @@ fun AppLockPreferences(modifier: Modifier = Modifier) {
                             checked = app.packageName in lockedPackages,
                             onCheckedChange = { checked ->
                                 AppLockStore.setLocked(context, app.packageName, checked)
-                                lockedPackages = if (checked) lockedPackages + app.packageName else lockedPackages - app.packageName
+                                lockedPackages = if (checked) {
+                                    lockedPackages + app.packageName
+                                } else {
+                                    lockedPackages - app.packageName
+                                }
                             },
                         )
                     }

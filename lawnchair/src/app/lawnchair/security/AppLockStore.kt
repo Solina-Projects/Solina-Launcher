@@ -7,14 +7,12 @@ object AppLockStore {
     private const val PREFS = "solina_app_lock"
     private const val KEY_LOCKED_PACKAGES = "locked_packages"
 
-    fun lockedPackages(context: Context): Set<String> =
-        context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
-            .getStringSet(KEY_LOCKED_PACKAGES, emptySet())
-            .orEmpty()
-            .toSet()
+    fun lockedPackages(context: Context): Set<String> = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+        .getStringSet(KEY_LOCKED_PACKAGES, emptySet())
+        .orEmpty()
+        .toSet()
 
-    fun isLocked(context: Context, packageName: String): Boolean =
-        packageName in lockedPackages(context)
+    fun isLocked(context: Context, packageName: String): Boolean = packageName in lockedPackages(context)
 
     fun setLocked(context: Context, packageName: String, locked: Boolean) {
         val prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)

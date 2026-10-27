@@ -49,14 +49,17 @@ class PersianCalendarWidgetProvider : AppWidgetProvider() {
         val weekday = SimpleDateFormat("EEEE", locale).format(now)
         val dateText = "$weekday، $day ${monthNames[month - 1]} $year".toPersianDigits()
         views.setTextViewText(R.id.solina_persian_calendar_date, dateText)
-        views.setTextViewText(R.id.solina_persian_calendar_caption, context.getString(R.string.solina_persian_calendar_caption))
+        views.setTextViewText(
+            R.id.solina_persian_calendar_caption,
+            context.getString(R.string.solina_persian_calendar_caption),
+        )
         manager.updateAppWidget(widgetId, views)
     }
 
     private fun gregorianToJalali(gy: Int, gm: Int, gd: Int): Triple<Int, Int, Int> {
         val monthOffsets = intArrayOf(0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334)
         var jy = if (gy > 1600) 979 else 0
-        var adjustedYear = if (gy > 1600) gy - 1600 else gy - 621
+        val adjustedYear = if (gy > 1600) gy - 1600 else gy - 621
         val gy2 = if (gm > 2) adjustedYear + 1 else adjustedYear
         var days = 365 * adjustedYear +
             (gy2 + 3) / 4 -

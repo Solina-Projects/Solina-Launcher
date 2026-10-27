@@ -7,9 +7,9 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import app.lawnchair.data.folder.FolderEntry
 import app.lawnchair.data.folder.service.FolderService
+import app.lawnchair.preferences2.ReloadHelper
 import app.lawnchair.util.App
 import com.android.launcher3.R
-import app.lawnchair.preferences2.ReloadHelper
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
