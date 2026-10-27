@@ -17,4 +17,25 @@
 <resources xmlns:tools="http://schemas.android.com/tools" xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="generic_smartspace_concatenated_desc">%1$s،%2$s</string>
     <string name="accessibility_smartspace_page">صفحه %1$d از %2$d</string>
+
+    <string name="solina_persian_calendar_widget_name">تقویم شمسی</string>
+    <string name="solina_persian_calendar_widget_description">نمایش تاریخ امروز در تقویم هجری شمسی.</string>
+    <string name="solina_persian_calendar_caption">تقویم هجری شمسی</string>
+    <string name="app_lock_title">قفل برنامه‌ها</string>
+    <string name="app_lock_description">برای باز کردن برنامه‌های انتخاب‌شده از طریق سولینا، احراز هویت دستگاه یا اثر انگشت لازم است.</string>
+    <string name="app_lock_unlock_title">باز کردن قفل برنامه</string>
+    <string name="app_lock_unlock_subtitle">برای اجرای این برنامه هویت خود را تأیید کنید.</string>
+    <string name="app_lock_unavailable">احراز هویت امن تنظیم نشده است. در تنظیمات اندروید قفل صفحه یا اثر انگشت را فعال کنید.</string>
+    <string name="smart_categories_title">دسته‌بندی هوشمند برنامه‌ها</string>
+    <string name="smart_categories_description">بر اساس نوع برنامه‌ها پوشه بساز. پوشه‌های موجود حفظ می‌شوند.</string>
+    <string name="smart_categories_create">ساخت پوشه‌های هوشمند</string>
+    <string name="smart_categories_done">پوشه‌های هوشمند ساخته شدند.</string>
+    <string name="smart_category_social">شبکه‌های اجتماعی</string>
+    <string name="smart_category_communication">ارتباطات</string>
+    <string name="smart_category_media">رسانه و سرگرمی</string>
+    <string name="smart_category_games">بازی‌ها</string>
+    <string name="smart_category_productivity">کار و بهره‌وری</string>
+    <string name="smart_category_shopping">خرید و امور مالی</string>
+    <string name="smart_category_tools">ابزارها</string>
+
 </resources>

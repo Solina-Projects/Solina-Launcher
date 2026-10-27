@@ -1104,4 +1104,25 @@
 <string name="home_icon_label_color">Home screen icon label color</string>
 <string name="drawer_icon_label_color">App drawer icon label color</string>
 <string name="dock_icon_label_color">Dock icon label color</string>
+
+    <string name="solina_persian_calendar_widget_name">Persian calendar</string>
+    <string name="solina_persian_calendar_widget_description">Shows today\'s date in the Solar Hijri calendar.</string>
+    <string name="solina_persian_calendar_caption">Solar Hijri calendar</string>
+    <string name="app_lock_title">App lock</string>
+    <string name="app_lock_description">Require your device screen lock or biometrics before opening selected apps from Solina Launcher.</string>
+    <string name="app_lock_unlock_title">Unlock app</string>
+    <string name="app_lock_unlock_subtitle">Authenticate to open this app.</string>
+    <string name="app_lock_unavailable">Secure device authentication is not configured. Set a screen lock or biometrics in Android settings.</string>
+    <string name="smart_categories_title">Smart app categories</string>
+    <string name="smart_categories_description">Create folders from app types detected by Solina. Existing folders are kept.</string>
+    <string name="smart_categories_create">Create smart folders</string>
+    <string name="smart_categories_done">Smart folders created.</string>
+    <string name="smart_category_social">Social</string>
+    <string name="smart_category_communication">Communication</string>
+    <string name="smart_category_media">Media</string>
+    <string name="smart_category_games">Games</string>
+    <string name="smart_category_productivity">Productivity</string>
+    <string name="smart_category_shopping">Shopping and finance</string>
+    <string name="smart_category_tools">Tools</string>
+
 </resources>
