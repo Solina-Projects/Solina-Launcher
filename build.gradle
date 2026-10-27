@@ -257,11 +257,11 @@ android {
     flavorDimensions += ["app", "recents", "channel"]
 
     productFlavors {
-        lawn {
+        solina {
             dimension "app"
         }
 
-        withQuickstep {
+        withoutQuickstep {
             dimension "recents"
             minSdk = 26
         }
@@ -271,18 +271,7 @@ android {
             dimension "channel"
         }
 
-        nightly {
-            applicationId 'com.solina.launcher.nightly'
-            dimension "channel"
-        }
-
-        play {
-            applicationId "com.solina.launcher.play"
-            dimension "channel"
-            isDefault true
-        }
-
-        configureEach {
+                configureEach {
             resValue("string", "launcher_component", "${applicationId}/app.lawnchair.LawnchairLauncher")
         }
     }
@@ -301,7 +290,7 @@ android {
             }
         }
 
-        lawn {
+        solina {
             java.srcDirs = ['src_flags', 'src_shortcuts_overrides', 'lawnchair/src', 'tests/shared']
             kotlin.directories.addAll('src_flags', 'src_shortcuts_overrides', 'lawnchair/src', 'tests/shared')
             aidl.srcDirs = ['lawnchair/aidl']
@@ -319,37 +308,32 @@ android {
             manifest.srcFile "github/AndroidManifest.xml"
         }
 
-        nightly {
-            manifest.srcFile "nightly/AndroidManifest.xml"
-            res.srcDirs = ["nightly/res"]
+                solinaWithoutQuickstepGithub {
+            manifest.srcFile "AndroidManifest.xml"
         }
 
-        lawnWithQuickstepGithub {
-            manifest.srcFile "quickstep/AndroidManifest-launcher.xml"
-        }
-
-        lawnWithQuickstepNightly {
-            manifest.srcFile "quickstep/AndroidManifest-launcher.xml"
-        }
-
-        lawnWithQuickstepPlay {
-            manifest.srcFile "quickstep/AndroidManifest-launcher.xml"
-        }
-
-        withQuickstep {
-            res.srcDirs = ['quickstep/res', 'quickstep/recents_ui_overrides/res']
+        withoutQuickstep {
+            res.srcDirs = ['src/withoutQuickstep/res', 'quickstep/res', 'quickstep/recents_ui_overrides/res']
             java.srcDirs = ['quickstep/src', 'quickstep/dagger', 'quickstep/recents_ui_overrides/src', 'quickstep/src_protolog']
             kotlin.directories.addAll('quickstep/src', 'quickstep/dagger', 'quickstep/recents_ui_overrides/src', 'quickstep/src_protolog')
-            manifest.srcFile "quickstep/AndroidManifest.xml"
+            manifest.srcFile "AndroidManifest.xml"
         }
     }
 }
 
 androidComponents {
+    // Only the standalone Solina GitHub Debug and Release variants are distributable.
+    beforeVariants(selector().all()) { variant ->
+        variant.enable = variant.name in [
+            "solinaWithoutQuickstepGithubDebug",
+            "solinaWithoutQuickstepGithubRelease",
+        ]
+    }
+
     onVariants(selector().all()) { variant ->
         def channel = variant.productFlavors.last().second
         variant.outputs.forEach { output ->
-            output.outputFileName.set("SolinaLauncher.${output.versionName.get()}.$channel.${variant.buildType}.apk")
+            output.outputFileName.set("solina-launcher.${output.versionName.get()}.$channel.${variant.buildType}.apk")
         }
 
         // Lawnchair-TODO: A better way to sync proto file to the IDE preventing missing or outdated result. Please remove if this is the best solution we have right now

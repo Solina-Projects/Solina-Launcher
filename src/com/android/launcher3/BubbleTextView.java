@@ -116,6 +116,8 @@ import app.lawnchair.font.FontManager;
 import app.lawnchair.gestures.IconGestureListener;
 import app.lawnchair.preferences.PreferenceManager;
 import app.lawnchair.preferences2.PreferenceManager2;
+import app.lawnchair.preferences2.PreferenceCacheExtensionsKt;
+import app.lawnchair.theme.color.ColorOption;
 import app.lawnchair.util.LawnchairUtilsKt;
 import app.lawnchair.animation.PhysicsAnimator;
 
@@ -195,7 +197,9 @@ public class BubbleTextView extends TextView implements ItemInfoUpdateReceiver,
 
     private boolean mLayoutHorizontal;
     private final boolean mIsRtl;
-    private final int mIconSize;
+    private final int mBaseIconSize;
+    private final float mBaseTextSize;
+    private int mIconSize;
 
     @ViewDebug.ExportedProperty(category = "launcher")
     private boolean mHideBadge = false;
@@ -315,8 +319,10 @@ public class BubbleTextView extends TextView implements ItemInfoUpdateReceiver,
         }
         FontManager.INSTANCE.get(context).overrideFont(this, attrs);
 
-        mIconSize = a.getDimensionPixelSize(R.styleable.BubbleTextView_iconSizeOverride,
+        mBaseIconSize = a.getDimensionPixelSize(R.styleable.BubbleTextView_iconSizeOverride,
                 defaultIconSize);
+        mIconSize = mBaseIconSize;
+        mBaseTextSize = getTextSize();
         a.recycle();
 
         mRunningAppIndicatorHeight =
@@ -645,6 +651,53 @@ public class BubbleTextView extends TextView implements ItemInfoUpdateReceiver,
                     ? getContext().getString(R.string.disabled_app_label, info.contentDescription)
                     : info.contentDescription);
         }
+    }
+
+    /**
+     * Applies the independently configured label color for the current icon area.
+     */
+    private void applyConfiguredLabelColor(ItemInfo info) {
+        ColorOption colorOption = null;
+        if (mDisplay == DISPLAY_ALL_APPS || mDisplay == DISPLAY_DRAWER_FOLDER) {
+            colorOption = PreferenceCacheExtensionsKt.firstCached(pref2.getDrawerIconLabelColor(), pref2);
+        } else if (mDisplay == DISPLAY_WORKSPACE || mDisplay == DISPLAY_FOLDER) {
+            boolean inHotseat = info.container == LauncherSettings.Favorites.CONTAINER_HOTSEAT;
+            colorOption = inHotseat
+                    ? PreferenceCacheExtensionsKt.firstCached(pref2.getDockIconLabelColor(), pref2)
+                    : PreferenceCacheExtensionsKt.firstCached(pref2.getHomeIconLabelColor(), pref2);
+        }
+        if (colorOption != null && colorOption.isSupported()) {
+            setTextColor(colorOption.getColorPreferenceEntry().getLightColor().invoke(getContext()));
+        }
+    }
+
+    /**
+     * Apply an icon size multiplier without scaling the touch target or label.
+     */
+    public void setIconSizeFactor(float factor) {
+        int newSize = Math.max(1, Math.round(mBaseIconSize * factor));
+        if (newSize == mIconSize) {
+            return;
+        }
+        mIconSize = newSize;
+        applyCompoundDrawables(getIconOrTransparentColor());
+        requestLayout();
+        invalidate();
+    }
+
+    /**
+     * Apply a label size multiplier independently of the icon size.
+     */
+    public void setTextSizeFactor(float factor) {
+        float safeFactor = Math.max(0.5f, Math.min(1.5f, factor));
+        float newSize = mBaseTextSize * safeFactor;
+        if (Math.abs(getTextSize() - newSize) < 0.5f) {
+            return;
+        }
+        setTextSize(TypedValue.COMPLEX_UNIT_PX, newSize);
+        requestLayout();
+        invalidate();
+        applyConfiguredLabelColor(info);
     }
 
     @Override

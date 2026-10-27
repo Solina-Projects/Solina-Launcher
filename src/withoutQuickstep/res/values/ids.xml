@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Keep resource IDs referenced by legacy Quickstep source compilable.
+         The standalone manifest does not register the Quickstep overview UI. -->
+    <item name="action_buttons" type="id" />
+    <item name="action_clear_all" type="id" />
+    <item name="action_share" type="id" />
+    <item name="action_lens" type="id" />
+    <item name="action_screenshot" type="id" />
+    <item name="action_locked" type="id" />
+</resources>

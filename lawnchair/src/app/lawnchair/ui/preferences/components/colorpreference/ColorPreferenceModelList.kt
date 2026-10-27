@@ -19,6 +19,27 @@ class ColorPreferenceModelList @Inject constructor(
         val prefs = PreferenceManager2.getInstance(context)
         registerModel(
             ColorPreferenceModel(
+                prefObject = prefs.homeIconLabelColor,
+                labelRes = R.string.home_icon_label_color,
+                dynamicEntries = dynamicColorsWithDefault,
+            ),
+        )
+        registerModel(
+            ColorPreferenceModel(
+                prefObject = prefs.drawerIconLabelColor,
+                labelRes = R.string.drawer_icon_label_color,
+                dynamicEntries = dynamicColorsWithDefault,
+            ),
+        )
+        registerModel(
+            ColorPreferenceModel(
+                prefObject = prefs.dockIconLabelColor,
+                labelRes = R.string.dock_icon_label_color,
+                dynamicEntries = dynamicColorsWithDefault,
+            ),
+        )
+        registerModel(
+            ColorPreferenceModel(
                 prefObject = prefs.accentColor,
                 labelRes = R.string.accent_color,
                 dynamicEntries = dynamicColors,
