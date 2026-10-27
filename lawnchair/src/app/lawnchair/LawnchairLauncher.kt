@@ -73,7 +73,7 @@ import com.android.launcher3.statemanager.StateManager.StateHandler
 import com.android.launcher3.uioverrides.QuickstepLauncher
 import com.android.launcher3.uioverrides.states.AllAppsState
 import com.android.launcher3.uioverrides.states.BackgroundAppState
-import com.android.launcher3.model.data.ItemInfo
+import com.android.launcher3.model.data.ItemInfo as LauncherItemInfo
 import com.android.launcher3.uioverrides.states.OverviewState
 import com.android.launcher3.util.ActivityOptionsWrapper
 import com.android.launcher3.util.Executors
@@ -98,7 +98,7 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 
 class LawnchairLauncher : QuickstepLauncher() {
-    override fun startActivitySafely(v: View?, intent: Intent?, item: com.android.launcher3.model.data.ItemInfo?): RunnableList? {
+    override fun startActivitySafely(v: View?, intent: Intent?, item: LauncherItemInfo?): RunnableList? {
         val packageName = intent?.component?.packageName
         if (packageName != null && AppLockStore.isLocked(this, packageName)) {
             startActivity(
@@ -285,7 +285,7 @@ class LawnchairLauncher : QuickstepLauncher() {
 
     override fun getAllAppsItemLongClickListener(): View.OnLongClickListener {
         return View.OnLongClickListener { view ->
-            if (view is FolderIcon && view.mInfo.id != ItemInfo.NO_ID) {
+            if (view is FolderIcon && view.mInfo.id != LauncherItemInfo.NO_ID) {
                 LawnchairShortcut.showAppDrawerFolderPopup(this, view)
             } else {
                 super.getAllAppsItemLongClickListener().onLongClick(view)
@@ -329,7 +329,7 @@ class LawnchairLauncher : QuickstepLauncher() {
         gestureController.onHomePressed()
     }
 
-    fun bindItems(items: List<ItemInfo>, forceAnimateIcons: Boolean) {
+    fun bindItems(items: List<LauncherItemInfo>, forceAnimateIcons: Boolean) {
         // pE-TODO(QPR1): Note: null is modelWriter + bindItems override something
         val inflatedItems = items.map { i ->
             Pair.create(
@@ -440,7 +440,7 @@ class LawnchairLauncher : QuickstepLauncher() {
         return ActivityOptionsWrapper(options, callbacks)
     }
 
-    override fun getActivityLaunchOptions(v: View?, item: ItemInfo?): ActivityOptionsWrapper {
+    override fun getActivityLaunchOptions(v: View?, item: LauncherItemInfo?): ActivityOptionsWrapper {
         return runCatching {
             super.getActivityLaunchOptions(v, item)
         }.getOrElse {
