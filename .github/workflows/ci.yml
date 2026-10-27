@@ -5,6 +5,7 @@ on:
     branches:
       - 'main'
       - '*-dev'
+      - 'feature/**'
     paths-ignore:
       - '.idea/**'
       - '.gitattributes'
@@ -28,14 +29,14 @@ on:
   workflow_call:
 
 env:
-  PUBLISH_NIGHTLY: true
+  PUBLISH_NIGHTLY: false
 
 jobs:
   build-debug-apk:
     strategy:
       fail-fast: false
       matrix:
-        build-variant: [ assembleLawnWithQuickstepNightlyRelease, assembleLawnWithQuickstepGithubDebug, assembleLawnWithQuickstepPlayDebug ]
+        build-variant: [ assembleSolinaWithoutQuickstepGithubDebug, assembleSolinaWithoutQuickstepGithubRelease ]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
@@ -87,6 +88,8 @@ jobs:
           java-version: 21
       - uses: gradle/actions/setup-gradle@v6
       - run: ./gradlew spotlessCheck
+      - name: Audit dependency licenses
+        run: ./gradlew licensee
 
   # Status check that is required in branch protection rules.
   final-status:
@@ -101,7 +104,7 @@ jobs:
       - name: Check
         run: |
           results=$(tr -d '\n' <<< '${{ toJSON(needs.*.result) }}')
-          if ! grep -q -v -E '(failure|cancelled)' <<< "$results"; then
+          if grep -q -E '(failure|cancelled)' <<< "$results"; then
             echo "One or more required jobs failed"
             exit 1
           fi
