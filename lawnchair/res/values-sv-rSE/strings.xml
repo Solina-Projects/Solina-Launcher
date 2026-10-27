@@ -136,7 +136,7 @@
     <string name="my_folder_label">Min mapp</string>
     <string name="sort_active_items_action">Sortera aktiva föremål</string>
     <!-- A11y description -->
-    <string name="accessibility_service_description">För att utföra vissa åtgärder när du använder en gest, som att låsa din telefon, kräver Solina Launcher tillgänglighetsåtkomst.\n\nSolina Launcher övervakar inte dina handlingar, men alla tillgänglighetstjänster kräver denna behörighet. Solina Launcher ignorerar alla händelser som skickas av systemet.\n\nFör att låsa din telefon eller öppna skärmen Senaste använder Solina Launcher tillgänglighetstjänsten performGlobalAction.</string>
+    <string name="accessibility_service_description">För att utföra vissa åtgärder när du använder en gest, som att låsa din telefon, kräver Solina Launcher tillgänglighetsåtkomst.\n\nLawnchair övervakar inte dina handlingar, men alla tillgänglighetstjänster kräver denna behörighet. Solina Launcher ignorerar alla händelser som skickas av systemet.\n\nFör att låsa din telefon eller öppna skärmen Senaste använder Solina Launcher tillgänglighetstjänsten performGlobalAction.</string>
     <string name="x_with_y_count">%1$s (%2$d)</string>
     <string name="x_by_y">%1$d &#xd7; %2$d</string>
     <string name="x_and_y">%1$s &amp; %2$s</string>

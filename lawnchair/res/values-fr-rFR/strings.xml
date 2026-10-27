@@ -136,7 +136,7 @@
     <string name="my_folder_label">Mon dossier</string>
     <string name="sort_active_items_action">Trier les éléments actifs</string>
     <!-- A11y description -->
-    <string name="accessibility_service_description">Pour pouvoir effectuer certaines actions lorsque vous faites un geste (par exemple : verrouiller votre téléphone), Solina Launcher a besoin des droits d\'accessibilité.\n\nSolina Launcher ne surveille pas vos actions, bien que tous les services d\'accessibilité demandent ce droit. Solina Launcher ignore tous les événements envoyés par le système.\n\nPour verrouiller votre téléphone ou ouvrir l\'écran Récents, Solina Launcher utilise le service d\'accessibilité performGlobalAction.</string>
+    <string name="accessibility_service_description">Pour pouvoir effectuer certaines actions lorsque vous faites un geste (par exemple : verrouiller votre téléphone), Solina Launcher a besoin des droits d\'accessibilité.\n\nLawnchair ne surveille pas vos actions, bien que tous les services d\'accessibilité demandent ce droit. Solina Launcher ignore tous les événements envoyés par le système.\n\nPour verrouiller votre téléphone ou ouvrir l\'écran Récents, Solina Launcher utilise le service d\'accessibilité performGlobalAction.</string>
     <string name="x_with_y_count">%1$s (%2$d)</string>
     <string name="x_by_y">%1$d &#xd7; %2$d</string>
     <string name="x_and_y">%1$s et %2$s</string>

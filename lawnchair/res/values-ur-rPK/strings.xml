@@ -136,7 +136,7 @@
     <string name="my_folder_label">میرا فولڈر</string>
     <string name="sort_active_items_action">ایکٹو آئٹمز سارٹ کریں</string>
     <!-- A11y description -->
-    <string name="accessibility_service_description">جب آپ کوئی جیسچر استعمال کریں، جیسے کہ فون کو لاک کرنا، تو مخصوص ایکشنز پرفارم کرنے کے لیے Solina Launcher کو ایکسیسبیلٹی ایکسیس درکار ہوتی ہے۔\n\nSolina Launcher آپ کے ایکشنز پر نظر نہیں رکھتا، حالانکہ تمام ایکسیسبیلٹی سروسز کو اس پرمیشن کی ضرورت ہوتی ہے۔ Solina Launcher سسٹم کی طرف سے بھیجے گئے کسی بھی ایونٹ کو ڈسکارڈ کر دیتا ہے۔\n\nاپنے فون کو لاک کرنے یا ریسنٹس اسکرین کھولنے کے لیے، Solina Launcher performGlobalAction ایکسیسبیلٹی سروس کا استعمال کرتا ہے۔</string>
+    <string name="accessibility_service_description">جب آپ کوئی جیسچر استعمال کریں، جیسے کہ فون کو لاک کرنا، تو مخصوص ایکشنز پرفارم کرنے کے لیے Solina Launcher کو ایکسیسبیلٹی ایکسیس درکار ہوتی ہے۔\n\nLawnchair آپ کے ایکشنز پر نظر نہیں رکھتا، حالانکہ تمام ایکسیسبیلٹی سروسز کو اس پرمیشن کی ضرورت ہوتی ہے۔ Solina Launcher سسٹم کی طرف سے بھیجے گئے کسی بھی ایونٹ کو ڈسکارڈ کر دیتا ہے۔\n\nاپنے فون کو لاک کرنے یا ریسنٹس اسکرین کھولنے کے لیے، Solina Launcher performGlobalAction ایکسیسبیلٹی سروس کا استعمال کرتا ہے۔</string>
     <string name="x_with_y_count">%1$s (%2$d)</string>
     <string name="x_by_y">%1$d &#xd7; %2$d</string>
     <string name="x_and_y">%1$s &amp; %2$s</string>

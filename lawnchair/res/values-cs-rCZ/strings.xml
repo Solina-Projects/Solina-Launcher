@@ -148,7 +148,7 @@
     <string name="my_folder_label">Moje složka</string>
     <string name="sort_active_items_action">Seřadit aktivní položky</string>
     <!-- A11y description -->
-    <string name="accessibility_service_description">Pro provedení určitých akcí když použijete gesto, Solina Launcher vyžaduje nastavení přístupnosti.\n\nSolina Launcher vaše akce nesleduje, ačkoli všechny služby přístupnosti toto oprávnění vyžadují. Solina Launcher zahazuje jakékoli události od systému.\n\nPro uzamčení telefonu nebo otevření posledních aplikací, Solina Launcher využívá službu přístupnosti performGlobalAction.</string>
+    <string name="accessibility_service_description">Pro provedení určitých akcí když použijete gesto, Solina Launcher vyžaduje nastavení přístupnosti.\n\nLawnchair vaše akce nesleduje, ačkoli všechny služby přístupnosti toto oprávnění vyžadují. Solina Launcher zahazuje jakékoli události od systému.\n\nPro uzamčení telefonu nebo otevření posledních aplikací, Solina Launcher využívá službu přístupnosti performGlobalAction.</string>
     <string name="x_with_y_count">%1$s (%2$d)</string>
     <string name="x_by_y">%1$d &#xd7; %2$d</string>
     <string name="x_and_y">%1$s a %2$s</string>

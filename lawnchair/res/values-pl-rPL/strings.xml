@@ -148,7 +148,7 @@
     <string name="my_folder_label">Mój folder</string>
     <string name="sort_active_items_action">Sort active items</string>
     <!-- A11y description -->
-    <string name="accessibility_service_description">To perform certain actions when you use a gesture, such as locking your phone, Solina Launcher requires accessibility access.\n\nSolina Launcher doesn\'t watch your actions, though all accessibility services require this privilege. Solina Launcher discards any event sent by the system.\n\nTo lock your phone or open the Recents screen, Solina Launcher uses the performGlobalAction accessibility service.</string>
+    <string name="accessibility_service_description">To perform certain actions when you use a gesture, such as locking your phone, Solina Launcher requires accessibility access.\n\nLawnchair doesn\'t watch your actions, though all accessibility services require this privilege. Solina Launcher discards any event sent by the system.\n\nTo lock your phone or open the Recents screen, Solina Launcher uses the performGlobalAction accessibility service.</string>
     <string name="x_with_y_count">%1$s (%2$d)</string>
     <string name="x_by_y">%1$d &#xd7; %2$d</string>
     <string name="x_and_y">%1$s i %2$s</string>

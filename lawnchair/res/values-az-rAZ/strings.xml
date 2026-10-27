@@ -177,7 +177,7 @@
     <string name="backup_and_restore_description">Cari quruluşu saxla, yedəkləri bərpa et</string>
     <string name="about_label">Haqqında</string>
     <string name="app_info_drop_target_label">Tətbiq məlumatı</string>
-    <string name="debug_restart_launcher">Solina Launcher-i yenidən başlat</string>
+    <string name="debug_restart_launcher">Lawnchair-i yenidən başlat</string>
     <string name="experimental_features_label">Eksperimental funksiyalar</string>
     <!-- Experimental features -->
     <string name="workspace_label">İş sahəsi</string>
@@ -238,7 +238,7 @@
     Notifications
 
     -->
-    <string name="set_default_launcher_tip">Qısayollardan və əlavə funksiyalardan istifadə etmək üçün Solina Launcher-i standart başlatıcı kimi təyin edin</string>
+    <string name="set_default_launcher_tip">Qısayollardan və əlavə funksiyalardan istifadə etmək üçün Lawnchair-i standart başlatıcı kimi təyin edin</string>
     <string name="notification_dots">Bildiriş nöqtələri</string>
     <string name="show_notification_count">Bildiriş sayğacını göstər</string>
     <string name="notification_dots_color">Bildiriş nöqtəsinin rəngi</string>
@@ -436,11 +436,11 @@
     <string name="torch_status_on">Fənər aktivdir</string>
     <string name="torch_action_off">Söndürmək üçün toxunun</string>
     <!-- Onboarding strings -->
-    <string name="onboarding_open_settings_title">Solina Launcher-i qurun</string>
+    <string name="onboarding_open_settings_title">Lawnchair-i qurun</string>
     <string name="onboarding_open_settings_subtitle">Parametrləri açmaq üçün əsas ekrana uzun toxunun</string>
     <string name="onboarding_major_upgrade_title">Yeni Solina Launcher ilə tanış olun</string>
     <string name="onboarding_major_upgrade_subtitle">Yeniliklərə baxın</string>
-    <string name="onboarding_welcome">Solina Launcher-ə xoş gəlmisiniz!</string>
+    <string name="onboarding_welcome">Lawnchair-ə xoş gəlmisiniz!</string>
     <string name="onboarding_swipe_up">Tətbiq siyirməsini açmaq üçün yuxarı sürüşdürün</string>
     <!-- Smartspacer strings -->
     <string name="maximum_number_of_targets">Maksimum hədəf sayı</string>
@@ -543,14 +543,14 @@
     <string name="gesture_handler_open_assistant">Köməkçini aç</string>
     <string name="pick_app_for_gesture">Tətbiq seç</string>
     <string name="dt2s_admin_hint_title">Administrator icazələri tələb olunur</string>
-    <string name="dt2s_admin_hint">Cihazı yuxu rejiminə keçirmək üçün Solina Launcher-i cihaz administratoru tətbiqi kimi təyin edin. \"Parametrləri aç\" seçiminə, sonra isə \"Bu cihaz administratoru tətbiqini aktivləşdir\" seçiminə toxunun.</string>
+    <string name="dt2s_admin_hint">Cihazı yuxu rejiminə keçirmək üçün Lawnchair-i cihaz administratoru tətbiqi kimi təyin edin. \"Parametrləri aç\" seçiminə, sonra isə \"Bu cihaz administratoru tətbiqini aktivləşdir\" seçiminə toxunun.</string>
     <string name="dt2s_admin_warning">Cihazı yuxu rejiminə keçirmək üçün istifadə olunan jestlər söndürüləcək.</string>
     <string name="d2ts_recents_a11y_hint_title">Əlçatanlıq xidmətini aktivləşdirin</string>
     <string name="sleep_a11y_hint">cihazı yuxu rejiminə keçirmək</string>
     <string name="notifications_fallback_a11y_hint">bildiriş panelini açmaq</string>
     <string name="quick_settings_a11y_hint">Sürətli Parametrlər panelini açmaq</string>
     <string name="recents_screen_a11y_hint">Son tətbiqlər ekranını açmaq</string>
-    <string name="generic_a11y_hint">%1$s üçün Solina Launcher əlçatanlıq xidmətini aktivləşdirin. \"Parametrləri aç\" seçiminə toxunun, \"Solina Launcher\" seçin və \"Solina Launcher-dən istifadə et\" funksiyasını aktivləşdirin.</string>
+    <string name="generic_a11y_hint">%1$s üçün Solina Launcher əlçatanlıq xidmətini aktivləşdirin. \"Parametrləri aç\" seçiminə toxunun, \"Solina Launcher\" seçin və \"Lawnchair-dən istifadə et\" funksiyasını aktivləşdirin.</string>
     <string name="generic_a11y_disclaimer">Solina Launcher bu əməliyyatı yerinə yetirmək üçün Accessibility xidmətinin `performGlobalAction` metodundan istifadə edir. Bu, digər tətbiqləri izləməyə imkan verən həssas bir icazədir. Bununla belə, Solina Launcher bu funksionallıq üçün konfiqurasiya edilməyib və heç bir hadisə qəbul etmir.</string>
     <string name="sleep_mode_label">Yuxu rejimi</string>
     <string name="sleep_mode_auto">Avtomatik</string>
@@ -683,7 +683,7 @@
     <!-- Search providers -->
     <string name="search_provider_app_search">Tətbiq axtarışı</string>
     <string name="search_provider_custom">Fərdi</string>
-    <string name="search_provider_sponsored_description">%1$s və Solina Launcher arasında gəlir paylaşımı razılaşması mövcuddur.\n\n%1$s vasitəsilə axtarış etmək Solina Launcher-ə dəstək olmağa kömək edir.</string>
+    <string name="search_provider_sponsored_description">%1$s və Solina Launcher arasında gəlir paylaşımı razılaşması mövcuddur.\n\n%1$s vasitəsilə axtarış etmək Lawnchair-ə dəstək olmağa kömək edir.</string>
     <string name="app_label">Tətbiq</string>
     <string name="website_label">Veb sayt</string>
     <string name="qsb_search_provider_app_required">Tətbiq tələb olunur</string>

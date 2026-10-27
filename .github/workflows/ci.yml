@@ -33,6 +33,7 @@ env:
 jobs:
   build-debug-apk:
     strategy:
+      fail-fast: false
       matrix:
         build-variant: [ assembleLawnWithQuickstepNightlyRelease, assembleLawnWithQuickstepGithubDebug, assembleLawnWithQuickstepPlayDebug ]
     runs-on: ubuntu-latest
@@ -58,7 +59,16 @@ jobs:
             echo ${{ secrets.KEYSTORE }} | base64 --decode > ${{ github.workspace }}/key.jks
           fi
       - name: Build APK
-        run: ./gradlew ${{ matrix.build-variant }}
+        shell: bash
+        run: |
+          set -o pipefail
+          ./gradlew ${{ matrix.build-variant }} 2>&1 | tee build.log
+      - name: Report build errors
+        if: failure()
+        shell: bash
+        run: |
+          errors=$(grep -E "^e: |error:|What went wrong|Execution failed|AAPT|FAILED" -A2 build.log | head -40 | cut -c1-300 | awk '{printf "%s%%0A", $0}')
+          echo "::error title=Build errors::${errors}"
       - name: Upload artifact
         uses: actions/upload-artifact@v7
         with:

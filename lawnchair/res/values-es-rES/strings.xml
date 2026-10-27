@@ -136,7 +136,7 @@
     <string name="my_folder_label">Mi carpeta</string>
     <string name="sort_active_items_action">Ordenar elementos activos</string>
     <!-- A11y description -->
-    <string name="accessibility_service_description">Para realizar ciertas acciones cuando usas un gesto, como bloquear el teléfono, Solina Launcher requiere los servicios de accesibilidad.\n\nSolina Launcher no mira tus acciones, aunque todos los servicios de accesibilidad requieran este privilegio. Solina Launcher descarta cada evento enviado por el sistema.\n\nPara bloquear el teléfono o abrir la pestaña de recientes, Solina Launcher usa el performGlobalAction servicio de accesibilidad.</string>
+    <string name="accessibility_service_description">Para realizar ciertas acciones cuando usas un gesto, como bloquear el teléfono, Solina Launcher requiere los servicios de accesibilidad.\n\nLawnchair no mira tus acciones, aunque todos los servicios de accesibilidad requieran este privilegio. Solina Launcher descarta cada evento enviado por el sistema.\n\nPara bloquear el teléfono o abrir la pestaña de recientes, Solina Launcher usa el performGlobalAction servicio de accesibilidad.</string>
     <string name="x_with_y_count">%1$s (%2$d)</string>
     <string name="x_by_y">%1$d &#xd7; %2$d</string>
     <string name="x_and_y">%1$s &amp; %2$s</string>

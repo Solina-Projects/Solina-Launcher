@@ -130,7 +130,7 @@
     <string name="my_folder_label">我的文件夹</string>
     <string name="sort_active_items_action">排序活跃项目</string>
     <!-- A11y description -->
-    <string name="accessibility_service_description">当您使用手势执行某些操作（如锁定手机）时，Solina Launcher 需要辅助功能权限。\n\nSolina Launcher 不会监视您的操作，尽管所有辅助功能服务都要求此项权限。Solina Launcher 会丢弃系统发送的任何事件。\n\n要锁定手机或打开最近任务屏幕，Solina Launcher 会使用 performGlobalAction 辅助功能服务。</string>
+    <string name="accessibility_service_description">当您使用手势执行某些操作（如锁定手机）时，Solina Launcher 需要辅助功能权限。\n\nLawnchair 不会监视您的操作，尽管所有辅助功能服务都要求此项权限。Solina Launcher 会丢弃系统发送的任何事件。\n\n要锁定手机或打开最近任务屏幕，Solina Launcher 会使用 performGlobalAction 辅助功能服务。</string>
     <string name="x_with_y_count">%1$s (%2$d)</string>
     <string name="x_by_y">%1$d &#xd7; %2$d</string>
     <string name="x_and_y">%1$s &amp; %2$s</string>
