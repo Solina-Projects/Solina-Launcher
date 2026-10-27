@@ -65,7 +65,6 @@ import com.android.launcher3.LauncherState
 import com.android.launcher3.R
 import com.android.launcher3.Utilities
 import com.android.launcher3.folder.FolderIcon
-import com.android.launcher3.model.data.ItemInfo
 import com.android.launcher3.model.data.PredictedContainerInfo
 import com.android.launcher3.popup.SystemShortcut
 import com.android.launcher3.shortcuts.DeepShortcutView
@@ -99,7 +98,7 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 
 class LawnchairLauncher : QuickstepLauncher() {
-    override fun startActivitySafely(v: View?, intent: Intent?, item: ItemInfo?): RunnableList? {
+    override fun startActivitySafely(v: View?, intent: Intent?, item: com.android.launcher3.model.data.ItemInfo?): RunnableList? {
         val packageName = intent?.component?.packageName
         if (packageName != null && AppLockStore.isLocked(this, packageName)) {
             startActivity(
