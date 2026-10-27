@@ -1,4 +1,4 @@
-name: CI
+name: CI - Solina sections 2-6 verification
 
 on:
   push:

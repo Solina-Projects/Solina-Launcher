@@ -501,6 +501,7 @@ class PreferenceManager2 @Inject constructor(
         defaultValue = resourceProvider.getFloat(R.dimen.config_default_home_icon_size_factor),
         onSet = { reloadHelper.reloadGrid() },
     )
+
     // Independent dock icon scale; do not reuse the home-screen setting.
     val hotseatIconSizeFactor = preference(
         key = floatPreferencesKey(name = "hotseat_icon_size_factor"),
