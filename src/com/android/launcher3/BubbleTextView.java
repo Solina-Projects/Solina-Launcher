@@ -111,7 +111,6 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Objects;
 
-import app.lawnchair.preferences2.PreferenceCacheExtensionsKt;
 import app.lawnchair.font.FontManager;
 import app.lawnchair.gestures.IconGestureListener;
 import app.lawnchair.preferences.PreferenceManager;
@@ -651,6 +650,7 @@ public class BubbleTextView extends TextView implements ItemInfoUpdateReceiver,
                     ? getContext().getString(R.string.disabled_app_label, info.contentDescription)
                     : info.contentDescription);
         }
+        applyConfiguredLabelColor(info);
     }
 
     /**
@@ -697,7 +697,6 @@ public class BubbleTextView extends TextView implements ItemInfoUpdateReceiver,
         setTextSize(TypedValue.COMPLEX_UNIT_PX, newSize);
         requestLayout();
         invalidate();
-        applyConfiguredLabelColor(info);
     }
 
     @Override
