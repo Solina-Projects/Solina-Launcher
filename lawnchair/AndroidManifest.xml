@@ -56,7 +56,7 @@
         android:name="${packageName}.permission.HOTSEAT_EDU"
         tools:node="remove" />
 
-    <application android:localeConfig="@xml/solina_locales_config">
+    <application>
         <meta-data
             android:name="preloaded_fonts"
             android:resource="@array/preloaded_fonts" />
