@@ -38,24 +38,23 @@
     <string name="smart_category_shopping">خرید و امور مالی</string>
     <string name="smart_category_tools">ابزارها</string>
 
-
-    <string name="app_lock_title">قفل برنامه‌ها</string>
-    <string name="app_lock_description">برای باز کردن برنامه‌های انتخاب‌شده از طریق سولینا، قفل صفحه دستگاه لازم است.</string>
-    <string name="app_lock_unlock_title">باز کردن قفل برنامه</string>
-    <string name="app_lock_unlock_subtitle">برای اجرای این برنامه هویت خود را تأیید کنید.</string>
-    <string name="app_lock_unavailable">قفل امن دستگاه تنظیم نشده است. در تنظیمات اندروید قفل صفحه را فعال کنید.</string>
+    
+    
+    
+    
+    
     <string name="app_lock_apps_heading">برنامه‌های موردنظر برای قفل</string>
     <string name="app_lock_empty">برنامه قابل اجرایی پیدا نشد.</string>
-    <string name="smart_categories_title">دسته‌بندی هوشمند برنامه‌ها</string>
-    <string name="smart_categories_description">بر اساس نوع برنامه‌ها پوشه بساز و به‌روزرسانی کن. پوشه‌های موجود حفظ می‌شوند.</string>
-    <string name="smart_categories_create">ساخت یا به‌روزرسانی پوشه‌های هوشمند</string>
-    <string name="smart_categories_done">پوشه‌های هوشمند به‌روزرسانی شدند.</string>
-    <string name="smart_category_social">شبکه‌های اجتماعی</string>
-    <string name="smart_category_communication">ارتباطات</string>
-    <string name="smart_category_media">رسانه و سرگرمی</string>
-    <string name="smart_category_games">بازی‌ها</string>
-    <string name="smart_category_productivity">کار و بهره‌وری</string>
-    <string name="smart_category_shopping">خرید و امور مالی</string>
-    <string name="smart_category_tools">ابزارها</string>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
 
 </resources>
