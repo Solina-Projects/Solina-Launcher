@@ -46,6 +46,18 @@ class FolderService @Inject constructor(
         folderDao.replaceFolderItems(folderInfoId, title, items)
     }
 
+    suspend fun createOrReplaceSmartFolder(title: String, componentKeys: List<String>) = withContext(Dispatchers.IO) {
+        val existingId = folderDao.getFolderIdByTitle(title)
+        val folderId = existingId ?: run {
+            val rank = (folderDao.getMaxFolderRank() ?: -1) + 1
+            folderDao.insertFolder(FolderInfoEntity(title = title, rank = rank)).toInt()
+        }
+        val items = componentKeys.distinct().mapIndexed { index, componentKey ->
+            FolderItemEntity(folderId = folderId, rank = index, componentKey = componentKey)
+        }
+        folderDao.replaceFolderItems(folderId, title, items)
+    }
+
     suspend fun saveFolderInfo(title: String) = withContext(Dispatchers.IO) {
         val rank = (folderDao.getMaxFolderRank() ?: -1) + 1
         folderDao.insertFolder(FolderInfoEntity(title = title, rank = rank))

@@ -52,6 +52,8 @@ import app.lawnchair.ui.preferences.components.reorderable.ReorderablePreference
 import app.lawnchair.ui.preferences.navigation.AppDrawerAppListToFolder
 import app.lawnchair.ui.preferences.navigation.AppDrawerFolder
 import app.lawnchair.ui.util.bottomSheetHandler
+import app.lawnchair.util.App
+import app.lawnchair.util.appsState
 import com.android.launcher3.R
 import com.android.launcher3.util.MSDLPlayerWrapper
 import com.google.android.msdl.data.model.MSDLToken
@@ -84,7 +86,9 @@ fun AppDrawerFoldersPreference(
     viewModel: FolderViewModel = viewModel(),
 ) {
     val navController = LocalNavController.current
+    val context = LocalContext.current
     val folders by viewModel.folders.collectAsStateWithLifecycle()
+    val apps by appsState()
 
     AppDrawerFoldersPreference(
         modifier = modifier,
@@ -104,6 +108,8 @@ fun AppDrawerFoldersPreference(
         onOrderChange = {
             viewModel.updateFolderOrder(it)
         },
+        apps = apps,
+        onCreateSmartFolders = { viewModel.createSmartFolders(apps, context) },
     )
 }
 
@@ -116,6 +122,8 @@ fun AppDrawerFoldersPreference(
     onDeleteFolder: (FolderEntry) -> Unit,
     onOrderChange: (List<Int>) -> Unit,
     modifier: Modifier = Modifier,
+    apps: List<App> = emptyList(),
+    onCreateSmartFolders: () -> Unit = {},
 ) {
     val mMSDLPlayerWrapper = MSDLPlayerWrapper.INSTANCE.get(LocalContext.current)
     val bottomSheetHandler = bottomSheetHandler
@@ -141,6 +149,16 @@ fun AppDrawerFoldersPreference(
                 )
             }
             PreferenceGroup(heading = stringResource(R.string.folders_label)) {
+                Text(
+                    text = stringResource(R.string.smart_categories_description),
+                    modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
+                )
+                Button(
+                    onClick = onCreateSmartFolders,
+                    modifier = Modifier.fillMaxWidth(),
+                ) {
+                    Text(stringResource(R.string.smart_categories_create))
+                }
                 PreferenceTemplate(
                     title = {
                         Text(

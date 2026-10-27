@@ -24,6 +24,9 @@ interface FolderDao {
     @Query("SELECT id FROM Folders ORDER BY rank ASC")
     suspend fun getAllFolderIds(): List<Int>
 
+    @Query("SELECT id FROM Folders WHERE title = :title LIMIT 1")
+    suspend fun getFolderIdByTitle(title: String): Int?
+
     @Query("SELECT * FROM Folders ORDER BY rank ASC")
     @Transaction
     fun getAllFoldersWithItems(): Flow<List<FolderWithItems>>
