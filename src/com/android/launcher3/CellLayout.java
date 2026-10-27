@@ -421,8 +421,11 @@ public class CellLayout extends ViewGroup {
                 mBorderSpace = new Point(deviceProfile.folderCellLayoutBorderSpacePx);
                 break;
             case HOTSEAT:
-                mBorderSpace = new Point(deviceProfile.hotseatBorderSpace,
-                        deviceProfile.hotseatBorderSpace);
+                float spacingFactor = PreferenceCacheExtensionsKt.firstCached(
+                        pref.getHotseatIconSpacingFactor(), pref);
+                mBorderSpace = new Point(
+                        Math.round(deviceProfile.hotseatBorderSpace * spacingFactor),
+                        Math.round(deviceProfile.hotseatBorderSpace * spacingFactor));
                 break;
             case WORKSPACE:
             default:
@@ -793,6 +796,17 @@ public class CellLayout extends ViewGroup {
                     ? PreferenceCacheExtensionsKt.firstCached(pref.getEnableLabelInDock())
                     : true;
             bubbleChild.setTextVisibility(enableLabel);
+            if (mContainerType == HOTSEAT) {
+                bubbleChild.setTextSizeFactor(PreferenceCacheExtensionsKt.firstCached(
+                        pref.getHotseatIconLabelSizeFactor(), pref));
+                float homeIconFactor = PreferenceCacheExtensionsKt.firstCached(
+                        pref.getHomeIconSizeFactor(), pref);
+                float dockIconFactor = PreferenceCacheExtensionsKt.firstCached(
+                        pref.getHotseatIconSizeFactor(), pref);
+                if (homeIconFactor > 0f) {
+                    bubbleChild.setIconSizeFactor(dockIconFactor / homeIconFactor);
+                }
+            }
         }
 
         child.setScaleX(DEFAULT_SCALE);
