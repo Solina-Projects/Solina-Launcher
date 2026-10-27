@@ -103,7 +103,7 @@
         <item quantity="many">%dعام</item>
         <item quantity="other">%dعام</item>
     </plurals>
-    <string name="managed_by_lawnchair">يُدار بواسطة Lawnchair</string>
+    <string name="managed_by_lawnchair">يُدار بواسطة Solina Launcher</string>
     <!-- When mentioning settings UI -->
     <string name="smartspace_preferences">التفضيلات</string>
     <string name="settings_button_text">إعدادات الشاشة الرئيسية</string>
@@ -111,7 +111,7 @@
     <string name="title_change_settings">تغيير الإعدادات</string>
     <!--
 
-    General "words" used throughout Lawnchair
+    General "words" used throughout Solina Launcher
 
     -->
     <string name="others_category_label">أخرى</string>
@@ -160,7 +160,7 @@
     <string name="my_folder_label">مجلدي</string>
     <string name="sort_active_items_action">فرز العناصر النشطة</string>
     <!-- A11y description -->
-    <string name="accessibility_service_description">لتنفيذ بعض الإجراءات عند استخدام إيماءة، مثل قفل هاتفك، يحتاج Lawnchair إلى إذن تسهيل الوصول.\n\nلا يراقب Lawnchair أنشطتك، لكن جميع خدمات تسهيل الوصول تتطلب هذا الامتياز. يتجاهل Lawnchair أي حدث يرسله النظام.\n\nلقفل هاتفك أو فتح شاشة التطبيقات الأخيرة، يستخدم Lawnchair خدمة تسهيل الوصول performGlobalAction.</string>
+    <string name="accessibility_service_description">لتنفيذ بعض الإجراءات عند استخدام إيماءة، مثل قفل هاتفك، يحتاج Solina Launcher إلى إذن تسهيل الوصول.\n\nلا يراقب Solina Launcher أنشطتك، لكن جميع خدمات تسهيل الوصول تتطلب هذا الامتياز. يتجاهل Solina Launcher أي حدث يرسله النظام.\n\nلقفل هاتفك أو فتح شاشة التطبيقات الأخيرة، يستخدم Solina Launcher خدمة تسهيل الوصول performGlobalAction.</string>
     <string name="x_with_y_count">%1$s (%2$d)</string>
     <string name="x_by_y">%1$d &#xd7; %2$d</string>
     <string name="x_and_y">%1$s و%2$s</string>
@@ -201,7 +201,7 @@
     <string name="backup_and_restore_description">احفظ الإعدادات الحالية، واستعد النسخ الاحتياطية</string>
     <string name="about_label">حول التطبيق</string>
     <string name="app_info_drop_target_label">معلومات التطبيق</string>
-    <string name="debug_restart_launcher">إعادة تشغيل Lawnchair</string>
+    <string name="debug_restart_launcher">إعادة تشغيل Solina Launcher</string>
     <string name="experimental_features_label">الميزات التجريبية</string>
     <!-- Experimental features -->
     <string name="workspace_label">مساحة العمل</string>
@@ -256,13 +256,13 @@
     <string name="dismissed_prediction_apps_label_with_count">التطبيقات المحظورة (%1$d)</string>
     <string name="prediction_system_settings">إدارة اقتراحات النظام</string>
     <string name="missing_usage_access_label">مطلوب إذن الوصول إلى بيانات الاستخدام</string>
-    <string name="missing_usage_access_desc">لتحسين اقتراحات التطبيقات، فعّل إذن الوصول إلى بيانات الاستخدام لـ <xliff:g id="name" example="Lawnchair">%1$s</xliff:g></string>
+    <string name="missing_usage_access_desc">لتحسين اقتراحات التطبيقات، فعّل إذن الوصول إلى بيانات الاستخدام لـ <xliff:g id="name" example="Solina Launcher">%1$s</xliff:g></string>
     <!--
 
     Notifications
 
     -->
-    <string name="set_default_launcher_tip">للوصول إلى الاختصارات والميزات الإضافية، عيّن Lawnchair كمشغل افتراضي</string>
+    <string name="set_default_launcher_tip">للوصول إلى الاختصارات والميزات الإضافية، عيّن Solina Launcher كمشغل افتراضي</string>
     <string name="notification_dots">نقاط الإشعارات</string>
     <string name="show_notification_count">إظهار عداد الإشعارات</string>
     <string name="notification_dots_color">لون نقطة الإشعار</string>
@@ -460,11 +460,11 @@
     <string name="torch_status_on">كشاف الهاتف مفعّل</string>
     <string name="torch_action_off">انقر لإيقاف التشغيل</string>
     <!-- Onboarding strings -->
-    <string name="onboarding_open_settings_title">إعداد Lawnchair</string>
+    <string name="onboarding_open_settings_title">إعداد Solina Launcher</string>
     <string name="onboarding_open_settings_subtitle">اضغط مطولاً على الشاشة الرئيسية لفتح الإعدادات</string>
-    <string name="onboarding_major_upgrade_title">تعرّف على Lawnchair الجديد</string>
+    <string name="onboarding_major_upgrade_title">تعرّف على Solina Launcher الجديد</string>
     <string name="onboarding_major_upgrade_subtitle">اطلع على الجديد</string>
-    <string name="onboarding_welcome">مرحباً بك في Lawnchair!</string>
+    <string name="onboarding_welcome">مرحباً بك في Solina Launcher!</string>
     <string name="onboarding_swipe_up">اسحب للأعلى لفتح درج التطبيقات</string>
     <!-- Smartspacer strings -->
     <string name="maximum_number_of_targets">الحد الأقصى لعدد الأهداف</string>
@@ -475,7 +475,7 @@
     <string name="event_provider_missing_notification_dots">لاستخدام <xliff:g example="My Provider" id="providerName">%1$s</xliff:g>، فعّل نقاط الإشعارات</string>
     <!-- Toggle button for enabling Smartspace -->
     <string name="smartspace_widget_toggle_label">إظهار على الشاشة الرئيسية</string>
-    <string name="smartspace_widget_toggle_description">يمكن إضافة اللمحة السريعة إلى الشاشة الرئيسية باستخدام التطبيق المصغّر من Lawnchair</string>
+    <string name="smartspace_widget_toggle_description">يمكن إضافة اللمحة السريعة إلى الشاشة الرئيسية باستخدام التطبيق المصغّر من Solina Launcher</string>
     <!-- List of available providers -->
     <string name="smartspace_mode_label">مزوّد اللمحة السريعة</string>
     <string name="smartspace_mode_google">Google</string>
@@ -567,15 +567,15 @@
     <string name="gesture_handler_open_assistant">فتح المساعد</string>
     <string name="pick_app_for_gesture">اختر التطبيق</string>
     <string name="dt2s_admin_hint_title">أذونات المشرف مطلوبة</string>
-    <string name="dt2s_admin_hint">لوضع الجهاز في وضع السكون، عيّن Lawnchair كتطبيق مسؤول للجهاز. اضغط على \"فتح الإعدادات\"، ثم اضغط على \"تفعيل تطبيق مسؤول الجهاز هذا.\"</string>
+    <string name="dt2s_admin_hint">لوضع الجهاز في وضع السكون، عيّن Solina Launcher كتطبيق مسؤول للجهاز. اضغط على \"فتح الإعدادات\"، ثم اضغط على \"تفعيل تطبيق مسؤول الجهاز هذا.\"</string>
     <string name="dt2s_admin_warning">سيتم إيقاف الإيماءات الخاصة بوضع الجهاز في وضع السكون.</string>
     <string name="d2ts_recents_a11y_hint_title">تفعيل خدمة تسهيل الوصول</string>
     <string name="sleep_a11y_hint">وضع الجهاز في وضع السكون</string>
     <string name="notifications_fallback_a11y_hint">فتح لوحة الإشعارات</string>
     <string name="quick_settings_a11y_hint">فتح لوحة الإعدادات السريعة</string>
     <string name="recents_screen_a11y_hint">فتح شاشة التطبيقات الأخيرة</string>
-    <string name="generic_a11y_hint">لِ%1$s، فعّل خدمة تسهيل الوصول الخاصة بـ Lawnchair. اضغط على \"فتح الإعدادات\"، اختر \"Lawnchair\" ثم فعّل \"استخدام Lawnchair.\"</string>
-    <string name="generic_a11y_disclaimer">يستخدم Lawnchair طريقة `performGlobalAction` الخاصة بخدمة تسهيل الوصول لتنفيذ هذا الإجراء. هذا إذن حسّاس يسمح بمراقبة التطبيقات الأخرى، إلا أنّ Lawnchair غير مُهيَّأ لتلك الوظيفة ولا يستقبل أي أحداث.</string>
+    <string name="generic_a11y_hint">لِ%1$s، فعّل خدمة تسهيل الوصول الخاصة بـ Solina Launcher. اضغط على \"فتح الإعدادات\"، اختر \"Solina Launcher\" ثم فعّل \"استخدام Solina Launcher.\"</string>
+    <string name="generic_a11y_disclaimer">يستخدم Solina Launcher طريقة `performGlobalAction` الخاصة بخدمة تسهيل الوصول لتنفيذ هذا الإجراء. هذا إذن حسّاس يسمح بمراقبة التطبيقات الأخرى، إلا أنّ Solina Launcher غير مُهيَّأ لتلك الوظيفة ولا يستقبل أي أحداث.</string>
     <string name="sleep_mode_label">وضع السكون</string>
     <string name="sleep_mode_auto">تلقائي</string>
     <string name="sleep_mode_root">الروت</string>
@@ -586,7 +586,7 @@
     Bug reporting
 
     -->
-    <string name="lawnchair_bug_report">تقرير خطأ Lawnchair</string>
+    <string name="lawnchair_bug_report">تقرير خطأ Solina Launcher</string>
     <string name="crash_report_notif_title">تعطّل %1$s</string>
     <string name="action_upload_crash_report">رفع سجل التعطل</string>
     <string name="action_upload_error">فشل الرفع</string>
@@ -700,14 +700,14 @@
     <string name="unfolded_label">مفتوح</string>
     <string name="when_folded_label">عند الطي</string>
     <string name="when_unfolded_label">عند الفتح</string>
-    <string name="unfolded_grid_description">يجمع Lawnchair بين صفحتين لملء الشاشة الأكبر</string>
+    <string name="unfolded_grid_description">يجمع Solina Launcher بين صفحتين لملء الشاشة الأكبر</string>
     <string name="foldable_columns_error">يجب أن تكون القيمة في وضع الطي أقل من القيمة في وضع الفتح أو مساوية لها. سيتم ضبطها تلقائيًا عند الحاجة.</string>
     <string name="hotseat_bottom_space_label">المسافة السفلية</string>
     <string name="page_indicator_height">ارتفاع مؤشر الصفحة</string>
     <!-- Search providers -->
     <string name="search_provider_app_search">بحث التطبيقات</string>
     <string name="search_provider_custom">مخصّص</string>
-    <string name="search_provider_sponsored_description">%1$s وLawnchair لديهما اتفاقية مشاركة الإيرادات.\n\nالبحث باستخدام %1$s يساعد في دعم Lawnchair.</string>
+    <string name="search_provider_sponsored_description">%1$s وSolina Launcher لديهما اتفاقية مشاركة الإيرادات.\n\nالبحث باستخدام %1$s يساعد في دعم Solina Launcher.</string>
     <string name="app_label">التطبيق</string>
     <string name="website_label">الموقع الإلكتروني</string>
     <string name="qsb_search_provider_app_required">التطبيق مطلوب</string>
@@ -748,7 +748,7 @@
     <string name="max_folder_columns">أقصى عدد من الأعمدة في المجلد</string>
     <string name="max_folder_rows">أقصى عدد من الصفوف في المجلد</string>
     <!-- Quickstep settings -->
-    <string name="quickswitch_ignored_warning">سيتم تجاهل هذه الإعدادات لأن Lawnchair ليس معيّناً كمزود شاشة التطبيقات الأخيرة</string>
+    <string name="quickswitch_ignored_warning">سيتم تجاهل هذه الإعدادات لأن Solina Launcher ليس معيّناً كمزود شاشة التطبيقات الأخيرة</string>
     <string name="quickstep_incompatible">تكامل النظام غير متوافق</string>
     <string name="quickstep_incompatible_description">جهازك مُهيَّأ لاستخدام إيماءات النظام المعروفة باسم Quickstep، والتي يوفرها %1$s، لكن هذا الإصدار من %1$s غير متوافق مع إصدار أندرويد لديك. لمواصلة استخدام جهازك، أزِل تحديثات %1$s أو عطّل %1$s كمزود لإيماءات النظام.</string>
     <string name="translucent_background">خلفية شبه شفافة</string>

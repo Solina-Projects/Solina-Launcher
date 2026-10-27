@@ -79,7 +79,7 @@
         <item quantity="one">%d anos</item>
         <item quantity="other">%d anos</item>
     </plurals>
-    <string name="managed_by_lawnchair">Xestionado por Lawnchair</string>
+    <string name="managed_by_lawnchair">Xestionado por Solina Launcher</string>
     <!-- When mentioning settings UI -->
     <string name="smartspace_preferences">Preferencias</string>
     <string name="settings_button_text">Configuración do lanzador</string>
@@ -87,7 +87,7 @@
     <string name="title_change_settings">Cambiar configuración</string>
     <!--
 
-    General "words" used throughout Lawnchair
+    General "words" used throughout Solina Launcher
 
     -->
     <string name="others_category_label">Outros</string>
@@ -136,7 +136,7 @@
     <string name="my_folder_label">O meu cartafol</string>
     <string name="sort_active_items_action">Ordenar os elementos activos</string>
     <!-- A11y description -->
-    <string name="accessibility_service_description">Para realizar determinadas accións ao usar un xesto, como bloquear o teléfono, Lawnchair require acceso aos servizos de accesibilidade. \n\nLawnchair non supervisa as túas accións, aínda que todos os servizos de accesibilidade requiren este permiso. Lawnchair desbota calquera evento enviado polo sistema. \n\nPara bloquear o teléfono ou abrir a pantalla das aplicacións recentes, Lawnchair utiliza a función performGlobalAction dos servizos de accesibilidade.</string>
+    <string name="accessibility_service_description">Para realizar determinadas accións ao usar un xesto, como bloquear o teléfono, Solina Launcher require acceso aos servizos de accesibilidade. \n\nSolina Launcher non supervisa as túas accións, aínda que todos os servizos de accesibilidade requiren este permiso. Solina Launcher desbota calquera evento enviado polo sistema. \n\nPara bloquear o teléfono ou abrir a pantalla das aplicacións recentes, Solina Launcher utiliza a función performGlobalAction dos servizos de accesibilidade.</string>
     <string name="x_with_y_count">%1$s (%2$d)</string>
     <string name="x_by_y">%1$d &#xd7; %2$d</string>
     <string name="x_and_y">%1$s &amp; %2$s</string>
@@ -177,7 +177,7 @@
     <string name="backup_and_restore_description">Gardar a configuración actual, restaurar copias de seguridade</string>
     <string name="about_label">Acerca de</string>
     <string name="app_info_drop_target_label">Información da aplicación</string>
-    <string name="debug_restart_launcher">Reiniciar Lawnchair</string>
+    <string name="debug_restart_launcher">Reiniciar Solina Launcher</string>
     <string name="experimental_features_label">Funcións experimentais</string>
     <!-- Experimental features -->
     <string name="workspace_label">Espazo de traballo</string>
@@ -232,13 +232,13 @@
     <string name="dismissed_prediction_apps_label_with_count">Aplicacións bloqueadas (%1$d)</string>
     <string name="prediction_system_settings">Xestionar as suxestións do sistema</string>
     <string name="missing_usage_access_label">Requírese acceso ao uso</string>
-    <string name="missing_usage_access_desc">Para mellorar as suxestións de aplicacións, activa o acceso de uso para <xliff:g id="name" example="Lawnchair">%1$s</xliff:g></string>
+    <string name="missing_usage_access_desc">Para mellorar as suxestións de aplicacións, activa o acceso de uso para <xliff:g id="name" example="Solina Launcher">%1$s</xliff:g></string>
     <!--
 
     Notifications
 
     -->
-    <string name="set_default_launcher_tip">Para acceder a atallos e funcións adicionais, establece Lawnchair como o teu iniciador predeterminado</string>
+    <string name="set_default_launcher_tip">Para acceder a atallos e funcións adicionais, establece Solina Launcher como o teu iniciador predeterminado</string>
     <string name="notification_dots">Puntos de notificación</string>
     <string name="show_notification_count">Amosar contador de notificacións</string>
     <string name="notification_dots_color">Cor do punto de notificación</string>
@@ -436,11 +436,11 @@
     <string name="torch_status_on">Lanterna acendida</string>
     <string name="torch_action_off">Premer para apagar</string>
     <!-- Onboarding strings -->
-    <string name="onboarding_open_settings_title">Configurar Lawnchair</string>
+    <string name="onboarding_open_settings_title">Configurar Solina Launcher</string>
     <string name="onboarding_open_settings_subtitle">Mantén premido na pantalla de inicio para abrir a configuración</string>
-    <string name="onboarding_major_upgrade_title">Coñece o novo Lawnchair</string>
+    <string name="onboarding_major_upgrade_title">Coñece o novo Solina Launcher</string>
     <string name="onboarding_major_upgrade_subtitle">Consulta as novidades</string>
-    <string name="onboarding_welcome">Benvido a Lawnchair!</string>
+    <string name="onboarding_welcome">Benvido a Solina Launcher!</string>
     <string name="onboarding_swipe_up">Esvara cara arriba para abrir o caixón de aplicacións</string>
     <!-- Smartspacer strings -->
     <string name="maximum_number_of_targets">Número máximo de obxectivos</string>
@@ -451,7 +451,7 @@
     <string name="event_provider_missing_notification_dots">Para usar <xliff:g example="My Provider" id="providerName">%1$s</xliff:g>, activa os puntos de notificación</string>
     <!-- Toggle button for enabling Smartspace -->
     <string name="smartspace_widget_toggle_label">Amosar na pantalla do inicio</string>
-    <string name="smartspace_widget_toggle_description">At a Glance pódese engadir á pantalla de inicio co widget de Lawnchair.</string>
+    <string name="smartspace_widget_toggle_description">At a Glance pódese engadir á pantalla de inicio co widget de Solina Launcher.</string>
     <!-- List of available providers -->
     <string name="smartspace_mode_label">Provedor At a Glance</string>
     <string name="smartspace_mode_google">Google</string>
@@ -543,15 +543,15 @@
     <string name="gesture_handler_open_assistant">Abrir o asistente</string>
     <string name="pick_app_for_gesture">Escoller aplicación</string>
     <string name="dt2s_admin_hint_title">Requírense permisos de administrador</string>
-    <string name="dt2s_admin_hint">Para poñer o dispositivo en modo de suspensión, configura Lawnchair como aplicación de administración do dispositivo. Preme \"Abrir configuración\" e, a continuación, preme \"Activar esta aplicación de administración do dispositivo\".</string>
+    <string name="dt2s_admin_hint">Para poñer o dispositivo en modo de suspensión, configura Solina Launcher como aplicación de administración do dispositivo. Preme \"Abrir configuración\" e, a continuación, preme \"Activar esta aplicación de administración do dispositivo\".</string>
     <string name="dt2s_admin_warning">Desactivaranse os xestos para poñer o dispositivo en modo de suspensión.</string>
     <string name="d2ts_recents_a11y_hint_title">Activar o servizo de accesibilidade</string>
     <string name="sleep_a11y_hint">Poñer o dispositivo en modo de suspensión</string>
     <string name="notifications_fallback_a11y_hint">Abre o panel de notificacións</string>
     <string name="quick_settings_a11y_hint">Abrir o panel de configuración rápida</string>
     <string name="recents_screen_a11y_hint">Abrir a pantalla recentes</string>
-    <string name="generic_a11y_hint">Para %1$s, activa o servizo de accesibilidade Lawnchair. Toca \"Abrir configuración\", escolle \"Lawnchair\" e activa \"Usar Lawnchair\".</string>
-    <string name="generic_a11y_disclaimer">Lawnchair utiliza o método `performGlobalAction` de Accesibilidade para realizar esta acción. Trátase dun permiso sensible que permite monitorizar outras aplicacións. Porén, Lawnchair non está configurado para esa funcionalidade e non recibe ningún evento.</string>
+    <string name="generic_a11y_hint">Para %1$s, activa o servizo de accesibilidade Solina Launcher. Toca \"Abrir configuración\", escolle \"Solina Launcher\" e activa \"Usar Solina Launcher\".</string>
+    <string name="generic_a11y_disclaimer">Solina Launcher utiliza o método `performGlobalAction` de Accesibilidade para realizar esta acción. Trátase dun permiso sensible que permite monitorizar outras aplicacións. Porén, Solina Launcher non está configurado para esa funcionalidade e non recibe ningún evento.</string>
     <string name="sleep_mode_label">Modo de repouso</string>
     <string name="sleep_mode_auto">Automático</string>
     <string name="sleep_mode_root">Raíz</string>
@@ -562,7 +562,7 @@
     Bug reporting
 
     -->
-    <string name="lawnchair_bug_report">Informe de erros de Lawnchair</string>
+    <string name="lawnchair_bug_report">Informe de erros de Solina Launcher</string>
     <string name="crash_report_notif_title">Fallou %1$s</string>
     <string name="action_upload_crash_report">Subir rexistro de erros</string>
     <string name="action_upload_error">Erro ao subir</string>
@@ -676,14 +676,14 @@
     <string name="unfolded_label">Despregado</string>
     <string name="when_folded_label">Cando está pregado</string>
     <string name="when_unfolded_label">Cando está despregado</string>
-    <string name="unfolded_grid_description">Lawnchair emparella dúas páxinas para encher a pantalla máis grande</string>
+    <string name="unfolded_grid_description">Solina Launcher emparella dúas páxinas para encher a pantalla máis grande</string>
     <string name="foldable_columns_error">O valor pregado debe ser menor ou igual ca o valor despregado. Axustarase automaticamente se é necesario.</string>
     <string name="hotseat_bottom_space_label">Marxe inferior</string>
     <string name="page_indicator_height">Altura do indicador de páxina</string>
     <!-- Search providers -->
     <string name="search_provider_app_search">Busca aplicación</string>
     <string name="search_provider_custom">Personalizado</string>
-    <string name="search_provider_sponsored_description">%1$s e Lawnchair teñen un acordo de repartición de ingresos.\n\nRealizar buscas con %1$s axuda a apoiar a Lawnchair.</string>
+    <string name="search_provider_sponsored_description">%1$s e Solina Launcher teñen un acordo de repartición de ingresos.\n\nRealizar buscas con %1$s axuda a apoiar a Solina Launcher.</string>
     <string name="app_label">Aplicación</string>
     <string name="website_label">Sitio web</string>
     <string name="qsb_search_provider_app_required">Requírese unha aplicación</string>
@@ -720,7 +720,7 @@
     <string name="max_folder_columns">Número máximo de columnas do cartafol</string>
     <string name="max_folder_rows">Número máximo de filas do cartafol</string>
     <!-- Quickstep settings -->
-    <string name="quickswitch_ignored_warning">Ignoraranse estes axustes porque Lawnchair non está configurado como o provedor da pantalla de Aplicacións recentes</string>
+    <string name="quickswitch_ignored_warning">Ignoraranse estes axustes porque Solina Launcher non está configurado como o provedor da pantalla de Aplicacións recentes</string>
     <string name="quickstep_incompatible">Integración de sistema incompatible</string>
     <string name="quickstep_incompatible_description">O teu dispositivo está configurado para utilizar xestos do sistema, coñecidos como Quickstep, proporcionados por %1$s; porén, esta versión de %1$s non é compatible coa túa versión de Android. Para seguir usando o dispositivo, desinstala as actualizacións de %1$s ou desactiva %1$s como provedor de xestos do sistema.</string>
     <string name="translucent_background">Fondo translúcido</string>

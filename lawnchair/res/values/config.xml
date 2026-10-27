@@ -39,12 +39,12 @@
     <string name="icon_packs_intent_name" translatable="false">app.lawnchair.icons.THEMED_ICON</string>
     <string name="clock_component_name" translatable="false">com.google.android.deskclock/com.android.deskclock.DeskClock</string>
     <string name="launcher_activity_logic_class" translatable="false">app.lawnchair.LauncherActivityCachingLogic</string>
-    <string name="main_process_initializer_class" translatable="false">app.lawnchair.LawnchairProcessInitializer</string>
+    <string name="main_process_initializer_class" translatable="false">app.lawnchair.Solina LauncherProcessInitializer</string>
     <string name="task_overlay_factory_class" translatable="false">app.lawnchair.overview.TaskOverlayFactoryImpl</string>
     <string name="wallpaper_picker_package" translatable="false">com.android.wallpaper</string>
     <string name="wallpaper_picker_package_alt" translatable="false">com.google.android.apps.wallpaper</string>
-    <string name="widget_holder_factory_class" translatable="false">app.lawnchair.factory.LawnchairWidgetHolder$LawnchairHolderFactory</string>
-    <string name="window_manager_proxy_class" translatable="false">app.lawnchair.util.LawnchairWindowManagerProxy</string>
+    <string name="widget_holder_factory_class" translatable="false">app.lawnchair.factory.Solina LauncherWidgetHolder$Solina LauncherHolderFactory</string>
+    <string name="window_manager_proxy_class" translatable="false">app.lawnchair.util.Solina LauncherWindowManagerProxy</string>
 
     <bool name="config_header_protection_supported">true</bool>
 
@@ -55,7 +55,7 @@
         <item>com.google.android.launcher/.StubApp</item>
         <!-- Action Services -->
         <item>com.google.android.as/com.google.android.apps.miphone.aiai.allapps.main.MainDummyActivity</item>
-        <!-- Lawnchair -->
+        <!-- Solina Launcher -->
         <item>@string/launcher_component</item>
     </string-array>
 
@@ -113,7 +113,7 @@
     <string name="pref_key_swipe_left" translatable="false">pref_swipe_left</string>
 
     <!-- Live information endpoint -->
-    <string name="config_default_live_information_endpoint" translatable="false">https://lawnchair.app/live-information.json</string>
+    <string name="config_default_live_information_endpoint" translatable="false"></string>
 
     <bool name="config_default_show_hotseat">true</bool>
     <bool name="config_default_always_reload_icons">true</bool>

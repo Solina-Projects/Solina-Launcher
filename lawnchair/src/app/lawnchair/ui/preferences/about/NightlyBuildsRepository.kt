@@ -44,7 +44,7 @@ class NightlyBuildsRepository(
                 val asset = nightly?.assets?.firstOrNull()
 
                 val majorVersion = applicationContext.getApkVersionComparison().first[0]
-                val expectedBranch = "$majorVersion-dev"
+                val expectedBranch = "main"
 
                 if (nightly != null && nightly.targetCommitish != expectedBranch) {
                     Log.d(TAG, "Skipping update from branch ${nightly.targetCommitish}, expected $expectedBranch")
@@ -152,10 +152,10 @@ class NightlyBuildsRepository(
     private suspend fun getCommitsSinceCurrentVersion(): List<GitHubCommit>? {
         return try {
             val majorVersion = applicationContext.getApkVersionComparison().first[0]
-            val branch = "$majorVersion-dev"
+            val branch = "main"
 
             // Get the latest commits (last 100)
-            val commits = api.getRepositoryCommits("LawnchairLauncher", "lawnchair", branch)
+            val commits = api.getRepositoryCommits("Solina-Projects", "Solina-Launcher2", branch)
 
             // Find the index of current commit
             val currentIndex = commits.indexOfFirst { it.sha.startsWith(currentCommitHash) }
@@ -177,7 +177,7 @@ class NightlyBuildsRepository(
         return try {
             val cacheDir = applicationContext.cacheDir
             val apkDirPath = cacheDir.toPath().resolve("updates").createDirectories()
-            val apkFilePath = apkDirPath.resolve("Lawnchair-update.apk").apply { deleteIfExists() }
+            val apkFilePath = apkDirPath.resolve("SolinaLauncher-update.apk").apply { deleteIfExists() }
 
             val responseBody = api.downloadFile(url)
             val totalBytes = responseBody.contentLength().toFloat()

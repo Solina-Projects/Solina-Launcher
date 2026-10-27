@@ -151,7 +151,7 @@ fun About(
                             onClick = {},
                             onLongClick = {
                                 val commitUrl =
-                                    "https://github.com/LawnchairLauncher/lawnchair/commit/${BuildConfig.COMMIT_HASH}"
+                                    "https://github.com/Solina-Projects/Solina-Launcher2/commit/${BuildConfig.COMMIT_HASH}"
                                 context.startActivity(Intent(Intent.ACTION_VIEW, commitUrl.toUri()))
                             },
                         ),
@@ -210,27 +210,31 @@ fun About(
                 member = it,
             )
         }
-        preferenceGroupItems(
-            items = uiState.supportAndPr,
-            isFirstChild = false,
-            heading = { stringResource(id = R.string.support_and_pr) },
-            key = { _, it -> it.name },
-        ) { _, it ->
-            ContributorRow(
-                member = it,
-            )
+        if (uiState.supportAndPr.isNotEmpty()) {
+            preferenceGroupItems(
+                items = uiState.supportAndPr,
+                isFirstChild = false,
+                heading = { stringResource(id = R.string.support_and_pr) },
+                key = { _, it -> it.name },
+            ) { _, it ->
+                ContributorRow(
+                    member = it,
+                )
+            }
         }
-        preferenceGroupItems(
-            items = uiState.bottomLinks,
-            isFirstChild = false,
-            heading = { stringResource(id = R.string.community) },
-            key = { _, it -> it.labelResId },
-        ) { _, it ->
-            HorizontalLawnchairLink(
-                iconResId = it.iconResId,
-                label = stringResource(id = it.labelResId),
-                url = it.url,
-            )
+        if (uiState.bottomLinks.isNotEmpty()) {
+            preferenceGroupItems(
+                items = uiState.bottomLinks,
+                isFirstChild = false,
+                heading = { stringResource(id = R.string.community) },
+                key = { _, it -> it.labelResId },
+            ) { _, it ->
+                HorizontalLawnchairLink(
+                    iconResId = it.iconResId,
+                    label = stringResource(id = it.labelResId),
+                    url = it.url,
+                )
+            }
         }
         item {
             PreferenceGroupHeading(
@@ -254,7 +258,7 @@ fun About(
         item {
             PreferenceGroupItem(
                 cutTop = true,
-                cutBottom = false,
+                cutBottom = true,
             ) {
                 ClickablePreference(
                     label = stringResource(id = R.string.privacy_policy),
@@ -268,7 +272,28 @@ fun About(
                 )
             }
         }
+        item {
+            Spacer(Modifier.height(3.dp))
+        }
+        item {
+            PreferenceGroupItem(
+                cutTop = true,
+                cutBottom = false,
+            ) {
+                ClickablePreference(
+                    label = stringResource(id = R.string.source_and_licenses),
+                    onClick = {
+                        val webpage = NOTICE_URL.toUri()
+                        val intent = Intent(Intent.ACTION_VIEW, webpage)
+                        if (intent.resolveActivity(context.packageManager) != null) {
+                            context.startActivity(intent)
+                        }
+                    },
+                )
+            }
+        }
     }
 }
 
-private const val PRIVACY_POLICY = "https://lawnchair.app/privacy_policy"
+private const val NOTICE_URL = "https://github.com/Solina-Projects/Solina-Launcher2/blob/main/NOTICE.md"
+private const val PRIVACY_POLICY = "https://github.com/Solina-Projects/Solina-Launcher2/blob/main/PRIVACY.md"
