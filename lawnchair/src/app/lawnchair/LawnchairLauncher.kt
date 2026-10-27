@@ -65,6 +65,7 @@ import com.android.launcher3.LauncherState
 import com.android.launcher3.R
 import com.android.launcher3.Utilities
 import com.android.launcher3.folder.FolderIcon
+import com.android.launcher3.model.data.ItemInfo as LauncherItemInfo
 import com.android.launcher3.model.data.PredictedContainerInfo
 import com.android.launcher3.popup.SystemShortcut
 import com.android.launcher3.shortcuts.DeepShortcutView
@@ -73,7 +74,6 @@ import com.android.launcher3.statemanager.StateManager.StateHandler
 import com.android.launcher3.uioverrides.QuickstepLauncher
 import com.android.launcher3.uioverrides.states.AllAppsState
 import com.android.launcher3.uioverrides.states.BackgroundAppState
-import com.android.launcher3.model.data.ItemInfo as LauncherItemInfo
 import com.android.launcher3.uioverrides.states.OverviewState
 import com.android.launcher3.util.ActivityOptionsWrapper
 import com.android.launcher3.util.Executors
