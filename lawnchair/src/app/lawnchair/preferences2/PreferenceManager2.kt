@@ -537,8 +537,6 @@ class PreferenceManager2 @Inject constructor(
         onSet = { reloadHelper.reloadGrid() },
     )
 
-
-
     val folderPreviewBackgroundOpacity = preference(
         key = floatPreferencesKey(name = "folder_preview_background_opacity"),
         defaultValue = resourceProvider.getFloat(R.dimen.config_default_folder_preview_background_opacity),
@@ -597,8 +595,6 @@ class PreferenceManager2 @Inject constructor(
         defaultValue = ColorOption.Default,
         onSet = { reloadHelper.reloadGrid() },
     )
-
-
 
     val homeIconLabelSizeFactor = preference(
         key = floatPreferencesKey(name = "home_icon_label_size_factor"),

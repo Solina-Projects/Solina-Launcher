@@ -32,6 +32,7 @@ env:
   PUBLISH_NIGHTLY: false
 
 jobs:
+  # Build only the two supported standalone Solina APK variants.
   build-debug-apk:
     strategy:
       fail-fast: false
