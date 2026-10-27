@@ -190,6 +190,7 @@ fun AppDrawerPreferences(
                     valueRange = 0.5F..1.5F,
                     showAsPercentage = true,
                 )
+                    ColorPreference(preference = prefs2.drawerIconLabelColor)
             }
             ExpandAndShrink(
                 visible = showDrawerLabels.state.value,
