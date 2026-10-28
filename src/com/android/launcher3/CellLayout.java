@@ -799,6 +799,8 @@ public class CellLayout extends ViewGroup {
                     : true;
             bubbleChild.setTextVisibility(enableLabel);
             if (mContainerType == HOTSEAT) {
+                bubbleChild.setLabelVerticalOffsetDp(PreferenceCacheExtensionsKt.firstCached(
+                        pref.getHotseatIconLabelVerticalOffset(), pref));
                 bubbleChild.setTextSizeFactor(PreferenceCacheExtensionsKt.firstCached(
                         pref.getHotseatIconLabelSizeFactor(), pref));
                 float homeIconFactor = PreferenceCacheExtensionsKt.firstCached(
@@ -808,6 +810,9 @@ public class CellLayout extends ViewGroup {
                 if (homeIconFactor > 0f) {
                     bubbleChild.setIconSizeFactor(dockIconFactor / homeIconFactor);
                 }
+            } else if (mContainerType == WORKSPACE) {
+                bubbleChild.setLabelVerticalOffsetDp(PreferenceCacheExtensionsKt.firstCached(
+                        pref.getHomeIconLabelVerticalOffset(), pref));
             }
         }
 
