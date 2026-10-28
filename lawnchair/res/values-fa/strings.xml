@@ -19,4 +19,7 @@
     <string name="accessibility_smartspace_page">صفحه %1$d از %2$d</string>
     <string name="dock_vertical_padding">فضای عمودی هر ردیف داک</string>
     <string name="dock_icon_spacing">فضای افقی هر ستون داک</string>
+    <string name="home_label_vertical_offset">موقعیت عمودی برچسب صفحهٔ اصلی</string>
+    <string name="drawer_label_vertical_offset">موقعیت عمودی برچسب کشوی برنامه‌ها</string>
+    <string name="dock_label_vertical_offset">موقعیت عمودی برچسب داک</string>
 </resources>
