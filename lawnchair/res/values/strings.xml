@@ -1099,8 +1099,8 @@
     <!-- Solina: independent dock layout and icon-label customization -->
     <string name="dock_label_size">Dock label text size</string>
     <string name="dock_search_bar_vertical_position">Search bar vertical position</string>
-    <string name="dock_vertical_padding">Vertical spacing between dock rows</string>
-    <string name="dock_icon_spacing">Spacing between dock icons</string>
+    <string name="dock_vertical_padding">Vertical space per dock row</string>
+    <string name="dock_icon_spacing">Horizontal space per dock column</string>
     <string name="home_icon_label_color">Home screen icon label color</string>
     <string name="drawer_icon_label_color">App drawer icon label color</string>
     <string name="dock_icon_label_color">Dock icon label color</string>
