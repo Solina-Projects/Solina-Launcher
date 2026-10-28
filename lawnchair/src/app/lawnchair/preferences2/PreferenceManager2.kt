@@ -516,6 +516,13 @@ class PreferenceManager2 @Inject constructor(
         onSet = { reloadHelper.reloadGrid() },
     )
 
+    // Independent vertical offset for dock icon labels.
+    val hotseatIconLabelVerticalOffset = preference(
+        key = floatPreferencesKey(name = "hotseat_icon_label_vertical_offset"),
+        defaultValue = 0f,
+        onSet = { reloadHelper.reloadGrid() },
+    )
+
     // Scale the complete vertical cell area assigned to each dock row.
     // Kept as a separate persisted preference so it remains active for 1, 2, or 3 rows.
     val hotseatRowSpaceFactor = preference(
@@ -613,6 +620,13 @@ class PreferenceManager2 @Inject constructor(
         onSet = { reloadHelper.reloadGrid() },
     )
 
+    // Independent vertical offset for workspace icon labels.
+    val homeIconLabelVerticalOffset = preference(
+        key = floatPreferencesKey(name = "home_icon_label_vertical_offset"),
+        defaultValue = 0f,
+        onSet = { reloadHelper.reloadGrid() },
+    )
+
     val homeIconLabelFolderSizeFactor = preference(
         key = floatPreferencesKey(name = "home_icon_label_folder_size_factor"),
         defaultValue = resourceProvider.getFloat(R.dimen.config_default_home_icon_label_folder_size_factor),
@@ -628,6 +642,13 @@ class PreferenceManager2 @Inject constructor(
     val drawerIconLabelSizeFactor = preference(
         key = floatPreferencesKey(name = "drawer_icon_label_size_factor"),
         defaultValue = resourceProvider.getFloat(R.dimen.config_default_drawer_icon_label_size_factor),
+        onSet = { reloadHelper.reloadGrid() },
+    )
+
+    // Independent vertical offset for app drawer icon labels.
+    val drawerIconLabelVerticalOffset = preference(
+        key = floatPreferencesKey(name = "drawer_icon_label_vertical_offset"),
+        defaultValue = 0f,
         onSet = { reloadHelper.reloadGrid() },
     )
 
