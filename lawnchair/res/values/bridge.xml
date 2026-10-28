@@ -18,5 +18,5 @@
 <resources>
     <integer name="bridge_signature_hash">0xB662CC2F</integer>
     <string name="bridge_version" translatable="false">v3</string>
-    <integer name="lawnfeed_signature_hash">0x60E8FB7D</integer>
+    <integer name="solina_feed_signature_hash">0x13E32750</integer>
 </resources>
