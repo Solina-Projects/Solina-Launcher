@@ -1,4 +1,4 @@
-name: CI
+name: Solina Launcher - Test and Release
 
 on:
   push:
@@ -6,6 +6,7 @@ on:
       - 'main'
       - '*-dev'
       - 'Solina-Launcher-Test'
+      - 'feature/**'
     paths-ignore:
       - '.idea/**'
       - '.gitattributes'
@@ -28,15 +29,16 @@ on:
   workflow_dispatch:
   workflow_call:
 
-env:
-  PUBLISH_NIGHTLY: true
-
 jobs:
-  build-debug-apk:
+  build:
     strategy:
       fail-fast: false
       matrix:
-        build-variant: [ assembleLawnWithQuickstepNightlyRelease, assembleLawnWithQuickstepGithubDebug, assembleLawnWithQuickstepPlayDebug ]
+        include:
+          - variant: assembleLawnWithQuickstepGithubDebug
+            artifact: Solina-Launcher-Test
+          - variant: assembleLawnWithQuickstepGithubRelease
+            artifact: Solina-Launcher-Release
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
@@ -49,34 +51,42 @@ jobs:
       - uses: gradle/actions/setup-gradle@v6
         with:
           cache-encryption-key: Da25KUVSE5jbGds2zXmfXw==
-      - name: Write sign info
+      - name: Write signing information
         if: github.repository_owner == 'Solina-Projects'
+        env:
+          KEYSTORE: ${{ secrets.KEYSTORE }}
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+        shell: bash
         run: |
-          if [ ! -z "${{ secrets.KEYSTORE }}" ]; then
-            echo storePassword='${{ secrets.KEYSTORE_PASSWORD }}' >> keystore.properties
-            echo keyAlias='${{ secrets.KEY_ALIAS }}' >> keystore.properties
-            echo keyPassword='${{ secrets.KEY_PASSWORD }}' >> keystore.properties
-            echo storeFile='${{ github.workspace }}/key.jks' >> keystore.properties
-            echo ${{ secrets.KEYSTORE }} | base64 --decode > ${{ github.workspace }}/key.jks
+          if [[ -n "$KEYSTORE" ]]; then
+            echo "storePassword=$KEYSTORE_PASSWORD" >> keystore.properties
+            echo "keyAlias=$KEY_ALIAS" >> keystore.properties
+            echo "keyPassword=$KEY_PASSWORD" >> keystore.properties
+            echo "storeFile=$GITHUB_WORKSPACE/key.jks" >> keystore.properties
+            printf '%s' "$KEYSTORE" | base64 --decode > "$GITHUB_WORKSPACE/key.jks"
           fi
       - name: Build APK
         shell: bash
         run: |
           set -o pipefail
-          ./gradlew ${{ matrix.build-variant }} 2>&1 | tee build.log
+          ./gradlew "${{ matrix.variant }}" 2>&1 | tee build.log
       - name: Report build errors
         if: failure()
         shell: bash
         run: |
           errors=$(grep -E "^e: |error:|What went wrong|Execution failed|AAPT|FAILED" -A2 build.log | head -40 | cut -c1-300 | awk '{printf "%s%%0A", $0}')
           echo "::error title=Build errors::${errors}"
-      - name: Upload artifact
+      - name: Upload APK
         uses: actions/upload-artifact@v7
         with:
-          name: ${{ matrix.build-variant }}
+          name: ${{ matrix.artifact }}
           path: build/outputs/apk/**/*.apk
+          if-no-files-found: error
+          retention-days: 90
 
-  check-style:
+  check:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
@@ -87,25 +97,22 @@ jobs:
           distribution: 'zulu'
           java-version: 21
       - uses: gradle/actions/setup-gradle@v6
-      - run: ./gradlew spotlessCheck
+      - run: ./gradlew spotlessCheck licensee
 
-  # Status check that is required in branch protection rules.
   final-status:
     needs:
-      - build-debug-apk
-      - check-style
+      - build
+      - check
     runs-on: ubuntu-slim
     if: always()
-    outputs:
-      publish_nightly: ${{ steps.publishing-status.outputs.publish_nightly }}
     steps:
-      - name: Check
+      - name: Verify all builds and checks
+        env:
+          RESULTS: ${{ toJSON(needs.*.result) }}
+        shell: bash
         run: |
-          results=$(tr -d '\n' <<< '${{ toJSON(needs.*.result) }}')
-          if ! grep -q -v -E '(failure|cancelled)' <<< "$results"; then
-            echo "One or more required jobs failed"
+          if grep -q -E '"(failure|cancelled)"' <<< "$RESULTS"; then
+            echo "A build or required check failed."
             exit 1
           fi
-          echo "All required jobs completed successfully."
-      - id: publishing-status
-        run: echo "publish_nightly=${{ env.PUBLISH_NIGHTLY }}" >> "$GITHUB_OUTPUT"
+          echo "Both APK variants and required checks completed successfully."
