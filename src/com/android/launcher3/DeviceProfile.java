@@ -901,8 +901,11 @@ public class DeviceProfile {
         HotseatMode hotseatMode = PreferenceCacheExtensionsKt.firstCached(preferenceManager2.getHotseatMode());
         boolean isQsbEnable = hotseatMode.getLayoutResourceId() != R.layout.empty_view;
         // LC-Note: Hidden dock labels need no text space; keep the minimum touch target.
-        hotseatCellHeightPx = app.lawnchair.util.DockCellSize.calculate(
-                hotseatIconSizePx, iconTextHeight, isLabelInDock, pxFromDp(48, mMetrics));
+        float rowSpaceFactor = PreferenceCacheExtensionsKt.firstCached(
+                preferenceManager2.getHotseatRowSpaceFactor());
+        hotseatCellHeightPx = Math.round(app.lawnchair.util.DockCellSize.calculate(
+                hotseatIconSizePx, iconTextHeight, isLabelInDock, pxFromDp(48, mMetrics))
+                * rowSpaceFactor);
         hotseatQsbSpace = mHotseatQsbSpaceBase;
         hotseatQsbSpace += isQsbEnable && isLabelInDock ? (iconTextHeight / 2) : 0;
         
@@ -913,12 +916,9 @@ public class DeviceProfile {
         hotseatBarBottomSpacePx *= PreferenceCacheExtensionsKt
             .firstCached(preferenceManager2.getHotseatBottomFactor());
 
-        // Extra height needed for additional dock rows, including the configured
-        // vertical gap. CellLayout adds this gap to its vertical border spacing, so
-        // the dock bar must reserve the same space to avoid clipping large icons.
-        int dockRowSpacingPx = Math.round(
-                PreferenceCacheExtensionsKt.firstCached(
-                        preferenceManager2.getHotseatVerticalPaddingDp()) * mMetrics.density);
+        // Reserve the scaled cell height and scaled inter-row border space for every
+        // additional dock row, matching CellLayout's actual vertical geometry.
+        int dockRowSpacingPx = Math.round(hotseatBorderSpace * rowSpaceFactor);
         int extraRowsHeight = (numHotseatRows - 1)
                 * (hotseatCellHeightPx + dockRowSpacingPx);
 
