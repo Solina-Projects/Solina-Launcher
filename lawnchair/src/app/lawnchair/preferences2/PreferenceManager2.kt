@@ -516,17 +516,26 @@ class PreferenceManager2 @Inject constructor(
         onSet = { reloadHelper.reloadGrid() },
     )
 
-    // Extra vertical breathing room around dock rows, in dp.
-    val hotseatVerticalPaddingDp = preference(
-        key = floatPreferencesKey(name = "hotseat_vertical_padding_dp"),
-        defaultValue = 0.0f,
+    // Scale the complete vertical cell area assigned to each dock row.
+    // Kept as a separate persisted preference so it remains active for 1, 2, or 3 rows.
+    val hotseatRowSpaceFactor = preference(
+        key = floatPreferencesKey(name = "hotseat_row_space_factor"),
+        defaultValue = 1.0f,
         onSet = { reloadHelper.reloadGrid() },
     )
 
-    // Scale the space between dock icons, especially useful for multi-row docks.
+    // Scale horizontal breathing room around dock icons in every column.
+    // Keep the existing key so previously saved Solina settings remain compatible.
     val hotseatIconSpacingFactor = preference(
         key = floatPreferencesKey(name = "hotseat_icon_spacing_factor"),
         defaultValue = 1.0f,
+        onSet = { reloadHelper.reloadGrid() },
+    )
+
+    // Legacy preference retained for compatibility with existing backups.
+    val hotseatVerticalPaddingDp = preference(
+        key = floatPreferencesKey(name = "hotseat_vertical_padding_dp"),
+        defaultValue = 0.0f,
         onSet = { reloadHelper.reloadGrid() },
     )
 
