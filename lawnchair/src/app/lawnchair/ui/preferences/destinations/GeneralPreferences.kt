@@ -93,6 +93,15 @@ fun GeneralPreferences(modifier: Modifier = Modifier) {
                 description = stringResource(id = R.string.home_screen_rotation_description),
             )
         }
+
+        PreferenceGroup(heading = stringResource(id = R.string.regional_settings)) {
+            SmartspaceCalendarPreference()
+            SwitchPreference(
+                adapter = prefs2.smartspacePersianNumerals.getAdapter(),
+                label = stringResource(id = R.string.persian_numerals_label),
+                description = stringResource(id = R.string.persian_numerals_description),
+            )
+        }
         PreferenceGroup(heading = stringResource(id = R.string.updater)) {
             if (BuildConfig.APPLICATION_ID.contains("nightly")) {
                 SwitchPreference(
