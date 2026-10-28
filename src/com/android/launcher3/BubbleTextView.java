@@ -324,6 +324,12 @@ public class BubbleTextView extends TextView implements ItemInfoUpdateReceiver,
         mBaseTextSize = getTextSize();
         a.recycle();
 
+        // App drawer labels use their own offset, independent from workspace and dock.
+        if (mDisplay == DISPLAY_ALL_APPS || mDisplay == DISPLAY_DRAWER_FOLDER) {
+            setLabelVerticalOffsetDp(PreferenceCacheExtensionsKt.firstCached(
+                    pref2.getDrawerIconLabelVerticalOffset(), pref2));
+        }
+
         mRunningAppIndicatorHeight =
                 getResources().getDimensionPixelSize(R.dimen.taskbar_running_app_indicator_height);
         mRunningAppIndicatorTopMargin =
@@ -681,6 +687,26 @@ public class BubbleTextView extends TextView implements ItemInfoUpdateReceiver,
         }
         mIconSize = newSize;
         applyCompoundDrawables(getIconOrTransparentColor());
+        requestLayout();
+        invalidate();
+    }
+
+    /**
+     * Adjust only the gap between an icon drawable and its label.
+     * A negative offset moves the label upward; a positive offset moves it downward.
+     */
+    public void setLabelVerticalOffsetDp(float offsetDp) {
+        int basePadding;
+        if (mDisplay == DISPLAY_ALL_APPS || mDisplay == DISPLAY_PREDICTION_ROW
+                || mDisplay == DISPLAY_SEARCH_RESULT_APP_ROW || mDisplay == DISPLAY_DRAWER_FOLDER) {
+            basePadding = mDeviceProfile.getAllAppsProfile().getIconDrawablePaddingPx();
+        } else if (mDisplay == DISPLAY_FOLDER) {
+            basePadding = mDeviceProfile.folderChildDrawablePaddingPx;
+        } else {
+            basePadding = mDeviceProfile.iconDrawablePaddingPx;
+        }
+        int offsetPx = Math.round(offsetDp * getResources().getDisplayMetrics().density);
+        setCompoundDrawablePadding(basePadding + offsetPx);
         requestLayout();
         invalidate();
     }
