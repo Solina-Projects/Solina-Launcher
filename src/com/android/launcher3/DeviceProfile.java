@@ -911,8 +911,14 @@ public class DeviceProfile {
         hotseatBarBottomSpacePx *= PreferenceCacheExtensionsKt
             .firstCached(preferenceManager2.getHotseatBottomFactor());
 
-        // Extra height needed for additional dock rows
-        int extraRowsHeight = (numHotseatRows - 1) * hotseatCellHeightPx;
+        // Extra height needed for additional dock rows, including the configured
+        // vertical gap. CellLayout adds this gap to its vertical border spacing, so
+        // the dock bar must reserve the same space to avoid clipping large icons.
+        int dockRowSpacingPx = Math.round(
+                PreferenceCacheExtensionsKt.firstCached(
+                        preferenceManager2.getHotseatVerticalPaddingDp()) * mMetrics.density);
+        int extraRowsHeight = (numHotseatRows - 1)
+                * (hotseatCellHeightPx + dockRowSpacingPx);
 
         if (isVerticalBarLayout()) {
             hotseatBarSizePx = hotseatIconSizePx + getHotseatProfile().getBarEdgePaddingPx()
