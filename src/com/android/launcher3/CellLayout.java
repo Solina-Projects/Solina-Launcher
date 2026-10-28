@@ -109,6 +109,8 @@ public class CellLayout extends ViewGroup {
     private int mFixedCellHeight;
     @ViewDebug.ExportedProperty(category = "launcher")
     protected Point mBorderSpace;
+    // Extra per-column horizontal spacing, applied symmetrically around the dock center.
+    private int mHotseatHorizontalSpacingAdjustmentPx = 0;
 
     @ViewDebug.ExportedProperty(category = "launcher")
     protected int mCountX;
@@ -430,16 +432,15 @@ public class CellLayout extends ViewGroup {
                 int minimumHotseatGap = Math.round(
                         4f * getResources().getDisplayMetrics().density);
                 int baseHotseatGap = Math.max(deviceProfile.hotseatBorderSpace, minimumHotseatGap);
-                int horizontalHotseatGap = Math.round(
-                        baseHotseatGap * Utilities.boundToRange(horizontalSpacingFactor, 0.8f, 1.5f));
+                // Keep the base cell geometry stable. Scaling mBorderSpace alone is ineffective
+                // because onMeasure shrinks each cell to fill the same width, cancelling most of
+                // the visible gap change. Instead, shift every column symmetrically around center.
+                mHotseatHorizontalSpacingAdjustmentPx = Math.round(
+                        baseHotseatGap * (Utilities.boundToRange(horizontalSpacingFactor, 0.8f, 1.5f) - 1f));
                 mBorderSpace = new Point(
-                        horizontalHotseatGap,
+                        baseHotseatGap,
                         Math.round(deviceProfile.hotseatBorderSpace
                                 * Utilities.boundToRange(verticalSpacingFactor, 0.8f, 1.5f)));
-                // Give the first and last dock icons half of the same gap used between columns,
-                // so the slider controls both inter-icon spacing and the dock's side margins.
-                int horizontalEdgeInset = Math.round(horizontalHotseatGap / 2f);
-                setPadding(horizontalEdgeInset, getPaddingTop(), horizontalEdgeInset, getPaddingBottom());
                 break;
             case WORKSPACE:
             default:
@@ -1907,7 +1908,13 @@ public class CellLayout extends ViewGroup {
 
     /** Enables successors to provide an X adjustment for the cell. */
     protected int getTranslationXForCell(int cellX, int cellY) {
-        return 0;
+        if (mContainerType != HOTSEAT || mHotseatHorizontalSpacingAdjustmentPx == 0) {
+            return 0;
+        }
+        // Each adjacent column gains/loses the same gap; the first and last columns move
+        // equally in opposite directions, so the dock's side margins stay tied to the slider.
+        float centeredColumn = cellX - ((mCountX - 1) / 2f);
+        return Math.round(centeredColumn * mHotseatHorizontalSpacingAdjustmentPx);
     }
 
     public void markCellsAsOccupiedForView(View view) {
