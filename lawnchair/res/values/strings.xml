@@ -193,6 +193,8 @@
 
     <string name="general_label">General</string>
     <string name="regional_settings">Language, numbers and calendar</string>
+    <string name="app_language_label">App language</string>
+    <string name="app_language_description">Choose English or Persian in Android app-language settings.</string>
     <string name="persian_numerals_label">Use Persian numerals in date widget</string>
     <string name="persian_numerals_description">Display digits as ۰۱۲۳۴۵۶۷۸۹ in the launcher date and time widget.</string>
     <string name="general_description">Colors, icon packs, notification dots</string>
