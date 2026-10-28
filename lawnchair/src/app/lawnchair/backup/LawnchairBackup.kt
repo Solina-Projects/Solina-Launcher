@@ -98,7 +98,23 @@ class LawnchairBackup(
                         while (true) {
                             entry = zipIs.nextEntry
                             if (entry == null) break
-                            handlers[entry.name]?.invoke(zipIs)
+                            val handler = handlers[entry.name]
+                            if (handler != null) {
+                                handler.invoke(zipIs)
+                            } else if (entry.name.startsWith(WALLPAPER_LIBRARY_ENTRY_PREFIX)) {
+                                val fileName = entry.name.removePrefix(WALLPAPER_LIBRARY_ENTRY_PREFIX)
+                                // Accept only plain filenames to prevent path traversal from backups.
+                                if (fileName.isNotBlank() && File(fileName).name == fileName &&
+                                    !fileName.contains("..")
+                                ) {
+                                    val wallpaperFile = File(
+                                        File(context.filesDir, "wallpapers"),
+                                        fileName,
+                                    )
+                                    wallpaperFile.parentFile?.mkdirs()
+                                    wallpaperFile.outputStream().use { out -> zipIs.copyTo(out) }
+                                }
+                            }
                         }
                     }
                 }
@@ -115,6 +131,7 @@ class LawnchairBackup(
         const val INFO_FILE_NAME = "info.pb"
         const val WALLPAPER_FILE_NAME = "wallpaper.png"
         const val SCREENSHOT_FILE_NAME = "screenshot.png"
+        private const val WALLPAPER_LIBRARY_ENTRY_PREFIX = "wallpapers/"
         const val LAUNCHER_DB_FILE_NAME = "launcher.db"
         const val RESTORED_DB_FILE_NAME = "restored.db"
 
@@ -192,6 +209,18 @@ class LawnchairBackup(
                             if (!it.value.exists()) return@forEach
                             out.putNextEntry(ZipEntry(it.key))
                             it.value.inputStream().use { input -> input.copyTo(out) }
+                        }
+                        if (contents.hasFlag(INCLUDE_LAYOUT_AND_SETTINGS)) {
+                            // The Room database stores paths to the user's wallpaper history.
+                            // Include the image files too, otherwise restored rows point to missing files.
+                            File(context.filesDir, "wallpapers").listFiles()
+                                ?.filter { it.isFile }
+                                ?.forEach { wallpaperFile ->
+                                    out.putNextEntry(
+                                        ZipEntry(WALLPAPER_LIBRARY_ENTRY_PREFIX + wallpaperFile.name),
+                                    )
+                                    wallpaperFile.inputStream().use { input -> input.copyTo(out) }
+                                }
                         }
                     }
                 }
