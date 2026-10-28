@@ -903,13 +903,15 @@ public class DeviceProfile {
         // LC-Note: Hidden dock labels need no text space; keep the minimum touch target.
         float rowSpaceFactor = PreferenceCacheExtensionsKt.firstCached(
                 preferenceManager2.getHotseatRowSpaceFactor());
-        hotseatCellHeightPx = Math.round(app.lawnchair.util.DockCellSize.calculate(
-                hotseatIconSizePx, iconTextHeight, isLabelInDock, pxFromDp(48, mMetrics))
-                * rowSpaceFactor);
+        int baseHotseatCellHeightPx = app.lawnchair.util.DockCellSize.calculate(
+                hotseatIconSizePx, iconTextHeight, isLabelInDock, pxFromDp(48, mMetrics));
+        hotseatCellHeightPx = Math.round(baseHotseatCellHeightPx * rowSpaceFactor);
+        // Apply the same cell-space delta even with a single row or inline/top QSB.
+        int rowSpaceAdjustmentPx = hotseatCellHeightPx - baseHotseatCellHeightPx;
         hotseatQsbSpace = mHotseatQsbSpaceBase;
         hotseatQsbSpace += isQsbEnable && isLabelInDock ? (iconTextHeight / 2) : 0;
         
-        int space = Math.abs(hotseatCellHeightPx / 2) - 16;
+        int space = Math.abs(baseHotseatCellHeightPx / 2) - 16;
         int verticalPadding = Math.round(PreferenceCacheExtensionsKt.firstCached(
                 preferenceManager2.getHotseatVerticalPaddingDp()) * mMetrics.density);
 
@@ -925,24 +927,24 @@ public class DeviceProfile {
         if (isVerticalBarLayout()) {
             hotseatBarSizePx = hotseatIconSizePx + getHotseatProfile().getBarEdgePaddingPx()
                     + getHotseatProfile().getBarWorkspaceSpacePx()
-                    + space + verticalPadding * 2;
+                    + space + rowSpaceAdjustmentPx + verticalPadding * 2;
         } else if (isQsbInline) {
             hotseatBarSizePx = Math.max(hotseatIconSizePx, getHotseatProfile().getQsbVisualHeight())
                     + hotseatBarBottomSpacePx
-                    + extraRowsHeight + verticalPadding * 2;
+                    + extraRowsHeight + rowSpaceAdjustmentPx + verticalPadding * 2;
         } else if (isQsbOnTop()) { // LC-Note: isQsbOnTop, this usually is a foldable device, not a tablet
             hotseatBarSizePx = hotseatIconSizePx
                     + hotseatQsbSpace
                     + getHotseatProfile().getQsbVisualHeight()
                     + hotseatBarBottomSpacePx
-                    + extraRowsHeight + verticalPadding * 2;
+                    + extraRowsHeight + rowSpaceAdjustmentPx + verticalPadding * 2;
         } else {
             hotseatBarSizePx = hotseatIconSizePx
                     + hotseatQsbSpace
                     + getHotseatProfile().getQsbVisualHeight()
                     + hotseatBarBottomSpacePx
                     + space
-                    + extraRowsHeight + verticalPadding * 2;
+                    + extraRowsHeight + rowSpaceAdjustmentPx + verticalPadding * 2;
         }
         var isHotseatEnabled = PreferenceCacheExtensionsKt.firstCached(preferenceManager2.isHotseatEnabled());
         if (!isHotseatEnabled) {
