@@ -1104,4 +1104,7 @@
     <string name="home_icon_label_color">Home screen icon label color</string>
     <string name="drawer_icon_label_color">App drawer icon label color</string>
     <string name="dock_icon_label_color">Dock icon label color</string>
+    <string name="home_label_vertical_offset">Home screen label vertical position</string>
+    <string name="drawer_label_vertical_offset">App drawer label vertical position</string>
+    <string name="dock_label_vertical_offset">Dock label vertical position</string>
 </resources>
