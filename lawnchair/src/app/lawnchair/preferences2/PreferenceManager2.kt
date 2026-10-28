@@ -888,6 +888,15 @@ class PreferenceManager2 @Inject constructor(
         save = { it.toString() },
     )
 
+    /**
+     * Forces Persian (Eastern Arabic) digits in the launcher date/time widget.
+     * The selected calendar system remains independent from the numeral style.
+     */
+    val smartspacePersianNumerals = preference(
+        key = booleanPreferencesKey(name = "smartspace_persian_numerals"),
+        defaultValue = false,
+    )
+
     val smartspacerMaxCount = preference(
         key = intPreferencesKey(name = "smartspace_max_count"),
         defaultValue = 5,
