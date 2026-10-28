@@ -201,22 +201,21 @@ fun GridSettings(prefs: PreferenceManager, prefs2: PreferenceManager2) {
             step = 1,
             valueRange = 1..3,
         )
+        // These two controls remain visible and keep their values for every dock row count.
         SliderPreference(
             label = stringResource(id = R.string.dock_vertical_padding),
-            adapter = prefs2.hotseatVerticalPaddingDp.getAdapter(),
-            step = 2f,
-            valueRange = 0f..48f,
-            showUnit = "dp",
+            adapter = prefs2.hotseatRowSpaceFactor.getAdapter(),
+            step = 0.05f,
+            valueRange = 0.8f..1.5f,
+            showAsPercentage = true,
         )
-        ExpandAndShrink(visible = hotseatRowsAdapter.state.value > 1) {
-            SliderPreference(
-                label = stringResource(id = R.string.dock_icon_spacing),
-                adapter = prefs2.hotseatIconSpacingFactor.getAdapter(),
-                step = 0.1f,
-                valueRange = 0.5f..2.0f,
-                showAsPercentage = true,
-            )
-        }
+        SliderPreference(
+            label = stringResource(id = R.string.dock_icon_spacing),
+            adapter = prefs2.hotseatIconSpacingFactor.getAdapter(),
+            step = 0.05f,
+            valueRange = 0.8f..1.5f,
+            showAsPercentage = true,
+        )
         SliderPreference(
             label = stringResource(id = R.string.dock_pages),
             adapter = dockPagesAdapter,
