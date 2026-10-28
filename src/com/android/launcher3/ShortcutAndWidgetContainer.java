@@ -251,6 +251,12 @@ public class ShortcutAndWidgetContainer extends ViewGroup implements FolderIcon.
 
         int childLeft = lp.x;
         int childTop = lp.y;
+        // Keep rendered dock icons aligned with CellLayout's spacing-aware cell rectangles.
+        // The QSB/search bar spans a separate region and must not move with icon columns.
+        if (mContainerType == HOTSEAT && !isChildQsb(child)
+                && getParent() instanceof CellLayout cellLayout) {
+            childLeft += cellLayout.getTranslationXForCell(lp.getCellX(), lp.getCellY());
+        }
 
         // We want to get the layout position of the widget, but layout() is a final
         // function in
