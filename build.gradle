@@ -331,7 +331,6 @@ androidComponents {
     }
 
     onVariants(selector().all()) { variant ->
-        def channel = variant.productFlavors.last().second
         variant.outputs.forEach { output ->
             output.outputFileName.set("Solina-Launcher.${variant.buildType == 'debug' ? 'Test' : 'Release'}.apk")
         }
