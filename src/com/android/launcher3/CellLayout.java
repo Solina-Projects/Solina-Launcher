@@ -425,9 +425,21 @@ public class CellLayout extends ViewGroup {
                         pref.getHotseatIconSpacingFactor(), pref);
                 float verticalSpacingFactor = PreferenceCacheExtensionsKt.firstCached(
                         pref.getHotseatRowSpaceFactor(), pref);
+                // Some non-scalable device profiles report zero hotseatBorderSpace, which made
+                // the horizontal slider a no-op. Keep a small, predictable base gap in that case.
+                int minimumHotseatGap = Math.round(
+                        4f * getResources().getDisplayMetrics().density);
+                int baseHotseatGap = Math.max(deviceProfile.hotseatBorderSpace, minimumHotseatGap);
+                int horizontalHotseatGap = Math.round(
+                        baseHotseatGap * Utilities.boundToRange(horizontalSpacingFactor, 0.8f, 1.5f));
                 mBorderSpace = new Point(
-                        Math.round(deviceProfile.hotseatBorderSpace * horizontalSpacingFactor),
-                        Math.round(deviceProfile.hotseatBorderSpace * verticalSpacingFactor));
+                        horizontalHotseatGap,
+                        Math.round(deviceProfile.hotseatBorderSpace
+                                * Utilities.boundToRange(verticalSpacingFactor, 0.8f, 1.5f)));
+                // Give the first and last dock icons half of the same gap used between columns,
+                // so the slider controls both inter-icon spacing and the dock's side margins.
+                int horizontalEdgeInset = Math.round(horizontalHotseatGap / 2f);
+                setPadding(horizontalEdgeInset, getPaddingTop(), horizontalEdgeInset, getPaddingBottom());
                 break;
             case WORKSPACE:
             default:
