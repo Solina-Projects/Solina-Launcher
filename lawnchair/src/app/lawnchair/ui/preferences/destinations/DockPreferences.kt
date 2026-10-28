@@ -131,14 +131,14 @@ fun HotseatBackgroundSettings(prefs: PreferenceManager, prefs2: PreferenceManage
             label = stringResource(id = R.string.hotseat_bg_horizontal_inset_left),
             adapter = prefs.hotseatBGHorizontalInsetLeft.getAdapter(),
             step = 5,
-            valueRange = 0..100,
+            valueRange = 0..50,
             showUnit = "px",
         )
         SliderPreference(
             label = stringResource(id = R.string.hotseat_bg_horizontal_inset_right),
             adapter = prefs.hotseatBGHorizontalInsetRight.getAdapter(),
             step = 5,
-            valueRange = 0..100,
+            valueRange = 0..50,
             showUnit = "px",
         )
         SliderPreference(
@@ -208,15 +208,6 @@ fun GridSettings(prefs: PreferenceManager, prefs2: PreferenceManager2) {
             valueRange = 0f..32f,
             showUnit = "dp",
         )
-        ExpandAndShrink(visible = hotseatRowsAdapter.state.value > 1) {
-            SliderPreference(
-                label = stringResource(id = R.string.dock_icon_spacing),
-                adapter = prefs2.hotseatIconSpacingFactor.getAdapter(),
-                step = 0.1f,
-                valueRange = 0.5f..2.0f,
-                showAsPercentage = true,
-            )
-        }
         SliderPreference(
             label = stringResource(id = R.string.dock_pages),
             adapter = dockPagesAdapter,
