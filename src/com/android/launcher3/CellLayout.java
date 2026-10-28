@@ -421,11 +421,13 @@ public class CellLayout extends ViewGroup {
                 mBorderSpace = new Point(deviceProfile.folderCellLayoutBorderSpacePx);
                 break;
             case HOTSEAT:
-                float spacingFactor = PreferenceCacheExtensionsKt.firstCached(
+                float horizontalSpacingFactor = PreferenceCacheExtensionsKt.firstCached(
                         pref.getHotseatIconSpacingFactor(), pref);
+                float verticalSpacingFactor = PreferenceCacheExtensionsKt.firstCached(
+                        pref.getHotseatRowSpaceFactor(), pref);
                 mBorderSpace = new Point(
-                        Math.round(deviceProfile.hotseatBorderSpace * spacingFactor),
-                        Math.round(deviceProfile.hotseatBorderSpace * spacingFactor));
+                        Math.round(deviceProfile.hotseatBorderSpace * horizontalSpacingFactor),
+                        Math.round(deviceProfile.hotseatBorderSpace * verticalSpacingFactor));
                 break;
             case WORKSPACE:
             default:
