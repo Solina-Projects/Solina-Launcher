@@ -5,6 +5,7 @@ on:
     branches:
       - 'main'
       - '*-dev'
+      - 'Solina-Launcher-Test'
     paths-ignore:
       - '.idea/**'
       - '.gitattributes'
