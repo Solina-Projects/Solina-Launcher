@@ -205,7 +205,7 @@ fun GridSettings(prefs: PreferenceManager, prefs2: PreferenceManager2) {
             label = stringResource(id = R.string.dock_vertical_padding),
             adapter = prefs2.hotseatVerticalPaddingDp.getAdapter(),
             step = 2f,
-            valueRange = 0f..32f,
+            valueRange = 0f..48f,
             showUnit = "dp",
         )
         ExpandAndShrink(visible = hotseatRowsAdapter.state.value > 1) {
