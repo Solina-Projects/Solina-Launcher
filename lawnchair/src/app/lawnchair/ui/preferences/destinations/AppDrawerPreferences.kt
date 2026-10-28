@@ -190,6 +190,13 @@ fun AppDrawerPreferences(
                     valueRange = 0.5F..1.5F,
                     showAsPercentage = true,
                 )
+                SliderPreference(
+                    label = stringResource(id = R.string.drawer_label_vertical_offset),
+                    adapter = prefs2.drawerIconLabelVerticalOffset.getAdapter(),
+                    step = 1f,
+                    valueRange = -16f..16f,
+                    showUnit = "dp",
+                )
                 ColorPreference(preference = prefs2.drawerIconLabelColor)
             }
             ExpandAndShrink(
