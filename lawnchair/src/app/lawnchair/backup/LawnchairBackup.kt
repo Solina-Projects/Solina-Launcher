@@ -8,6 +8,7 @@ import android.graphics.BitmapFactory
 import android.net.Uri
 import androidx.core.graphics.drawable.toBitmap
 import app.lawnchair.LawnchairProto.BackupInfo
+import app.lawnchair.data.AppDatabase
 import app.lawnchair.util.hasFlag
 import app.lawnchair.util.scaleDownTo
 import app.lawnchair.util.scaleDownToDisplaySize
@@ -159,6 +160,13 @@ class LawnchairBackup(
                 .setPreviewHeight(screenshotBitmap.height)
                 .setPreviewDarkText(wallpaperSupportsDarkText)
                 .build()
+
+            if (contents.hasFlag(INCLUDE_LAYOUT_AND_SETTINGS)) {
+                // AppDatabase uses Room/WAL and stores icon overrides, custom folders, and
+                // wallpaper metadata. Checkpoint first so a backup of the main DB file includes
+                // all committed rows rather than leaving recent changes only in preferences-wal.
+                AppDatabase.INSTANCE.get(context).checkpoint()
+            }
 
             val pfd = context.contentResolver.openFileDescriptor(fileUri, "w")!!
             withContext(Dispatchers.IO) {
