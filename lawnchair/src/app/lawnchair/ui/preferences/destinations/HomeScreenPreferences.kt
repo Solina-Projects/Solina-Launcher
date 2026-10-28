@@ -222,6 +222,13 @@ fun HomeScreenPreferences(
                     valueRange = 0.5F..1.5F,
                     showAsPercentage = true,
                 )
+                SliderPreference(
+                    label = stringResource(id = R.string.home_label_vertical_offset),
+                    adapter = prefs2.homeIconLabelVerticalOffset.getAdapter(),
+                    step = 1f,
+                    valueRange = -16f..16f,
+                    showUnit = "dp",
+                )
                 ColorPreference(preference = prefs2.homeIconLabelColor)
             }
         }
