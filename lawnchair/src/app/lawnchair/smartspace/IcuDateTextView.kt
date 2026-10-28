@@ -31,18 +31,22 @@ class IcuDateTextView @JvmOverloads constructor(
     private var calendar: SmartspaceCalendar? = null
     private lateinit var dateTimeOptions: DateTimeOptions
     private var formatterFunction: FormatterFunction? = null
+    private var usePersianNumerals: Boolean = false
     private val ticker = this::onTimeTick
 
     init {
         repeatOnAttached {
             val calendarFlow = prefs.smartspaceCalendar.get()
             val optionsFlow = DateTimeOptions.fromPrefs(prefs)
-            combine(calendarFlow, optionsFlow) { calendar, options -> calendar to options }
-                .subscribeBlocking(this) {
-                    calendar = it.first
-                    dateTimeOptions = it.second
-                    onTimeChanged(true)
-                }
+            val persianNumeralsFlow = prefs.smartspacePersianNumerals.get()
+            combine(calendarFlow, optionsFlow, persianNumeralsFlow) { calendar, options, persianNumerals ->
+                Triple(calendar, options, persianNumerals)
+            }.subscribeBlocking(this) {
+                calendar = it.first
+                dateTimeOptions = it.second
+                usePersianNumerals = it.third
+                onTimeChanged(true)
+            }
 
             val intentFilter = IntentFilter()
             intentFilter.addAction(Intent.ACTION_TIME_CHANGED)
@@ -108,10 +112,13 @@ class IcuDateTextView @JvmOverloads constructor(
             format = context.getString(R.string.smartspace_icu_date_pattern_gregorian_wday_month_day_no_year)
         }
 
-        val chineseLocale = Locale.Builder()
+        val chineseLocaleBuilder = Locale.Builder()
             .setLocale(Locale.CHINESE)
             .setUnicodeLocaleKeyword("ca", "chinese")
-            .build()
+        if (usePersianNumerals) {
+            chineseLocaleBuilder.setUnicodeLocaleKeyword("nu", "arabext")
+        }
+        val chineseLocale = chineseLocaleBuilder.build()
 
         val formatter = DateFormat.getInstanceForSkeleton(format, chineseLocale)
         formatter.setContext(DisplayContext.CAPITALIZATION_FOR_STANDALONE)
@@ -134,8 +141,9 @@ class IcuDateTextView @JvmOverloads constructor(
             format = context.getString(R.string.smartspace_icu_date_pattern_gregorian_wday_month_day_no_year)
         }
         val persianLocale = Locale.Builder()
-            .setLanguage("fa") // Mimic old Solar Hijri behaviour using Farsi script
-            .setExtension('u', "ca-persian")
+            .setLanguage("fa") // Farsi script and localized weekday/month names
+            .setUnicodeLocaleKeyword("ca", "persian")
+            .setUnicodeLocaleKeyword("nu", if (usePersianNumerals) "arabext" else "latn")
             .build()
 
         val formatter = DateFormat.getInstanceForSkeleton(format, persianLocale)
@@ -157,7 +165,15 @@ class IcuDateTextView @JvmOverloads constructor(
         } else {
             format = context.getString(R.string.smartspace_icu_date_pattern_gregorian_wday_month_day_no_year)
         }
-        val formatter = DateFormat.getInstanceForSkeleton(format, Locale.getDefault())
+        val locale = if (usePersianNumerals) {
+            Locale.Builder()
+                .setLocale(Locale.getDefault())
+                .setUnicodeLocaleKeyword("nu", "arabext")
+                .build()
+        } else {
+            Locale.getDefault()
+        }
+        val formatter = DateFormat.getInstanceForSkeleton(format, locale)
         formatter.setContext(DisplayContext.CAPITALIZATION_FOR_STANDALONE)
         return { formatter.format(it) }
     }
