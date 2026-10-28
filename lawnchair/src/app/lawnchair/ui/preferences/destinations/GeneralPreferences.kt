@@ -16,6 +16,10 @@
 
 package app.lawnchair.ui.preferences.destinations
 
+import android.content.Intent
+import android.net.Uri
+import android.os.Build
+import android.provider.Settings
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -38,6 +42,7 @@ import app.lawnchair.ui.preferences.components.NotificationDotsPreference
 import app.lawnchair.ui.preferences.components.ThemePreference
 import app.lawnchair.ui.preferences.components.colorpreference.ColorContrastWarning
 import app.lawnchair.ui.preferences.components.colorpreference.ColorPreference
+import app.lawnchair.ui.preferences.components.controls.ClickablePreference
 import app.lawnchair.ui.preferences.components.controls.ListPreference
 import app.lawnchair.ui.preferences.components.controls.ListPreferenceEntry
 import app.lawnchair.ui.preferences.components.controls.SwitchPreference
@@ -91,6 +96,26 @@ fun GeneralPreferences(modifier: Modifier = Modifier) {
                 adapter = prefs.allowRotation.getAdapter(),
                 label = stringResource(id = R.string.home_screen_rotation_label),
                 description = stringResource(id = R.string.home_screen_rotation_description),
+            )
+        }
+        PreferenceGroup(heading = stringResource(id = R.string.regional_settings)) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                ClickablePreference(
+                    label = stringResource(id = R.string.app_language_label),
+                    subtitle = stringResource(id = R.string.app_language_description),
+                ) {
+                    context.startActivity(
+                        Intent(Settings.ACTION_APP_LOCALE_SETTINGS).apply {
+                            data = Uri.fromParts("package", context.packageName, null)
+                        },
+                    )
+                }
+            }
+            SmartspaceCalendarPreference()
+            SwitchPreference(
+                adapter = prefs2.smartspacePersianNumerals.getAdapter(),
+                label = stringResource(id = R.string.persian_numerals_label),
+                description = stringResource(id = R.string.persian_numerals_description),
             )
         }
         PreferenceGroup(heading = stringResource(id = R.string.updater)) {
