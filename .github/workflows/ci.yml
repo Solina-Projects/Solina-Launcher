@@ -32,12 +32,12 @@ env:
   PUBLISH_NIGHTLY: false
 
 jobs:
-  # Build only the two supported standalone Solina APK variants.
+  # Build supported APK variants plus the isolated experimental Quickstep API 37 variant.
   build-debug-apk:
     strategy:
       fail-fast: false
       matrix:
-        build-variant: [ assembleSolinaWithoutQuickstepGithubDebug, assembleSolinaWithoutQuickstepGithubRelease ]
+        build-variant: [ assembleSolinaWithoutQuickstepGithubDebug, assembleSolinaWithoutQuickstepGithubRelease, assembleSolinaQuickstepGithubDebug ]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
