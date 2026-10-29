@@ -32,12 +32,16 @@ env:
   PUBLISH_NIGHTLY: false
 
 jobs:
-  # Build supported APK variants plus the isolated experimental Quickstep API 37 variant.
-  build-debug-apk:
+  # Exactly two deliverables: Test (Debug + Quickstep) and Release (Release + Quickstep).
+  build-apk:
     strategy:
       fail-fast: false
       matrix:
-        build-variant: [ assembleSolinaWithoutQuickstepGithubDebug, assembleSolinaWithoutQuickstepGithubRelease, assembleSolinaQuickstepGithubDebug ]
+        include:
+          - build-variant: assembleSolinaQuickstepGithubDebug
+            artifact-name: Solina-Test-APK
+          - build-variant: assembleSolinaQuickstepGithubRelease
+            artifact-name: Solina-Release-APK
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
@@ -74,8 +78,9 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-artifact@v7
         with:
-          name: ${{ matrix.build-variant }}
+          name: ${{ matrix.artifact-name }}
           path: build/outputs/apk/**/*.apk
+          if-no-files-found: error
 
   check-style:
     runs-on: ubuntu-latest
@@ -95,7 +100,7 @@ jobs:
   # Status check that is required in branch protection rules.
   final-status:
     needs:
-      - build-debug-apk
+      - build-apk
       - check-style
     runs-on: ubuntu-slim
     if: always()
