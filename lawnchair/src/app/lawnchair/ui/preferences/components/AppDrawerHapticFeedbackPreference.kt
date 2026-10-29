@@ -29,12 +29,21 @@ fun AppDrawerHapticFeedbackPreference() {
 
 private fun isDrawerHapticFeedbackSupported(context: Context): Boolean {
     val vibrator = context.getSystemService(Vibrator::class.java) ?: return false
-    if (!vibrator.hasVibrator()) return false
 
-    if (Flags.msdlFeedback() && Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-        return vibrator.arePrimitivesSupported(VibrationEffect.Composition.PRIMITIVE_CLICK)[0] ||
-            vibrator.areEffectsSupported(VibrationEffect.EFFECT_CLICK)[0] == Vibrator.VIBRATION_EFFECT_SUPPORT_YES
-    }
+    return runCatching {
+        if (!vibrator.hasVibrator()) return false
 
-    return true
+        if (Flags.msdlFeedback() && Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            val supportsClickPrimitive =
+                vibrator.arePrimitivesSupported(VibrationEffect.Composition.PRIMITIVE_CLICK)
+                    .firstOrNull() == true
+            val supportsClickEffect =
+                vibrator.areEffectsSupported(VibrationEffect.EFFECT_CLICK)
+                    .firstOrNull() == Vibrator.VIBRATION_EFFECT_SUPPORT_YES
+
+            supportsClickPrimitive || supportsClickEffect
+        } else {
+            true
+        }
+    }.getOrDefault(false)
 }
