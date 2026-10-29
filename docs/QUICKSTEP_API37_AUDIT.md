@@ -6,6 +6,8 @@
 - The currently enabled Gradle variants are `solinaWithoutQuickstepGithubDebug` and `solinaWithoutQuickstepGithubRelease`.
 - The current CI workflow builds those two variants only.
 - The release manifest/configuration uses Quickstep SDK bounds 35–36. The Debug build overrides those bounds to 0–100000, which is a test override, not a compatibility declaration.
+- The shared launcher manifest declares `app.lawnchair.LawnchairLauncher` as HOME; the separate Quickstep manifest declares `com.android.quickstep.TouchInteractionService` for `android.intent.action.QUICKSTEP_SERVICE` and a `RecentsActivity`.
+- That Quickstep manifest also requests system/signature-level permissions such as `STATUS_BAR_SERVICE`, `WRITE_SECURE_SETTINGS`, `MANAGE_ACTIVITY_TASKS`, and `INTERNAL_SYSTEM_WINDOW`. Packaging those components in a regular APK does not grant those privileges; the device/ROM integration and installation context matter.
 - Therefore neither a successful build nor the Debug SDK override establishes Android 17 Quickstep/QuickSwitch runtime support.
 
 ## Required next checks
