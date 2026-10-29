@@ -16,7 +16,6 @@
 
 package app.lawnchair.ui.preferences.destinations
 
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -64,20 +63,17 @@ object AppDrawerRoutes {
 fun AppDrawerPreferences(
     modifier: Modifier = Modifier,
 ) {
-    Log.e("SolinaAppDrawer", "AppDrawerPreferences: entered")
     val prefs = preferenceManager()
     val prefs2 = preferenceManager2()
     val context = LocalContext.current
     val resources = context.resources
     val isFoldable = InvariantDeviceProfile.deviceType == InvariantDeviceProfile.TYPE_MULTI_DISPLAY
 
-    Log.e("SolinaAppDrawer", "AppDrawerPreferences: before PreferenceLayout")
     PreferenceLayout(
         label = stringResource(id = R.string.app_drawer_label),
         backArrowVisible = !LocalIsExpandedScreen.current,
         modifier = modifier,
     ) {
-        Log.e("SolinaAppDrawer", "AppDrawerPreferences: layout content started")
         val drawerListAdapter = prefs.drawerList.getAdapter()
         Column {
             DrawerLayoutPreference(drawerListAdapter)
@@ -85,7 +81,6 @@ fun AppDrawerPreferences(
                 AppDrawerFolderPreferenceItem()
             }
         }
-        Log.e("SolinaAppDrawer", "AppDrawerPreferences: before General preferences")
         val hiddenApps = prefs2.hiddenApps.getAdapter().state.value
         PreferenceGroup(heading = stringResource(id = R.string.general_label)) {
             NavigationActionPreference(
@@ -100,7 +95,6 @@ fun AppDrawerPreferences(
             )
             AppDrawerHapticFeedbackPreference()
         }
-        Log.e("SolinaAppDrawer", "AppDrawerPreferences: before Style preferences")
         PreferenceGroup(heading = stringResource(R.string.style)) {
             ColorPreference(preference = prefs2.appDrawerBackgroundColor)
             SliderPreference(
@@ -120,7 +114,6 @@ fun AppDrawerPreferences(
                 adapter = prefs2.appDrawerSearchBarBackground.getAdapter(),
             )
         }
-        Log.e("SolinaAppDrawer", "AppDrawerPreferences: before Grid preferences")
         PreferenceGroup(heading = stringResource(id = R.string.grid)) {
             val drawerColumnsAdapter = prefs2.drawerColumns.getAdapter()
             val drawerColumnsUnfoldedAdapter = prefs2.drawerColumnsUnfolded.getAdapter()
@@ -174,7 +167,6 @@ fun AppDrawerPreferences(
                 showAsPercentage = true,
             )
         }
-        Log.e("SolinaAppDrawer", "AppDrawerPreferences: before Icon preferences")
         val showDrawerLabels = prefs2.showIconLabelsInDrawer.getAdapter()
         PreferenceGroup(heading = stringResource(id = R.string.icons)) {
             SliderPreference(
@@ -216,7 +208,6 @@ fun AppDrawerPreferences(
                 )
             }
         }
-        Log.e("SolinaAppDrawer", "AppDrawerPreferences: before Advanced preferences")
         PreferenceGroup(heading = stringResource(id = R.string.advanced)) {
             SwitchPreference(
                 label = stringResource(id = R.string.pref_all_apps_remember_position_title),
