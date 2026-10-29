@@ -11,12 +11,12 @@
 - That Quickstep manifest also requests system/signature-level permissions such as `STATUS_BAR_SERVICE`, `WRITE_SECURE_SETTINGS`, `MANAGE_ACTIVITY_TASKS`, and `INTERNAL_SYSTEM_WINDOW`. Packaging these components in a regular APK does not grant those privileges; the device/ROM integration and installation context matter.
 - The compat factory chain currently ends at `QuickstepCompatFactoryVBaklava`, annotated `@RequiresApi(36)`, extending the API-35 factory. The configured Quickstep maximum SDK remains 36. This repository audit has not found an API-37-specific compat factory or proof that the API-36 implementation is sufficient for API 37.
 - The `withoutQuickstep` flavor name is misleading in isolation: its source set includes `quickstep/src`, `quickstep/dagger`, and Quickstep resources, and it depends on compat libraries. However, that flavor uses the root `AndroidManifest.xml`, while the Quickstep service/Recents declarations are in `quickstep/AndroidManifest.xml`. The experimental flavor is configured to use `quickstep/AndroidManifest-api37-experimental.xml`.
-- The APK's binary Android manifest has not yet been decoded/validated in this environment, so the merged manifest's final package ID, permission declarations, and component export states remain unverified.
+- The APK's binary Android manifest was decoded from the downloaded artifact. It reports package `com.solina.launcher.debug`, `minSdkVersion=29`, `targetSdkVersion=37`, and includes the Quickstep service/action, Recents activity, search-indexables provider, gesture tutorial activities, widget-picker activity, and overview FileProvider. The Quickstep service is exported and protected by `android.permission.STATUS_BAR_SERVICE`; the widget-picker activity is exported and protected by the app-specific `signature|privileged` permission. This confirms manifest packaging, not that the OS grants the requested privileges or will bind/use the service.
 - Therefore neither a successful build nor the Debug SDK override establishes Android 17 Quickstep/QuickSwitch runtime support.
 
 ## Required next checks
 
-1. Decode and inspect the experimental APK's merged binary manifest. Confirm the final application ID, Quickstep service/action, Recents activity, required permissions, provider authorities, and exported/permission-protected components.
+1. Compare the decoded manifest against Android 17 runtime expectations and ROM privilege grants; in particular, confirm whether the system recognizes and binds `com.android.quickstep.TouchInteractionService` for this package.
 2. Audit the API-specific compatibility implementation and manifest metadata for API 37, including framework changes that affect Recents, gesture navigation, and QuickSwitch.
 3. Determine whether API 37 needs a new compat factory or whether the API-36 implementation is demonstrably compatible; do not widen the SDK range until supported by source review and tests.
 4. Resolve licensing/redistribution and system-integration requirements before preparing any installable QuickSwitch root module.
@@ -25,6 +25,6 @@
 
 ## Not yet verified
 
-- The binary merged manifest of the experimental APK has not been decoded and inspected.
+- Runtime recognition/binding of the Quickstep service and actual API 37 gesture/Recents behavior remain unverified.
 - No on-device Recents/gesture test has been run.
 - No QuickSwitch module has been built or installed, and no system provider setting has been changed.
