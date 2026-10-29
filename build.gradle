@@ -269,7 +269,8 @@ android {
         // Experimental Quickstep-enabled variant; debug-only pending API 37 validation.
         quickstep {
             dimension "recents"
-            minSdk = 26
+            // SmartSpacer SDK used by Quickstep requires API 29+.
+            minSdk = 29
         }
 
         github {
