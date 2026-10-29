@@ -28,3 +28,15 @@
 - Runtime recognition/binding of the Quickstep service and actual API 37 gesture/Recents behavior remain unverified.
 - No on-device Recents/gesture test has been run.
 - No QuickSwitch module has been built or installed, and no system provider setting has been changed.
+
+
+## API 37 framework-source comparison (2026-10-29)
+
+- The API-35 implementation `ActivityOptionsCompatVV` calls the hidden/Test API overload `ActivityOptions.makeCustomAnimation(context, enter, exit, backgroundColor, handler, startedListener, finishedListener)`. It adapts the framework start/finish callbacks to the compat `Runnable` callbacks. The API-36 class retains that call shape; no API-37 override is present.
+- The Android framework source for `ActivityOptions` still documents this seven-argument overload as `@TestApi` in the current AOSP source. This confirms the implementation relies on non-SDK/test surface, but does not itself show a change introduced in API 37. See [AOSP ActivityOptions.java](https://android.googlesource.com/platform/frameworks/base/+/master/core/java/android/app/ActivityOptions.java) and [Android API reference](https://developer.android.com/reference/android/app/ActivityOptions).
+- The same AOSP source contains the `RemoteTransition`-based activity options APIs, but public API docs and the current source view alone are insufficient to establish that a device ROM grants the privileges or that Quickstep is registered as the active overview provider.
+- `ActivityManagerCompatVV` is an empty subclass of the API-34 implementation. There is no API-35 or API-36 behavior override in that class, and no API-37-specific override was found in the audited factory chain. This is evidence to focus testing on inherited task/recents behavior, not evidence of a confirmed break.
+
+### Conclusion from this comparison
+
+No verified API-37-only framework signature or behavior change has yet been found in the three inspected areas that justifies adding a speculative API-37 factory. Keep the release SDK support range at 35–36 until the full AOSP/API diff and a device runtime test establish compatibility. Next test should separately record (1) whether the system binds the Quickstep service, (2) whether overview/Recents opens, and (3) whether gesture navigation and animation start/finish callbacks work. A successful APK build is not a substitute for these checks.
