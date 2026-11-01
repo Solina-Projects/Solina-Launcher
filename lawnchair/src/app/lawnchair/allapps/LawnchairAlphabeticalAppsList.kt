@@ -2,12 +2,11 @@ package app.lawnchair.allapps
 
 import android.content.Context
 import android.util.Log
-import androidx.activity.ComponentActivity
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
 import app.lawnchair.data.folder.FolderEntry
-import app.lawnchair.data.folder.model.FolderViewModel
+import app.lawnchair.data.folder.service.FolderService
 import app.lawnchair.launcher
 import app.lawnchair.preferences.PreferenceManager
 import app.lawnchair.preferences2.PreferenceManager2
@@ -44,9 +43,6 @@ class LawnchairAlphabeticalAppsList<T>(
     private val prefs2 = PreferenceManager2.getInstance(context)
     private val prefs = PreferenceManager.getInstance(context)
 
-    private val viewModel = FolderViewModel(
-        (context as? ComponentActivity)?.application ?: context.launcher.application,
-    )
     private val folderList = mutableListOf<FolderEntry>()
     // Component keys are stable across AppInfo instances and avoid duplicate folder membership.
     private val folderedAppKeys = mutableSetOf<String>()
@@ -74,7 +70,7 @@ class LawnchairAlphabeticalAppsList<T>(
      * LiveData snapshot. Folder edits, reordering and deletions are then reflected immediately.
      */
     private fun observeFolders() {
-        viewModel.folders.onEach { folders ->
+        FolderService.INSTANCE.get(context.launcher.application).getFoldersFlow().onEach { folders ->
             folderList.clear()
             folderList.addAll(
                 folders.orEmpty().sortedWith(
