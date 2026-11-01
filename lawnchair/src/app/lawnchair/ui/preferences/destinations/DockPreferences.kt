@@ -205,6 +205,20 @@ fun GridSettings(prefs: PreferenceManager, prefs2: PreferenceManager2) {
             valueRange = 1..3,
         )
         SliderPreference(
+            label = stringResource(id = R.string.dock_horizontal_icon_spacing),
+            adapter = prefs2.hotseatIconHorizontalSpacingFactor.getAdapter(),
+            step = 0.1f,
+            valueRange = 0.0f..2.0f,
+            showAsPercentage = true,
+        )
+        SliderPreference(
+            label = stringResource(id = R.string.dock_vertical_icon_spacing),
+            adapter = prefs2.hotseatIconVerticalSpacingFactor.getAdapter(),
+            step = 0.1f,
+            valueRange = 0.0f..2.0f,
+            showAsPercentage = true,
+        )
+        SliderPreference(
             label = stringResource(id = R.string.dock_vertical_padding),
             adapter = prefs2.hotseatVerticalPaddingDp.getAdapter(),
             step = 2f,
