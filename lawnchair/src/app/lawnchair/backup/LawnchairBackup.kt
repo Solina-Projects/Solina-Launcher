@@ -23,9 +23,9 @@ import com.android.launcher3.model.DeviceGridState
 import com.android.launcher3.model.ModelDbController
 import com.android.launcher3.provider.RestoreDbTask
 import com.google.protobuf.Timestamp
+import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileInputStream
-import java.io.ByteArrayOutputStream
 import java.io.FileOutputStream
 import java.io.InputStream
 import java.text.SimpleDateFormat
@@ -106,8 +106,10 @@ class LawnchairBackup(
         var databaseRollbackSnapshotsReady = false
         val sqliteRollbackDatabases =
             if (restoreLayout) {
-                (LauncherFiles.GRID_DB_FILES.map(context::getDatabasePath) +
-                    context.getDatabasePath(PREFS_DB_FILE_NAME)).distinct()
+                (
+                    LauncherFiles.GRID_DB_FILES.map(context::getDatabasePath) +
+                        context.getDatabasePath(PREFS_DB_FILE_NAME)
+                ).distinct()
             } else {
                 emptyList()
             }
