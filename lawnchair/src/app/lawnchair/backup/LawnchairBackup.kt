@@ -43,18 +43,28 @@ class LawnchairBackup(
     lateinit var info: BackupInfo
     var screenshot: Bitmap? = null
     var wallpaper: Bitmap? = null
+    private var archiveSnapshot: File? = null
 
     suspend fun readInfoAndPreview() {
+        createArchiveSnapshot()
         scanArchive(setOf(INFO_FILE_NAME))
         var tmpScreenshot: Bitmap? = null
         var tmpWallpaper: Bitmap? = null
-        readZip(
-            mapOf(
-                INFO_FILE_NAME to { info = BackupInfo.newBuilder().mergeFrom(it).build() },
-                SCREENSHOT_FILE_NAME to { tmpScreenshot = BitmapFactory.decodeStream(it) },
-                WALLPAPER_FILE_NAME to { tmpWallpaper = BitmapFactory.decodeStream(it) },
-            ),
-        )
+        try {
+            readZip(
+                mapOf(
+                    INFO_FILE_NAME to { info = BackupInfo.newBuilder().mergeFrom(it).build() },
+                    SCREENSHOT_FILE_NAME to { tmpScreenshot = BitmapFactory.decodeStream(it) },
+                    WALLPAPER_FILE_NAME to { tmpWallpaper = BitmapFactory.decodeStream(it) },
+                ),
+            )
+        } catch (throwable: Throwable) {
+            archiveSnapshot?.delete()
+            archiveSnapshot = null
+            tmpScreenshot?.recycle()
+            tmpWallpaper?.recycle()
+            throw throwable
+        }
         require(::info.isInitialized) { "Missing backup metadata" }
         validateInfo(info)
         val size = max(info.previewWidth, info.previewHeight).coerceAtMost(MAX_PREVIEW_SIZE)
@@ -79,6 +89,9 @@ class LawnchairBackup(
             add(INFO_FILE_NAME)
             if (restoreLayout) add(LAUNCHER_DB_FILE_NAME)
             if (restoreWallpaper) add(WALLPAPER_FILE_NAME)
+        }
+        val snapshot = requireNotNull(archiveSnapshot?.takeIf(File::isFile)) {
+            "Backup archive snapshot is unavailable; read backup metadata again"
         }
         scanArchive(requiredEntries)
 
@@ -216,16 +229,48 @@ class LawnchairBackup(
         } finally {
             stagedWallpaper?.recycle()
             stagingDir.deleteRecursively()
+            archiveSnapshot?.delete()
+            archiveSnapshot = null
+        }
+    }
+
+    private suspend fun createArchiveSnapshot() = withContext(Dispatchers.IO) {
+        archiveSnapshot?.delete()
+        archiveSnapshot = null
+        val snapshot = File.createTempFile("lawnchair_backup_", ".zip", context.cacheDir)
+        try {
+            val input = context.contentResolver.openInputStream(uri)
+                ?: throw IllegalArgumentException("Unable to open backup file")
+            input.use { source ->
+                FileOutputStream(snapshot).use { output ->
+                    val buffer = ByteArray(DEFAULT_BUFFER_SIZE)
+                    var totalBytes = 0L
+                    while (true) {
+                        val count = source.read(buffer)
+                        if (count < 0) break
+                        totalBytes += count
+                        require(totalBytes <= MAX_ARCHIVE_BYTES) {
+                            "Backup archive exceeds the supported compressed size"
+                        }
+                        output.write(buffer, 0, count)
+                    }
+                    output.fd.sync()
+                }
+            }
+            archiveSnapshot = snapshot
+        } catch (throwable: Throwable) {
+            snapshot.delete()
+            throw throwable
         }
     }
 
     private suspend fun readZip(handlers: Map<String, suspend (InputStream) -> Unit>) {
         withContext(Dispatchers.IO) {
-            val pfd = context.contentResolver.openFileDescriptor(uri, "r")
-                ?: throw IllegalArgumentException("Unable to open backup file")
-            pfd.use {
-                FileInputStream(it.fileDescriptor).use { inStream ->
-                    ZipInputStream(inStream).use { zipIs ->
+            val snapshot = requireNotNull(archiveSnapshot?.takeIf(File::isFile)) {
+                "Backup archive snapshot is unavailable"
+            }
+            FileInputStream(snapshot).use { inStream ->
+                ZipInputStream(inStream).use { zipIs ->
                         val seen = mutableSetOf<String>()
                         while (true) {
                             val entry = zipIs.nextEntry ?: break
@@ -245,13 +290,13 @@ class LawnchairBackup(
      * entry also forces ZIP CRC validation and detects truncated/corrupt archives.
      */
     private suspend fun scanArchive(requiredEntries: Set<String>) = withContext(Dispatchers.IO) {
-        val pfd = context.contentResolver.openFileDescriptor(uri, "r")
-            ?: throw IllegalArgumentException("Unable to open backup file")
+        val snapshot = requireNotNull(archiveSnapshot?.takeIf(File::isFile)) {
+            "Backup archive snapshot is unavailable"
+        }
         val seen = mutableSetOf<String>()
         var totalBytes = 0L
-        pfd.use {
-            FileInputStream(it.fileDescriptor).use { input ->
-                ZipInputStream(input).use { zip ->
+        FileInputStream(snapshot).use { input ->
+            ZipInputStream(input).use { zip ->
                     val buffer = ByteArray(DEFAULT_BUFFER_SIZE)
                     while (true) {
                         val entry = zip.nextEntry ?: break
