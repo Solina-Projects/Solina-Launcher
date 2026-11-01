@@ -52,30 +52,37 @@ class FolderViewModel(
     }
 
     fun renameFolder(folderId: Int, title: String) {
+        val normalizedTitle = title.trim()
+        if (normalizedTitle.isEmpty()) return
         viewModelScope.launch {
-            repository.renameFolderInfo(folderId, title)
+            repository.renameFolderInfo(folderId, normalizedTitle)
             reloadHelper.reloadGrid()
         }
     }
 
     fun updateFolderItems(id: Int, title: String, componentKeys: List<String>) {
+        val normalizedTitle = title.trim()
+        if (normalizedTitle.isEmpty()) return
+        val uniqueComponentKeys = componentKeys.distinct()
         viewModelScope.launch {
-            repository.updateFolderWithItems(id, title, componentKeys)
+            repository.updateFolderWithItems(id, normalizedTitle, uniqueComponentKeys)
             reloadHelper.reloadGrid()
         }
     }
 
     fun createFolder(title: String) {
+        val normalizedTitle = title.trim()
+        if (normalizedTitle.isEmpty()) return
         viewModelScope.launch {
-            repository.saveFolderInfo(title)
+            repository.saveFolderInfo(normalizedTitle)
         }
     }
 
     fun deleteFolder(id: Int) {
         viewModelScope.launch {
             repository.deleteFolderInfo(id)
+            reloadHelper.reloadGrid()
         }
-        reloadHelper.reloadGrid()
     }
 
     fun updateFolderOrder(orderedIds: List<Int>) {
