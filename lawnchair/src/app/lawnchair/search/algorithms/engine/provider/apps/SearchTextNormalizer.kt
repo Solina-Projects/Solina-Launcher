@@ -18,7 +18,7 @@ object SearchTextNormalizer {
                 when (char) {
                     'ي', 'ى' -> append('ی')
                     'ك' -> append('ک')
-                    '\u0640', '\u200c', '\u200d', '\ufeff' -> append(' ')
+                    '\u0640', '\u200c', '\u200d', '\ufeff', '\u200e', '\u200f' -> Unit
                     in '\u0660'..'\u0669' -> append(('0'.code + char.code - '\u0660'.code).toChar())
                     in '\u06f0'..'\u06f9' -> append(('0'.code + char.code - '\u06f0'.code).toChar())
                     else -> append(char)
