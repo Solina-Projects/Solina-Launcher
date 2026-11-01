@@ -8,9 +8,9 @@ import com.android.launcher3.model.data.AppInfo
 import com.android.launcher3.popup.PopupPopulator
 import com.android.launcher3.search.StringMatcherUtility
 import com.android.launcher3.shortcuts.ShortcutRequest
+import app.lawnchair.search.algorithms.engine.provider.apps.SearchTextNormalizer
 import me.xdrop.fuzzywuzzy.FuzzySearch
 import me.xdrop.fuzzywuzzy.algorithms.WeightedRatio
-import app.lawnchair.search.algorithms.engine.provider.apps.SearchTextNormalizer
 
 object SearchUtils {
     fun normalSearch(apps: List<AppInfo>, query: String, maxResultsCount: Int, hiddenApps: Set<String>, hiddenAppsInSearch: String): List<AppInfo> {
