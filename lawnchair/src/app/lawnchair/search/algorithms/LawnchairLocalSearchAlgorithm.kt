@@ -1,6 +1,7 @@
 package app.lawnchair.search.algorithms
 
 import android.content.Context
+import android.util.Log
 import app.lawnchair.preferences.PreferenceManager
 import app.lawnchair.preferences2.PreferenceManager2
 import app.lawnchair.preferences2.firstCached
@@ -37,6 +38,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.onStart
@@ -77,7 +79,12 @@ class LawnchairLocalSearchAlgorithm(context: Context) : LawnchairSearchAlgorithm
                 // See issue #7325 (symptom 1: results gated behind the slowest provider).
                 val nonAppProvidersFlow = combine(
                     searchProviders.map { provider ->
-                        provider.search(context, query).onStart { emit(emptyList()) }
+                        provider.search(context, query)
+                            .catch { error ->
+                                Log.w(TAG, "Search provider ${provider.id} failed", error)
+                                emit(emptyList())
+                            }
+                            .onStart { emit(emptyList()) }
                     },
                 ) { resultsArray ->
                     resultsArray.toList().flatten()
@@ -206,5 +213,9 @@ class LawnchairLocalSearchAlgorithm(context: Context) : LawnchairSearchAlgorithm
         return sectionBuilders.flatMap { builder ->
             builder.build(context, factory, results)
         }
+    }
+
+    companion object {
+        private const val TAG = "LawnchairLocalSearch"
     }
 }
