@@ -148,7 +148,7 @@ sealed class QsbSearchProvider(
         )
 
         /**
-         * Resolve the search provider using its ID, or use Google as a fallback.
+         * Resolve the search provider using its ID, or use the built-in app search fallback.
          */
         fun fromId(id: String): QsbSearchProvider = values().firstOrNull { it.id == id } ?: AppSearch
 
