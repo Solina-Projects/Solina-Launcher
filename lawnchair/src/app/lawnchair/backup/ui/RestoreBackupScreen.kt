@@ -56,7 +56,9 @@ import app.lawnchair.util.BackHandler
 import app.lawnchair.util.hasFlag
 import app.lawnchair.util.restartLauncher
 import com.android.launcher3.R
+import java.text.DateFormat
 import java.util.Base64
+import java.util.Date
 import kotlinx.coroutines.launch
 
 fun NavGraphBuilder.restoreBackupGraph() {
@@ -181,6 +183,15 @@ fun ColumnScope.RestoreBackupOptions(
         modifier = modifier,
         heading = stringResource(id = R.string.what_to_restore),
     ) {
+        Text(
+            text = stringResource(
+                R.string.backup_restore_metadata,
+                DateFormat.getDateTimeInstance().format(Date(backup.info.createdAt.seconds * 1000L)),
+                backup.info.lawnchairVersion,
+            ),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
         FlagSwitchPreference(
             flags = contents,
             setFlags = viewModel::setBackupContents,
@@ -225,7 +236,7 @@ fun ColumnScope.RestoreBackupOptions(
                     onClick = { showRestoreConfirmation = false },
                     enabled = !restoringBackup,
                 ) {
-                    Text(stringResource(R.string.action_cancel))
+                    Text(stringResource(R.string.backup_restore_cancel))
                 }
             },
         )
