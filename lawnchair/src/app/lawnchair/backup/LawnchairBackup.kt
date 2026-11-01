@@ -323,6 +323,18 @@ class LawnchairBackup(
                 .setPreviewDarkText(wallpaperSupportsDarkText)
                 .build()
 
+            if (contents.hasFlag(INCLUDE_LAYOUT_AND_SETTINGS)) {
+                val launcherDatabase = getFiles(context, forRestore = false)[LAUNCHER_DB_FILE_NAME]
+                require(launcherDatabase?.isFile == true) {
+                    "Launcher database is not available for backup"
+                }
+            }
+            val wallpaperBitmap = if (contents.hasFlag(INCLUDE_WALLPAPER)) {
+                WallpaperManager.getInstance(context).drawable?.toBitmap()
+                    ?: throw IllegalStateException("Wallpaper could not be read")
+            } else {
+                null
+            }
             val pfd = context.contentResolver.openFileDescriptor(fileUri, "w")
                 ?: throw IllegalArgumentException("Unable to create backup file")
             withContext(Dispatchers.IO) {
@@ -333,15 +345,11 @@ class LawnchairBackup(
                         out.closeEntry()
 
                         if (contents.hasFlag(INCLUDE_WALLPAPER)) {
-                            val wallpaperManager = WallpaperManager.getInstance(context)
-                            val wallpaperBitmap = wallpaperManager.drawable?.toBitmap()
-                            if (wallpaperBitmap != null) {
-                                out.putNextEntry(ZipEntry(WALLPAPER_FILE_NAME))
-                                require(wallpaperBitmap.compress(Bitmap.CompressFormat.PNG, 100, out)) {
-                                    "Unable to encode wallpaper"
-                                }
-                                out.closeEntry()
+                            out.putNextEntry(ZipEntry(WALLPAPER_FILE_NAME))
+                            require(requireNotNull(wallpaperBitmap).compress(Bitmap.CompressFormat.PNG, 100, out)) {
+                                "Unable to encode wallpaper"
                             }
+                            out.closeEntry()
                         }
                         if (contents.hasFlag(INCLUDE_LAYOUT_AND_SETTINGS)) {
                             out.putNextEntry(ZipEntry(SCREENSHOT_FILE_NAME))
