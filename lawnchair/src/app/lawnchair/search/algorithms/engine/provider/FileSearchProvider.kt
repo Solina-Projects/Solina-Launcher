@@ -23,6 +23,7 @@ import app.lawnchair.util.isHidden
 import app.lawnchair.util.isRegularFile
 import app.lawnchair.util.mimeType2Extension
 import app.lawnchair.util.videoFileTypes
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
@@ -312,6 +313,8 @@ object FileSearchProvider : SearchProvider {
                         }
                     }.asSequence()
                 } ?: emptySequence()
+        } catch (e: CancellationException) {
+            throw e
         } catch (e: Exception) {
             // Log error (e.g., SecurityException if permissions are somehow still an issue)
             Log.e("FileSearchProvider", "Error querying MediaStore at $uri: ${e.message}")
