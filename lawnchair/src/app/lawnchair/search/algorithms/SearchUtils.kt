@@ -4,11 +4,11 @@ import android.content.Context
 import android.content.pm.ShortcutInfo
 import app.lawnchair.launcher
 import app.lawnchair.ui.preferences.components.HiddenAppsInSearch
+import app.lawnchair.search.algorithms.engine.provider.apps.SearchTextNormalizer
 import com.android.launcher3.model.data.AppInfo
 import com.android.launcher3.popup.PopupPopulator
 import com.android.launcher3.search.StringMatcherUtility
 import com.android.launcher3.shortcuts.ShortcutRequest
-import app.lawnchair.search.algorithms.engine.provider.apps.SearchTextNormalizer
 import me.xdrop.fuzzywuzzy.FuzzySearch
 import me.xdrop.fuzzywuzzy.algorithms.WeightedRatio
 
