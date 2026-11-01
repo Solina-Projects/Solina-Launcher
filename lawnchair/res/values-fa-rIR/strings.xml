@@ -652,6 +652,10 @@
     <string name="apply_accent_color_label">اعمال رنگ برنامه</string>
     <string name="search_provider">تامین کننده جستجو</string>
     <string name="hotseat_background">نمایش پس‌زمینه</string>
+    <string name="dock_horizontal_icon_spacing">فاصله افقی بین آیکون‌های داک</string>
+    <string name="dock_vertical_icon_spacing">فاصله عمودی بین آیکون‌های داک</string>
+    <string name="dock_horizontal_edge_spacing">حاشیه افقی فضای آیکون‌های داک</string>
+    <string name="dock_vertical_edge_spacing">حاشیه عمودی فضای آیکون‌های داک</string>
     <string name="hotseat_bg_horizontal_inset_left">حاشیه چپ</string>
     <string name="hotseat_bg_horizontal_inset_right">حاشیه راست</string>
     <string name="hotseat_bg_vertical_inset_top">حاشیه بالا</string>
