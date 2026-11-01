@@ -22,6 +22,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.android.launcher3.util.SandboxApplication
 import java.io.File
 import java.io.FileOutputStream
+import java.util.zip.CRC32
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
 import kotlinx.coroutines.runBlocking
@@ -207,4 +208,46 @@ class LawnchairBackupSelectiveRestoreTest {
             restoreTarget.delete()
         }
     }
+
+    @Test
+    fun corruptedZipPayloadCrcIsRejected() = runBlocking {
+        val backupFile = File(context.cacheDir, "corrupted_crc.lawnchairbackup")
+        val infoBytes = app.lawnchair.LawnchairProto.BackupInfo.newBuilder()
+            .setBackupVersion(1)
+            .setContents(LawnchairBackup.INCLUDE_WALLPAPER)
+            .setPreviewWidth(1)
+            .setPreviewHeight(1)
+            .build()
+            .toByteArray()
+        try {
+            ZipOutputStream(FileOutputStream(backupFile)).use { zip ->
+                val crc = CRC32().apply { update(infoBytes) }
+                val entry = ZipEntry(LawnchairBackup.INFO_FILE_NAME).apply {
+                    method = ZipEntry.STORED
+                    size = infoBytes.size.toLong()
+                    compressedSize = infoBytes.size.toLong()
+                    this.crc = crc.value
+                }
+                zip.putNextEntry(entry)
+                zip.write(infoBytes)
+                zip.closeEntry()
+            }
+
+            val archive = backupFile.readBytes()
+            val nameLength = (archive[26].toInt() and 0xff) or
+                ((archive[27].toInt() and 0xff) shl 8)
+            val extraLength = (archive[28].toInt() and 0xff) or
+                ((archive[29].toInt() and 0xff) shl 8)
+            val payloadOffset = 30 + nameLength + extraLength
+            archive[payloadOffset] = (archive[payloadOffset].toInt() xor 0x01).toByte()
+            backupFile.writeBytes(archive)
+
+            val backup = LawnchairBackup(context, Uri.fromFile(backupFile))
+            val result = runCatching { backup.readInfoAndPreview() }
+            assertTrue("Archive with a mismatched ZIP CRC must be rejected", result.isFailure)
+        } finally {
+            backupFile.delete()
+        }
+    }
+
 }
