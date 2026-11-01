@@ -29,16 +29,16 @@ class LawnchairASISearchAlgorithm(context: Context) :
     private var activeQuery: PendingQuery? = null
 
     init {
-        prefs = PreferenceManager.getInstance(context).also {
-            createSearchSession()
-            it.searchResultShortcuts.addListener(this)
-            it.searchResultPeople.addListener(this)
-            it.searchResultPixelTips.addListener(this)
-            it.searchResultSettings.addListener(this)
-        }
+        prefs = PreferenceManager.getInstance(context)
+        createSearchSession()
+        prefs.searchResultShortcuts.addListener(this)
+        prefs.searchResultPeople.addListener(this)
+        prefs.searchResultPixelTips.addListener(this)
+        prefs.searchResultSettings.addListener(this)
     }
 
     override fun onPreferenceChange() {
+        cancel(interruptActiveRequests = true)
         createSearchSession()
     }
 
