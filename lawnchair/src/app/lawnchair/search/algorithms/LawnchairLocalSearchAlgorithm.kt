@@ -41,6 +41,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.withContext
 
 class LawnchairLocalSearchAlgorithm(context: Context) : LawnchairSearchAlgorithm(context) {
@@ -84,10 +85,11 @@ class LawnchairLocalSearchAlgorithm(context: Context) : LawnchairSearchAlgorithm
                     resultsArray.toList().flatten()
                 }
 
-                nonAppProvidersFlow.collect { nonAppResults ->
-                    val calcResult = CalculatorSearchProvider.search(context, query)
-                        .firstOrNull()
+                // Calculator parsing is independent from provider updates. Evaluate it once per
+                // query instead of repeating it whenever a slower provider emits.
+                val calcResult = CalculatorSearchProvider.search(context, query).firstOrNull()
 
+                nonAppProvidersFlow.collect { nonAppResults ->
                     val allResults = appResults + shortcutResults + (calcResult ?: emptyList()) + nonAppResults + generateActionResults(query)
 
                     val searchTargets = translateToSearchTargets(allResults)
@@ -141,6 +143,13 @@ class LawnchairLocalSearchAlgorithm(context: Context) : LawnchairSearchAlgorithm
     override fun cancel(interruptActiveRequests: Boolean) {
         modelRetryJob?.cancel()
         currentJob?.cancel()
+        modelRetryJob = null
+        currentJob = null
+    }
+
+    override fun destroy() {
+        cancel(interruptActiveRequests = true)
+        coroutineScope.cancel()
     }
 
     private fun generateActionResults(query: String): List<SearchResult.Action> {
