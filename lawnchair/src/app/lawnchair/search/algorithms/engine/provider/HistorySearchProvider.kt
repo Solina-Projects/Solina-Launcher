@@ -10,6 +10,7 @@ import app.lawnchair.search.LawnchairRecentSuggestionProvider
 import app.lawnchair.search.algorithms.data.RecentKeyword
 import app.lawnchair.search.algorithms.engine.SearchResult
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.withContext
 
 object HistorySearchProvider {
@@ -46,6 +47,8 @@ object HistorySearchProvider {
                 recentKeywords.asReversed()
                     .take(maxResults)
                     .map { SearchResult.History(data = it) }
+            } catch (e: CancellationException) {
+                throw e
             } catch (e: Exception) {
                 Log.e("HistorySearchProvider", "Error during recent keyword retrieval", e)
                 emptyList()
