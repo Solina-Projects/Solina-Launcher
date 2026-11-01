@@ -86,8 +86,10 @@ class LawnchairASISearchAlgorithm(context: Context) :
 
     private fun createSearchSession() {
         if (LawnchairQuickstepCompat.ATLEAST_U) return
+        val previousSession = searchSession
+        searchSession = null
         Executors.UI_HELPER_EXECUTOR.execute {
-            searchSession?.destroy()
+            previousSession?.destroy()
             val idp = LauncherAppState.getIDP(context)
             val extras = bundleOf(
                 "launcher.gridSize" to idp.numDatabaseAllAppsColumns,
