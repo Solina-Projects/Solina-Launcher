@@ -4,6 +4,7 @@ import android.content.Context
 import app.lawnchair.flowerpot.Flowerpot
 import com.android.launcher3.model.data.AppInfo
 import com.android.launcher3.util.ApplicationInfoWrapper
+import java.util.Locale
 
 /**
  * Categorizes apps into stable, alphabetically ordered System, Google and Flowerpot groups.
@@ -35,7 +36,11 @@ fun categorizeAppsWithSystemAndGoogle(
 
     fun addCategory(name: String, categoryApps: List<AppInfo>) {
         if (categoryApps.isNotEmpty()) {
-            result[name] = categoryApps.sortedBy { it.title.toString().lowercase(java.util.Locale.ROOT) }
+            result[name] = categoryApps.sortedWith(
+                compareBy<AppInfo> { it.title.toString().lowercase(Locale.ROOT) }
+                    .thenBy { it.targetPackage.orEmpty() }
+                    .thenBy { it.targetComponent?.className.orEmpty() },
+            )
         }
     }
 
@@ -45,7 +50,7 @@ fun categorizeAppsWithSystemAndGoogle(
     // Flowerpot category order is made deterministic so Drawer positions do not jump between
     // refreshes when the underlying map implementation changes.
     categorizedApps.entries
-        .sortedWith(compareBy(String.CASE_INSENSITIVE_ORDER) { it.key })
+        .sortedWith(compareBy(String.CASE_INSENSITIVE_ORDER) { it.key }.thenBy { it.key })
         .forEach { (name, categoryApps) -> addCategory(name, categoryApps) }
 
     return result
