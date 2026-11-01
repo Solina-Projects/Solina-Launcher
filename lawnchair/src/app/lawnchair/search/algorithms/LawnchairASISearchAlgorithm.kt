@@ -27,6 +27,8 @@ class LawnchairASISearchAlgorithm(context: Context) :
     private val prefs: PreferenceManager
     private var searchSession: SearchSession? = null
     private var activeQuery: PendingQuery? = null
+    private var sessionGeneration = 0
+    private var destroyed = false
 
     init {
         prefs = PreferenceManager.getInstance(context)
@@ -38,11 +40,13 @@ class LawnchairASISearchAlgorithm(context: Context) :
     }
 
     override fun onPreferenceChange() {
+        if (destroyed) return
         cancel(interruptActiveRequests = true)
         createSearchSession()
     }
 
     override fun doSearch(query: String, callback: SearchCallback<BaseAllAppsAdapter.AdapterItem>) {
+        if (destroyed) return
         activeQuery?.cancel()
         val pending = PendingQuery(query, callback)
         activeQuery = pending
@@ -52,7 +56,7 @@ class LawnchairASISearchAlgorithm(context: Context) :
     }
 
     private fun submitQuery(session: SearchSession, pending: PendingQuery) {
-        if (activeQuery !== pending) return
+        if (destroyed || activeQuery !== pending) return
         val searchQuery = Query(pending.query, System.currentTimeMillis())
         try {
             session.query(searchQuery, Executors.MAIN_EXECUTOR, pending)
@@ -65,59 +69,79 @@ class LawnchairASISearchAlgorithm(context: Context) :
     }
 
     override fun cancel(interruptActiveRequests: Boolean) {
+        if (!interruptActiveRequests) return
         activeQuery?.cancel()
         activeQuery = null
     }
 
     override fun destroy() {
+        if (destroyed) return
+        destroyed = true
+        sessionGeneration++
         super.destroy()
         cancel(interruptActiveRequests = true)
+        val session = searchSession
+        searchSession = null
         Executors.UI_HELPER_EXECUTOR.execute {
-            searchSession?.destroy()
-            searchSession = null
+            session?.destroy()
         }
-        prefs.let {
-            it.searchResultShortcuts.removeListener(this)
-            it.searchResultPeople.removeListener(this)
-            it.searchResultPixelTips.removeListener(this)
-            it.searchResultSettings.removeListener(this)
-        }
+        prefs.searchResultShortcuts.removeListener(this)
+        prefs.searchResultPeople.removeListener(this)
+        prefs.searchResultPixelTips.removeListener(this)
+        prefs.searchResultSettings.removeListener(this)
     }
 
     private fun createSearchSession() {
-        if (LawnchairQuickstepCompat.ATLEAST_U) return
+        if (destroyed || LawnchairQuickstepCompat.ATLEAST_U) return
+        val generation = ++sessionGeneration
         val previousSession = searchSession
         searchSession = null
         Executors.UI_HELPER_EXECUTOR.execute {
             previousSession?.destroy()
-            val idp = LauncherAppState.getIDP(context)
-            val extras = bundleOf(
-                "launcher.gridSize" to idp.numDatabaseAllAppsColumns,
-                "allowlist_enabled" to false,
-                "launcher.maxInlineIcons" to 3,
-            )
-            // apps or shortcuts
-            var resultTypes = 1 or 2
-            if (prefs.searchResultShortcuts.get()) {
-                resultTypes = resultTypes or 1546
+            val newSession = try {
+                val idp = LauncherAppState.getIDP(context)
+                val extras = bundleOf(
+                    "launcher.gridSize" to idp.numDatabaseAllAppsColumns,
+                    "allowlist_enabled" to false,
+                    "launcher.maxInlineIcons" to 3,
+                )
+                // apps or shortcuts
+                var resultTypes = 1 or 2
+                if (prefs.searchResultShortcuts.get()) {
+                    resultTypes = resultTypes or 1546
+                }
+                if (prefs.searchResultPeople.get()) {
+                    resultTypes = resultTypes or 4
+                }
+                if (prefs.searchResultPixelTips.get()) {
+                    resultTypes = resultTypes or 8192
+                    extras.putString("tips_source", "superpacks_tips_source")
+                }
+                if (prefs.searchResultSettings.get()) {
+                    resultTypes = resultTypes or 80
+                    extras.putString("settings_source", "superpacks_settings_source")
+                }
+                val searchContext = SearchContext(resultTypes, 200, extras)
+                context.requireSystemService<SearchUiManager>().createSearchSession(searchContext)
+            } catch (_: RuntimeException) {
+                Executors.MAIN_EXECUTOR.post {
+                    if (!destroyed && generation == sessionGeneration) {
+                        activeQuery?.let {
+                            activeQuery = null
+                            it.deliverEmptyResult()
+                        }
+                    }
+                }
+                return@execute
             }
-            if (prefs.searchResultPeople.get()) {
-                resultTypes = resultTypes or 4
-            }
-            if (prefs.searchResultPixelTips.get()) {
-                resultTypes = resultTypes or 8192
-                extras.putString("tips_source", "superpacks_tips_source")
-            }
-            if (prefs.searchResultSettings.get()) {
-                resultTypes = resultTypes or 80
-                extras.putString("settings_source", "superpacks_settings_source")
-            }
-            val searchContext = SearchContext(resultTypes, 200, extras)
-            val searchSession = context.requireSystemService<SearchUiManager>()
-                .createSearchSession(searchContext)
+
             Executors.MAIN_EXECUTOR.post {
-                this.searchSession = searchSession
-                activeQuery?.let { submitQuery(searchSession, it) }
+                if (destroyed || generation != sessionGeneration) {
+                    Executors.UI_HELPER_EXECUTOR.execute { newSession.destroy() }
+                } else {
+                    searchSession = newSession
+                    activeQuery?.let { submitQuery(newSession, it) }
+                }
             }
         }
     }
@@ -129,7 +153,7 @@ class LawnchairASISearchAlgorithm(context: Context) :
         private var canceled = false
 
         override fun accept(platformTargets: List<SearchTarget>) {
-            if (!canceled) {
+            if (!canceled && !destroyed) {
                 val targets = platformTargets.map { SearchTargetCompat.wrap(it) }
                 setFirstItemQuickLaunch(targets)
                 val adapterItems = transformSearchResults(targets)
@@ -148,7 +172,7 @@ class LawnchairASISearchAlgorithm(context: Context) :
         }
 
         fun deliverEmptyResult() {
-            if (!canceled) {
+            if (!canceled && !destroyed) {
                 callback.onSearchResult(query, arrayListOf())
             }
         }
