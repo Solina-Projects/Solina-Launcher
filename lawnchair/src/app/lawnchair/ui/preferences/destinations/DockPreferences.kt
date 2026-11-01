@@ -267,6 +267,8 @@ fun ColumnScope.DockPreferencesPreview(modifier: Modifier = Modifier) {
             prefs.hotseatQsbCornerRadius.getAdapter(),
             prefs.hotseatQsbAlpha.getAdapter(),
             prefs.hotseatQsbStrokeWidth.getAdapter(),
+            prefs2.hotseatIconHorizontalSpacingFactor.getAdapter(),
+            prefs2.hotseatIconVerticalSpacingFactor.getAdapter(),
             prefs2.hotseatBottomFactor.getAdapter(),
             prefs2.strokeColorStyle.getAdapter(),
             prefs2.enableLabelInDock.getAdapter(),
