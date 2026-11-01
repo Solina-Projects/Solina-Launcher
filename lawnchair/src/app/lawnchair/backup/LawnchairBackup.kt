@@ -43,6 +43,7 @@ class LawnchairBackup(
     var wallpaper: Bitmap? = null
 
     suspend fun readInfoAndPreview() {
+        scanArchive(setOf(INFO_FILE_NAME))
         var tmpScreenshot: Bitmap? = null
         var tmpWallpaper: Bitmap? = null
         readZip(
@@ -52,52 +53,121 @@ class LawnchairBackup(
                 WALLPAPER_FILE_NAME to { tmpWallpaper = BitmapFactory.decodeStream(it) },
             ),
         )
-        val size = max(info.previewWidth, info.previewHeight).coerceAtMost(4000)
+        require(::info.isInitialized) { "Missing backup metadata" }
+        validateInfo(info)
+        val size = max(info.previewWidth, info.previewHeight).coerceAtMost(MAX_PREVIEW_SIZE)
         screenshot = tmpScreenshot?.scaleDownTo(size)
         wallpaper = tmpWallpaper?.scaleDownToDisplaySize(context)
     }
 
-    suspend fun restore(selectedContents: Int) {
-        val handlers = mutableMapOf<String, suspend (InputStream) -> Unit>()
-        val contents = selectedContents and info.contents
-        if (contents.hasFlag(INCLUDE_LAYOUT_AND_SETTINGS)) {
-            handlers.putAll(
-                getFiles(context, forRestore = true).mapValues { entry ->
-                    {
-                        val file = entry.value
-                        file.parentFile?.mkdirs()
-                        file.outputStream().use { out -> it.copyTo(out) }
-                    }
-                },
-            )
-        }
-        if (contents.hasFlag(INCLUDE_WALLPAPER)) {
-            handlers[WALLPAPER_FILE_NAME] = {
-                val wallpaperManager = WallpaperManager.getInstance(context)
-                wallpaperManager.setBitmap(BitmapFactory.decodeStream(it))
-            }
-        }
-        context.getDatabasePath(LAUNCHER_DB_FILE_NAME).parentFile?.deleteRecursively()
-        readZip(handlers)
-        // Written after the zip has been extracted: the backed up preferences file is one of
-        // the restored entries, so writing the grid state first would let it be overwritten.
-        DeviceGridState(info.gridState).writeToPrefs(context, true)
+    /**
+     * Restores only the selected sections. In particular, a wallpaper-only restore must never
+     * touch launcher databases, preferences, or grid state.
+     */
+    suspend fun restore(selectedContents: Int) = withContext(Dispatchers.IO) {
+        require(::info.isInitialized) { "Backup metadata has not been read" }
+        validateInfo(info)
 
-        val dbController = ModelDbController(context)
-        RestoreDbTask.performRestore(context, dbController)
+        val contents = selectedContents and info.contents
+        if (contents == 0) return@withContext
+
+        val restoreLayout = contents.hasFlag(INCLUDE_LAYOUT_AND_SETTINGS)
+        val restoreWallpaper = contents.hasFlag(INCLUDE_WALLPAPER)
+        val requiredEntries = buildSet {
+            add(INFO_FILE_NAME)
+            if (restoreLayout) add(LAUNCHER_DB_FILE_NAME)
+            if (restoreWallpaper) add(WALLPAPER_FILE_NAME)
+        }
+        scanArchive(requiredEntries)
+
+        val stagingDir = File(context.cacheDir, "lawnchair_restore_${System.nanoTime()}")
+        require(stagingDir.mkdirs()) { "Unable to create restore staging directory" }
+        val stagedFiles = mutableMapOf<File, File>()
+        val rollbackFiles = mutableMapOf<File, File>()
+        var stagedWallpaper: Bitmap? = null
+
+        try {
+            if (restoreLayout) {
+                val restoreTargets = getFiles(context, forRestore = true)
+                val handlers = restoreTargets.mapValues { (entryName, target) ->
+                    { input: InputStream ->
+                        val staged = File(stagingDir, "files/${entryName.replace('/', '_')}")
+                        staged.parentFile?.mkdirs()
+                        staged.outputStream().use { output -> input.copyTo(output) }
+                        stagedFiles[target] = staged
+                    }
+                }
+                readZip(handlers)
+                require(stagedFiles.keys.any { it.name == RESTORED_DB_FILE_NAME }) {
+                    "Backup does not contain a launcher database"
+                }
+            }
+
+            if (restoreWallpaper) {
+                readZip(
+                    mapOf(
+                        WALLPAPER_FILE_NAME to { input ->
+                            stagedWallpaper = BitmapFactory.decodeStream(input)
+                                ?: throw IllegalArgumentException("Invalid wallpaper image")
+                        },
+                    ),
+                )
+                require(stagedWallpaper != null) { "Backup does not contain a valid wallpaper" }
+            }
+
+            // Keep exact-file rollback copies. Never recursively delete the databases directory:
+            // it may contain unrelated databases and DataStore files.
+            stagedFiles.keys.forEachIndexed { index, target ->
+                if (target.exists()) {
+                    val rollback = File(stagingDir, "rollback/$index")
+                    rollback.parentFile?.mkdirs()
+                    target.copyTo(rollback, overwrite = true)
+                    rollbackFiles[target] = rollback
+                }
+            }
+
+            if (restoreLayout) {
+                stagedFiles.forEach { (target, staged) ->
+                    target.parentFile?.mkdirs()
+                    staged.copyTo(target, overwrite = true)
+                }
+                // Preferences are restored from the archive, so the grid state must be applied
+                // afterwards or the restored preferences could overwrite it.
+                DeviceGridState(info.gridState).writeToPrefs(context, true)
+                RestoreDbTask.performRestore(context, ModelDbController(context))
+            }
+
+            if (restoreWallpaper) {
+                WallpaperManager.getInstance(context).setBitmap(requireNotNull(stagedWallpaper))
+            }
+        } catch (throwable: Throwable) {
+            // Restore the exact files modified by this operation if a later file operation fails.
+            rollbackFiles.forEach { (target, rollback) ->
+                runCatching {
+                    if (rollback.exists()) rollback.copyTo(target, overwrite = true) else target.delete()
+                }
+            }
+            throw throwable
+        } finally {
+            stagedWallpaper?.recycle()
+            stagingDir.deleteRecursively()
+        }
     }
 
     private suspend fun readZip(handlers: Map<String, suspend (InputStream) -> Unit>) {
         withContext(Dispatchers.IO) {
-            val pfd = context.contentResolver.openFileDescriptor(uri, "r")!!
+            val pfd = context.contentResolver.openFileDescriptor(uri, "r")
+                ?: throw IllegalArgumentException("Unable to open backup file")
             pfd.use {
                 FileInputStream(it.fileDescriptor).use { inStream ->
                     ZipInputStream(inStream).use { zipIs ->
-                        var entry: ZipEntry?
+                        val seen = mutableSetOf<String>()
                         while (true) {
-                            entry = zipIs.nextEntry
-                            if (entry == null) break
+                            val entry = zipIs.nextEntry ?: break
+                            require(isAllowedEntry(entry.name)) { "Unexpected backup entry" }
+                            require(seen.add(entry.name)) { "Duplicate backup entry: ${entry.name}" }
                             handlers[entry.name]?.invoke(zipIs)
+                            zipIs.closeEntry()
                         }
                     }
                 }
@@ -105,8 +175,76 @@ class LawnchairBackup(
         }
     }
 
+    /**
+     * Performs a bounded, complete pass before any restore target is modified. Reading every
+     * entry also forces ZIP CRC validation and detects truncated/corrupt archives.
+     */
+    private suspend fun scanArchive(requiredEntries: Set<String>) = withContext(Dispatchers.IO) {
+        val pfd = context.contentResolver.openFileDescriptor(uri, "r")
+            ?: throw IllegalArgumentException("Unable to open backup file")
+        val seen = mutableSetOf<String>()
+        var totalBytes = 0L
+        pfd.use {
+            FileInputStream(it.fileDescriptor).use { input ->
+                ZipInputStream(input).use { zip ->
+                    val buffer = ByteArray(DEFAULT_BUFFER_SIZE)
+                    while (true) {
+                        val entry = zip.nextEntry ?: break
+                        require(!entry.isDirectory && isAllowedEntry(entry.name)) {
+                            "Unsupported backup entry: ${entry.name}"
+                        }
+                        require(seen.add(entry.name)) { "Duplicate backup entry: ${entry.name}" }
+                        var entryBytes = 0L
+                        while (true) {
+                            val count = zip.read(buffer)
+                            if (count < 0) break
+                            entryBytes += count
+                            totalBytes += count
+                            require(entryBytes <= MAX_ENTRY_BYTES && totalBytes <= MAX_ARCHIVE_BYTES) {
+                                "Backup archive exceeds the supported size"
+                            }
+                        }
+                        zip.closeEntry()
+                        require(seen.size <= MAX_ENTRY_COUNT) { "Too many backup entries" }
+                    }
+                }
+            }
+        }
+        require(seen.containsAll(requiredEntries)) {
+            "Backup is missing required entries: ${requiredEntries - seen}"
+        }
+    }
+
+    private fun validateInfo(backupInfo: BackupInfo) {
+        require(backupInfo.backupVersion == BACKUP_VERSION) {
+            "Unsupported backup version: ${backupInfo.backupVersion}"
+        }
+        require(backupInfo.contents != 0 && backupInfo.contents and KNOWN_CONTENTS.inv() == 0) {
+            "Invalid backup contents"
+        }
+        require(backupInfo.previewWidth >= 0 && backupInfo.previewHeight >= 0) {
+            "Invalid preview dimensions"
+        }
+    }
+
+    private fun isAllowedEntry(name: String): Boolean =
+        name in setOf(
+            INFO_FILE_NAME,
+            SCREENSHOT_FILE_NAME,
+            WALLPAPER_FILE_NAME,
+            LAUNCHER_DB_FILE_NAME,
+            PREFS_FILE_NAME,
+            PREFS_DB_FILE_NAME,
+            PREFS_DATASTORE_FILE_NAME,
+        ) && !name.contains("..") && !name.startsWith("/")
+
     companion object {
         private const val BACKUP_VERSION = 1
+        private const val MAX_PREVIEW_SIZE = 4000
+        private const val MAX_ENTRY_COUNT = 16
+        private const val MAX_ENTRY_BYTES = 256L * 1024 * 1024
+        private const val MAX_ARCHIVE_BYTES = 512L * 1024 * 1024
+        private const val KNOWN_CONTENTS = INCLUDE_LAYOUT_AND_SETTINGS or INCLUDE_WALLPAPER
         private const val PREFS_FILE_NAME = "${LauncherFiles.SHARED_PREFERENCES_KEY}.xml"
         private const val PREFS_DB_FILE_NAME = "preferences"
         private const val PREFS_DATASTORE_FILE_NAME = "preferences.preferences_pb"
@@ -144,11 +282,14 @@ class LawnchairBackup(
 
         @SuppressLint("MissingPermission")
         suspend fun create(context: Context, contents: Int, screenshotBitmap: Bitmap, fileUri: Uri) {
+            require(contents != 0 && contents and KNOWN_CONTENTS.inv() == 0) {
+                "Invalid backup contents"
+            }
             val idp = LauncherAppState.getIDP(context)
-            val createdAt = Timestamp.newBuilder()
-                .setSeconds(System.currentTimeMillis() / 1000)
+            val createdAt = Timestamp.newBuilder().setSeconds(System.currentTimeMillis() / 1000)
             val colorHints = WallpaperManagerCompat.INSTANCE.get(context).wallpaperColors?.colorHints ?: 0
-            val wallpaperSupportsDarkText = (colorHints and WallpaperColorsCompat.HINT_SUPPORTS_DARK_TEXT) != 0
+            val wallpaperSupportsDarkText =
+                (colorHints and WallpaperColorsCompat.HINT_SUPPORTS_DARK_TEXT) != 0
             val info = BackupInfo.newBuilder()
                 .setLawnchairVersion(BuildConfig.VERSION_CODE)
                 .setBackupVersion(BACKUP_VERSION)
@@ -160,30 +301,39 @@ class LawnchairBackup(
                 .setPreviewDarkText(wallpaperSupportsDarkText)
                 .build()
 
-            val pfd = context.contentResolver.openFileDescriptor(fileUri, "w")!!
+            val pfd = context.contentResolver.openFileDescriptor(fileUri, "w")
+                ?: throw IllegalArgumentException("Unable to create backup file")
             withContext(Dispatchers.IO) {
                 pfd.use {
                     ZipOutputStream(FileOutputStream(pfd.fileDescriptor).buffered()).use { out ->
                         out.putNextEntry(ZipEntry(INFO_FILE_NAME))
                         info.writeTo(out)
+                        out.closeEntry()
 
                         if (contents.hasFlag(INCLUDE_WALLPAPER)) {
                             val wallpaperManager = WallpaperManager.getInstance(context)
                             val wallpaperBitmap = wallpaperManager.drawable?.toBitmap()
                             if (wallpaperBitmap != null) {
                                 out.putNextEntry(ZipEntry(WALLPAPER_FILE_NAME))
-                                wallpaperBitmap.compress(Bitmap.CompressFormat.PNG, 100, out)
+                                require(wallpaperBitmap.compress(Bitmap.CompressFormat.PNG, 100, out)) {
+                                    "Unable to encode wallpaper"
+                                }
+                                out.closeEntry()
                             }
                         }
                         if (contents.hasFlag(INCLUDE_LAYOUT_AND_SETTINGS)) {
                             out.putNextEntry(ZipEntry(SCREENSHOT_FILE_NAME))
-                            screenshotBitmap.compress(Bitmap.CompressFormat.PNG, 85, out)
-                        }
+                            require(screenshotBitmap.compress(Bitmap.CompressFormat.PNG, 85, out)) {
+                                "Unable to encode backup preview"
+                            }
+                            out.closeEntry()
 
-                        getFiles(context, forRestore = false).entries.forEach {
-                            if (!it.value.exists()) return@forEach
-                            out.putNextEntry(ZipEntry(it.key))
-                            it.value.inputStream().use { input -> input.copyTo(out) }
+                            getFiles(context, forRestore = false).forEach { (entryName, file) ->
+                                if (!file.isFile) return@forEach
+                                out.putNextEntry(ZipEntry(entryName))
+                                file.inputStream().use { input -> input.copyTo(out) }
+                                out.closeEntry()
+                            }
                         }
                     }
                 }
@@ -200,12 +350,9 @@ class LawnchairBackup(
             return File(dir, "shared_prefs/$PREFS_FILE_NAME")
         }
 
-        private fun prefsDbFile(context: Context): File {
-            return context.getDatabasePath(PREFS_DB_FILE_NAME)
-        }
+        private fun prefsDbFile(context: Context): File = context.getDatabasePath(PREFS_DB_FILE_NAME)
 
-        private fun prefsDataStoreFile(context: Context): File {
-            return File(context.filesDir, "datastore/${PREFS_DATASTORE_FILE_NAME}")
-        }
+        private fun prefsDataStoreFile(context: Context): File =
+            File(context.filesDir, "datastore/$PREFS_DATASTORE_FILE_NAME")
     }
 }
