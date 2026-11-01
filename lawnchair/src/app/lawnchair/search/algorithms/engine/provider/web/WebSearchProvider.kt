@@ -27,6 +27,9 @@ interface WebSearchProvider {
      */
     val id: String
 
+    /** Optional provider-specific display name (used by custom providers). */
+    val displayName: String? get() = null
+
     fun configure(context: Context): WebSearchProvider = this
 
     /**
