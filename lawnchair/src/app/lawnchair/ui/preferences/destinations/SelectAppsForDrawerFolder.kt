@@ -125,11 +125,9 @@ fun SelectAppsForDrawerFolder(
     }
 
     PreferenceScaffold(
-        label = if (loading) {
-            stringResource(R.string.loading)
-        } else {
-            stringResource(R.string.x_with_y_count, folderEntry.title, state.activeCount)
-        },
+        label = folderEntry?.takeIf { !loading }?.let { entry ->
+            stringResource(R.string.x_with_y_count, entry.title, state.activeCount)
+        } ?: stringResource(R.string.loading),
         modifier = modifier,
         actions = {
             if (!loading) {
