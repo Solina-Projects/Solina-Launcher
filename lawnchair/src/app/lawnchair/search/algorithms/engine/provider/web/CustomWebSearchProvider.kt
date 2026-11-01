@@ -6,6 +6,7 @@ import android.util.Log
 import app.lawnchair.preferences2.PreferenceManager2
 import app.lawnchair.preferences2.firstCached
 import com.android.launcher3.R
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -76,6 +77,8 @@ object CustomWebSearchProvider : WebSearchProvider {
                     emit(emptyList())
                 }
             }
+        } catch (e: CancellationException) {
+            throw e
         } catch (e: Exception) {
             Log.e(TAG, "Error during suggestion retrieval", e)
             emit(emptyList())
