@@ -6,7 +6,10 @@ import android.util.Log
 import app.lawnchair.preferences2.PreferenceManager2
 import app.lawnchair.preferences2.firstCached
 import com.android.launcher3.R
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.job
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
@@ -64,15 +67,24 @@ object CustomWebSearchProvider : WebSearchProvider {
                 val encodedQuery = Uri.encode(query)
                 val url = suggestionsUrlTemplate.replace("%s", encodedQuery)
                 val request = Request.Builder().url(url).build()
-                client.newCall(request).execute().use { response ->
-                    if (response.isSuccessful) {
-                        emit(parseOpenSearchResponse(response.body.string()))
-                    } else {
-                        Log.w(TAG, "Failed to retrieve suggestions: ${response.code}")
-                        emit(emptyList())
+                val call = client.newCall(request)
+                val cancellationHandle = currentCoroutineContext().job.invokeOnCompletion { cause ->
+                    if (cause is CancellationException) call.cancel()
+                }
+                try {
+                    call.execute().use { response ->
+                        if (response.isSuccessful) {
+                            emit(parseOpenSearchResponse(response.body.string()))
+                        } else {
+                            Log.w(TAG, "Failed to retrieve suggestions: ${response.code}")
+                            emit(emptyList())
+                        }
                     }
+                } finally {
+                    cancellationHandle.dispose()
                 }
             } catch (error: Exception) {
+                if (error is CancellationException) throw error
                 Log.e(TAG, "Error during suggestion retrieval", error)
                 emit(emptyList())
             }
