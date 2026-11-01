@@ -128,13 +128,16 @@ class LawnchairAlphabeticalAppsList<T>(
                 position++
             }
         } else {
+            // When the same app is saved in multiple folders, the first visible folder in the
+            // stable rank/title/id order owns it. This prevents duplicate drawer entries.
+            val assignedFolderAppKeys = mutableSetOf<String>()
             folderList.forEach { folderEntry ->
                 // A hidden folder is not rendered; its apps remain available in the normal list.
                 if (folderEntry.hide) return@forEach
 
                 val resolvedApps = folderEntry.itemComponentKeys
                     .asSequence()
-                    .filterNot { it in hiddenApps }
+                    .filterNot { it in hiddenApps || it in assignedFolderAppKeys }
                     .distinct()
                     .mapNotNull { keyString ->
                         val componentKey = ComponentKey.fromString(keyString)
@@ -155,8 +158,10 @@ class LawnchairAlphabeticalAppsList<T>(
                     mAdapterItems.add(AdapterItem.asFolder(folderInfo))
                     position++
 
-                    if (prefs.folderApps.get()) {
-                        resolvedApps.forEach { folderedAppKeys.add(it.toComponentKey().toString()) }
+                    resolvedApps.forEach { app ->
+                        val key = app.toComponentKey().toString()
+                        assignedFolderAppKeys.add(key)
+                        if (prefs.folderApps.get()) folderedAppKeys.add(key)
                     }
                 }
             }
