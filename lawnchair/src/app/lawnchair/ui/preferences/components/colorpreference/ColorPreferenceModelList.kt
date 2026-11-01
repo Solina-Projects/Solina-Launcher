@@ -80,6 +80,20 @@ class ColorPreferenceModelList @Inject constructor(
                 dynamicEntries = dynamicColorsWithDefault,
             ),
         )
+        registerModel(
+            ColorPreferenceModel(
+                prefObject = prefs.drawerIconLabelColor,
+                labelRes = R.string.drawer_icon_label_color,
+                dynamicEntries = dynamicColorsWithDefault,
+            ),
+        )
+        registerModel(
+            ColorPreferenceModel(
+                prefObject = prefs.dockIconLabelColor,
+                labelRes = R.string.dock_icon_label_color,
+                dynamicEntries = dynamicColorsWithDefault,
+            ),
+        )
     }
 
     operator fun get(key: String): ColorPreferenceModel = models.getValue(key)
