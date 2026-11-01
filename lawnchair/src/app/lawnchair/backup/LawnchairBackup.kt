@@ -18,6 +18,8 @@ import com.android.launcher3.BuildConfig
 import com.android.launcher3.LauncherAppState
 import com.android.launcher3.LauncherFiles
 import com.android.launcher3.R
+import com.android.launcher3.LauncherPrefs
+import com.android.launcher3.LauncherPrefs.RESTORE_DEVICE
 import com.android.launcher3.model.DeviceGridState
 import com.android.launcher3.model.ModelDbController
 import com.android.launcher3.provider.RestoreDbTask
@@ -144,9 +146,12 @@ class LawnchairBackup(
                 // Preferences are restored from the archive, so the grid state must be applied
                 // afterwards or the restored preferences could overwrite it.
                 DeviceGridState(info.gridState).writeToPrefs(context, true)
-                check(RestoreDbTask.performRestore(context, ModelDbController(context))) {
+                check(RestoreDbTask.performRestore(context, ModelDbController(context, true))) {
                     "Launcher database restore failed"
                 }
+                // The explicit restore above also handles widget-ID remapping while the pending
+                // flag is present. Clear it only after the database restore has succeeded.
+                LauncherPrefs.get(context).removeSync(RESTORE_DEVICE)
             }
 
             if (restoreWallpaper) {
