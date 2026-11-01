@@ -267,18 +267,16 @@ class LawnchairBackupSelectiveRestoreTest {
                 check(bitmap.compress(Bitmap.CompressFormat.PNG, 100, output))
                 output.toByteArray()
             }
-            bitmap.recycle()
-
             // PNG IHDR starts at byte 16. Keep a valid chunk CRC while advertising an
             // unreasonable image size; bounds decoding must reject it before allocation.
             png[16] = 0
             png[17] = 0
-            png[18] = 0
-            png[19] = 0x7d
+            png[18] = 0x9c.toByte()
+            png[19] = 0x40
             png[20] = 0
             png[21] = 0
-            png[22] = 0
-            png[23] = 0x7d
+            png[22] = 0x9c.toByte()
+            png[23] = 0x40
             val ihdrCrc = CRC32().apply { update(png, 12, 17) }.value
             for (index in 0..3) {
                 png[29 + index] = (ihdrCrc ushr (24 - index * 8)).toByte()
