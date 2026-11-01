@@ -53,7 +53,7 @@ object SearchUtils {
     }
 }
 
-internal fun normalizeSearchText(value: String): String {
+fun normalizeSearchText(value: String): String {
     val decomposed = Normalizer.normalize(value, Normalizer.Form.NFKD)
     val normalized = StringBuilder(decomposed.length)
     var previousBaseScript = Character.UnicodeScript.COMMON
