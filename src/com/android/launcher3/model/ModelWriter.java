@@ -585,7 +585,9 @@ public class ModelWriter {
                     mValues, itemIdMatch(mItem.id), null);
             if (updatedRows != 1) {
                 Log.e(TAG, "Expected to update one workspace item with id " + mItem.id
-                        + " but updated " + updatedRows);
+                        + " but updated " + updatedRows + "; reloading model");
+                // The caller may have already changed this mutable ItemInfo instance.
+                mModel.forceReload();
                 return;
             }
 
