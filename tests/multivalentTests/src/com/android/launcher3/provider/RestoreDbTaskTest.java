@@ -53,12 +53,14 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
 
 import com.android.launcher3.LauncherAppState;
+import com.android.launcher3.LauncherFiles;
 import com.android.launcher3.LauncherPrefs;
 import com.android.launcher3.LauncherSettings;
 import com.android.launcher3.LauncherSettings.Favorites;
 import com.android.launcher3.backuprestore.LauncherRestoreEventLogger;
 import com.android.launcher3.dagger.LauncherAppComponent;
 import com.android.launcher3.dagger.LauncherAppSingleton;
+import com.android.launcher3.model.DeviceGridState;
 import com.android.launcher3.model.ModelDbController;
 import com.android.launcher3.pm.UserCache;
 import com.android.launcher3.util.AllModulesForTest;
@@ -75,6 +77,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 
+import java.io.File;
 import java.util.Arrays;
 import java.util.stream.IntStream;
 
@@ -135,6 +138,30 @@ public class RestoreDbTaskTest {
             mWidgetHost.deleteHost();
         }
         LauncherPrefs.get(mContext).removeSync(RESTORE_DEVICE);
+    }
+
+    @Test
+    public void explicitRestoreControllerDoesNotRunPendingRestoreTask() throws Exception {
+        RestoreDbTask.setPending(mContext);
+        String activeDb = new DeviceGridState(mContext).getDbFile();
+        String otherDb = LauncherFiles.GRID_DB_FILES.stream()
+                .filter(dbName -> !dbName.equals(activeDb))
+                .findFirst()
+                .orElseThrow();
+        File markerDb = mContext.getDatabasePath(otherDb);
+        markerDb.getParentFile().mkdirs();
+        assertTrue(markerDb.createNewFile());
+
+        try {
+            ModelDbController controller = new ModelDbController(mContext, true);
+            controller.getDb().close();
+
+            assertThat(markerDb.exists()).isTrue();
+            assertThat(RestoreDbTask.isPending(mContext)).isTrue();
+        } finally {
+            markerDb.delete();
+            LauncherPrefs.get(mContext).removeSync(RESTORE_DEVICE);
+        }
     }
 
     @Test
