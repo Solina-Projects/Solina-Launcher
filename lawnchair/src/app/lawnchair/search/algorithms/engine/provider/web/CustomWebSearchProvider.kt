@@ -9,6 +9,7 @@ import com.android.launcher3.R
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
@@ -85,6 +86,7 @@ object CustomWebSearchProvider : WebSearchProvider {
                 }
             } catch (error: Exception) {
                 if (error is CancellationException) throw error
+                currentCoroutineContext().ensureActive()
                 Log.e(TAG, "Error during suggestion retrieval", error)
                 emit(emptyList())
             }
