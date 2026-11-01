@@ -1104,4 +1104,10 @@
 <string name="home_icon_label_color">Home screen icon label color</string>
 <string name="drawer_icon_label_color">App drawer icon label color</string>
 <string name="dock_icon_label_color">Dock icon label color</string>
+
+    <string name="backup_restore_confirmation_title">Restore backup?</string>
+    <string name="backup_restore_confirmation_layout_message">This replaces the current launcher layout and settings. Make sure you have a recent backup before continuing.</string>
+    <string name="backup_restore_confirmation_wallpaper_message">This replaces your current wallpaper. Continue?</string>
+    <string name="backup_restore_metadata">Created: %1$s · Lawnchair version: %2$d</string>
+    <string name="backup_restore_cancel">Cancel</string>
 </resources>
