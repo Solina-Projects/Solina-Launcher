@@ -233,20 +233,26 @@ class LawnchairBackup(
             if (databaseRollbackSnapshotsReady) {
                 modifiedTargets.addAll(databaseRollbackTargets)
             }
-            withContext(Dispatchers.IO) {
-                modifiedTargets.sortedBy { if (it.name.endsWith("-wal") || it.name.endsWith("-journal")) 1 else 0 }
-                    .forEach { target ->
+            val rollbackFailures = withContext(Dispatchers.IO) {
+                buildList {
+                    modifiedTargets.sortedBy {
+                        if (it.name.endsWith("-wal") || it.name.endsWith("-journal")) 1 else 0
+                    }.forEach { target ->
                         runCatching {
                             val rollback = rollbackFiles[target]
                             if (rollback != null && rollback.exists()) {
                                 target.parentFile?.mkdirs()
                                 rollback.copyTo(target, overwrite = true)
                             } else {
-                                target.delete()
+                                check(!target.exists() || target.delete()) {
+                                    "Unable to remove partially restored file: ${target.name}"
+                                }
                             }
-                        }
+                        }.exceptionOrNull()?.let(::add)
                     }
+                }
             }
+            rollbackFailures.forEach(throwable::addSuppressed)
             throw throwable
         } finally {
             stagedWallpaper?.recycle()
