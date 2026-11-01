@@ -25,9 +25,10 @@ import com.android.launcher3.views.ActivityContext
 import com.patrykmichalik.opto.core.onEach as onEachPreference
 import java.util.Locale
 import java.util.function.Predicate
-import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.retryWhen
 
 @Suppress("SYNTHETIC_PROPERTY_WITHOUT_JAVA_ORIGIN")
 class LawnchairAlphabeticalAppsList<T>(
@@ -73,9 +74,10 @@ class LawnchairAlphabeticalAppsList<T>(
      */
     private fun observeFolders() {
         FolderService.INSTANCE.get(context.launcher.application).getFoldersFlow()
-            .catch { throwable ->
-                Log.e(TAG, "Failed to observe App Drawer folders", throwable)
-                emit(emptyList())
+            .retryWhen { cause, attempt ->
+                Log.e(TAG, "Failed to observe App Drawer folders; retrying", cause)
+                delay(minOf(30_000L, 1_000L * (1L shl attempt.coerceAtMost(5).toInt())))
+                true
             }
             .onEach { folders ->
             folderList.clear()
