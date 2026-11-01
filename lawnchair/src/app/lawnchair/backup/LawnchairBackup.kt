@@ -93,13 +93,13 @@ class LawnchairBackup(
                 val restoreTargets = getFiles(context, forRestore = true)
                 val handlers: Map<String, suspend (InputStream) -> Unit> =
                     restoreTargets.mapValues { (entryName, target) ->
-                    { input: InputStream ->
-                        val staged = File(stagingDir, "files/${entryName.replace('/', '_')}")
-                        staged.parentFile?.mkdirs()
-                        staged.outputStream().use { output -> input.copyTo(output) }
-                        stagedFiles[target] = staged
+                        { input: InputStream ->
+                            val staged = File(stagingDir, "files/${entryName.replace('/', '_')}")
+                            staged.parentFile?.mkdirs()
+                            staged.outputStream().use { output -> input.copyTo(output) }
+                            stagedFiles[target] = staged
+                        }
                     }
-                }
                 readZip(handlers)
                 val stagedDatabase = stagedFiles.entries
                     .firstOrNull { it.key.name == RESTORED_DB_FILE_NAME }
@@ -259,16 +259,15 @@ class LawnchairBackup(
         }
     }
 
-    private fun isAllowedEntry(name: String): Boolean =
-        name in setOf(
-            INFO_FILE_NAME,
-            SCREENSHOT_FILE_NAME,
-            WALLPAPER_FILE_NAME,
-            LAUNCHER_DB_FILE_NAME,
-            PREFS_FILE_NAME,
-            PREFS_DB_FILE_NAME,
-            PREFS_DATASTORE_FILE_NAME,
-        ) && !name.contains("..") && !name.startsWith("/")
+    private fun isAllowedEntry(name: String): Boolean = name in setOf(
+        INFO_FILE_NAME,
+        SCREENSHOT_FILE_NAME,
+        WALLPAPER_FILE_NAME,
+        LAUNCHER_DB_FILE_NAME,
+        PREFS_FILE_NAME,
+        PREFS_DB_FILE_NAME,
+        PREFS_DATASTORE_FILE_NAME,
+    ) && !name.contains("..") && !name.startsWith("/")
 
     companion object {
         private const val BACKUP_VERSION = 1
@@ -403,7 +402,6 @@ class LawnchairBackup(
 
         private fun prefsDbFile(context: Context): File = context.getDatabasePath(PREFS_DB_FILE_NAME)
 
-        private fun prefsDataStoreFile(context: Context): File =
-            File(context.filesDir, "datastore/$PREFS_DATASTORE_FILE_NAME")
+        private fun prefsDataStoreFile(context: Context): File = File(context.filesDir, "datastore/$PREFS_DATASTORE_FILE_NAME")
     }
 }
