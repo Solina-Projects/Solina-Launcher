@@ -253,6 +253,59 @@ class LawnchairBackupSelectiveRestoreTest {
     }
 
     @Test
+    fun oversizedImageDimensionsAreRejectedBeforeBitmapDecode() = runBlocking {
+        val backupFile = File(context.cacheDir, "oversized_image_dimensions.lawnchairbackup")
+        val info = app.lawnchair.LawnchairProto.BackupInfo.newBuilder()
+            .setBackupVersion(1)
+            .setContents(LawnchairBackup.INCLUDE_LAYOUT_AND_SETTINGS)
+            .setPreviewWidth(1)
+            .setPreviewHeight(1)
+            .build()
+        val bitmap = Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888)
+        try {
+            val png = java.io.ByteArrayOutputStream().use { output ->
+                check(bitmap.compress(Bitmap.CompressFormat.PNG, 100, output))
+                output.toByteArray()
+            }
+            bitmap.recycle()
+
+            // PNG IHDR starts at byte 16. Keep a valid chunk CRC while advertising an
+            // unreasonable image size; bounds decoding must reject it before allocation.
+            png[16] = 0
+            png[17] = 0
+            png[18] = 0
+            png[19] = 0x7d
+            png[20] = 0
+            png[21] = 0
+            png[22] = 0
+            png[23] = 0x7d
+            val ihdrCrc = CRC32().apply { update(png, 12, 17) }.value
+            for (index in 0..3) {
+                png[29 + index] = (ihdrCrc ushr (24 - index * 8)).toByte()
+            }
+
+            ZipOutputStream(FileOutputStream(backupFile)).use { zip ->
+                zip.putNextEntry(ZipEntry(LawnchairBackup.INFO_FILE_NAME))
+                info.writeTo(zip)
+                zip.closeEntry()
+                zip.putNextEntry(ZipEntry(LawnchairBackup.SCREENSHOT_FILE_NAME))
+                zip.write(png)
+                zip.closeEntry()
+            }
+
+            val backup = LawnchairBackup(context, Uri.fromFile(backupFile))
+            val failure = runCatching { backup.readInfoAndPreview() }.exceptionOrNull()
+            assertTrue(
+                "Oversized image dimensions must be rejected before bitmap allocation",
+                failure?.message?.contains("dimensions exceed") == true,
+            )
+        } finally {
+            bitmap.recycle()
+            backupFile.delete()
+        }
+    }
+
+    @Test
     fun corruptedZipPayloadCrcIsRejected() = runBlocking {
         val backupFile = File(context.cacheDir, "corrupted_crc.lawnchairbackup")
         val infoBytes = app.lawnchair.LawnchairProto.BackupInfo.newBuilder()
