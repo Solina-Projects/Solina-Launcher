@@ -37,15 +37,14 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.cancel
 import kotlinx.coroutines.withContext
 
 class LawnchairLocalSearchAlgorithm(context: Context) : LawnchairSearchAlgorithm(context) {
-
     private val appState = LauncherAppState.getInstance(context)
 
     private val coroutineScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
@@ -90,7 +89,8 @@ class LawnchairLocalSearchAlgorithm(context: Context) : LawnchairSearchAlgorithm
                 val calcResult = CalculatorSearchProvider.search(context, query).firstOrNull()
 
                 nonAppProvidersFlow.collect { nonAppResults ->
-                    val allResults = appResults + shortcutResults + (calcResult ?: emptyList()) + nonAppResults + generateActionResults(query)
+                    val allResults =
+                        appResults + shortcutResults + (calcResult ?: emptyList()) + nonAppResults + generateActionResults(query)
 
                     val searchTargets = translateToSearchTargets(allResults)
                     setFirstItemQuickLaunch(searchTargets)
@@ -141,6 +141,7 @@ class LawnchairLocalSearchAlgorithm(context: Context) : LawnchairSearchAlgorithm
     }
 
     override fun cancel(interruptActiveRequests: Boolean) {
+        if (!interruptActiveRequests) return
         modelRetryJob?.cancel()
         currentJob?.cancel()
         modelRetryJob = null
