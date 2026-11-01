@@ -444,9 +444,19 @@ public class ModelWriter {
                 + ". Reason: [" + (TextUtils.isEmpty(reason) ? "unknown" : reason) + "]");
         notifyDelete(items);
         enqueueDeleteRunnable(newModelTask(() -> {
-            for (ItemInfo item : items) {
-                mModel.getModelDbController().delete(itemIdMatch(item.id), null);
+            try (SQLiteTransaction transaction =
+                    mModel.getModelDbController().newTransaction()) {
+                for (ItemInfo item : items) {
+                    mModel.getModelDbController().delete(itemIdMatch(item.id), null);
+                }
+                transaction.commit();
+            } catch (Exception e) {
+                Log.e(TAG, "Failed to delete workspace items; reloading model", e);
+                mModel.forceReload();
+                return;
             }
+
+            // Keep the in-memory model unchanged until every database deletion commits.
             mBgDataModel.removeItem(mContext, items, mOwner);
             verifier.verifyModel();
         }));
@@ -460,11 +470,18 @@ public class ModelWriter {
         notifyDelete(Collections.singleton(info));
 
         enqueueDeleteRunnable(newModelTask(() -> {
-            mModel.getModelDbController().delete(
-                    Favorites.CONTAINER + "=" + info.id, null);
-
-            mModel.getModelDbController().delete(
-                    Favorites._ID + "=" + info.id, null);
+            try (SQLiteTransaction transaction =
+                    mModel.getModelDbController().newTransaction()) {
+                mModel.getModelDbController().delete(
+                        Favorites.CONTAINER + "=" + info.id, null);
+                mModel.getModelDbController().delete(
+                        Favorites._ID + "=" + info.id, null);
+                transaction.commit();
+            } catch (Exception e) {
+                Log.e(TAG, "Failed to delete collection and its contents; reloading model", e);
+                mModel.forceReload();
+                return;
+            }
 
             List<ItemInfo> itemsToDelete = new ArrayList<>(info.getContents());
             itemsToDelete.add(info);
