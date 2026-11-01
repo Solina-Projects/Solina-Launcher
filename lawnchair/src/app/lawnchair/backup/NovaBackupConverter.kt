@@ -455,18 +455,20 @@ class NovaBackupConverter(
         val destCanonical = destDir.canonicalPath
         val seen = mutableSetOf<String>()
         var totalBytes = 0L
+        var entryCount = 0
         pfd.use {
             FileInputStream(it.fileDescriptor).use { fis ->
                 ZipInputStream(fis).use { zis ->
                     val buffer = ByteArray(DEFAULT_BUFFER_SIZE)
                     var entry = zis.nextEntry
                     while (entry != null) {
+                        entryCount++
+                        require(entryCount <= MAX_ARCHIVE_ENTRIES) { "Too many archive entries" }
                         val name = entry.name
                         require(!entry.isDirectory && !name.startsWith("/") &&
-                            !name.contains("..") && '\\\\' !in name) {
+                            !name.contains("..") && '\\' !in name) {
                             "Invalid archive entry: $name"
                         }
-                        require(seen.size < MAX_ARCHIVE_ENTRIES) { "Too many archive entries" }
                         if (name in fileNames) {
                             require(seen.add(name)) { "Duplicate archive entry: $name" }
                         }
