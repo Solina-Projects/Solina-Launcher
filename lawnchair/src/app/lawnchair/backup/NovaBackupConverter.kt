@@ -480,7 +480,7 @@ class NovaBackupConverter(
                             outFile.parentFile?.mkdirs()
                         }
                         var entryBytes = 0L
-                        val output = outFile?.let(::FileOutputStream)
+                        val output = outFile?.let { FileOutputStream(it) }
                         try {
                             while (true) {
                                 val count = zis.read(buffer)
