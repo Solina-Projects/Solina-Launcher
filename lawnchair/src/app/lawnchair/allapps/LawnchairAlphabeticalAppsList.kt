@@ -80,16 +80,16 @@ class LawnchairAlphabeticalAppsList<T>(
                 true
             }
             .onEach { folders ->
-            folderList.clear()
-            folderList.addAll(
-                folders.orEmpty().sortedWith(
-                    compareBy<FolderEntry> { it.rank }
-                        .thenBy { it.title.lowercase(Locale.ROOT) }
-                        .thenBy { it.id },
-                ),
-            )
-            updateAdapterItems()
-        }.launchIn(context.launcher.lifecycleScope)
+                folderList.clear()
+                folderList.addAll(
+                    folders.orEmpty().sortedWith(
+                        compareBy<FolderEntry> { it.rank }
+                            .thenBy { it.title.lowercase(Locale.ROOT) }
+                            .thenBy { it.id },
+                    ),
+                )
+                updateAdapterItems()
+            }.launchIn(context.launcher.lifecycleScope)
     }
 
     override fun updateItemFilter(itemFilter: Predicate<ItemInfo>?) {
