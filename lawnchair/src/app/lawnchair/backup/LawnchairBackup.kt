@@ -281,10 +281,15 @@ class LawnchairBackup(
             )
             database.use { db ->
                 db.rawQuery("PRAGMA wal_checkpoint(FULL)", null).use { cursor ->
-                    if (cursor.moveToFirst()) {
-                        check(cursor.getInt(0) == 0) {
-                            "Unable to checkpoint launcher database $dbName before restore"
-                        }
+                    check(cursor.moveToFirst() && cursor.columnCount >= 3) {
+                        "Unable to verify checkpoint for launcher database $dbName"
+                    }
+                    val busy = cursor.getInt(0)
+                    val walFrames = cursor.getInt(1)
+                    val checkpointedFrames = cursor.getInt(2)
+                    check(busy == 0 && (walFrames < 0 || checkpointedFrames >= walFrames)) {
+                        "Incomplete WAL checkpoint for launcher database $dbName " +
+                            "(busy=$busy, walFrames=$walFrames, checkpointed=$checkpointedFrames)"
                     }
                 }
             }
