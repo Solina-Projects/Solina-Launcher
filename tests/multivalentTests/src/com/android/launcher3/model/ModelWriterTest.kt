@@ -107,6 +107,56 @@ class ModelWriterTest : AbstractWorkspaceModelTest() {
         }
     }
 
+    @Test
+    fun deleteItemsFromDatabase_whenSecondDeleteFails_rollsBackBatchAndKeepsModelItems() {
+        val items = listOf(getNewItem(), getNewItem())
+        val addWriter =
+            ModelWriter(
+                mTargetContext,
+                model,
+                model.bgDataModel,
+                false,
+                CellPosMapper.DEFAULT,
+                null,
+            )
+        runOnExecutorSync(Executors.MODEL_EXECUTOR) { addWriter.addItemsToDatabase(items) }
+
+        assertThat(items.all { it.id != ItemInfo.NO_ID }).isTrue()
+        val initialDatabaseCount = countDatabaseItems()
+        var deleteCount = 0
+        val writer =
+            object :
+                ModelWriter(
+                    mTargetContext,
+                    model,
+                    model.bgDataModel,
+                    false,
+                    CellPosMapper.DEFAULT,
+                    null,
+                ) {
+                override fun deleteItem(itemId: Int): Int {
+                    deleteCount++
+                    if (deleteCount == 2) {
+                        throw IllegalStateException("Simulated second delete failure")
+                    }
+                    return model.modelDbController.delete(
+                        com.android.launcher3.provider.LauncherDbUtils.itemIdMatch(itemId),
+                        null,
+                    )
+                }
+            }
+
+        writer.deleteItemsFromDatabase(items, "rollback test")
+        runOnExecutorSync(Executors.MODEL_EXECUTOR) {}
+
+        assertThat(deleteCount).isEqualTo(2)
+        assertThat(countDatabaseItems()).isEqualTo(initialDatabaseCount)
+        val dataModel = model.bgDataModel
+        items.forEach { item ->
+            assertThat(dataModel.itemsIdMap.get(item.id)).isSameInstanceAs(item)
+        }
+    }
+
     private fun countDatabaseItems(): Int {
         var count = 0
         runOnExecutorSync(Executors.MODEL_EXECUTOR) {
