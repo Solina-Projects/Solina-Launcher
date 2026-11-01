@@ -46,6 +46,16 @@ class LawnchairBackup(
     var wallpaper: Bitmap? = null
     private var archiveSnapshot: File? = null
 
+    /** Releases preview bitmaps and the private archive snapshot when the backup is no longer used. */
+    fun close() {
+        screenshot?.recycle()
+        screenshot = null
+        wallpaper?.recycle()
+        wallpaper = null
+        archiveSnapshot?.delete()
+        archiveSnapshot = null
+    }
+
     suspend fun readInfoAndPreview() {
         createArchiveSnapshot()
         var tmpScreenshot: Bitmap? = null
@@ -84,7 +94,10 @@ class LawnchairBackup(
         validateInfo(info)
 
         val contents = selectedContents and info.contents
-        if (contents == 0) return
+        if (contents == 0) {
+            close()
+            return
+        }
 
         val restoreLayout = contents.hasFlag(INCLUDE_LAYOUT_AND_SETTINGS)
         val restoreWallpaper = contents.hasFlag(INCLUDE_WALLPAPER)
@@ -93,13 +106,11 @@ class LawnchairBackup(
             if (restoreLayout) add(LAUNCHER_DB_FILE_NAME)
             if (restoreWallpaper) add(WALLPAPER_FILE_NAME)
         }
-        val snapshot = requireNotNull(archiveSnapshot?.takeIf(File::isFile)) {
+        requireNotNull(archiveSnapshot?.takeIf(File::isFile)) {
             "Backup archive snapshot is unavailable; read backup metadata again"
         }
-        scanArchive(requiredEntries)
 
         val stagingDir = File(context.cacheDir, "lawnchair_restore_${System.nanoTime()}")
-        require(stagingDir.mkdirs()) { "Unable to create restore staging directory" }
         val stagedFiles = mutableMapOf<File, File>()
         val rollbackFiles = mutableMapOf<File, File?>()
         val modifiedTargets = mutableSetOf<File>()
@@ -124,6 +135,11 @@ class LawnchairBackup(
         var stagedWallpaper: Bitmap? = null
 
         try {
+            // Keep validation inside the cleanup scope: a malformed archive must not leave its
+            // private snapshot or preview bitmaps behind when validation fails.
+            scanArchive(requiredEntries)
+            require(stagingDir.mkdirs()) { "Unable to create restore staging directory" }
+
             if (restoreLayout) {
                 val restoreTargets = getFiles(context, forRestore = true)
                 val handlers: Map<String, suspend (InputStream) -> Unit> =
@@ -234,8 +250,7 @@ class LawnchairBackup(
         } finally {
             stagedWallpaper?.recycle()
             stagingDir.deleteRecursively()
-            archiveSnapshot?.delete()
-            archiveSnapshot = null
+            close()
         }
     }
 
