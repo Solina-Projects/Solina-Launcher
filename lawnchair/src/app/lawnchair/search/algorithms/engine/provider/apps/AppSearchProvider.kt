@@ -60,5 +60,4 @@ object AppSearchProvider {
             .take(maxResultsCount)
     }
 
-
 }
