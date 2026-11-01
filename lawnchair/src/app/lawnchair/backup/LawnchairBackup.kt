@@ -171,7 +171,7 @@ class LawnchairBackup(
                 val restoreSucceeded = try {
                     RestoreDbTask.performRestore(context, restoreController)
                 } finally {
-                    runCatching { restoreController.getDb().close() }
+                    restoreController.close()
                 }
                 check(restoreSucceeded) { "Launcher database restore failed" }
                 // The explicit restore above also handles widget-ID remapping while the pending
