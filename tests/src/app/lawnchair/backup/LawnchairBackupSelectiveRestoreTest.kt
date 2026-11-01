@@ -133,4 +133,37 @@ class LawnchairBackupSelectiveRestoreTest {
         assertTrue("Unknown backup versions must be rejected", rejected)
     }
 
+    @Test
+    fun restoreRejectsMissingSelectedWallpaperPayload() = runBlocking {
+        val backupFile = File(context.cacheDir, "missing_wallpaper.lawnchairbackup")
+        val info = app.lawnchair.LawnchairProto.BackupInfo.newBuilder()
+            .setBackupVersion(1)
+            .setContents(LawnchairBackup.INCLUDE_WALLPAPER)
+            .setPreviewWidth(1)
+            .setPreviewHeight(1)
+            .build()
+
+        try {
+            ZipOutputStream(FileOutputStream(backupFile)).use { zip ->
+                zip.putNextEntry(ZipEntry(LawnchairBackup.INFO_FILE_NAME))
+                info.writeTo(zip)
+                zip.closeEntry()
+            }
+
+            val backup = LawnchairBackup(context, Uri.fromFile(backupFile))
+            backup.readInfoAndPreview()
+
+            var rejected = false
+            try {
+                backup.restore(LawnchairBackup.INCLUDE_WALLPAPER)
+            } catch (_: IllegalArgumentException) {
+                rejected = true
+            }
+            assertTrue("Restore must reject a missing selected wallpaper payload", rejected)
+        } finally {
+            backupFile.delete()
+        }
+    }
+
+
 }
