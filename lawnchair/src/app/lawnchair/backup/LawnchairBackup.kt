@@ -28,6 +28,7 @@ import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.io.InputStream
+import java.io.RandomAccessFile
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.zip.ZipEntry
@@ -326,6 +327,7 @@ class LawnchairBackup(
         val snapshot = requireNotNull(archiveSnapshot?.takeIf(File::isFile)) {
             "Backup archive snapshot is unavailable"
         }
+        validateCentralDirectory(snapshot)
         val seen = mutableSetOf<String>()
         var totalBytes = 0L
         ZipFile(snapshot).use { zip ->
@@ -378,6 +380,69 @@ class LawnchairBackup(
             "Backup is missing required entries: ${requiredEntries - seen}"
         }
     }
+
+    /**
+     * Bound central-directory parsing before ZipFile allocates entry metadata. ZIP permits a
+     * 64 KiB comment, so the complete EOCD record is always inside this bounded tail window.
+     */
+    private fun validateCentralDirectory(snapshot: File) {
+        RandomAccessFile(snapshot, "r").use { archive ->
+            val fileLength = archive.length()
+            require(fileLength >= ZIP_EOCD_MIN_SIZE) { "Backup is not a valid ZIP archive" }
+            val tailLength = minOf(fileLength, ZIP_EOCD_MIN_SIZE + MAX_ZIP_COMMENT_BYTES).toInt()
+            val tail = ByteArray(tailLength)
+            archive.seek(fileLength - tailLength)
+            archive.readFully(tail)
+
+            var eocdOffset = -1
+            for (offset in tail.size - ZIP_EOCD_MIN_SIZE downTo 0) {
+                if (readUInt32LittleEndian(tail, offset) != ZIP_EOCD_SIGNATURE) continue
+                val commentLength = readUInt16LittleEndian(tail, offset + 20)
+                if (offset + ZIP_EOCD_MIN_SIZE + commentLength == tail.size) {
+                    eocdOffset = offset
+                    break
+                }
+            }
+            require(eocdOffset >= 0) { "ZIP end-of-central-directory record is missing" }
+
+            val diskNumber = readUInt16LittleEndian(tail, eocdOffset + 4)
+            val centralDirectoryDisk = readUInt16LittleEndian(tail, eocdOffset + 6)
+            val entriesOnDisk = readUInt16LittleEndian(tail, eocdOffset + 8)
+            val totalEntries = readUInt16LittleEndian(tail, eocdOffset + 10)
+            val centralDirectorySize = readUInt32LittleEndian(tail, eocdOffset + 12)
+            val centralDirectoryOffset = readUInt32LittleEndian(tail, eocdOffset + 16)
+            require(diskNumber == 0 && centralDirectoryDisk == 0 && entriesOnDisk == totalEntries) {
+                "Multi-disk ZIP archives are not supported"
+            }
+            require(
+                totalEntries != ZIP16_SENTINEL &&
+                    centralDirectorySize != ZIP32_SENTINEL &&
+                    centralDirectoryOffset != ZIP32_SENTINEL,
+            ) { "ZIP64 archives are not supported" }
+            require(totalEntries in 1..MAX_ENTRY_COUNT) {
+                "Backup archive contains an unsupported number of entries"
+            }
+            require(
+                centralDirectorySize <= MAX_CENTRAL_DIRECTORY_BYTES &&
+                    centralDirectorySize >= totalEntries.toLong() * ZIP_CENTRAL_DIRECTORY_HEADER_SIZE,
+            ) { "ZIP central-directory metadata exceeds the supported limit" }
+
+            val absoluteEocdOffset = fileLength - tailLength + eocdOffset
+            require(
+                centralDirectoryOffset + centralDirectorySize <= absoluteEocdOffset,
+            ) { "ZIP central-directory metadata is out of bounds" }
+        }
+    }
+
+    private fun readUInt16LittleEndian(bytes: ByteArray, offset: Int): Int =
+        (bytes[offset].toInt() and 0xff) or
+            ((bytes[offset + 1].toInt() and 0xff) shl 8)
+
+    private fun readUInt32LittleEndian(bytes: ByteArray, offset: Int): Long =
+        (bytes[offset].toLong() and 0xff) or
+            ((bytes[offset + 1].toLong() and 0xff) shl 8) or
+            ((bytes[offset + 2].toLong() and 0xff) shl 16) or
+            ((bytes[offset + 3].toLong() and 0xff) shl 24)
 
     /**
      * Decode untrusted archive images only after bounding their encoded size and decoded pixel
@@ -492,6 +557,13 @@ class LawnchairBackup(
         private const val MAX_IMAGE_BYTES = 64 * 1024 * 1024
         private const val MAX_ENTRY_COUNT = 16
         private const val MAX_COMPRESSION_RATIO = 1000L
+        private const val MAX_CENTRAL_DIRECTORY_BYTES = 64L * 1024
+        private const val MAX_ZIP_COMMENT_BYTES = 65535L
+        private const val ZIP_EOCD_MIN_SIZE = 22L
+        private const val ZIP_CENTRAL_DIRECTORY_HEADER_SIZE = 46L
+        private const val ZIP_EOCD_SIGNATURE = 0x06054b50L
+        private const val ZIP16_SENTINEL = 0xffff
+        private const val ZIP32_SENTINEL = 0xffffffffL
         private const val MAX_ENTRY_BYTES = 256L * 1024 * 1024
         private const val MAX_ARCHIVE_BYTES = 512L * 1024 * 1024
         private const val KNOWN_CONTENTS = (1 shl 0) or (1 shl 1)
