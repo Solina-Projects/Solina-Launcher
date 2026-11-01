@@ -8,18 +8,18 @@ import com.android.launcher3.model.data.AppInfo
 import com.android.launcher3.popup.PopupPopulator
 import com.android.launcher3.search.StringMatcherUtility
 import com.android.launcher3.shortcuts.ShortcutRequest
-import java.util.Locale
 import me.xdrop.fuzzywuzzy.FuzzySearch
 import me.xdrop.fuzzywuzzy.algorithms.WeightedRatio
+import app.lawnchair.search.algorithms.engine.provider.apps.SearchTextNormalizer
 
 object SearchUtils {
     fun normalSearch(apps: List<AppInfo>, query: String, maxResultsCount: Int, hiddenApps: Set<String>, hiddenAppsInSearch: String): List<AppInfo> {
         // Do an intersection of the words in the query and each title, and filter out all the
         // apps that don't match all of the words in the query.
-        val queryTextLower = query.lowercase(Locale.getDefault())
+        val queryTextLower = SearchTextNormalizer.normalize(query)
         val matcher = StringMatcherUtility.StringMatcher.getInstance()
         return apps.asSequence()
-            .filter { StringMatcherUtility.matches(queryTextLower, it.title.toString(), matcher) }
+            .filter { StringMatcherUtility.matches(queryTextLower, SearchTextNormalizer.normalize(it.title.toString()), matcher) }
             .filterHiddenApps(queryTextLower, hiddenApps, hiddenAppsInSearch)
             .take(maxResultsCount)
             .toList()
@@ -33,7 +33,7 @@ object SearchUtils {
         val matches = FuzzySearch.extractSorted(
             queryTextLower,
             filteredApps,
-            { it.sectionName + it.title },
+            { SearchTextNormalizer.normalize(it.sectionName + it.title) },
             WeightedRatio(),
             65,
         )
@@ -63,7 +63,7 @@ fun Sequence<AppInfo>.filterHiddenApps(
         HiddenAppsInSearch.IF_NAME_TYPED -> {
             filter {
                 it.toComponentKey().toString() !in hiddenApps ||
-                    it.title.toString().lowercase(Locale.getDefault()) == query
+                    SearchTextNormalizer.normalize(it.title.toString()) == query
             }
         }
 
