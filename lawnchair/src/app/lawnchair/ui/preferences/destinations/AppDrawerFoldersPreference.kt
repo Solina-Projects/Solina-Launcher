@@ -21,6 +21,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.Switch
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -101,6 +102,9 @@ fun AppDrawerFoldersPreference(
         onDeleteFolder = {
             viewModel.deleteFolder(it.id)
         },
+        onSetFolderHidden = { folderId, hide ->
+            viewModel.setFolderHidden(folderId, hide)
+        },
         onOrderChange = {
             viewModel.updateFolderOrder(it)
         },
@@ -114,6 +118,7 @@ fun AppDrawerFoldersPreference(
     onEditFolderItems: (Int) -> Unit,
     onRenameFolder: (Int, String) -> Unit,
     onDeleteFolder: (FolderEntry) -> Unit,
+    onSetFolderHidden: (Int, Boolean) -> Unit = { _, _ -> },
     onOrderChange: (List<Int>) -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -198,6 +203,7 @@ fun AppDrawerFoldersPreference(
                             )
                         }
                     },
+                    onSetHidden = { folderId, hide -> onSetFolderHidden(folderId, hide) },
                     onItemDelete = { folderToDelete ->
                         mMSDLPlayerWrapper.playToken(MSDLToken.SUCCESS)
                         onDeleteFolder(folderToDelete)
@@ -288,6 +294,7 @@ fun FolderItem(
     folderEntry: FolderEntry,
     onItemClick: (FolderEntry) -> Unit,
     onItemDelete: (FolderEntry) -> Unit,
+    onSetHidden: (Int, Boolean) -> Unit = { _, _ -> },
     modifier: Modifier = Modifier,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     dragIndicator: @Composable () -> Unit,
@@ -314,6 +321,10 @@ fun FolderItem(
         },
         endWidget = {
             Row {
+                Switch(
+                    checked = folderEntry.hide,
+                    onCheckedChange = { onSetHidden(folderEntry.id, it) },
+                )
                 IconButton(
                     onClick = {
                         onItemDelete(folderEntry)
