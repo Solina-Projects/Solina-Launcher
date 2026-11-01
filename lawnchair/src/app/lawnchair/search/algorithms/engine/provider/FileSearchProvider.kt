@@ -23,13 +23,13 @@ import app.lawnchair.util.isHidden
 import app.lawnchair.util.isRegularFile
 import app.lawnchair.util.mimeType2Extension
 import app.lawnchair.util.videoFileTypes
-import kotlinx.coroutines.async
 import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext
 import okio.Path.Companion.toPath
 
