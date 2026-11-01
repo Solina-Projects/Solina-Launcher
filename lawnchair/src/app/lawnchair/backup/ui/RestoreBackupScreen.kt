@@ -140,7 +140,9 @@ fun ColumnScope.RestoreBackupOptions(
             try {
                 backup.restore(contents)
                 Toast.makeText(context, R.string.backup_restore_success, Toast.LENGTH_SHORT).show()
-                restartLauncher(context)
+                if (contents.hasFlag(LawnchairBackup.INCLUDE_LAYOUT_AND_SETTINGS)) {
+                    restartLauncher(context)
+                }
             } catch (t: Throwable) {
                 Log.e("RestoreBackupScreen", "failed to restore backup", t)
                 Toast.makeText(context, R.string.backup_restore_error, Toast.LENGTH_SHORT).show()
