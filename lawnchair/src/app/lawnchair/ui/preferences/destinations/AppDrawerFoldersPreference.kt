@@ -118,9 +118,9 @@ fun AppDrawerFoldersPreference(
     onEditFolderItems: (Int) -> Unit,
     onRenameFolder: (Int, String) -> Unit,
     onDeleteFolder: (FolderEntry) -> Unit,
-    onFolderVisibilityChange: (Int, Boolean) -> Unit = { _, _ -> },
     onOrderChange: (List<Int>) -> Unit,
     modifier: Modifier = Modifier,
+    onFolderVisibilityChange: (Int, Boolean) -> Unit = { _, _ -> },
 ) {
     val mMSDLPlayerWrapper = MSDLPlayerWrapper.INSTANCE.get(LocalContext.current)
     val bottomSheetHandler = bottomSheetHandler
