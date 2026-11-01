@@ -447,7 +447,12 @@ public class ModelWriter {
             try (SQLiteTransaction transaction =
                     mModel.getModelDbController().newTransaction()) {
                 for (ItemInfo item : items) {
-                    deleteItem(item.id);
+                    int deletedRows = deleteItem(item.id);
+                    if (deletedRows != 1) {
+                        throw new IllegalStateException(
+                                "Expected to delete one workspace item with id " + item.id
+                                        + " but deleted " + deletedRows);
+                    }
                 }
                 transaction.commit();
             } catch (Exception e) {
@@ -479,10 +484,13 @@ public class ModelWriter {
         enqueueDeleteRunnable(newModelTask(() -> {
             try (SQLiteTransaction transaction =
                     mModel.getModelDbController().newTransaction()) {
-                mModel.getModelDbController().delete(
-                        Favorites.CONTAINER + "=" + info.id, null);
-                mModel.getModelDbController().delete(
-                        Favorites._ID + "=" + info.id, null);
+                deleteCollectionContents(info.id);
+                int deletedCollectionRows = deleteCollectionRecord(info.id);
+                if (deletedCollectionRows != 1) {
+                    throw new IllegalStateException(
+                            "Expected to delete one collection with id " + info.id
+                                    + " but deleted " + deletedCollectionRows);
+                }
                 transaction.commit();
             } catch (Exception e) {
                 Log.e(TAG, "Failed to delete collection and its contents; reloading model", e);
@@ -495,6 +503,22 @@ public class ModelWriter {
             mBgDataModel.removeItem(mContext, itemsToDelete, mOwner);
             verifier.verifyModel();
         }));
+    }
+
+    /**
+     * Deletes all direct children of a collection. Kept protected for rollback tests.
+     */
+    protected int deleteCollectionContents(int collectionId) {
+        return mModel.getModelDbController().delete(
+                Favorites.CONTAINER + "=" + collectionId, null);
+    }
+
+    /**
+     * Deletes a collection record. Kept protected for rollback tests.
+     */
+    protected int deleteCollectionRecord(int collectionId) {
+        return mModel.getModelDbController().delete(
+                Favorites._ID + "=" + collectionId, null);
     }
 
     /**
