@@ -389,7 +389,8 @@ class LawnchairBackup(
         RandomAccessFile(snapshot, "r").use { archive ->
             val fileLength = archive.length()
             require(fileLength >= ZIP_EOCD_MIN_SIZE) { "Backup is not a valid ZIP archive" }
-            val tailLength = minOf(fileLength, (ZIP_EOCD_MIN_SIZE + MAX_ZIP_COMMENT_BYTES).toLong()).toInt()
+            val tailLength =
+                minOf(fileLength, (ZIP_EOCD_MIN_SIZE + MAX_ZIP_COMMENT_BYTES).toLong()).toInt()
             val tail = ByteArray(tailLength)
             archive.seek(fileLength - tailLength)
             archive.readFully(tail)
