@@ -38,11 +38,15 @@ object WebSuggestionProvider : SearchProvider {
 
         return webProvider.getSuggestions(query)
             .timeout(timeout.milliseconds)
-            .catch {
-                if (it is TimeoutCancellationException) {
+            .catch { error ->
+                if (error is TimeoutCancellationException) {
                     Log.w(TAG, "Web suggestion request timed out")
-                    emit(emptyList())
+                } else {
+                    Log.e(TAG, "Web suggestion request failed", error)
                 }
+                // A failed optional web provider must not cancel app, contacts, file,
+                // settings, or calculator results in the combined search flow.
+                emit(emptyList())
             }
             .map { suggestions ->
                 suggestions
