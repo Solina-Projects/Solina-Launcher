@@ -16,6 +16,11 @@
 
 package app.lawnchair.search.algorithms
 
+import android.content.ComponentName
+import android.content.Intent
+import android.os.Process
+import app.lawnchair.ui.preferences.components.HiddenAppsInSearch
+import com.android.launcher3.model.data.AppInfo
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
@@ -53,4 +58,52 @@ class SearchUtilsTest {
         assertThat(normalizeSearchText("")).isEmpty()
         assertThat(normalizeSearchText("   ")).isEmpty()
     }
+
+    @Test
+    fun hiddenAppsAreExcludedWhenSearchPreferenceIsOff() {
+        val hiddenApp = appInfo("com.example.hidden", "Hidden App")
+        val visibleApp = appInfo("com.example.visible", "Visible App")
+
+        val results = sequenceOf(hiddenApp, visibleApp)
+            .filterHiddenApps("hidden", setOf(hiddenApp.toComponentKey().toString()), HiddenAppsInSearch.NEVER)
+            .toList()
+
+        assertThat(results).containsExactly(visibleApp)
+    }
+
+    @Test
+    fun hiddenAppsCanBeShownWhenTheirNameIsTyped() {
+        val hiddenApp = appInfo("com.example.hidden", "Café Notes")
+        val visibleApp = appInfo("com.example.visible", "Visible App")
+        val hiddenKeys = setOf(hiddenApp.toComponentKey().toString())
+
+        val exactNameResults = sequenceOf(hiddenApp, visibleApp)
+            .filterHiddenApps("cafe notes", hiddenKeys, HiddenAppsInSearch.IF_NAME_TYPED)
+            .toList()
+        val partialNameResults = sequenceOf(hiddenApp, visibleApp)
+            .filterHiddenApps("cafe", hiddenKeys, HiddenAppsInSearch.IF_NAME_TYPED)
+            .toList()
+
+        assertThat(exactNameResults).containsExactly(hiddenApp, visibleApp)
+        assertThat(partialNameResults).containsExactly(visibleApp)
+    }
+
+    @Test
+    fun hiddenAppsAreAlwaysIncludedWhenPreferenceIsOn() {
+        val hiddenApp = appInfo("com.example.hidden", "Hidden App")
+        val hiddenKeys = setOf(hiddenApp.toComponentKey().toString())
+
+        val results = sequenceOf(hiddenApp)
+            .filterHiddenApps("unrelated query", hiddenKeys, HiddenAppsInSearch.ALWAYS)
+            .toList()
+
+        assertThat(results).containsExactly(hiddenApp)
+    }
+
+    private fun appInfo(packageName: String, title: String) = AppInfo(
+        ComponentName(packageName, "$packageName.MainActivity"),
+        title,
+        Process.myUserHandle(),
+        Intent(),
+    )
 }
