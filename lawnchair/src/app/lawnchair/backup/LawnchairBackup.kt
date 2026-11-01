@@ -91,7 +91,8 @@ class LawnchairBackup(
         try {
             if (restoreLayout) {
                 val restoreTargets = getFiles(context, forRestore = true)
-                val handlers = restoreTargets.mapValues { (entryName, target) ->
+                val handlers: Map<String, suspend (InputStream) -> Unit> =
+                    restoreTargets.mapValues { (entryName, target) ->
                     { input: InputStream ->
                         val staged = File(stagingDir, "files/${entryName.replace('/', '_')}")
                         staged.parentFile?.mkdirs()
@@ -250,7 +251,7 @@ class LawnchairBackup(
         require(backupInfo.backupVersion == BACKUP_VERSION) {
             "Unsupported backup version: ${backupInfo.backupVersion}"
         }
-        require(backupInfo.contents != 0 && backupInfo.contents and KNOWN_CONTENTS.inv() == 0) {
+        require(backupInfo.contents != 0 && (backupInfo.contents and KNOWN_CONTENTS.inv()) == 0) {
             "Invalid backup contents"
         }
         require(backupInfo.previewWidth >= 0 && backupInfo.previewHeight >= 0) {
@@ -313,7 +314,7 @@ class LawnchairBackup(
 
         @SuppressLint("MissingPermission")
         suspend fun create(context: Context, contents: Int, screenshotBitmap: Bitmap, fileUri: Uri) {
-            require(contents != 0 && contents and KNOWN_CONTENTS.inv() == 0) {
+            require(contents != 0 && (contents and KNOWN_CONTENTS.inv()) == 0) {
                 "Invalid backup contents"
             }
             val idp = LauncherAppState.getIDP(context)
@@ -338,11 +339,11 @@ class LawnchairBackup(
                     require(launcherDatabase?.isFile == true) {
                         "Launcher database is not available for backup"
                     }
-                    val existingFiles = files.values.filter(File::isFile)
+                    val existingFiles = files.values.filter { it.isFile }
                     require(existingFiles.all { it.length() <= MAX_ENTRY_BYTES }) {
                         "A backup source file exceeds the supported size"
                     }
-                    require(existingFiles.sumOf(File::length) <= MAX_ARCHIVE_BYTES) {
+                    require(existingFiles.sumOf { it.length() } <= MAX_ARCHIVE_BYTES) {
                         "Backup sources exceed the supported size"
                     }
                 }
