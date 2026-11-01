@@ -445,6 +445,11 @@ class AllAppsSearchInput(context: Context, attrs: AttributeSet?) :
             appsView.appsStore?.removeUpdateListener(this)
         }
         input.viewTreeObserver.removeOnGlobalLayoutListener(this)
+        paddingAnimator?.cancel()
+        paddingAnimator = null
+        bgAlphaAnimator.cancel()
+        hint.animate().cancel()
+        searchAlgorithm?.cancel(true)
         setDirectFocus(false)
     }
 
@@ -455,6 +460,7 @@ class AllAppsSearchInput(context: Context, attrs: AttributeSet?) :
     override fun initializeSearch(appsView: ActivityAllAppsContainerView<*>) {
         apps = appsView.searchResultList as LawnchairAlphabeticalAppsList<*>
         this.appsView = appsView
+        searchAlgorithm?.destroy()
         val algorithm = LawnchairSearchAlgorithm.create(context)
         this.searchAlgorithm = algorithm
         searchBarController.initialize(
