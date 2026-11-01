@@ -150,7 +150,10 @@ public class RestoreDbTaskTest {
                 .orElseThrow();
         File markerDb = mContext.getDatabasePath(otherDb);
         markerDb.getParentFile().mkdirs();
-        assertTrue(markerDb.createNewFile());
+        boolean markerExistedBefore = markerDb.exists();
+        if (!markerExistedBefore) {
+            assertThat(markerDb.createNewFile()).isTrue();
+        }
 
         try {
             ModelDbController controller = new ModelDbController(mContext, true);
@@ -159,7 +162,9 @@ public class RestoreDbTaskTest {
             assertThat(markerDb.exists()).isTrue();
             assertThat(RestoreDbTask.isPending(mContext)).isTrue();
         } finally {
-            markerDb.delete();
+            if (!markerExistedBefore) {
+                markerDb.delete();
+            }
             LauncherPrefs.get(mContext).removeSync(RESTORE_DEVICE);
         }
     }
