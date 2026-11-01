@@ -85,6 +85,13 @@ class FolderViewModel(
         }
     }
 
+    fun setFolderHidden(folderId: Int, hide: Boolean) {
+        viewModelScope.launch {
+            repository.setFolderHidden(folderId, hide)
+            reloadHelper.reloadGrid()
+        }
+    }
+
     fun deleteFolder(id: Int) {
         viewModelScope.launch {
             repository.deleteFolderInfo(id)
