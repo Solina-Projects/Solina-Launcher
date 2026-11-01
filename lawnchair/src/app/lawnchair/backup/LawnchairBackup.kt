@@ -144,7 +144,9 @@ class LawnchairBackup(
                 // Preferences are restored from the archive, so the grid state must be applied
                 // afterwards or the restored preferences could overwrite it.
                 DeviceGridState(info.gridState).writeToPrefs(context, true)
-                RestoreDbTask.performRestore(context, ModelDbController(context))
+                check(RestoreDbTask.performRestore(context, ModelDbController(context))) {
+                    "Launcher database restore failed"
+                }
             }
 
             if (restoreWallpaper) {
