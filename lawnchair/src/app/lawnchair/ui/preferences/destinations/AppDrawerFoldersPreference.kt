@@ -240,9 +240,10 @@ fun FolderEditSheet(
             Spacer(Modifier.width(8.dp))
             Button(
                 onClick = {
-                    onRename(folderId, textFieldValue.text)
+                    onRename(folderId, textFieldValue.text.trim())
                     onDismiss()
                 },
+                enabled = textFieldValue.text.isNotBlank(),
                 shapes = ButtonDefaults.shapes(),
             ) {
                 Text(stringResource(android.R.string.ok))
@@ -261,7 +262,7 @@ fun FolderEditSheet(
                     .padding(horizontal = 16.dp)
                     .fillMaxWidth(),
                 singleLine = true,
-                isError = textFieldValue.text.isEmpty(),
+                isError = textFieldValue.text.isBlank(),
             )
             if (!hideAppPicker) {
                 ClickablePreference(
