@@ -33,6 +33,7 @@ import java.util.Date
 import java.util.zip.ZipEntry
 import java.util.zip.ZipInputStream
 import java.util.zip.ZipOutputStream
+import java.util.zip.ZipFile
 import kotlin.math.max
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -317,28 +318,50 @@ class LawnchairBackup(
         }
         val seen = mutableSetOf<String>()
         var totalBytes = 0L
-        FileInputStream(snapshot).use { input ->
-            ZipInputStream(input).use { zip ->
-                val buffer = ByteArray(DEFAULT_BUFFER_SIZE)
-                while (true) {
-                    val entry = zip.nextEntry ?: break
-                    require(!entry.isDirectory && isAllowedEntry(entry.name)) {
-                        "Unsupported backup entry: ${entry.name}"
-                    }
-                    require(seen.add(entry.name)) { "Duplicate backup entry: ${entry.name}" }
-                    var entryBytes = 0L
+        ZipFile(snapshot).use { zip ->
+            val entries = zip.entries()
+            val buffer = ByteArray(DEFAULT_BUFFER_SIZE)
+            while (entries.hasMoreElements()) {
+                val entry = entries.nextElement()
+                require(!entry.isDirectory && isAllowedEntry(entry.name)) {
+                    "Unsupported backup entry: ${entry.name}"
+                }
+                require(seen.add(entry.name)) { "Duplicate backup entry: ${entry.name}" }
+                val declaredSize = entry.size
+                val compressedSize = entry.compressedSize
+                require(declaredSize >= 0L && compressedSize >= 0L) {
+                    "Backup entry has unknown ZIP size metadata: ${entry.name}"
+                }
+                require(declaredSize <= MAX_ENTRY_BYTES) {
+                    "Backup entry exceeds the supported size: ${entry.name}"
+                }
+                require(
+                    entry.method == ZipEntry.STORED || entry.method == ZipEntry.DEFLATED,
+                ) { "Unsupported ZIP compression method: ${entry.method}" }
+                require(
+                    declaredSize == 0L && compressedSize == 0L ||
+                        compressedSize > 0L &&
+                        declaredSize <= compressedSize * MAX_COMPRESSION_RATIO,
+                ) { "Suspicious ZIP compression ratio: ${entry.name}" }
+
+                var entryBytes = 0L
+                zip.getInputStream(entry).use { stream ->
                     while (true) {
-                        val count = zip.read(buffer)
+                        val count = stream.read(buffer)
                         if (count < 0) break
                         entryBytes += count
                         totalBytes += count
-                        require(entryBytes <= MAX_ENTRY_BYTES && totalBytes <= MAX_ARCHIVE_BYTES) {
-                            "Backup archive exceeds the supported size"
-                        }
+                        require(
+                            entryBytes <= MAX_ENTRY_BYTES &&
+                                totalBytes <= MAX_ARCHIVE_BYTES &&
+                                entryBytes <= declaredSize,
+                        ) { "Backup archive exceeds its declared or supported size" }
                     }
-                    zip.closeEntry()
-                    require(seen.size <= MAX_ENTRY_COUNT) { "Too many backup entries" }
                 }
+                require(entryBytes == declaredSize) {
+                    "ZIP entry size does not match its central-directory metadata: ${entry.name}"
+                }
+                require(seen.size <= MAX_ENTRY_COUNT) { "Too many backup entries" }
             }
         }
         require(seen.containsAll(requiredEntries)) {
@@ -458,6 +481,7 @@ class LawnchairBackup(
         private const val MAX_IMAGE_PIXELS = 16L * 1024 * 1024
         private const val MAX_IMAGE_BYTES = 64 * 1024 * 1024
         private const val MAX_ENTRY_COUNT = 16
+        private const val MAX_COMPRESSION_RATIO = 1000L
         private const val MAX_ENTRY_BYTES = 256L * 1024 * 1024
         private const val MAX_ARCHIVE_BYTES = 512L * 1024 * 1024
         private const val KNOWN_CONTENTS = (1 shl 0) or (1 shl 1)
