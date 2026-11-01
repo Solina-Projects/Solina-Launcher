@@ -76,4 +76,61 @@ class LawnchairBackupSelectiveRestoreTest {
         unrelatedDatabase.delete()
         backupFile.delete()
     }
+    @Test
+    fun archiveWithPathTraversalEntryIsRejected() = runBlocking {
+        val backupFile = File(context.cacheDir, "path_traversal.lawnchairbackup")
+        val info = app.lawnchair.LawnchairProto.BackupInfo.newBuilder()
+            .setBackupVersion(1)
+            .setContents(LawnchairBackup.INCLUDE_WALLPAPER)
+            .setPreviewWidth(1)
+            .setPreviewHeight(1)
+            .build()
+        ZipOutputStream(FileOutputStream(backupFile)).use { zip ->
+            zip.putNextEntry(ZipEntry(LawnchairBackup.INFO_FILE_NAME))
+            info.writeTo(zip)
+            zip.closeEntry()
+            zip.putNextEntry(ZipEntry("../shared_prefs/attacker.xml"))
+            zip.write("must not be extracted".toByteArray())
+            zip.closeEntry()
+        }
+
+        val backup = LawnchairBackup(context, Uri.fromFile(backupFile))
+        var rejected = false
+        try {
+            backup.readInfoAndPreview()
+        } catch (_: IllegalArgumentException) {
+            rejected = true
+        } finally {
+            backupFile.delete()
+        }
+        assertTrue("Archive path traversal entry must be rejected", rejected)
+    }
+
+    @Test
+    fun unsupportedBackupVersionIsRejected() = runBlocking {
+        val backupFile = File(context.cacheDir, "unsupported_version.lawnchairbackup")
+        val info = app.lawnchair.LawnchairProto.BackupInfo.newBuilder()
+            .setBackupVersion(999)
+            .setContents(LawnchairBackup.INCLUDE_WALLPAPER)
+            .setPreviewWidth(1)
+            .setPreviewHeight(1)
+            .build()
+        ZipOutputStream(FileOutputStream(backupFile)).use { zip ->
+            zip.putNextEntry(ZipEntry(LawnchairBackup.INFO_FILE_NAME))
+            info.writeTo(zip)
+            zip.closeEntry()
+        }
+
+        val backup = LawnchairBackup(context, Uri.fromFile(backupFile))
+        var rejected = false
+        try {
+            backup.readInfoAndPreview()
+        } catch (_: IllegalArgumentException) {
+            rejected = true
+        } finally {
+            backupFile.delete()
+        }
+        assertTrue("Unknown backup versions must be rejected", rejected)
+    }
+
 }
