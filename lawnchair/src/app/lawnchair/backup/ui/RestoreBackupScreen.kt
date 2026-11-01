@@ -15,11 +15,13 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
@@ -124,6 +126,7 @@ fun ColumnScope.RestoreBackupOptions(
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     var restoringBackup by remember { mutableStateOf(false) }
+    var showRestoreConfirmation by remember { mutableStateOf(false) }
     if (restoringBackup) {
         BackHandler {}
     }
@@ -193,6 +196,41 @@ fun ColumnScope.RestoreBackupOptions(
             enabled = backupContents.hasFlag(LawnchairBackup.INCLUDE_WALLPAPER),
         )
     }
+    if (showRestoreConfirmation) {
+        val isLayoutRestore = contents.hasFlag(LawnchairBackup.INCLUDE_LAYOUT_AND_SETTINGS)
+        AlertDialog(
+            onDismissRequest = { if (!restoringBackup) showRestoreConfirmation = false },
+            title = { Text(stringResource(R.string.backup_restore_confirmation_title)) },
+            text = {
+                Text(
+                    stringResource(
+                        if (isLayoutRestore) R.string.backup_restore_confirmation_layout_message
+                        else R.string.backup_restore_confirmation_wallpaper_message,
+                    ),
+                )
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        showRestoreConfirmation = false
+                        restoreBackup()
+                    },
+                    enabled = !restoringBackup,
+                ) {
+                    Text(stringResource(R.string.action_restore))
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = { showRestoreConfirmation = false },
+                    enabled = !restoringBackup,
+                ) {
+                    Text(stringResource(R.string.action_cancel))
+                }
+            },
+        )
+    }
+
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -200,7 +238,7 @@ fun ColumnScope.RestoreBackupOptions(
             .padding(horizontal = 16.dp),
     ) {
         Button(
-            onClick = { restoreBackup() },
+            onClick = { showRestoreConfirmation = true },
             modifier = Modifier
                 .align(Alignment.CenterEnd)
                 .fillMaxWidth(),
