@@ -50,7 +50,7 @@ fun categorizeAppsWithSystemAndGoogle(
     // Flowerpot category order is made deterministic so Drawer positions do not jump between
     // refreshes when the underlying map implementation changes.
     categorizedApps.entries
-        .sortedWith(compareBy(String.CASE_INSENSITIVE_ORDER) { it.key }.thenBy { it.key })
+        .sortedWith(compareBy<Map.Entry<String, List<AppInfo>>> { it.key.lowercase(Locale.ROOT) }.thenBy { it.key })
         .forEach { (name, categoryApps) -> addCategory(name, categoryApps) }
 
     return result
