@@ -18,7 +18,6 @@ import com.android.launcher3.BuildConfig
 import com.android.launcher3.LauncherAppState
 import com.android.launcher3.LauncherFiles
 import com.android.launcher3.LauncherPrefs
-import com.android.launcher3.LauncherPrefs.RESTORE_DEVICE
 import com.android.launcher3.R
 import com.android.launcher3.model.DeviceGridState
 import com.android.launcher3.model.ModelDbController
@@ -172,7 +171,7 @@ class LawnchairBackup(
                 check(restoreSucceeded) { "Launcher database restore failed" }
                 // The explicit restore above also handles widget-ID remapping while the pending
                 // flag is present. Clear it only after the database restore has succeeded.
-                LauncherPrefs.get(context).removeSync(RESTORE_DEVICE)
+                LauncherPrefs.get(context).removeSync(LauncherPrefs.RESTORE_DEVICE)
             }
 
             if (restoreWallpaper) {
