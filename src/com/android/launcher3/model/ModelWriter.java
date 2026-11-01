@@ -203,18 +203,18 @@ public class ModelWriter {
     public void moveItemsInDatabase(final ArrayList<ItemInfo> items, int container, int screen) {
         ArrayList<ContentValues> contentValues = new ArrayList<>();
         int count = items.size();
-        notifyOtherCallbacks(c -> c.bindItemsUpdated(new HashSet<>(items)));
 
         for (int i = 0; i < count; i++) {
             ItemInfo item = items.get(i);
-            updateItemInfoProps(item, container, screen, item.cellX, item.cellY);
+            CellPos modelPos =
+                    mCellPosMapper.mapPresenterToModel(item.cellX, item.cellY, screen, container);
 
             final ContentValues values = new ContentValues();
-            values.put(Favorites.CONTAINER, item.container);
-            values.put(Favorites.CELLX, item.cellX);
-            values.put(Favorites.CELLY, item.cellY);
+            values.put(Favorites.CONTAINER, container);
+            values.put(Favorites.CELLX, modelPos.cellX);
+            values.put(Favorites.CELLY, modelPos.cellY);
             values.put(Favorites.RANK, item.rank);
-            values.put(Favorites.SCREEN, item.screenId);
+            values.put(Favorites.SCREEN, modelPos.screenId);
 
             contentValues.add(values);
         }
@@ -373,28 +373,31 @@ public class ModelWriter {
      */
     public void addItemsToDatabase(final List<ItemInfo> items) {
         items.forEach(info -> info.id = mModel.getModelDbController().generateNewItemId());
-        notifyOtherCallbacks(c -> c.bindItemsAdded(items));
 
         ModelVerifier verifier = new ModelVerifier();
         final StackTraceElement[] stackTrace = new Throwable().getStackTrace();
         newModelTask(() -> {
-            // Write the item on background thread, as some properties might have been
-            // updated in
-            // the background.
-            for (ItemInfo item: items) {
-                final ContentWriter writer = new ContentWriter(mContext);
-                item.onAddToDatabase(writer);
-                writer.put(Favorites._ID, item.id);
-                mModel.getModelDbController().insert(writer.getValues(mContext));
+            // Persist the complete batch atomically. The in-memory model and callbacks are only
+            // updated after the database transaction has committed successfully.
+            try (SQLiteTransaction transaction =
+                    mModel.getModelDbController().newTransaction()) {
+                for (ItemInfo item : items) {
+                    final ContentWriter writer = new ContentWriter(mContext);
+                    item.onAddToDatabase(writer);
+                    writer.put(Favorites._ID, item.id);
+                    mModel.getModelDbController().insert(writer.getValues(mContext));
+                }
+                transaction.commit();
             }
 
             synchronized (mBgDataModel) {
-                for (ItemInfo item: items) {
+                for (ItemInfo item : items) {
                     checkItemInfoLocked(item.id, item, stackTrace);
                 }
                 mBgDataModel.addItems(mContext, items, mOwner);
                 verifier.verifyModel();
             }
+            notifyOtherCallbacks(c -> c.bindItemsAdded(items));
         }).executeOnModelThread();
     }
 
@@ -577,16 +580,35 @@ public class ModelWriter {
                 int count = mItems.size();
                 for (int i = 0; i < count; i++) {
                     ItemInfo item = mItems.get(i);
-                    final int itemId = item.id;
-                    mModel.getModelDbController().update(
-                            mValues.get(i), itemIdMatch(itemId), null);
-                    updateItemArrays(item, itemId);
+                    int updatedRows = mModel.getModelDbController().update(
+                            mValues.get(i), itemIdMatch(item.id), null);
+                    if (updatedRows != 1) {
+                        throw new IllegalStateException(
+                                "Expected to update one workspace item with id " + item.id
+                                        + " but updated " + updatedRows);
+                    }
                 }
                 t.commit();
-                mBgDataModel.updateItems(mItems, mOwner);
             } catch (Exception e) {
-                e.printStackTrace();
+                Log.e(TAG, "Failed to update workspace items; in-memory state was not changed", e);
+                return;
             }
+
+            // Apply the new positions only after the database transaction has committed.
+            for (int i = 0; i < mItems.size(); i++) {
+                ItemInfo item = mItems.get(i);
+                ContentValues values = mValues.get(i);
+                item.container = values.getAsInteger(Favorites.CONTAINER);
+                item.cellX = values.getAsInteger(Favorites.CELLX);
+                item.cellY = values.getAsInteger(Favorites.CELLY);
+                item.rank = values.getAsInteger(Favorites.RANK);
+                item.screenId = values.getAsInteger(Favorites.SCREEN);
+                updateItemArrays(item, item.id);
+            }
+            synchronized (mBgDataModel) {
+                mBgDataModel.updateItems(mItems, mOwner);
+            }
+            notifyOtherCallbacks(c -> c.bindItemsUpdated(new HashSet<>(mItems)));
         }
     }
 
