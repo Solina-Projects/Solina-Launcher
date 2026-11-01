@@ -88,15 +88,20 @@ class LawnchairBackup(
         val rollbackFiles = mutableMapOf<File, File?>()
         val modifiedTargets = mutableSetOf<File>()
         var databaseRollbackSnapshotsReady = false
-        val databaseRollbackTargets = if (restoreLayout) LauncherFiles.GRID_DB_FILES.flatMap { dbName ->
-            val database = context.getDatabasePath(dbName)
-            listOf(
-                database,
-                File(database.path + "-wal"),
-                File(database.path + "-journal"),
-                File(database.path + "-shm"),
-            )
-        }.distinct() else emptyList()
+        val databaseRollbackTargets =
+            if (restoreLayout) {
+                LauncherFiles.GRID_DB_FILES.flatMap { dbName ->
+                    val database = context.getDatabasePath(dbName)
+                    listOf(
+                        database,
+                        File(database.path + "-wal"),
+                        File(database.path + "-journal"),
+                        File(database.path + "-shm"),
+                    )
+                }.distinct()
+            } else {
+                emptyList()
+            }
         var stagedWallpaper: Bitmap? = null
 
         try {
