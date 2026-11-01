@@ -56,11 +56,11 @@ fun SelectAppsForDrawerFolder(
 
     val folders by viewModel.folders.collectAsStateWithLifecycle()
     val apps by appsState()
-    val folderEntry by viewModel.getFolderFlowForId(folderInfoId).collectAsStateWithLifecycle(null)
+    val folderEntry = folders?.find { it.id == folderInfoId }
 
-    // A null folder entry is also the initial loading value. Wait until the folder
-    // collection has loaded before treating it as a deleted or invalid folder.
-    LaunchedEffect(folderInfoId, folders, folderEntry, backDispatcher) {
+    // Derive the entry from the same loaded list so the validity check cannot race
+    // a second Flow collector that has not received the folder list yet.
+    LaunchedEffect(folderInfoId, folders, backDispatcher) {
         if (folders != null && folderEntry == null) {
             backDispatcher?.onBackPressed()
         }
