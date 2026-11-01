@@ -210,6 +210,49 @@ class LawnchairBackupSelectiveRestoreTest {
     }
 
     @Test
+    fun restoreUsesSameArchiveSnapshotThatWasValidatedForPreview() = runBlocking {
+        val backupFile = File(context.cacheDir, "archive_snapshot_toctou.lawnchairbackup")
+        val info = app.lawnchair.LawnchairProto.BackupInfo.newBuilder()
+            .setBackupVersion(1)
+            .setContents(LawnchairBackup.INCLUDE_LAYOUT_AND_SETTINGS)
+            .setPreviewWidth(1)
+            .setPreviewHeight(1)
+            .build()
+
+        try {
+            ZipOutputStream(FileOutputStream(backupFile)).use { zip ->
+                zip.putNextEntry(ZipEntry(LawnchairBackup.INFO_FILE_NAME))
+                info.writeTo(zip)
+                zip.closeEntry()
+            }
+
+            val backup = LawnchairBackup(context, Uri.fromFile(backupFile))
+            backup.readInfoAndPreview()
+
+            // Replace the provider-backed source after preview validation. Restore must continue
+            // using the private snapshot and reject its missing database entry.
+            ZipOutputStream(FileOutputStream(backupFile)).use { zip ->
+                zip.putNextEntry(ZipEntry(LawnchairBackup.INFO_FILE_NAME))
+                info.writeTo(zip)
+                zip.closeEntry()
+                zip.putNextEntry(ZipEntry(LawnchairBackup.LAUNCHER_DB_FILE_NAME))
+                zip.write("replacement archive database".toByteArray())
+                zip.closeEntry()
+            }
+
+            val failure = runCatching {
+                backup.restore(LawnchairBackup.INCLUDE_LAYOUT_AND_SETTINGS)
+            }.exceptionOrNull()
+            assertTrue(
+                "Restore must validate and extract from the same archive snapshot",
+                failure?.message?.contains("Backup is missing required entries") == true,
+            )
+        } finally {
+            backupFile.delete()
+        }
+    }
+
+    @Test
     fun corruptedZipPayloadCrcIsRejected() = runBlocking {
         val backupFile = File(context.cacheDir, "corrupted_crc.lawnchairbackup")
         val infoBytes = app.lawnchair.LawnchairProto.BackupInfo.newBuilder()
