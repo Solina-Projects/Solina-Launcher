@@ -21,6 +21,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import com.android.launcher3.LauncherSettings.Favorites._ID
 import com.android.launcher3.celllayout.CellPosMapper
+import com.android.launcher3.model.data.FolderInfo
 import com.android.launcher3.model.data.ItemInfo
 import com.android.launcher3.util.Executors
 import com.android.launcher3.util.ModelTestExtensions.bgDataModel
@@ -155,6 +156,62 @@ class ModelWriterTest : AbstractWorkspaceModelTest() {
         items.forEach { item ->
             assertThat(dataModel.itemsIdMap.get(item.id)).isNotNull()
         }
+    }
+
+    @Test
+    fun deleteCollectionAndContents_whenCollectionDeleteFails_rollsBackAndReloadsModel() {
+        val folder = FolderInfo().apply { title = "Rollback folder" }
+        val addWriter =
+            ModelWriter(
+                mTargetContext,
+                model,
+                model.bgDataModel,
+                false,
+                CellPosMapper.DEFAULT,
+                null,
+            )
+        runOnExecutorSync(Executors.MODEL_EXECUTOR) {
+            addWriter.addItemsToDatabase(listOf(folder))
+        }
+        assertThat(folder.id).isNotEqualTo(ItemInfo.NO_ID)
+
+        val child = getNewItem().apply { container = folder.id }
+        folder.add(child)
+        runOnExecutorSync(Executors.MODEL_EXECUTOR) {
+            addWriter.addItemsToDatabase(listOf(child))
+        }
+        assertThat(child.id).isNotEqualTo(ItemInfo.NO_ID)
+
+        val initialDatabaseCount = countDatabaseItems()
+        var collectionDeleteCount = 0
+        val writer =
+            object :
+                ModelWriter(
+                    mTargetContext,
+                    model,
+                    model.bgDataModel,
+                    false,
+                    CellPosMapper.DEFAULT,
+                    null,
+                ) {
+                override fun deleteCollectionContents(collectionId: Int): Int {
+                    return super.deleteCollectionContents(collectionId)
+                }
+
+                override fun deleteCollectionRecord(collectionId: Int): Int {
+                    collectionDeleteCount++
+                    throw IllegalStateException("Simulated collection record delete failure")
+                }
+            }
+
+        writer.deleteCollectionAndContentsFromDatabase(folder)
+        runOnExecutorSync(Executors.MODEL_EXECUTOR) {}
+
+        assertThat(collectionDeleteCount).isEqualTo(1)
+        assertThat(countDatabaseItems()).isEqualTo(initialDatabaseCount)
+        val dataModel = model.bgDataModel
+        assertThat(dataModel.itemsIdMap.get(folder.id)).isNotNull()
+        assertThat(dataModel.itemsIdMap.get(child.id)).isNotNull()
     }
 
     private fun countDatabaseItems(): Int {
