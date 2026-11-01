@@ -389,7 +389,7 @@ class LawnchairBackup(
         RandomAccessFile(snapshot, "r").use { archive ->
             val fileLength = archive.length()
             require(fileLength >= ZIP_EOCD_MIN_SIZE) { "Backup is not a valid ZIP archive" }
-            val tailLength = minOf(fileLength, ZIP_EOCD_MIN_SIZE + MAX_ZIP_COMMENT_BYTES).toInt()
+            val tailLength = minOf(fileLength, (ZIP_EOCD_MIN_SIZE + MAX_ZIP_COMMENT_BYTES).toLong()).toInt()
             val tail = ByteArray(tailLength)
             archive.seek(fileLength - tailLength)
             archive.readFully(tail)
@@ -558,8 +558,8 @@ class LawnchairBackup(
         private const val MAX_ENTRY_COUNT = 16
         private const val MAX_COMPRESSION_RATIO = 1000L
         private const val MAX_CENTRAL_DIRECTORY_BYTES = 64L * 1024
-        private const val MAX_ZIP_COMMENT_BYTES = 65535L
-        private const val ZIP_EOCD_MIN_SIZE = 22L
+        private const val MAX_ZIP_COMMENT_BYTES = 65535
+        private const val ZIP_EOCD_MIN_SIZE = 22
         private const val ZIP_CENTRAL_DIRECTORY_HEADER_SIZE = 46L
         private const val ZIP_EOCD_SIGNATURE = 0x06054b50L
         private const val ZIP16_SENTINEL = 0xffff
