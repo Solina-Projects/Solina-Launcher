@@ -25,6 +25,7 @@ import com.android.launcher3.provider.RestoreDbTask
 import com.google.protobuf.Timestamp
 import java.io.File
 import java.io.FileInputStream
+import java.io.ByteArrayOutputStream
 import java.io.FileOutputStream
 import java.io.InputStream
 import java.text.SimpleDateFormat
@@ -54,13 +55,15 @@ class LawnchairBackup(
             readZip(
                 mapOf(
                     INFO_FILE_NAME to { info = BackupInfo.newBuilder().mergeFrom(it).build() },
-                    SCREENSHOT_FILE_NAME to { tmpScreenshot = BitmapFactory.decodeStream(it) },
-                    WALLPAPER_FILE_NAME to { tmpWallpaper = BitmapFactory.decodeStream(it) },
+                    SCREENSHOT_FILE_NAME to { tmpScreenshot = decodeBoundedBitmap(it) },
+                    WALLPAPER_FILE_NAME to { tmpWallpaper = decodeBoundedBitmap(it) },
                 ),
             )
             require(::info.isInitialized) { "Missing backup metadata" }
             validateInfo(info)
             val size = max(info.previewWidth, info.previewHeight).coerceAtMost(MAX_PREVIEW_SIZE)
+            screenshot?.recycle()
+            wallpaper?.recycle()
             screenshot = tmpScreenshot?.scaleDownTo(size)
             wallpaper = tmpWallpaper?.scaleDownToDisplaySize(context)
         } catch (throwable: Throwable) {
@@ -141,7 +144,7 @@ class LawnchairBackup(
                 readZip(
                     mapOf(
                         WALLPAPER_FILE_NAME to { input ->
-                            stagedWallpaper = BitmapFactory.decodeStream(input)
+                            stagedWallpaper = decodeBoundedBitmap(input)
                                 ?: throw IllegalArgumentException("Invalid wallpaper image")
                         },
                     ),
@@ -326,6 +329,49 @@ class LawnchairBackup(
         }
     }
 
+    /**
+     * Decode untrusted archive images only after bounding their encoded size and decoded pixel
+     * count. The bounds pass uses an in-memory snapshot so it does not consume the ZIP stream.
+     */
+    private fun decodeBoundedBitmap(input: InputStream): Bitmap? {
+        val encoded = ByteArrayOutputStream()
+        val buffer = ByteArray(DEFAULT_BUFFER_SIZE)
+        var totalBytes = 0
+        while (true) {
+            val count = input.read(buffer)
+            if (count < 0) break
+            totalBytes += count
+            require(totalBytes <= MAX_IMAGE_BYTES) {
+                "Backup image exceeds the supported size"
+            }
+            encoded.write(buffer, 0, count)
+        }
+
+        val bytes = encoded.toByteArray()
+        val bounds = BitmapFactory.Options().apply { inJustDecodeBounds = true }
+        BitmapFactory.decodeByteArray(bytes, 0, bytes.size, bounds)
+        require(bounds.outWidth > 0 && bounds.outHeight > 0) {
+            "Invalid backup image"
+        }
+        require(bounds.outWidth <= MAX_IMAGE_DIMENSION && bounds.outHeight <= MAX_IMAGE_DIMENSION) {
+            "Backup image dimensions exceed the supported limit"
+        }
+
+        var sampleSize = 1
+        while (
+            bounds.outWidth / sampleSize.toLong() * (bounds.outHeight / sampleSize.toLong()) >
+            MAX_IMAGE_PIXELS
+        ) {
+            sampleSize *= 2
+        }
+        return BitmapFactory.decodeByteArray(
+            bytes,
+            0,
+            bytes.size,
+            BitmapFactory.Options().apply { inSampleSize = sampleSize },
+        )
+    }
+
     private fun checkpointLauncherDatabases(databaseFiles: List<File>) {
         databaseFiles.forEach { databaseFile ->
             if (!databaseFile.isFile || databaseFile.length() == 0L) return@forEach
@@ -391,6 +437,9 @@ class LawnchairBackup(
     companion object {
         private const val BACKUP_VERSION = 1
         private const val MAX_PREVIEW_SIZE = 4000
+        private const val MAX_IMAGE_DIMENSION = 32768
+        private const val MAX_IMAGE_PIXELS = 16L * 1024 * 1024
+        private const val MAX_IMAGE_BYTES = 64 * 1024 * 1024
         private const val MAX_ENTRY_COUNT = 16
         private const val MAX_ENTRY_BYTES = 256L * 1024 * 1024
         private const val MAX_ARCHIVE_BYTES = 512L * 1024 * 1024
