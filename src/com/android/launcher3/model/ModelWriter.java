@@ -381,7 +381,13 @@ public class ModelWriter {
                     final ContentWriter writer = new ContentWriter(mContext);
                     item.onAddToDatabase(writer);
                     writer.put(Favorites._ID, item.id);
-                    mModel.getModelDbController().insert(writer.getValues(mContext));
+                    int insertedRowId =
+                            mModel.getModelDbController().insert(writer.getValues(mContext));
+                    if (insertedRowId != item.id) {
+                        throw new IllegalStateException(
+                                "Failed to insert workspace item " + item.id
+                                        + "; database returned row id " + insertedRowId);
+                    }
                 }
                 transaction.commit();
             }
