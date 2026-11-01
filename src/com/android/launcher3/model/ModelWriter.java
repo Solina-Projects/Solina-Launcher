@@ -664,6 +664,7 @@ public class ModelWriter {
         private final ModelVerifier mVerifier = new ModelVerifier();
 
         UpdateItemBaseRunnable() {
+            super(true);
             mStackTrace = new Throwable().getStackTrace();
         }
 
@@ -691,11 +692,25 @@ public class ModelWriter {
     private abstract class ModelTask implements Runnable {
 
         private final int mLoadId = mBgDataModel.lastLoadId;
+        private final boolean mReloadOnStale;
+
+        ModelTask() {
+            this(false);
+        }
+
+        ModelTask(boolean reloadOnStale) {
+            mReloadOnStale = reloadOnStale;
+        }
 
         @Override
         public final void run() {
             if (mLoadId != mModel.getLastLoadId()) {
                 Log.d(TAG, "Model changed before the task could execute");
+                if (mReloadOnStale) {
+                    // Some update callers mutate ItemInfo before this task is queued.
+                    // Restore the in-memory model from the committed database state.
+                    mModel.forceReload();
+                }
                 return;
             }
             runImpl();
