@@ -381,7 +381,11 @@ public class LauncherAppWidgetHostView extends BaseLauncherAppWidgetHostView
                 mAutoAdvanceRunnable = this::runAutoAdvance;
             }
 
-            handler.removeCallbacks(mAutoAdvanceRunnable);
+            // A detached view has no handler. Do not dereference it while unregistering
+            // auto-advance; scheduleNextAdvance() also checks the registration state.
+            if (handler != null) {
+                handler.removeCallbacks(mAutoAdvanceRunnable);
+            }
             scheduleNextAdvance();
         }
     }
