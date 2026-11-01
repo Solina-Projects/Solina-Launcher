@@ -381,8 +381,7 @@ public class ModelWriter {
                     final ContentWriter writer = new ContentWriter(mContext);
                     item.onAddToDatabase(writer);
                     writer.put(Favorites._ID, item.id);
-                    int insertedRowId =
-                            mModel.getModelDbController().insert(writer.getValues(mContext));
+                    int insertedRowId = insertItem(writer.getValues(mContext));
                     if (insertedRowId != item.id) {
                         throw new IllegalStateException(
                                 "Failed to insert workspace item " + item.id
@@ -406,6 +405,13 @@ public class ModelWriter {
             }
             notifyOtherCallbacks(c -> c.bindItemsAdded(items));
         }).executeOnModelThread();
+    }
+
+    /**
+     * Inserts a workspace item. Kept protected so tests can simulate database insert failures.
+     */
+    protected int insertItem(ContentValues values) {
+        return mModel.getModelDbController().insert(values);
     }
 
     /**
