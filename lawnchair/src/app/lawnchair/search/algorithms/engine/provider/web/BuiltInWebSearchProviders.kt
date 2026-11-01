@@ -78,8 +78,6 @@ object GoogleWebSearchProvider : WebSearchProvider {
             }
         } catch (e: CancellationException) {
             throw e
-        } catch (e: CancellationException) {
-            throw e
         } catch (e: Exception) {
             Log.e(TAG, "Error during suggestion retrieval", e)
             emit(emptyList())
