@@ -1,7 +1,6 @@
 package app.lawnchair.search.algorithms
 
 import android.content.Context
-import android.os.Handler
 import app.lawnchair.preferences2.PreferenceManager2
 import app.lawnchair.search.adapter.SPACE
 import app.lawnchair.search.adapter.SearchTargetCompat
@@ -14,6 +13,8 @@ import com.android.launcher3.search.SearchCallback
 import com.android.launcher3.util.Executors
 import com.patrykmichalik.opto.core.onEach
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
@@ -21,7 +22,6 @@ import kotlinx.coroutines.launch
 class LawnchairAppSearchAlgorithm(context: Context) : LawnchairSearchAlgorithm(context) {
 
     private val appState = LauncherAppState.getInstance(context)
-    private val resultHandler = Handler(Executors.MAIN_EXECUTOR.looper)
 
     // todo maybe use D.I.?
     private val searchTargetFactory = SearchTargetFactory(context)
@@ -34,7 +34,7 @@ class LawnchairAppSearchAlgorithm(context: Context) : LawnchairSearchAlgorithm(c
 
     private val prefs2 = PreferenceManager2.getInstance(context)
 
-    val coroutineScope = CoroutineScope(context = Dispatchers.IO)
+    private val coroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
     private var modelRetryJob: Job? = null
     private var currentJob: Job? = null
@@ -71,8 +71,12 @@ class LawnchairAppSearchAlgorithm(context: Context) : LawnchairSearchAlgorithm(c
         if (interruptActiveRequests) {
             modelRetryJob?.cancel()
             currentJob?.cancel()
-            resultHandler.removeCallbacksAndMessages(null)
         }
+    }
+
+    override fun destroy() {
+        cancel(interruptActiveRequests = true)
+        coroutineScope.cancel()
     }
 
     private fun getResult(
