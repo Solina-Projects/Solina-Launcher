@@ -25,6 +25,7 @@ import com.android.launcher3.views.ActivityContext
 import com.patrykmichalik.opto.core.onEach as onEachPreference
 import java.util.Locale
 import java.util.function.Predicate
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 
@@ -71,7 +72,12 @@ class LawnchairAlphabeticalAppsList<T>(
      * LiveData snapshot. Folder edits, reordering and deletions are then reflected immediately.
      */
     private fun observeFolders() {
-        FolderService.INSTANCE.get(context.launcher.application).getFoldersFlow().onEach { folders ->
+        FolderService.INSTANCE.get(context.launcher.application).getFoldersFlow()
+            .catch { throwable ->
+                Log.e(TAG, "Failed to observe App Drawer folders", throwable)
+                emit(emptyList())
+            }
+            .onEach { folders ->
             folderList.clear()
             folderList.addAll(
                 folders.orEmpty().sortedWith(
