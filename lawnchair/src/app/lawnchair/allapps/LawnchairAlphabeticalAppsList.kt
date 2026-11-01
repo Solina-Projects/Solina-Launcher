@@ -23,8 +23,10 @@ import com.android.launcher3.model.data.FolderInfo
 import com.android.launcher3.model.data.ItemInfo
 import com.android.launcher3.util.ComponentKey
 import com.android.launcher3.views.ActivityContext
-import com.patrykmichalik.opto.core.onEach
+import com.patrykmichalik.opto.core.onEach as onEachPreference
 import java.util.Locale
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import java.util.function.Predicate
 
 @Suppress("SYNTHETIC_PROPERTY_WITHOUT_JAVA_ORIGIN")
@@ -53,7 +55,7 @@ class LawnchairAlphabeticalAppsList<T>(
         context.launcher.deviceProfile.inv.addOnChangeListener(this)
         (context as? LifecycleOwner)?.lifecycle?.addObserver(this)
         try {
-            prefs2.hiddenApps.onEach(launchIn = context.launcher.lifecycleScope) {
+            prefs2.hiddenApps.onEachPreference(launchIn = context.launcher.lifecycleScope) {
                 hiddenApps = it
                 onAppsUpdated()
             }
@@ -72,7 +74,7 @@ class LawnchairAlphabeticalAppsList<T>(
      * LiveData snapshot. Folder edits, reordering and deletions are then reflected immediately.
      */
     private fun observeFolders() {
-        viewModel.folders.onEach(launchIn = context.launcher.lifecycleScope) { folders ->
+        viewModel.folders.onEach { folders ->
             folderList.clear()
             folderList.addAll(
                 folders.orEmpty().sortedWith(
@@ -82,7 +84,7 @@ class LawnchairAlphabeticalAppsList<T>(
                 ),
             )
             updateAdapterItems()
-        }
+        }.launchIn(context.launcher.lifecycleScope)
     }
 
     override fun updateItemFilter(itemFilter: Predicate<ItemInfo>?) {
