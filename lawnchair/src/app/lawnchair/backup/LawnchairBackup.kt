@@ -332,11 +332,22 @@ class LawnchairBackup(
                 .setPreviewDarkText(wallpaperSupportsDarkText)
                 .build()
 
-            if (contents.hasFlag(INCLUDE_LAYOUT_AND_SETTINGS)) {
-                val launcherDatabase = getFiles(context, forRestore = false)[LAUNCHER_DB_FILE_NAME]
-                require(launcherDatabase?.isFile == true) {
-                    "Launcher database is not available for backup"
+            val sourceFiles = if (contents.hasFlag(INCLUDE_LAYOUT_AND_SETTINGS)) {
+                getFiles(context, forRestore = false).also { files ->
+                    val launcherDatabase = files[LAUNCHER_DB_FILE_NAME]
+                    require(launcherDatabase?.isFile == true) {
+                        "Launcher database is not available for backup"
+                    }
+                    val existingFiles = files.values.filter(File::isFile)
+                    require(existingFiles.all { it.length() <= MAX_ENTRY_BYTES }) {
+                        "A backup source file exceeds the supported size"
+                    }
+                    require(existingFiles.sumOf(File::length) <= MAX_ARCHIVE_BYTES) {
+                        "Backup sources exceed the supported size"
+                    }
                 }
+            } else {
+                emptyMap()
             }
             val wallpaperBitmap = if (contents.hasFlag(INCLUDE_WALLPAPER)) {
                 WallpaperManager.getInstance(context).drawable?.toBitmap()
@@ -367,7 +378,7 @@ class LawnchairBackup(
                             }
                             out.closeEntry()
 
-                            getFiles(context, forRestore = false).forEach { (entryName, file) ->
+                            sourceFiles.forEach { (entryName, file) ->
                                 if (!file.isFile) return@forEach
                                 out.putNextEntry(ZipEntry(entryName))
                                 file.inputStream().use { input -> input.copyTo(out) }
