@@ -25,8 +25,8 @@ import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.net.URISyntaxException
 import java.util.UUID
-import javax.xml.XMLConstants
 import java.util.zip.ZipInputStream
+import javax.xml.XMLConstants
 import javax.xml.parsers.DocumentBuilderFactory
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -465,8 +465,10 @@ class NovaBackupConverter(
                         entryCount++
                         require(entryCount <= MAX_ARCHIVE_ENTRIES) { "Too many archive entries" }
                         val name = entry.name
-                        require(!entry.isDirectory && !name.startsWith("/") &&
-                            !name.contains("..") && '\\' !in name) {
+                        require(
+                            !entry.isDirectory && !name.startsWith("/") &&
+                                !name.contains("..") && '\\' !in name,
+                        ) {
                             "Invalid archive entry: $name"
                         }
                         if (name in fileNames) {
@@ -487,8 +489,10 @@ class NovaBackupConverter(
                                 if (count < 0) break
                                 entryBytes += count
                                 totalBytes += count
-                                require(entryBytes <= MAX_ARCHIVE_ENTRY_BYTES &&
-                                    totalBytes <= MAX_ARCHIVE_TOTAL_BYTES) {
+                                require(
+                                    entryBytes <= MAX_ARCHIVE_ENTRY_BYTES &&
+                                        totalBytes <= MAX_ARCHIVE_TOTAL_BYTES,
+                                ) {
                                     "Archive exceeds the supported size"
                                 }
                                 output?.write(buffer, 0, count)
