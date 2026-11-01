@@ -27,7 +27,6 @@ import app.lawnchair.search.algorithms.engine.provider.HistorySearchProvider
 import app.lawnchair.search.algorithms.engine.provider.SettingsSearchProvider
 import app.lawnchair.search.algorithms.engine.provider.ShortcutSearchProvider
 import app.lawnchair.search.algorithms.engine.provider.apps.AppSearchProvider
-import app.lawnchair.search.algorithms.engine.provider.web.CustomWebSearchProvider
 import app.lawnchair.search.algorithms.engine.provider.web.WebSuggestionProvider
 import com.android.launcher3.LauncherAppState
 import com.android.launcher3.R
@@ -162,11 +161,8 @@ class LawnchairLocalSearchAlgorithm(context: Context) : LawnchairSearchAlgorithm
             val provider = prefs2.webSuggestionProvider.firstCached()
             val webProvider = provider.configure(context)
 
-            val providerName = if (webProvider is CustomWebSearchProvider) {
-                webProvider.getDisplayName()
-            } else {
-                context.getString(webProvider.label)
-            }
+            val providerName = webProvider.displayName?.takeIf { it.isNotBlank() }
+                ?: context.getString(webProvider.label)
 
             actions.add(
                 SearchResult.Action.WebSearch(
