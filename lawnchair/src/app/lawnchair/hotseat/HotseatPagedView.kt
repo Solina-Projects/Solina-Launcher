@@ -86,12 +86,13 @@ class HotseatPagedView @JvmOverloads constructor(
             addView(page, LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT))
         }
 
+        val restoredPage = previousPage.coerceIn(0, pageCount - 1)
         mPageIndicator?.let {
             it.setMarkersCount(pageCount)
-            it.setActiveMarker(0)
+            it.setActiveMarker(restoredPage)
         }
         applyPageIndicatorVisibility()
-        setCurrentPage(previousPage.coerceIn(0, pageCount - 1))
+        setCurrentPage(restoredPage)
         requestLayout()
     }
 

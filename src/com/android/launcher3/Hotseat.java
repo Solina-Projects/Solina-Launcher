@@ -102,6 +102,7 @@ public class Hotseat extends FrameLayout implements Insettable {
     private Workspace<?> mWorkspace;
     private boolean mSendTouchToWorkspace;
     private boolean mSendTouchToPager;
+    private boolean mTouchGestureEligible;
     private final MultiValueAlpha mIconsAlphaChannels;
     private final MultiValueAlpha mQsbAlphaChannels;
 
@@ -161,8 +162,11 @@ public class Hotseat extends FrameLayout implements Insettable {
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
         mIconsContainer.addView(mPagedView);
 
-        mPageIndicatorHeight = Math.round(
-                DOCK_PAGE_INDICATOR_HEIGHT_DP * getResources().getDisplayMetrics().density);
+        float pageIndicatorHeightFactor = PreferenceCacheExtensionsKt.firstCached(
+                preferenceManager2.getPageIndicatorHeightFactor(), preferenceManager2);
+        mPageIndicatorHeight = Math.round(DOCK_PAGE_INDICATOR_HEIGHT_DP
+                * getResources().getDisplayMetrics().density
+                * Math.max(0f, pageIndicatorHeightFactor));
         mPageIndicator = new PageIndicatorDots(context);
         LayoutParams indicatorLp = new LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, mPageIndicatorHeight);
@@ -470,25 +474,31 @@ public class Hotseat extends FrameLayout implements Insettable {
             // A new gesture must never inherit routing state from a cancelled prior gesture.
             mSendTouchToPager = false;
             mSendTouchToWorkspace = false;
+            int yThreshold = getMeasuredHeight() - getPaddingBottom();
+            mTouchGestureEligible = ev.getY() <= yThreshold && !isTouchOnQsb(ev);
+            if (!mTouchGestureEligible) {
+                return false;
+            }
+
+            // Lock multi-page dock gestures to the pager for their entire lifetime.
+            if (mPagedView.isPagingEnabled()) {
+                mSendTouchToPager = true;
+                return true;
+            }
         }
 
-        int yThreshold = getMeasuredHeight() - getPaddingBottom();
-        if (ev.getY() > yThreshold || isTouchOnQsb(ev)) {
+        // Hit-test only on DOWN. Once a gesture starts on the icon band, keep routing it
+        // even when the pointer crosses the QSB or the bottom inset during a swipe.
+        if (!mTouchGestureEligible) {
             return false;
         }
-
-        // Multi-page dock: own the icon-band stream and dispatch it to the pager so empty
-        // pages can still scroll (same pattern as single-page workspace forwarding).
-        if (mPagedView.isPagingEnabled()) {
-            if (action == MotionEvent.ACTION_DOWN) {
-                mSendTouchToPager = true;
-            }
-            return mSendTouchToPager;
+        if (mSendTouchToPager) {
+            return true;
         }
 
-        // Single-page dock: forward horizontal swipes to workspace.
+        // Single-page dock: let Workspace decide when a horizontal swipe has crossed slop.
         if (mWorkspace != null) {
-            mSendTouchToWorkspace = mWorkspace.onInterceptTouchEvent(ev);
+            mSendTouchToWorkspace |= mWorkspace.onInterceptTouchEvent(ev);
             return mSendTouchToWorkspace;
         }
         return false;
@@ -503,6 +513,7 @@ public class Hotseat extends FrameLayout implements Insettable {
             final int action = event.getAction() & MotionEvent.ACTION_MASK;
             if (action == MotionEvent.ACTION_UP || action == MotionEvent.ACTION_CANCEL) {
                 mSendTouchToPager = false;
+                mTouchGestureEligible = false;
             }
             return handled;
         }
@@ -512,6 +523,7 @@ public class Hotseat extends FrameLayout implements Insettable {
                 case MotionEvent.ACTION_UP:
                 case MotionEvent.ACTION_CANCEL:
                     mSendTouchToWorkspace = false;
+                    mTouchGestureEligible = false;
             }
             return mWorkspace.onTouchEvent(event);
         }
