@@ -421,14 +421,30 @@ public class CellLayout extends ViewGroup {
                 mBorderSpace = new Point(deviceProfile.folderCellLayoutBorderSpacePx);
                 break;
             case HOTSEAT:
-                float spacingFactor = PreferenceCacheExtensionsKt.firstCached(
-                        pref.getHotseatIconSpacingFactor(), pref);
-                float verticalPaddingDp = PreferenceCacheExtensionsKt.firstCached(
-                        pref.getHotseatVerticalPaddingDp(), pref);
-                int spacingPx = Math.round(deviceProfile.hotseatBorderSpace * spacingFactor);
+                // Keep the legacy factor as the shared baseline, then apply independent
+                // axis multipliers. Defaults of 1 preserve existing layouts exactly.
+                float spacingFactor = Utilities.boundToRange(
+                        PreferenceCacheExtensionsKt.firstCached(
+                                pref.getHotseatIconSpacingFactor(), pref), 0f, 3f);
+                float horizontalSpacingFactor = Utilities.boundToRange(
+                        PreferenceCacheExtensionsKt.firstCached(
+                                pref.getHotseatIconHorizontalSpacingFactor(), pref), 0f, 3f);
+                float verticalSpacingFactor = Utilities.boundToRange(
+                        PreferenceCacheExtensionsKt.firstCached(
+                                pref.getHotseatIconVerticalSpacingFactor(), pref), 0f, 3f);
+                float verticalPaddingDp = Utilities.boundToRange(
+                        PreferenceCacheExtensionsKt.firstCached(
+                                pref.getHotseatVerticalPaddingDp(), pref), -128f, 256f);
+                int horizontalSpacingPx = Math.max(0, Math.round(
+                        deviceProfile.hotseatBorderSpace * spacingFactor
+                                * horizontalSpacingFactor));
+                int verticalSpacingPx = Math.max(0, Math.round(
+                        deviceProfile.hotseatBorderSpace * spacingFactor
+                                * verticalSpacingFactor));
                 int verticalPaddingPx = Math.round(
                         verticalPaddingDp * getResources().getDisplayMetrics().density);
-                mBorderSpace = new Point(spacingPx, spacingPx + verticalPaddingPx);
+                mBorderSpace = new Point(horizontalSpacingPx,
+                        Math.max(0, verticalSpacingPx + verticalPaddingPx));
                 break;
             case WORKSPACE:
             default:
