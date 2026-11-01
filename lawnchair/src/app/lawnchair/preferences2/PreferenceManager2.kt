@@ -544,6 +544,19 @@ class PreferenceManager2 @Inject constructor(
         onSet = { reloadHelper.reloadGrid() },
     )
 
+    // Symmetric content insets for the dock icon grid, independent of its background.
+    val hotseatHorizontalEdgeSpacingDp = preference(
+        key = floatPreferencesKey(name = "hotseat_horizontal_edge_spacing_dp"),
+        defaultValue = 0.0f,
+        onSet = { reloadHelper.reloadGrid() },
+    )
+
+    val hotseatVerticalEdgeSpacingDp = preference(
+        key = floatPreferencesKey(name = "hotseat_vertical_edge_spacing_dp"),
+        defaultValue = 0.0f,
+        onSet = { reloadHelper.reloadGrid() },
+    )
+
     // Vertical offset in dp for the dock search bar; refresh the launcher grid when changed.
     val hotseatQsbVerticalOffset = preference(
         key = floatPreferencesKey(name = "hotseat_qsb_vertical_offset"),

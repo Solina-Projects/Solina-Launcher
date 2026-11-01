@@ -219,6 +219,20 @@ fun GridSettings(prefs: PreferenceManager, prefs2: PreferenceManager2) {
             showAsPercentage = true,
         )
         SliderPreference(
+            label = stringResource(id = R.string.dock_horizontal_edge_spacing),
+            adapter = prefs2.hotseatHorizontalEdgeSpacingDp.getAdapter(),
+            step = 1f,
+            valueRange = 0f..48f,
+            showUnit = "dp",
+        )
+        SliderPreference(
+            label = stringResource(id = R.string.dock_vertical_edge_spacing),
+            adapter = prefs2.hotseatVerticalEdgeSpacingDp.getAdapter(),
+            step = 1f,
+            valueRange = 0f..48f,
+            showUnit = "dp",
+        )
+        SliderPreference(
             label = stringResource(id = R.string.dock_vertical_padding),
             adapter = prefs2.hotseatVerticalPaddingDp.getAdapter(),
             step = 2f,
@@ -269,6 +283,8 @@ fun ColumnScope.DockPreferencesPreview(modifier: Modifier = Modifier) {
             prefs.hotseatQsbStrokeWidth.getAdapter(),
             prefs2.hotseatIconHorizontalSpacingFactor.getAdapter(),
             prefs2.hotseatIconVerticalSpacingFactor.getAdapter(),
+            prefs2.hotseatHorizontalEdgeSpacingDp.getAdapter(),
+            prefs2.hotseatVerticalEdgeSpacingDp.getAdapter(),
             prefs2.hotseatBottomFactor.getAdapter(),
             prefs2.strokeColorStyle.getAdapter(),
             prefs2.enableLabelInDock.getAdapter(),

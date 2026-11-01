@@ -443,6 +443,19 @@ public class CellLayout extends ViewGroup {
                                 * verticalSpacingFactor));
                 int verticalPaddingPx = Math.round(
                         verticalPaddingDp * getResources().getDisplayMetrics().density);
+                float horizontalEdgeDp = Utilities.boundToRange(
+                        PreferenceCacheExtensionsKt.firstCached(
+                                pref.getHotseatHorizontalEdgeSpacingDp(), pref), 0f, 64f);
+                float verticalEdgeDp = Utilities.boundToRange(
+                        PreferenceCacheExtensionsKt.firstCached(
+                                pref.getHotseatVerticalEdgeSpacingDp(), pref), 0f, 64f);
+                float density = getResources().getDisplayMetrics().density;
+                int horizontalEdgePx = Math.round(horizontalEdgeDp * density);
+                int verticalEdgePx = Math.round(verticalEdgeDp * density);
+                // The icon grid gets symmetric edge padding; the background keeps its own
+                // independent insets so users can tune content and surface separately.
+                setPadding(horizontalEdgePx, verticalEdgePx,
+                        horizontalEdgePx, verticalEdgePx);
                 mBorderSpace = new Point(horizontalSpacingPx,
                         Math.max(0, verticalSpacingPx + verticalPaddingPx));
                 break;
