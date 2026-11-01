@@ -19,10 +19,10 @@ package app.lawnchair.search.algorithms
 import android.content.ComponentName
 import android.content.Intent
 import android.os.Process
-import app.lawnchair.ui.preferences.components.HiddenAppsInSearch
-import com.android.launcher3.model.data.AppInfo
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
+import app.lawnchair.ui.preferences.components.HiddenAppsInSearch
+import com.android.launcher3.model.data.AppInfo
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -65,7 +65,11 @@ class SearchUtilsTest {
         val visibleApp = appInfo("com.example.visible", "Visible App")
 
         val results = sequenceOf(hiddenApp, visibleApp)
-            .filterHiddenApps("hidden", setOf(hiddenApp.toComponentKey().toString()), HiddenAppsInSearch.NEVER)
+            .filterHiddenApps(
+                "hidden",
+                setOf(hiddenApp.toComponentKey().toString()),
+                HiddenAppsInSearch.NEVER,
+            )
             .toList()
 
         assertThat(results).containsExactly(visibleApp)
@@ -78,10 +82,18 @@ class SearchUtilsTest {
         val hiddenKeys = setOf(hiddenApp.toComponentKey().toString())
 
         val exactNameResults = sequenceOf(hiddenApp, visibleApp)
-            .filterHiddenApps("cafe notes", hiddenKeys, HiddenAppsInSearch.IF_NAME_TYPED)
+            .filterHiddenApps(
+                "cafe notes",
+                hiddenKeys,
+                HiddenAppsInSearch.IF_NAME_TYPED,
+            )
             .toList()
         val partialNameResults = sequenceOf(hiddenApp, visibleApp)
-            .filterHiddenApps("cafe", hiddenKeys, HiddenAppsInSearch.IF_NAME_TYPED)
+            .filterHiddenApps(
+                "cafe",
+                hiddenKeys,
+                HiddenAppsInSearch.IF_NAME_TYPED,
+            )
             .toList()
 
         assertThat(exactNameResults).containsExactly(hiddenApp, visibleApp)
