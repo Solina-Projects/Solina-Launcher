@@ -58,7 +58,7 @@ internal object AppMatcher {
         // Rule 2: Initials (for single-token queries)
         if (normalizedQuery.none { it.isWhitespace() }) {
             val initials = tokens.joinToString("") { it.first().toString() }
-            if (initials.isNotEmpty() && initials.startsWith(query)) {
+            if (initials.isNotEmpty() && initials.startsWith(normalizedQuery)) {
                 return MatchResult(0.88f, MatchType.INITIALS)
             }
         }
