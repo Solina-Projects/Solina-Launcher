@@ -75,8 +75,12 @@ class LawnchairBackup(
             val size = max(info.previewWidth, info.previewHeight).coerceAtMost(MAX_PREVIEW_SIZE)
             screenshot?.recycle()
             wallpaper?.recycle()
-            screenshot = tmpScreenshot?.scaleDownTo(size)
-            wallpaper = tmpWallpaper?.scaleDownToDisplaySize(context)
+            val previewScreenshot = tmpScreenshot?.scaleDownTo(size)
+            val previewWallpaper = tmpWallpaper?.scaleDownToDisplaySize(context)
+            if (previewScreenshot !== tmpScreenshot) tmpScreenshot?.recycle()
+            if (previewWallpaper !== tmpWallpaper) tmpWallpaper?.recycle()
+            screenshot = previewScreenshot
+            wallpaper = previewWallpaper
         } catch (throwable: Throwable) {
             archiveSnapshot?.delete()
             archiveSnapshot = null
