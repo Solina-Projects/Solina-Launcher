@@ -89,7 +89,7 @@ class LawnchairBackup(
         val rollbackFiles = mutableMapOf<File, File?>()
         val modifiedTargets = mutableSetOf<File>()
         var databaseRollbackSnapshotsReady = false
-        val databaseRollbackTargets = LauncherFiles.GRID_DB_FILES.flatMap { dbName ->
+        val databaseRollbackTargets = if (restoreLayout) LauncherFiles.GRID_DB_FILES.flatMap { dbName ->
             val database = context.getDatabasePath(dbName)
             listOf(
                 database,
@@ -97,7 +97,7 @@ class LawnchairBackup(
                 File(database.path + "-journal"),
                 File(database.path + "-shm"),
             )
-        }.distinct()
+        }.distinct() else emptyList()
         var stagedWallpaper: Bitmap? = null
 
         try {
@@ -134,7 +134,7 @@ class LawnchairBackup(
             // Checkpoint live grid databases before taking rollback snapshots so committed WAL
             // pages are represented by the main database file.
             withContext(Dispatchers.IO) {
-                checkpointLauncherDatabases(context)
+                if (restoreLayout) checkpointLauncherDatabases(context)
                 val rollbackTargets = (stagedFiles.keys + databaseRollbackTargets).distinct()
                 rollbackTargets.forEachIndexed { index, target ->
                     if (target.exists() && !target.name.endsWith("-shm")) {
