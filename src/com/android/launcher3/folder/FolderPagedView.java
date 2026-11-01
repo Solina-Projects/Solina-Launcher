@@ -778,7 +778,7 @@ public class FolderPagedView extends PagedView<PageIndicatorDots> implements Cli
                         public void run() {
                             mPendingAnimations.remove(v);
                             v.setTranslationX(oldTranslateX);
-                            if (v.getParent() instanceof ViewGroup parent) {
+                            if (v.getParent() instanceof android.view.ViewGroup parent) {
                                 parent.removeView(v);
                             }
                             int destinationPage = newRank / mOrganizer.getMaxItemsPerPage();
