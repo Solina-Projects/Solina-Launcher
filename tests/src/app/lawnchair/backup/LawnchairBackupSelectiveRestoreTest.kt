@@ -19,7 +19,6 @@ package app.lawnchair.backup
 import android.graphics.Bitmap
 import android.net.Uri
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.android.launcher3.LauncherFiles
 import com.android.launcher3.util.SandboxApplication
 import java.io.File
 import java.io.FileOutputStream
