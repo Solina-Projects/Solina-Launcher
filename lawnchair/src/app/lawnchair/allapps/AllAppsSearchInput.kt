@@ -407,7 +407,6 @@ class AllAppsSearchInput(context: Context, attrs: AttributeSet?) :
         if (canShowHint &&
             inputLowerCase.isNotEmpty() &&
             focusedLowerCase.isNotEmpty() &&
-            focusedLowerCase.matches(Regex("^[\\x00-\\x7F]*$")) &&
             focusedLowerCase.startsWith(inputLowerCase)
         ) {
             val hintColor = Themes.getAttrColor(context, android.R.attr.textColorTertiary)
