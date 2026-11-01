@@ -178,8 +178,8 @@ fun AppDrawerFoldersPreference(
                 label = null,
                 items = sortedDisplayList,
                 defaultList = sortedDisplayList,
-                onOrderChange = { updatedFolders ->
-                    onOrderChange(updatedFolders.map { it.id })
+                onOrderChange = { folderOrder ->
+                    onOrderChange(folderOrder.map { it.id })
                 },
             ) { folderEntry, _, _ ->
                 val interactionSource = remember { MutableInteractionSource() }
