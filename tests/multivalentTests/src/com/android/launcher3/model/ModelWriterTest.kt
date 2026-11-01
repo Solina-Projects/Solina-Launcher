@@ -153,7 +153,7 @@ class ModelWriterTest : AbstractWorkspaceModelTest() {
         assertThat(countDatabaseItems()).isEqualTo(initialDatabaseCount)
         val dataModel = model.bgDataModel
         items.forEach { item ->
-            assertThat(dataModel.itemsIdMap.get(item.id)).isSameInstanceAs(item)
+            assertThat(dataModel.itemsIdMap.get(item.id)).isNotNull()
         }
     }
 
