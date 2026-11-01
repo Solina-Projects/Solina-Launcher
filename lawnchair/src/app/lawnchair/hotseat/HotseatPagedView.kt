@@ -63,8 +63,12 @@ class HotseatPagedView @JvmOverloads constructor(
     fun getCurrentCellLayout(): CellLayout? = getPageAt(nextPage)
 
     fun resetPages(hasVerticalHotseat: Boolean, workspace: Workspace<*>?, dp: DeviceProfile) {
+        // Keep the user's current dock page when a grid/profile refresh rebuilds the pages.
+        // If the new layout has fewer pages, clamp to the last page that still exists.
+        val previousPage = nextPage.coerceAtLeast(0)
         removeAllViews()
         val pageCount = if (hasVerticalHotseat) 1 else maxOf(1, dp.numHotseatPages)
+        val restoredPage = previousPage.coerceAtMost(pageCount - 1)
         isPagingEnabled = pageCount > 1
 
         val inflater = LayoutInflater.from(context)
@@ -87,10 +91,10 @@ class HotseatPagedView @JvmOverloads constructor(
 
         mPageIndicator?.let {
             it.setMarkersCount(pageCount)
-            it.setActiveMarker(0)
+            it.setActiveMarker(restoredPage)
         }
         applyPageIndicatorVisibility()
-        setCurrentPage(0)
+        setCurrentPage(restoredPage)
         requestLayout()
     }
 
