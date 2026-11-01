@@ -218,6 +218,7 @@ fun GridSettings(prefs: PreferenceManager, prefs2: PreferenceManager2) {
             valueRange = 0.0f..2.0f,
             showAsPercentage = true,
         )
+        // Content edge padding is independent from the dock surface's visual insets.
         SliderPreference(
             label = stringResource(id = R.string.dock_horizontal_edge_spacing),
             adapter = prefs2.hotseatHorizontalEdgeSpacingDp.getAdapter(),
