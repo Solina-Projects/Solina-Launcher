@@ -183,14 +183,16 @@ fun AppDrawerPreferences(
             ExpandAndShrink(
                 visible = showDrawerLabels.state.value,
             ) {
-                SliderPreference(
-                    label = stringResource(id = R.string.label_size),
-                    adapter = prefs2.drawerIconLabelSizeFactor.getAdapter(),
-                    step = 0.1F,
-                    valueRange = 0.5F..1.5F,
-                    showAsPercentage = true,
-                )
-                ColorPreference(preference = prefs2.drawerIconLabelColor)
+                Column {
+                    SliderPreference(
+                        label = stringResource(id = R.string.label_size),
+                        adapter = prefs2.drawerIconLabelSizeFactor.getAdapter(),
+                        step = 0.1F,
+                        valueRange = 0.5F..1.5F,
+                        showAsPercentage = true,
+                    )
+                    ColorPreference(preference = prefs2.drawerIconLabelColor)
+                }
             }
             ExpandAndShrink(
                 visible = showDrawerLabels.state.value,

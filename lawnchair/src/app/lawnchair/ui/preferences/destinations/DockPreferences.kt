@@ -17,6 +17,7 @@
 package app.lawnchair.ui.preferences.destinations
 
 import android.content.res.Configuration
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -95,14 +96,16 @@ fun DockPreferences(modifier: Modifier = Modifier) {
                     label = stringResource(id = R.string.show_labels),
                 )
                 ExpandAndShrink(visible = dockLabelsAdapter.state.value) {
-                    SliderPreference(
-                        label = stringResource(id = R.string.dock_label_size),
-                        adapter = prefs2.hotseatIconLabelSizeFactor.getAdapter(),
-                        step = 0.1f,
-                        valueRange = 0.5F..1.5F,
-                        showAsPercentage = true,
-                    )
-                    ColorPreference(preference = prefs2.dockIconLabelColor)
+                    Column {
+                        SliderPreference(
+                            label = stringResource(id = R.string.dock_label_size),
+                            adapter = prefs2.hotseatIconLabelSizeFactor.getAdapter(),
+                            step = 0.1f,
+                            valueRange = 0.5F..1.5F,
+                            showAsPercentage = true,
+                        )
+                        ColorPreference(preference = prefs2.dockIconLabelColor)
+                    }
                 }
             }
         }
