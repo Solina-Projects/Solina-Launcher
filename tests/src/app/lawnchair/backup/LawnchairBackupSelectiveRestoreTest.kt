@@ -76,6 +76,7 @@ class LawnchairBackupSelectiveRestoreTest {
         unrelatedDatabase.delete()
         backupFile.delete()
     }
+
     @Test
     fun archiveWithPathTraversalEntryIsRejected() = runBlocking {
         val backupFile = File(context.cacheDir, "path_traversal.lawnchairbackup")
@@ -206,5 +207,4 @@ class LawnchairBackupSelectiveRestoreTest {
             restoreTarget.delete()
         }
     }
-
 }
