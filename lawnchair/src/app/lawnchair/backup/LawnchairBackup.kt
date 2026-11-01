@@ -47,10 +47,10 @@ class LawnchairBackup(
 
     suspend fun readInfoAndPreview() {
         createArchiveSnapshot()
-        scanArchive(setOf(INFO_FILE_NAME))
         var tmpScreenshot: Bitmap? = null
         var tmpWallpaper: Bitmap? = null
         try {
+            scanArchive(setOf(INFO_FILE_NAME))
             readZip(
                 mapOf(
                     INFO_FILE_NAME to { info = BackupInfo.newBuilder().mergeFrom(it).build() },
@@ -58,6 +58,11 @@ class LawnchairBackup(
                     WALLPAPER_FILE_NAME to { tmpWallpaper = BitmapFactory.decodeStream(it) },
                 ),
             )
+            require(::info.isInitialized) { "Missing backup metadata" }
+            validateInfo(info)
+            val size = max(info.previewWidth, info.previewHeight).coerceAtMost(MAX_PREVIEW_SIZE)
+            screenshot = tmpScreenshot?.scaleDownTo(size)
+            wallpaper = tmpWallpaper?.scaleDownToDisplaySize(context)
         } catch (throwable: Throwable) {
             archiveSnapshot?.delete()
             archiveSnapshot = null
@@ -65,11 +70,6 @@ class LawnchairBackup(
             tmpWallpaper?.recycle()
             throw throwable
         }
-        require(::info.isInitialized) { "Missing backup metadata" }
-        validateInfo(info)
-        val size = max(info.previewWidth, info.previewHeight).coerceAtMost(MAX_PREVIEW_SIZE)
-        screenshot = tmpScreenshot?.scaleDownTo(size)
-        wallpaper = tmpWallpaper?.scaleDownToDisplaySize(context)
     }
 
     /**
@@ -269,16 +269,18 @@ class LawnchairBackup(
             val snapshot = requireNotNull(archiveSnapshot?.takeIf(File::isFile)) {
                 "Backup archive snapshot is unavailable"
             }
-            FileInputStream(snapshot).use { inStream ->
-                ZipInputStream(inStream).use { zipIs ->
-                        val seen = mutableSetOf<String>()
-                        while (true) {
-                            val entry = zipIs.nextEntry ?: break
-                            require(isAllowedEntry(entry.name)) { "Unexpected backup entry" }
-                            require(seen.add(entry.name)) { "Duplicate backup entry: ${entry.name}" }
-                            handlers[entry.name]?.invoke(zipIs)
-                            zipIs.closeEntry()
+            FileInputStream(snapshot).use { input ->
+                ZipInputStream(input).use { zip ->
+                    val seen = mutableSetOf<String>()
+                    while (true) {
+                        val entry = zip.nextEntry ?: break
+                        require(!entry.isDirectory && isAllowedEntry(entry.name)) {
+                            "Unsupported backup entry: ${entry.name}"
                         }
+                        require(seen.add(entry.name)) { "Duplicate backup entry: ${entry.name}" }
+                        handlers[entry.name]?.invoke(zip)
+                        zip.closeEntry()
+                        require(seen.size <= MAX_ENTRY_COUNT) { "Too many backup entries" }
                     }
                 }
             }
@@ -297,26 +299,25 @@ class LawnchairBackup(
         var totalBytes = 0L
         FileInputStream(snapshot).use { input ->
             ZipInputStream(input).use { zip ->
-                    val buffer = ByteArray(DEFAULT_BUFFER_SIZE)
-                    while (true) {
-                        val entry = zip.nextEntry ?: break
-                        require(!entry.isDirectory && isAllowedEntry(entry.name)) {
-                            "Unsupported backup entry: ${entry.name}"
-                        }
-                        require(seen.add(entry.name)) { "Duplicate backup entry: ${entry.name}" }
-                        var entryBytes = 0L
-                        while (true) {
-                            val count = zip.read(buffer)
-                            if (count < 0) break
-                            entryBytes += count
-                            totalBytes += count
-                            require(entryBytes <= MAX_ENTRY_BYTES && totalBytes <= MAX_ARCHIVE_BYTES) {
-                                "Backup archive exceeds the supported size"
-                            }
-                        }
-                        zip.closeEntry()
-                        require(seen.size <= MAX_ENTRY_COUNT) { "Too many backup entries" }
+                val buffer = ByteArray(DEFAULT_BUFFER_SIZE)
+                while (true) {
+                    val entry = zip.nextEntry ?: break
+                    require(!entry.isDirectory && isAllowedEntry(entry.name)) {
+                        "Unsupported backup entry: ${entry.name}"
                     }
+                    require(seen.add(entry.name)) { "Duplicate backup entry: ${entry.name}" }
+                    var entryBytes = 0L
+                    while (true) {
+                        val count = zip.read(buffer)
+                        if (count < 0) break
+                        entryBytes += count
+                        totalBytes += count
+                        require(entryBytes <= MAX_ENTRY_BYTES && totalBytes <= MAX_ARCHIVE_BYTES) {
+                            "Backup archive exceeds the supported size"
+                        }
+                    }
+                    zip.closeEntry()
+                    require(seen.size <= MAX_ENTRY_COUNT) { "Too many backup entries" }
                 }
             }
         }
