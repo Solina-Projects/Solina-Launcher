@@ -530,6 +530,20 @@ class PreferenceManager2 @Inject constructor(
         onSet = { reloadHelper.reloadGrid() },
     )
 
+    // Additional per-axis dock spacing multipliers. The legacy spacing factor remains
+    // the shared base so existing user configurations keep their original appearance.
+    val hotseatIconHorizontalSpacingFactor = preference(
+        key = floatPreferencesKey(name = "hotseat_icon_horizontal_spacing_factor"),
+        defaultValue = 1.0f,
+        onSet = { reloadHelper.reloadGrid() },
+    )
+
+    val hotseatIconVerticalSpacingFactor = preference(
+        key = floatPreferencesKey(name = "hotseat_icon_vertical_spacing_factor"),
+        defaultValue = 1.0f,
+        onSet = { reloadHelper.reloadGrid() },
+    )
+
     // Vertical offset in dp for the dock search bar; refresh the launcher grid when changed.
     val hotseatQsbVerticalOffset = preference(
         key = floatPreferencesKey(name = "hotseat_qsb_vertical_offset"),
