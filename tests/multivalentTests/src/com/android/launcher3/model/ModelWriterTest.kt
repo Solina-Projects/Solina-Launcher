@@ -81,6 +81,32 @@ class ModelWriterTest : AbstractWorkspaceModelTest() {
         attemptedIds.forEach { id -> assertThat(dataModel.itemsIdMap.get(id)).isNull() }
     }
 
+    @Test
+    fun addItemsToDatabase_whenAllInsertsSucceed_persistsBatchAndUpdatesModel() {
+        val initialDatabaseCount = countDatabaseItems()
+        val items = listOf(getNewItem(), getNewItem())
+
+        val writer =
+            ModelWriter(
+                mTargetContext,
+                model,
+                model.bgDataModel,
+                false,
+                CellPosMapper.DEFAULT,
+                null,
+            )
+
+        runOnExecutorSync(Executors.MODEL_EXECUTOR) { writer.addItemsToDatabase(items) }
+
+        assertThat(items.all { it.id != ItemInfo.NO_ID }).isTrue()
+        assertThat(countDatabaseItems()).isEqualTo(initialDatabaseCount + items.size)
+
+        val dataModel = model.bgDataModel
+        items.forEach { item ->
+            assertThat(dataModel.itemsIdMap.get(item.id)).isSameInstanceAs(item)
+        }
+    }
+
     private fun countDatabaseItems(): Int {
         var count = 0
         runOnExecutorSync(Executors.MODEL_EXECUTOR) {
