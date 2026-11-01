@@ -41,6 +41,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.withContext
 
 class LawnchairLocalSearchAlgorithm(context: Context) : LawnchairSearchAlgorithm(context) {
@@ -141,6 +142,11 @@ class LawnchairLocalSearchAlgorithm(context: Context) : LawnchairSearchAlgorithm
     override fun cancel(interruptActiveRequests: Boolean) {
         modelRetryJob?.cancel()
         currentJob?.cancel()
+    }
+
+    override fun destroy() {
+        cancel(interruptActiveRequests = true)
+        coroutineScope.cancel()
     }
 
     private fun generateActionResults(query: String): List<SearchResult.Action> {
