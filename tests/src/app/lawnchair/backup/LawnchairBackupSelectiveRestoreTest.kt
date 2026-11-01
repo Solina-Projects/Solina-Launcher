@@ -304,6 +304,39 @@ class LawnchairBackupSelectiveRestoreTest {
     }
 
     @Test
+    fun excessiveZipCompressionRatioIsRejected() = runBlocking {
+        val backupFile = File(context.cacheDir, "excessive_compression_ratio.lawnchairbackup")
+        val info = app.lawnchair.LawnchairProto.BackupInfo.newBuilder()
+            .setBackupVersion(1)
+            .setContents(LawnchairBackup.INCLUDE_WALLPAPER)
+            .setPreviewWidth(1)
+            .setPreviewHeight(1)
+            .build()
+
+        try {
+            ZipOutputStream(FileOutputStream(backupFile)).use { zip ->
+                zip.putNextEntry(ZipEntry(LawnchairBackup.INFO_FILE_NAME))
+                info.writeTo(zip)
+                zip.closeEntry()
+
+                // Highly repetitive data compresses beyond the supported 1000:1 ratio.
+                zip.putNextEntry(ZipEntry(LawnchairBackup.SCREENSHOT_FILE_NAME))
+                zip.write(ByteArray(16 * 1024 * 1024))
+                zip.closeEntry()
+            }
+
+            val backup = LawnchairBackup(context, Uri.fromFile(backupFile))
+            val failure = runCatching { backup.readInfoAndPreview() }.exceptionOrNull()
+            assertTrue(
+                "Archives with suspicious compression ratios must be rejected",
+                failure?.message?.contains("compression ratio") == true,
+            )
+        } finally {
+            backupFile.delete()
+        }
+    }
+
+    @Test
     fun corruptedZipPayloadCrcIsRejected() = runBlocking {
         val backupFile = File(context.cacheDir, "corrupted_crc.lawnchairbackup")
         val infoBytes = app.lawnchair.LawnchairProto.BackupInfo.newBuilder()
