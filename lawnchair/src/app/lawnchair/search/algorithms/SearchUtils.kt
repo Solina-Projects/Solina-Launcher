@@ -54,10 +54,31 @@ object SearchUtils {
 }
 
 private fun normalizeSearchText(value: String): String {
-    return Normalizer.normalize(value, Normalizer.Form.NFKD)
-        .replace(Regex("\\p{M}+"), "")
-        .lowercase(Locale.ROOT)
-        .trim()
+    val decomposed = Normalizer.normalize(value, Normalizer.Form.NFKD)
+    val normalized = StringBuilder(decomposed.length)
+    var previousBaseScript = Character.UnicodeScript.COMMON
+
+    var index = 0
+    while (index < decomposed.length) {
+        val codePoint = decomposed.codePointAt(index)
+        val charType = Character.getType(codePoint)
+        val isCombiningMark = charType == Character.NON_SPACING_MARK.toInt() ||
+            charType == Character.COMBINING_SPACING_MARK.toInt() ||
+            charType == Character.ENCLOSING_MARK.toInt()
+
+        // Accent folding is useful for Latin text, but removing marks globally can change
+        // the meaning of Indic and other scripts where combining marks are significant.
+        if (!isCombiningMark || previousBaseScript != Character.UnicodeScript.LATIN) {
+            normalized.appendCodePoint(codePoint)
+        }
+
+        if (!isCombiningMark) {
+            previousBaseScript = Character.UnicodeScript.of(codePoint)
+        }
+        index += Character.charCount(codePoint)
+    }
+
+    return normalized.toString().lowercase(Locale.ROOT).trim()
 }
 
 fun Sequence<AppInfo>.filterHiddenApps(
