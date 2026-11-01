@@ -119,20 +119,25 @@ class LawnchairBackup(
 
             // Keep exact-file rollback copies. Never recursively delete the databases directory:
             // it may contain unrelated databases and DataStore files.
-            stagedFiles.keys.forEachIndexed { index, target ->
-                if (target.exists()) {
-                    val rollback = File(stagingDir, "rollback/$index")
-                    rollback.parentFile?.mkdirs()
-                    target.copyTo(rollback, overwrite = true)
-                    rollbackFiles[target] = rollback
+            withContext(Dispatchers.IO) {
+                stagedFiles.keys.forEachIndexed { index, target ->
+                    if (target.exists()) {
+                        val rollback = File(stagingDir, "rollback/$index")
+                        rollback.parentFile?.mkdirs()
+                        target.copyTo(rollback, overwrite = true)
+                        rollbackFiles[target] = rollback
+                    }
+                }
+
+                if (restoreLayout) {
+                    stagedFiles.forEach { (target, staged) ->
+                        target.parentFile?.mkdirs()
+                        staged.copyTo(target, overwrite = true)
+                    }
                 }
             }
 
             if (restoreLayout) {
-                stagedFiles.forEach { (target, staged) ->
-                    target.parentFile?.mkdirs()
-                    staged.copyTo(target, overwrite = true)
-                }
                 // Preferences are restored from the archive, so the grid state must be applied
                 // afterwards or the restored preferences could overwrite it.
                 DeviceGridState(info.gridState).writeToPrefs(context, true)
@@ -144,13 +149,15 @@ class LawnchairBackup(
             }
         } catch (throwable: Throwable) {
             // Restore the exact files modified by this operation if a later file operation fails.
-            stagedFiles.keys.forEach { target ->
-                runCatching {
-                    val rollback = rollbackFiles[target]
-                    if (rollback != null && rollback.exists()) {
-                        rollback.copyTo(target, overwrite = true)
-                    } else {
-                        target.delete()
+            withContext(Dispatchers.IO) {
+                stagedFiles.keys.forEach { target ->
+                    runCatching {
+                        val rollback = rollbackFiles[target]
+                        if (rollback != null && rollback.exists()) {
+                            rollback.copyTo(target, overwrite = true)
+                        } else {
+                            target.delete()
+                        }
                     }
                 }
             }
