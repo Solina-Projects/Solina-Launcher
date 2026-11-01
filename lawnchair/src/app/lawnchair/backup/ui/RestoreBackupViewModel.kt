@@ -7,6 +7,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import app.lawnchair.backup.LawnchairBackup
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.map
@@ -71,6 +72,7 @@ class RestoreBackupViewModel(
                 viewModelState.update { it.copy(backup = backup) }
             } catch (t: Throwable) {
                 backup.close()
+                if (t is CancellationException) throw t
                 Log.e("RestoreBackupViewModel", "failed to parse backup", t)
                 viewModelState.update { it.copy(hasError = true) }
             }
