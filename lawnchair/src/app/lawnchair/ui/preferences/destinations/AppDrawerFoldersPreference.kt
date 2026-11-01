@@ -102,7 +102,7 @@ fun AppDrawerFoldersPreference(
         onDeleteFolder = {
             viewModel.deleteFolder(it.id)
         },
-        onSetFolderHidden = { folderId, hide ->
+        onFolderVisibilityChange = { folderId, hide ->
             viewModel.setFolderHidden(folderId, hide)
         },
         onOrderChange = {
@@ -118,7 +118,7 @@ fun AppDrawerFoldersPreference(
     onEditFolderItems: (Int) -> Unit,
     onRenameFolder: (Int, String) -> Unit,
     onDeleteFolder: (FolderEntry) -> Unit,
-    onSetFolderHidden: (Int, Boolean) -> Unit = { _, _ -> },
+    onFolderVisibilityChange: (Int, Boolean) -> Unit = { _, _ -> },
     onOrderChange: (List<Int>) -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -203,7 +203,7 @@ fun AppDrawerFoldersPreference(
                             )
                         }
                     },
-                    onSetHidden = { folderId, hide -> onSetFolderHidden(folderId, hide) },
+                    onVisibilityChange = { folderId, hide -> onFolderVisibilityChange(folderId, hide) },
                     onItemDelete = { folderToDelete ->
                         mMSDLPlayerWrapper.playToken(MSDLToken.SUCCESS)
                         onDeleteFolder(folderToDelete)
@@ -294,7 +294,7 @@ fun FolderItem(
     folderEntry: FolderEntry,
     onItemClick: (FolderEntry) -> Unit,
     onItemDelete: (FolderEntry) -> Unit,
-    onSetHidden: (Int, Boolean) -> Unit = { _, _ -> },
+    onVisibilityChange: (Int, Boolean) -> Unit = { _, _ -> },
     modifier: Modifier = Modifier,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     dragIndicator: @Composable () -> Unit,
@@ -323,7 +323,7 @@ fun FolderItem(
             Row {
                 Switch(
                     checked = folderEntry.hide,
-                    onCheckedChange = { onSetHidden(folderEntry.id, it) },
+                    onCheckedChange = { onVisibilityChange(folderEntry.id, it) },
                 )
                 IconButton(
                     onClick = {
