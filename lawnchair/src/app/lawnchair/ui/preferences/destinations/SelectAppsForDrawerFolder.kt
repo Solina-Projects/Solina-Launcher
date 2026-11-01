@@ -12,6 +12,7 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
@@ -44,14 +45,26 @@ fun SelectAppsForDrawerFolder(
     modifier: Modifier = Modifier,
     viewModel: FolderViewModel = viewModel(),
 ) {
+    val backDispatcher = LocalOnBackPressedDispatcherOwner.current?.onBackPressedDispatcher
+
     if (folderInfoId == null) {
-        val backDispatcher = LocalOnBackPressedDispatcherOwner.current?.onBackPressedDispatcher
-        backDispatcher?.onBackPressed()
+        LaunchedEffect(backDispatcher) {
+            backDispatcher?.onBackPressed()
+        }
         return
     }
 
+    val folders by viewModel.folders.collectAsStateWithLifecycle()
     val apps by appsState()
     val folderEntry by viewModel.getFolderFlowForId(folderInfoId).collectAsStateWithLifecycle(null)
+
+    // A null folder entry is also the initial loading value. Wait until the folder
+    // collection has loaded before treating it as a deleted or invalid folder.
+    LaunchedEffect(folderInfoId, folders, folderEntry, backDispatcher) {
+        if (folders != null && folderEntry == null) {
+            backDispatcher?.onBackPressed()
+        }
+    }
     val allFolderPackages by viewModel.allFolderPackages.collectAsStateWithLifecycle()
 
     SelectAppsForDrawerFolder(
