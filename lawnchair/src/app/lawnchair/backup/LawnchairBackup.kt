@@ -435,15 +435,13 @@ class LawnchairBackup(
         }
     }
 
-    private fun readUInt16LittleEndian(bytes: ByteArray, offset: Int): Int =
-        (bytes[offset].toInt() and 0xff) or
-            ((bytes[offset + 1].toInt() and 0xff) shl 8)
+    private fun readUInt16LittleEndian(bytes: ByteArray, offset: Int): Int = (bytes[offset].toInt() and 0xff) or
+        ((bytes[offset + 1].toInt() and 0xff) shl 8)
 
-    private fun readUInt32LittleEndian(bytes: ByteArray, offset: Int): Long =
-        (bytes[offset].toLong() and 0xff) or
-            ((bytes[offset + 1].toLong() and 0xff) shl 8) or
-            ((bytes[offset + 2].toLong() and 0xff) shl 16) or
-            ((bytes[offset + 3].toLong() and 0xff) shl 24)
+    private fun readUInt32LittleEndian(bytes: ByteArray, offset: Int): Long = (bytes[offset].toLong() and 0xff) or
+        ((bytes[offset + 1].toLong() and 0xff) shl 8) or
+        ((bytes[offset + 2].toLong() and 0xff) shl 16) or
+        ((bytes[offset + 3].toLong() and 0xff) shl 24)
 
     /**
      * Decode untrusted archive images only after bounding their encoded size and decoded pixel
