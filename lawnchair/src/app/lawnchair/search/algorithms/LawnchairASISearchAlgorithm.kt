@@ -63,12 +63,15 @@ class LawnchairASISearchAlgorithm(context: Context) :
 
     override fun cancel(interruptActiveRequests: Boolean) {
         activeQuery?.cancel()
+        activeQuery = null
     }
 
     override fun destroy() {
         super.destroy()
+        cancel(interruptActiveRequests = true)
         Executors.UI_HELPER_EXECUTOR.execute {
             searchSession?.destroy()
+            searchSession = null
         }
         prefs.let {
             it.searchResultShortcuts.removeListener(this)
@@ -126,6 +129,9 @@ class LawnchairASISearchAlgorithm(context: Context) :
                     query,
                     ArrayList<BaseAllAppsAdapter.AdapterItem>(adapterItems),
                 )
+                if (activeQuery === this) {
+                    activeQuery = null
+                }
             }
         }
 
