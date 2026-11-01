@@ -12,8 +12,6 @@ import com.android.launcher3.search.StringMatcherUtility
 
 object AppSearchProvider {
 
-    private val DIACRITICS_REMOVE_PATTERN = "\\p{M}+".toRegex()
-
     fun search(context: Context, query: String, allApps: AllAppsList): List<SearchResult.App> {
         val prefs = PreferenceManager2.getInstance(context)
         val hiddenApps = prefs.hiddenApps.firstCached()
