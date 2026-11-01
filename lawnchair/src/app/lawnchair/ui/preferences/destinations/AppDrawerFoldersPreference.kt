@@ -294,8 +294,8 @@ fun FolderItem(
     folderEntry: FolderEntry,
     onItemClick: (FolderEntry) -> Unit,
     onItemDelete: (FolderEntry) -> Unit,
-    onVisibilityChange: (Int, Boolean) -> Unit = { _, _ -> },
     modifier: Modifier = Modifier,
+    onVisibilityChange: (Int, Boolean) -> Unit = { _, _ -> },
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     dragIndicator: @Composable () -> Unit,
 ) {
