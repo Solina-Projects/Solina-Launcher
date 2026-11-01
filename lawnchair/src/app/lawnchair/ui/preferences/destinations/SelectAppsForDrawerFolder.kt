@@ -105,7 +105,7 @@ fun SelectAppsForDrawerFolder(
             onOrderChange = { newList, newCount ->
                 val sorted = PositionalListState.sortInactiveItems(newList, newCount) { it.label }
                 val activeKeys = PositionalListState.getEnabledKeys(sorted, newCount)
-                onUpdate(folderEntry?.title.toString(), activeKeys)
+                folderEntry?.title?.let { title -> onUpdate(title, activeKeys) }
             },
             labelSelector = { it.label },
         )
