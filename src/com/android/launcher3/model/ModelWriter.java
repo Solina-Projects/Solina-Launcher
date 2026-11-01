@@ -554,8 +554,14 @@ public class ModelWriter {
 
         @Override
         public void runImpl() {
-            mModel.getModelDbController().update(
+            int updatedRows = mModel.getModelDbController().update(
                     mWriter.get().getValues(mContext), itemIdMatch(mItemId), null);
+            if (updatedRows != 1) {
+                Log.e(TAG, "Expected to update one workspace item with id " + mItemId
+                        + " but updated " + updatedRows + "; reloading model");
+                mModel.forceReload();
+                return;
+            }
             updateItemArrays(mItem, mItemId);
             mBgDataModel.updateItems(Collections.singletonList(mItem), mOwner);
         }
@@ -626,7 +632,10 @@ public class ModelWriter {
                 }
                 t.commit();
             } catch (Exception e) {
-                Log.e(TAG, "Failed to update workspace items; in-memory state was not changed", e);
+                Log.e(TAG, "Failed to update workspace items; reloading model from database", e);
+                // Callers may have already changed the mutable ItemInfo instances before queuing
+                // this operation. Reload to restore the last committed database state.
+                mModel.forceReload();
                 return;
             }
 
