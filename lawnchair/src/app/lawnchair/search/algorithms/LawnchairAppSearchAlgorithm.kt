@@ -59,6 +59,7 @@ class LawnchairAppSearchAlgorithm(context: Context) : LawnchairSearchAlgorithm(c
 
     override fun doSearch(query: String, callback: SearchCallback<BaseAllAppsAdapter.AdapterItem>) {
         modelRetryJob?.cancel()
+        currentJob?.cancel()
         modelRetryJob = appState.model.runWhenModelLoaded(coroutineScope) { apps ->
             // Track the delivery job so cancel(true) (e.g. from a drawer close) can stop a
             // late-arriving result from being delivered after reset. See issue #7325.
