@@ -39,7 +39,7 @@ internal object AppMatcher {
     private const val FUZZY_SCORE_CUTOFF = 65
 
     fun match(appName: String, query: String): MatchResult {
-        val app = appName.lowercase(Locale.getDefault())
+        val app = appName.lowercase(Locale.ROOT)
 
         // Rule 0: Exact Match
         if (app == query) return MatchResult(1.0f, MatchType.EXACT_MATCH)
