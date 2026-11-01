@@ -165,5 +165,46 @@ class LawnchairBackupSelectiveRestoreTest {
         }
     }
 
+    @Test
+    fun restoreRejectsInvalidLauncherDatabaseWithoutReplacingRestoreTarget() = runBlocking {
+        val backupFile = File(context.cacheDir, "invalid_launcher_database.lawnchairbackup")
+        val restoreTarget = context.getDatabasePath(LawnchairBackup.RESTORED_DB_FILE_NAME)
+        restoreTarget.parentFile?.mkdirs()
+        restoreTarget.writeText("pre-existing restore target must survive")
+
+        val info = app.lawnchair.LawnchairProto.BackupInfo.newBuilder()
+            .setBackupVersion(1)
+            .setContents(LawnchairBackup.INCLUDE_LAYOUT_AND_SETTINGS)
+            .setPreviewWidth(1)
+            .setPreviewHeight(1)
+            .build()
+
+        try {
+            ZipOutputStream(FileOutputStream(backupFile)).use { zip ->
+                zip.putNextEntry(ZipEntry(LawnchairBackup.INFO_FILE_NAME))
+                info.writeTo(zip)
+                zip.closeEntry()
+
+                zip.putNextEntry(ZipEntry(LawnchairBackup.LAUNCHER_DB_FILE_NAME))
+                zip.write("this is not a SQLite database".toByteArray())
+                zip.closeEntry()
+            }
+
+            val backup = LawnchairBackup(context, Uri.fromFile(backupFile))
+            backup.readInfoAndPreview()
+            val result = runCatching {
+                backup.restore(LawnchairBackup.INCLUDE_LAYOUT_AND_SETTINGS)
+            }
+
+            assertTrue("Restore must reject an invalid launcher database", result.isFailure)
+            assertTrue(
+                "Invalid database must not replace the existing restore target",
+                restoreTarget.readText() == "pre-existing restore target must survive",
+            )
+        } finally {
+            backupFile.delete()
+            restoreTarget.delete()
+        }
+    }
 
 }
