@@ -13,14 +13,13 @@ import com.android.launcher3.search.SearchCallback
 import com.android.launcher3.util.Executors
 import com.patrykmichalik.opto.core.onEach
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.cancel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 
 class LawnchairAppSearchAlgorithm(context: Context) : LawnchairSearchAlgorithm(context) {
-
     private val appState = LauncherAppState.getInstance(context)
 
     // todo maybe use D.I.?
