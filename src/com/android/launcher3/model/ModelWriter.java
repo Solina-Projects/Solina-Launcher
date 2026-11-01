@@ -390,6 +390,11 @@ public class ModelWriter {
                     }
                 }
                 transaction.commit();
+            } catch (Exception e) {
+                // Do not leave caller-owned items with IDs for rows that were rolled back.
+                items.forEach(item -> item.id = ItemInfo.NO_ID);
+                Log.e(TAG, "Failed to add workspace items; batch was rolled back", e);
+                return;
             }
 
             synchronized (mBgDataModel) {
