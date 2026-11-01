@@ -275,7 +275,7 @@ class LawnchairBackup(
         private const val MAX_ENTRY_COUNT = 16
         private const val MAX_ENTRY_BYTES = 256L * 1024 * 1024
         private const val MAX_ARCHIVE_BYTES = 512L * 1024 * 1024
-        private const val KNOWN_CONTENTS = INCLUDE_LAYOUT_AND_SETTINGS or INCLUDE_WALLPAPER
+        private const val KNOWN_CONTENTS = (1 shl 0) or (1 shl 1)
         private const val PREFS_FILE_NAME = "${LauncherFiles.SHARED_PREFERENCES_KEY}.xml"
         private const val PREFS_DB_FILE_NAME = "preferences"
         private const val PREFS_DATASTORE_FILE_NAME = "preferences.preferences_pb"
