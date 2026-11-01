@@ -9,10 +9,10 @@ import com.android.launcher3.R
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.currentCoroutineContext
-import kotlinx.coroutines.job
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.job
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.json.JSONArray
