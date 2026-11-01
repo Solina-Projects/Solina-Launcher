@@ -78,6 +78,8 @@ object GoogleWebSearchProvider : WebSearchProvider {
             }
         } catch (e: CancellationException) {
             throw e
+        } catch (e: CancellationException) {
+            throw e
         } catch (e: Exception) {
             Log.e(TAG, "Error during suggestion retrieval", e)
             emit(emptyList())
@@ -162,6 +164,8 @@ object DuckDuckGoWebSearchProvider : WebSearchProvider {
                 Log.w(TAG, "Failed to retrieve suggestions: ${response.code()}")
                 emit(emptyList())
             }
+        } catch (e: CancellationException) {
+            throw e
         } catch (e: Exception) {
             Log.e(TAG, "Error during suggestion retrieval", e)
             emit(emptyList())
@@ -243,6 +247,8 @@ object StartPageWebSearchProvider : WebSearchProvider {
                 Log.w(TAG, "Failed to retrieve suggestions: ${response.code()}")
                 emit(emptyList())
             }
+        } catch (e: CancellationException) {
+            throw e
         } catch (e: Exception) {
             Log.e(TAG, "Error during suggestion retrieval", e)
             emit(emptyList())
@@ -390,6 +396,8 @@ object KagiWebSearchProvider : WebSearchProvider {
                 Log.w(TAG, "Failed to retrieve suggestions: ${response.code()}")
                 emit(emptyList())
             }
+        } catch (e: CancellationException) {
+            throw e
         } catch (e: Exception) {
             Log.e(TAG, "Error during suggestion retrieval", e)
             emit(emptyList())
