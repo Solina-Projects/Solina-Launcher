@@ -523,9 +523,16 @@ class PreferenceManager2 @Inject constructor(
         onSet = { reloadHelper.reloadGrid() },
     )
 
-    // Scale the space between dock icons, especially useful for multi-row docks.
+    // Scale horizontal spacing between dock icons and the matching outer edge inset.
     val hotseatIconSpacingFactor = preference(
         key = floatPreferencesKey(name = "hotseat_icon_spacing_factor"),
+        defaultValue = 1.0f,
+        onSet = { reloadHelper.reloadGrid() },
+    )
+
+    // Scale vertical spacing between dock rows independently from horizontal spacing.
+    val hotseatRowSpacingFactor = preference(
+        key = floatPreferencesKey(name = "hotseat_row_spacing_factor"),
         defaultValue = 1.0f,
         onSet = { reloadHelper.reloadGrid() },
     )

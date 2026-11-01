@@ -63,6 +63,7 @@ class HotseatPagedView @JvmOverloads constructor(
     fun getCurrentCellLayout(): CellLayout? = getPageAt(nextPage)
 
     fun resetPages(hasVerticalHotseat: Boolean, workspace: Workspace<*>?, dp: DeviceProfile) {
+        val previousPage = nextPage
         removeAllViews()
         val pageCount = if (hasVerticalHotseat) 1 else maxOf(1, dp.numHotseatPages)
         isPagingEnabled = pageCount > 1
@@ -90,7 +91,7 @@ class HotseatPagedView @JvmOverloads constructor(
             it.setActiveMarker(0)
         }
         applyPageIndicatorVisibility()
-        setCurrentPage(0)
+        setCurrentPage(previousPage.coerceIn(0, pageCount - 1))
         requestLayout()
     }
 

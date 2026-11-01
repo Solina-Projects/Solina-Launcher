@@ -229,6 +229,7 @@ public class DeviceProfile {
     // In portrait: size = height, in landscape: size = width
     public int hotseatBarSizePx;
     public int hotseatBarBottomSpacePx;
+    private int mHotseatBarBottomSpaceBasePx;
     public int hotseatQsbSpace;
     public int hotseatQsbWidth; // only used when isQsbInline
     public int hotseatBorderSpace;
@@ -598,6 +599,9 @@ public class DeviceProfile {
             }
         }
 
+        // Keep an immutable baseline so repeated icon/profile recalculations do not
+        // compound the user's bottom-space factor.
+        mHotseatBarBottomSpaceBasePx = hotseatBarBottomSpacePx;
         mHotseatQsbSpaceBase = hotseatQsbSpace;
 
         if (mIsResponsiveGrid) {
@@ -908,8 +912,9 @@ public class DeviceProfile {
         
         int space = Math.abs(hotseatCellHeightPx / 2) - 16;
 
-        hotseatBarBottomSpacePx *= PreferenceCacheExtensionsKt
-            .firstCached(preferenceManager2.getHotseatBottomFactor());
+        hotseatBarBottomSpacePx = Math.round(mHotseatBarBottomSpaceBasePx
+                * PreferenceCacheExtensionsKt.firstCached(
+                        preferenceManager2.getHotseatBottomFactor()));
 
         // Extra height needed for additional dock rows
         int extraRowsHeight = (numHotseatRows - 1) * hotseatCellHeightPx;

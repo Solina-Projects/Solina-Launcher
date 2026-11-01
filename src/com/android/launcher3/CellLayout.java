@@ -423,12 +423,20 @@ public class CellLayout extends ViewGroup {
             case HOTSEAT:
                 float spacingFactor = PreferenceCacheExtensionsKt.firstCached(
                         pref.getHotseatIconSpacingFactor(), pref);
+                float rowSpacingFactor = PreferenceCacheExtensionsKt.firstCached(
+                        pref.getHotseatRowSpacingFactor(), pref);
                 float verticalPaddingDp = PreferenceCacheExtensionsKt.firstCached(
                         pref.getHotseatVerticalPaddingDp(), pref);
                 int spacingPx = Math.round(deviceProfile.hotseatBorderSpace * spacingFactor);
+                int rowSpacingPx = Math.round(
+                        deviceProfile.hotseatBorderSpace * rowSpacingFactor);
                 int verticalPaddingPx = Math.round(
                         verticalPaddingDp * getResources().getDisplayMetrics().density);
-                mBorderSpace = new Point(spacingPx, spacingPx + verticalPaddingPx);
+                mBorderSpace = new Point(spacingPx, rowSpacingPx + verticalPaddingPx);
+                // Keep the outer edge inset visually proportional to the inter-icon gap.
+                int horizontalEdgeInsetPx = Math.round(spacingPx / 2f);
+                setPadding(horizontalEdgeInsetPx, getPaddingTop(),
+                        horizontalEdgeInsetPx, getPaddingBottom());
                 break;
             case WORKSPACE:
             default:

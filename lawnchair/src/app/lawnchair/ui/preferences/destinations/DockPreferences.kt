@@ -205,6 +205,20 @@ fun GridSettings(prefs: PreferenceManager, prefs2: PreferenceManager2) {
             valueRange = 1..3,
         )
         SliderPreference(
+            label = stringResource(id = R.string.dock_icon_spacing),
+            adapter = prefs2.hotseatIconSpacingFactor.getAdapter(),
+            step = 0.1f,
+            valueRange = 0.5f..1.5f,
+            showAsPercentage = true,
+        )
+        SliderPreference(
+            label = stringResource(id = R.string.dock_row_spacing),
+            adapter = prefs2.hotseatRowSpacingFactor.getAdapter(),
+            step = 0.1f,
+            valueRange = 0.5f..1.5f,
+            showAsPercentage = true,
+        )
+        SliderPreference(
             label = stringResource(id = R.string.dock_vertical_padding),
             adapter = prefs2.hotseatVerticalPaddingDp.getAdapter(),
             step = 2f,
@@ -256,6 +270,13 @@ fun ColumnScope.DockPreferencesPreview(modifier: Modifier = Modifier) {
             prefs2.hotseatBottomFactor.getAdapter(),
             prefs2.strokeColorStyle.getAdapter(),
             prefs2.enableLabelInDock.getAdapter(),
+            prefs2.hotseatIconSizeFactor.getAdapter(),
+            prefs2.hotseatIconLabelSizeFactor.getAdapter(),
+            prefs2.hotseatIconSpacingFactor.getAdapter(),
+            prefs2.hotseatRowSpacingFactor.getAdapter(),
+            prefs2.hotseatVerticalPaddingDp.getAdapter(),
+            prefs2.hotseatQsbVerticalOffset.getAdapter(),
+            prefs2.dockIconLabelColor.getAdapter(),
             prefs.hotseatBG.getAdapter(),
             prefs.hotseatBGHorizontalInsetLeft.getAdapter(),
             prefs.hotseatBGVerticalInsetTop.getAdapter(),
