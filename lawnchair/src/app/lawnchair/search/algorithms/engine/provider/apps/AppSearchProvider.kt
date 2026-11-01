@@ -59,5 +59,4 @@ object AppSearchProvider {
             .map { it.first }
             .take(maxResultsCount)
     }
-
 }
