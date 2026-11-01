@@ -182,19 +182,26 @@ class LawnchairASISearchAlgorithm(context: Context) :
         fun checkSearchCompatibility(context: Context) {
             if (LawnchairQuickstepCompat.ATLEAST_U) return
             Executors.UI_HELPER_EXECUTOR.execute {
-                val searchContext = SearchContext(1 or 2, 200, Bundle())
-                val searchManager = context.requireSystemService<SearchUiManager>()
-                val searchSession: SearchSession = searchManager.createSearchSession(searchContext)
+                val searchSession = try {
+                    val searchContext = SearchContext(1 or 2, 200, Bundle())
+                    context.requireSystemService<SearchUiManager>().createSearchSession(searchContext)
+                } catch (_: RuntimeException) {
+                    Executors.MAIN_EXECUTOR.execute {
+                        PreferenceManager.getInstance(context).deviceSearch.set(false)
+                    }
+                    return@execute
+                }
                 val searchQuery = Query("dummy", System.currentTimeMillis())
                 val prefs = PreferenceManager.getInstance(context)
                 val checkDone = AtomicBoolean(false)
                 searchSession.query(searchQuery, Executors.MAIN_EXECUTOR) { targets ->
-                    checkDone.set(true)
-                    finishCompatibilityCheck(prefs, searchSession, targets.isNotEmpty())
+                    if (checkDone.compareAndSet(false, true)) {
+                        finishCompatibilityCheck(prefs, searchSession, targets.isNotEmpty())
+                    }
                 }
                 Handler(Executors.UI_HELPER_EXECUTOR.looper).postDelayed(
                     {
-                        if (!checkDone.get()) {
+                        if (checkDone.compareAndSet(false, true)) {
                             finishCompatibilityCheck(prefs, searchSession, false)
                         }
                     },
