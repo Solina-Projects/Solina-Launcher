@@ -152,7 +152,7 @@ sealed class LawnchairSearchAlgorithm(
                     (
                         filtered[it].layoutType == ICON_HORIZONTAL_TEXT ||
                             filtered[it].layoutType == SMALL_ICON_HORIZONTAL_TEXT
-                    )
+                        )
             }
 
         return appAndShortcutIndices
