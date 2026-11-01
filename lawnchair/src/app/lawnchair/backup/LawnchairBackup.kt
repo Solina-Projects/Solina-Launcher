@@ -17,9 +17,9 @@ import app.lawnchair.wallpaper.WallpaperManagerCompat
 import com.android.launcher3.BuildConfig
 import com.android.launcher3.LauncherAppState
 import com.android.launcher3.LauncherFiles
-import com.android.launcher3.R
 import com.android.launcher3.LauncherPrefs
 import com.android.launcher3.LauncherPrefs.RESTORE_DEVICE
+import com.android.launcher3.R
 import com.android.launcher3.model.DeviceGridState
 import com.android.launcher3.model.ModelDbController
 import com.android.launcher3.provider.RestoreDbTask
