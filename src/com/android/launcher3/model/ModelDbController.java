@@ -515,6 +515,16 @@ public class ModelDbController {
     }
 
     /**
+     * Closes the database helper if it has been initialized without forcing database creation.
+     */
+    public synchronized void close() {
+        if (mOpenHelper != null) {
+            mOpenHelper.close();
+            mOpenHelper = null;
+        }
+    }
+
+    /**
      * Returns the underlying model database
      */
     public SQLiteDatabase getDb() {
