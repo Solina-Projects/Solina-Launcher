@@ -44,10 +44,21 @@ class LawnchairASISearchAlgorithm(context: Context) :
 
     override fun doSearch(query: String, callback: SearchCallback<BaseAllAppsAdapter.AdapterItem>) {
         activeQuery?.cancel()
-        searchSession ?: return
-        activeQuery = PendingQuery(query, callback)
+        val session = searchSession ?: run {
+            callback.onSearchResult(query, arrayListOf())
+            return
+        }
+        val pending = PendingQuery(query, callback)
+        activeQuery = pending
         val searchQuery = Query(query, System.currentTimeMillis())
-//        searchSession!!.query(searchQuery, Executors.MAIN_EXECUTOR, null)
+        try {
+            session.query(searchQuery, Executors.MAIN_EXECUTOR, pending)
+        } catch (_: RuntimeException) {
+            if (activeQuery === pending) {
+                activeQuery = null
+                callback.onSearchResult(query, arrayListOf())
+            }
+        }
     }
 
     override fun cancel(interruptActiveRequests: Boolean) {
