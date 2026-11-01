@@ -5,6 +5,7 @@ import android.util.Log
 import app.lawnchair.util.kotlinxJson
 import com.android.launcher3.R
 import java.lang.reflect.Type
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -75,6 +76,8 @@ object GoogleWebSearchProvider : WebSearchProvider {
                 Log.w(TAG, "Failed to retrieve suggestions: ${response.code()}")
                 emit(emptyList())
             }
+        } catch (e: CancellationException) {
+            throw e
         } catch (e: Exception) {
             Log.e(TAG, "Error during suggestion retrieval", e)
             emit(emptyList())
@@ -319,6 +322,8 @@ object StartPageEUWebSearchProvider : WebSearchProvider {
                 Log.w(TAG, "Failed to retrieve EU suggestions: ${response.code()}")
                 emit(emptyList())
             }
+        } catch (e: CancellationException) {
+            throw e
         } catch (e: Exception) {
             Log.e(TAG, "Error during EU suggestion retrieval", e)
             emit(emptyList())
