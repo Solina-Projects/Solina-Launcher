@@ -8,6 +8,7 @@ import com.android.launcher3.model.data.AppInfo
 import com.android.launcher3.popup.PopupPopulator
 import com.android.launcher3.search.StringMatcherUtility
 import com.android.launcher3.shortcuts.ShortcutRequest
+import java.text.Normalizer
 import java.util.Locale
 import me.xdrop.fuzzywuzzy.FuzzySearch
 import me.xdrop.fuzzywuzzy.algorithms.WeightedRatio
@@ -16,24 +17,26 @@ object SearchUtils {
     fun normalSearch(apps: List<AppInfo>, query: String, maxResultsCount: Int, hiddenApps: Set<String>, hiddenAppsInSearch: String): List<AppInfo> {
         // Do an intersection of the words in the query and each title, and filter out all the
         // apps that don't match all of the words in the query.
-        val queryTextLower = query.lowercase(Locale.getDefault())
+        val queryTextLower = normalizeSearchText(query)
+        if (queryTextLower.isEmpty() || maxResultsCount <= 0) return emptyList()
         val matcher = StringMatcherUtility.StringMatcher.getInstance()
         return apps.asSequence()
-            .filter { StringMatcherUtility.matches(queryTextLower, it.title.toString(), matcher) }
+            .filter { StringMatcherUtility.matches(queryTextLower, normalizeSearchText(it.title.toString()), matcher) }
             .filterHiddenApps(queryTextLower, hiddenApps, hiddenAppsInSearch)
             .take(maxResultsCount)
             .toList()
     }
 
     fun fuzzySearch(apps: List<AppInfo>, query: String, maxResultsCount: Int, hiddenApps: Set<String>, hiddenAppsInSearch: String): List<AppInfo> {
-        val queryTextLower = query.lowercase(Locale.getDefault())
+        val queryTextLower = normalizeSearchText(query)
+        if (queryTextLower.isEmpty() || maxResultsCount <= 0) return emptyList()
         val filteredApps = apps.asSequence()
             .filterHiddenApps(queryTextLower, hiddenApps, hiddenAppsInSearch)
             .toList()
         val matches = FuzzySearch.extractSorted(
             queryTextLower,
             filteredApps,
-            { it.sectionName + it.title },
+            { normalizeSearchText(it.sectionName + it.title) },
             WeightedRatio(),
             65,
         )
@@ -50,6 +53,13 @@ object SearchUtils {
     }
 }
 
+private fun normalizeSearchText(value: String): String {
+    return Normalizer.normalize(value, Normalizer.Form.NFKD)
+        .replace(Regex("\\p{M}+"), "")
+        .lowercase(Locale.ROOT)
+        .trim()
+}
+
 fun Sequence<AppInfo>.filterHiddenApps(
     query: String,
     hiddenApps: Set<String>,
@@ -63,7 +73,7 @@ fun Sequence<AppInfo>.filterHiddenApps(
         HiddenAppsInSearch.IF_NAME_TYPED -> {
             filter {
                 it.toComponentKey().toString() !in hiddenApps ||
-                    it.title.toString().lowercase(Locale.getDefault()) == query
+                    normalizeSearchText(it.title.toString()) == query
             }
         }
 
