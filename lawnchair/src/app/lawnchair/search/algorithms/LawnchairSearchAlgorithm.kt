@@ -2,9 +2,9 @@ package app.lawnchair.search.algorithms
 
 import android.content.Context
 import app.lawnchair.LawnchairApp
-import app.lawnchair.compat.LawnchairQuickstepCompat
 import app.lawnchair.allapps.views.SearchItemBackground
 import app.lawnchair.allapps.views.SearchResultView.Companion.EXTRA_QUICK_LAUNCH
+import app.lawnchair.compat.LawnchairQuickstepCompat
 import app.lawnchair.preferences2.PreferenceManager2
 import app.lawnchair.preferences2.firstCached
 import app.lawnchair.search.LawnchairSearchAdapterProvider
@@ -152,7 +152,7 @@ sealed class LawnchairSearchAlgorithm(
                     (
                         filtered[it].layoutType == ICON_HORIZONTAL_TEXT ||
                             filtered[it].layoutType == SMALL_ICON_HORIZONTAL_TEXT
-                        )
+                    )
             }
 
         return appAndShortcutIndices
