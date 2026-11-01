@@ -516,6 +516,12 @@ public abstract class DragController<T extends ActivityContext>
     public void completeAccessibleDrag(int[] location) {
         // We make sure that we prime the target for drop.
         DropTarget dropTarget = checkTouchMove(location[0], location[1]);
+        if (dropTarget == null) {
+            // A target may disappear while an accessible drag is in progress.
+            // Treat this as a rejected drop and run the normal drag cleanup path.
+            cancelDrag();
+            return;
+        }
 
         dropTarget.prepareAccessibilityDrop();
         // Perform the drop
