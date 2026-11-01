@@ -25,6 +25,7 @@ import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.net.URISyntaxException
 import java.util.UUID
+import javax.xml.XMLConstants
 import java.util.zip.ZipInputStream
 import javax.xml.parsers.DocumentBuilderFactory
 import kotlinx.coroutines.Dispatchers
@@ -68,6 +69,9 @@ class NovaBackupConverter(
         private const val NOVA_COL_ICON = "icon"
         private const val NOVA_COL_APP_WIDGET_PROVIDER = "appWidgetProvider"
         private const val NOVA_SMART_FOLDER_MARKER = "FOLDER%3A-"
+        private const val MAX_ARCHIVE_ENTRIES = 64
+        private const val MAX_ARCHIVE_ENTRY_BYTES = 256L * 1024 * 1024
+        private const val MAX_ARCHIVE_TOTAL_BYTES = 512L * 1024 * 1024
     }
 
     private val novaGridRegex = Regex("(\\d+)x(\\d+)")
@@ -116,6 +120,7 @@ class NovaBackupConverter(
             val dbFile = File(tempDir, NOVA_DB)
             require(xmlFile.exists() && dbFile.exists()) { "Missing $NOVA_XML or $NOVA_DB" }
 
+            validateNovaDatabase(dbFile)
             val novaConfig = parseNovaConfig(xmlFile)
             val (apps, widgets, folders, shortcuts) = countItems(dbFile)
 
@@ -147,6 +152,7 @@ class NovaBackupConverter(
             val novaDbFile = File(tempDir, NOVA_DB)
             require(novaDbFile.exists()) { "Missing $NOVA_DB" }
 
+            validateNovaDatabase(novaDbFile)
             val stagedDbFile = File(tempDir, NOVA_WORKSPACE_DB)
             val importedDeepShortcuts = createRestoredDb(novaDbFile, stagedDbFile)
 
@@ -204,7 +210,17 @@ class NovaBackupConverter(
     }
 
     private fun parseNovaConfig(xmlFile: File): NovaConfig {
-        val doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(xmlFile)
+        val factory = DocumentBuilderFactory.newInstance().apply {
+            setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true)
+            setFeature("http://apache.org/xml/features/disallow-doctype-decl", true)
+            setFeature("http://xml.org/sax/features/external-general-entities", false)
+            setFeature("http://xml.org/sax/features/external-parameter-entities", false)
+            setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "")
+            setAttribute(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "")
+            isXIncludeAware = false
+            isExpandEntityReferences = false
+        }
+        val doc = factory.newDocumentBuilder().parse(xmlFile)
         val root = doc.documentElement
         var columns: Int? = null
         var rows: Int? = null
@@ -437,23 +453,72 @@ class NovaBackupConverter(
         val pfd = context.contentResolver.openFileDescriptor(uri, "r")
             ?: throw IllegalStateException("Unable to open backup URI")
         val destCanonical = destDir.canonicalPath
+        val seen = mutableSetOf<String>()
+        var totalBytes = 0L
         pfd.use {
             FileInputStream(it.fileDescriptor).use { fis ->
                 ZipInputStream(fis).use { zis ->
+                    val buffer = ByteArray(DEFAULT_BUFFER_SIZE)
                     var entry = zis.nextEntry
                     while (entry != null) {
-                        if (!entry.isDirectory && entry.name in fileNames) {
-                            val outFile = File(destDir, entry.name)
+                        val name = entry.name
+                        require(!entry.isDirectory && !name.startsWith("/") &&
+                            !name.contains("..") && '\\\\' !in name) {
+                            "Invalid archive entry: $name"
+                        }
+                        require(seen.size < MAX_ARCHIVE_ENTRIES) { "Too many archive entries" }
+                        if (name in fileNames) {
+                            require(seen.add(name)) { "Duplicate archive entry: $name" }
+                        }
+                        val outFile = if (name in fileNames) File(destDir, name) else null
+                        if (outFile != null) {
                             require(outFile.canonicalPath.startsWith(destCanonical + File.separator)) {
-                                "Zip entry outside target dir: ${entry.name}"
+                                "Zip entry outside target dir: $name"
                             }
                             outFile.parentFile?.mkdirs()
-                            FileOutputStream(outFile).use { fos -> zis.copyTo(fos) }
                         }
+                        var entryBytes = 0L
+                        val output = outFile?.let(::FileOutputStream)
+                        try {
+                            while (true) {
+                                val count = zis.read(buffer)
+                                if (count < 0) break
+                                entryBytes += count
+                                totalBytes += count
+                                require(entryBytes <= MAX_ARCHIVE_ENTRY_BYTES &&
+                                    totalBytes <= MAX_ARCHIVE_TOTAL_BYTES) {
+                                    "Archive exceeds the supported size"
+                                }
+                                output?.write(buffer, 0, count)
+                            }
+                        } finally {
+                            output?.close()
+                        }
+                        zis.closeEntry()
                         entry = zis.nextEntry
                     }
                 }
             }
+        }
+        require(seen.containsAll(fileNames)) { "Archive is missing required files: ${fileNames - seen}" }
+    }
+
+    private fun validateNovaDatabase(file: File) {
+        val database = SQLiteDatabase.openDatabase(
+            file.absolutePath,
+            null,
+            SQLiteDatabase.OPEN_READONLY,
+        )
+        database.use { db ->
+            db.rawQuery("PRAGMA quick_check", null).use { cursor ->
+                require(cursor.moveToFirst() && cursor.getString(0) == "ok") {
+                    "Nova database failed integrity validation"
+                }
+            }
+            db.rawQuery("SELECT 1 FROM sqlite_master WHERE type='table' AND name='$NOVA_TABLE_FAVORITES'", null)
+                .use { cursor ->
+                    require(cursor.moveToFirst()) { "Nova database has no favorites table" }
+                }
         }
     }
 
