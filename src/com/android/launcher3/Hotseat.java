@@ -212,29 +212,48 @@ public class Hotseat extends FrameLayout implements Insettable {
     }
 
     private void setUpBackground() {
-        if(!preferenceManager.getHotseatBG().get()) return;
+        if (!preferenceManager.getHotseatBG().get()) {
+            setBackground(null);
+            return;
+        }
 
-        var bgColor = PreferenceCacheExtensionsKt.firstCached(preferenceManager2.getHotseatBackgroundColor());
-        var transparency = preferenceManager.getHotseatBGAlpha().get();
-        var alphaValue = (transparency * 255) / 100;
-        var baseColor = bgColor.getColorPreferenceEntry().getLightColor().invoke(getContext());
-        var finalColor = Color.argb(alphaValue, Color.red(baseColor), Color.green(baseColor), Color.blue(baseColor));
-        int insetHorizontalLeft = preferenceManager.getHotseatBGHorizontalInsetLeft().get();
-        int insetHorizontalRight = preferenceManager.getHotseatBGHorizontalInsetRight().get();
-        int insetVerticalTop = preferenceManager.getHotseatBGVerticalInsetTop().get();
-        int insetVerticalBottom = preferenceManager.getHotseatBGVerticalInsetBottom().get();
+        var bgColor = PreferenceCacheExtensionsKt.firstCached(
+                preferenceManager2.getHotseatBackgroundColor());
+        int transparency = preferenceManager.getHotseatBGAlpha().get();
+        int alphaValue = (transparency * 255) / 100;
+        int baseColor = bgColor.getColorPreferenceEntry().getLightColor().invoke(getContext());
+        int finalColor = Color.argb(alphaValue, Color.red(baseColor),
+                Color.green(baseColor), Color.blue(baseColor));
+
+        float density = getResources().getDisplayMetrics().density;
+        float horizontalEdgeDp = Math.max(0f, Math.min(64f,
+                PreferenceCacheExtensionsKt.firstCached(
+                        preferenceManager2.getHotseatHorizontalEdgeSpacingDp(), preferenceManager2)));
+        float verticalEdgeDp = Math.max(0f, Math.min(64f,
+                PreferenceCacheExtensionsKt.firstCached(
+                        preferenceManager2.getHotseatVerticalEdgeSpacingDp(), preferenceManager2)));
+        // The same edge controls inset both the icon grid and its background surface.
+        int horizontalEdgeInset = Math.round(horizontalEdgeDp * density);
+        int verticalEdgeInset = Math.round(verticalEdgeDp * density);
+        int insetHorizontalLeft = preferenceManager.getHotseatBGHorizontalInsetLeft().get()
+                + horizontalEdgeInset;
+        int insetHorizontalRight = preferenceManager.getHotseatBGHorizontalInsetRight().get()
+                + horizontalEdgeInset;
+        int insetVerticalTop = preferenceManager.getHotseatBGVerticalInsetTop().get()
+                + verticalEdgeInset;
+        int insetVerticalBottom = preferenceManager.getHotseatBGVerticalInsetBottom().get()
+                + verticalEdgeInset;
+
         float cornerRadiusDp = PreferenceCacheExtensionsKt.firstCached(
                 preferenceManager2.getHotseatBackgroundCornerRadius());
         float cornerRadius = TypedValue.applyDimension(
-                TypedValue.COMPLEX_UNIT_DIP,
-                cornerRadiusDp,
+                TypedValue.COMPLEX_UNIT_DIP, cornerRadiusDp,
                 getResources().getDisplayMetrics());
         GradientDrawable background = new GradientDrawable();
         background.setColor(finalColor);
         background.setCornerRadius(cornerRadius);
-        InsetDrawable bg = new InsetDrawable(background,
-                insetHorizontalLeft, insetVerticalTop, insetHorizontalRight, insetVerticalBottom);
-        setBackground(bg);
+        setBackground(new InsetDrawable(background, insetHorizontalLeft, insetVerticalTop,
+                insetHorizontalRight, insetVerticalBottom));
     }
 
     /** Provides translation X for hotseat icons for the channel. */
@@ -337,6 +356,7 @@ public class Hotseat extends FrameLayout implements Insettable {
         DeviceProfile dp = mActivity.getDeviceProfile();
 
         mPagedView.resetPages(hasVerticalHotseat, mWorkspace, dp);
+        setUpBackground();
 
         if (bubbleBarEnabled) {
             for (CellLayout page : getPageLayouts()) {
