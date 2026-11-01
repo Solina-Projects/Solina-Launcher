@@ -151,6 +151,17 @@ public class ModelDbController {
                 app.migrateDbName(dbName);
             }
         } catch (Throwable t) {
+            // Explicit backup restore must fail closed if the restored database cannot be moved
+            // into place. The normal launcher migration path retains its legacy best-effort behavior.
+            if (mSkipPendingRestoreTask) {
+                if (t instanceof RuntimeException) {
+                    throw (RuntimeException) t;
+                }
+                if (t instanceof Error) {
+                    throw (Error) t;
+                }
+                throw new IllegalStateException("Unable to prepare restored launcher database", t);
+            }
             // LC-Ignored
         }
 
