@@ -40,6 +40,7 @@ internal object AppMatcher {
     fun match(appName: String, query: String): MatchResult {
         val app = SearchTextNormalizer.normalize(appName)
         val normalizedQuery = SearchTextNormalizer.normalize(query)
+        if (normalizedQuery.isBlank()) return MatchResult(0f, MatchType.NO_MATCH)
 
         // Rule 0: Exact Match
         if (app == normalizedQuery) return MatchResult(1.0f, MatchType.EXACT_MATCH)
