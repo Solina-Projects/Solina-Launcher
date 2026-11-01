@@ -64,12 +64,12 @@ class LawnchairBackup(
      * Restores only the selected sections. In particular, a wallpaper-only restore must never
      * touch launcher databases, preferences, or grid state.
      */
-    suspend fun restore(selectedContents: Int) = withContext(Dispatchers.IO) {
+    suspend fun restore(selectedContents: Int) {
         require(::info.isInitialized) { "Backup metadata has not been read" }
         validateInfo(info)
 
         val contents = selectedContents and info.contents
-        if (contents == 0) return@withContext
+        if (contents == 0) return
 
         val restoreLayout = contents.hasFlag(INCLUDE_LAYOUT_AND_SETTINGS)
         val restoreWallpaper = contents.hasFlag(INCLUDE_WALLPAPER)
@@ -142,9 +142,14 @@ class LawnchairBackup(
             }
         } catch (throwable: Throwable) {
             // Restore the exact files modified by this operation if a later file operation fails.
-            rollbackFiles.forEach { (target, rollback) ->
+            stagedFiles.keys.forEach { target ->
                 runCatching {
-                    if (rollback.exists()) rollback.copyTo(target, overwrite = true) else target.delete()
+                    val rollback = rollbackFiles[target]
+                    if (rollback != null && rollback.exists()) {
+                        rollback.copyTo(target, overwrite = true)
+                    } else {
+                        target.delete()
+                    }
                 }
             }
             throw throwable
