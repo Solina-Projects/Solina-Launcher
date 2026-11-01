@@ -293,8 +293,10 @@ class AllAppsSearchInput(context: Context, attrs: AttributeSet?) :
                 setBackgroundVisibility(true, 1f)
                 animateHintVisibility(false)
                 if (prefs.searchResulRecentSuggestion.get()) {
-                    val query = editText.text.toString()
-                    suggestionsRecent.saveRecentQuery(query, null)
+                    val query = editText.text.toString().trim()
+                    if (query.isNotEmpty()) {
+                        suggestionsRecent.saveRecentQuery(query, null)
+                    }
                 }
 
                 if (input.text.isNullOrEmpty()) {
@@ -407,7 +409,6 @@ class AllAppsSearchInput(context: Context, attrs: AttributeSet?) :
         if (canShowHint &&
             inputLowerCase.isNotEmpty() &&
             focusedLowerCase.isNotEmpty() &&
-            focusedLowerCase.matches(Regex("^[\\x00-\\x7F]*$")) &&
             focusedLowerCase.startsWith(inputLowerCase)
         ) {
             val hintColor = Themes.getAttrColor(context, android.R.attr.textColorTertiary)
