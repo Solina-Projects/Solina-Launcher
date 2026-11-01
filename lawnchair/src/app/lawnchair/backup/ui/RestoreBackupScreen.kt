@@ -217,8 +217,11 @@ fun ColumnScope.RestoreBackupOptions(
             text = {
                 Text(
                     stringResource(
-                        if (isLayoutRestore) R.string.backup_restore_confirmation_layout_message
-                        else R.string.backup_restore_confirmation_wallpaper_message,
+                        if (isLayoutRestore) {
+                            R.string.backup_restore_confirmation_layout_message
+                        } else {
+                            R.string.backup_restore_confirmation_wallpaper_message
+                        },
                     ),
                 )
             },
