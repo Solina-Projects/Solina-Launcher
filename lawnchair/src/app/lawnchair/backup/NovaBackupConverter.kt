@@ -466,10 +466,14 @@ class NovaBackupConverter(
                         require(entryCount <= MAX_ARCHIVE_ENTRIES) { "Too many archive entries" }
                         val name = entry.name
                         require(
-                            !entry.isDirectory && !name.startsWith("/") &&
-                                !name.contains("..") && '\\' !in name,
+                            !name.startsWith("/") && !name.contains("..") && '\\' !in name,
                         ) {
                             "Invalid archive entry: $name"
+                        }
+                        if (entry.isDirectory) {
+                            zis.closeEntry()
+                            entry = zis.nextEntry
+                            continue
                         }
                         if (name in fileNames) {
                             require(seen.add(name)) { "Duplicate archive entry: $name" }
