@@ -13,6 +13,7 @@ import app.lawnchair.search.algorithms.engine.SearchPermission
 import app.lawnchair.search.algorithms.engine.SearchProvider
 import app.lawnchair.search.algorithms.engine.SearchResult
 import kotlinx.coroutines.CoroutineExceptionHandler
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -128,6 +129,8 @@ object ContactsSearchProvider : SearchProvider, SearchPermission {
                 }
                 contactMap.values.toList()
             }
+        } catch (e: CancellationException) {
+            throw e
         } catch (e: Exception) {
             Log.e("ContactSearch", "Something went wrong ", e)
             return emptyList()
