@@ -13,7 +13,9 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.retryWhen
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 class FolderViewModel(
@@ -22,9 +24,14 @@ class FolderViewModel(
     private val repository: FolderService = FolderService.INSTANCE.get(application)
 
     val folders: StateFlow<List<FolderEntry>?> = repository.getFoldersFlow()
+        .retryWhen { cause, attempt ->
+            Log.e("FolderViewModel", "Error in folders flow; retrying", cause)
+            delay(minOf(30_000L, 1_000L * (1L shl attempt.coerceAtMost(5).toInt())))
+            true
+        }
         .distinctUntilChanged()
         .catch { exception ->
-            Log.e("FolderViewModel", "Error in folders flow", exception)
+            Log.e("FolderViewModel", "Folder flow stopped unexpectedly", exception)
             emit(emptyList())
         }
         .stateIn(
