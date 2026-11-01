@@ -215,8 +215,11 @@ class NovaBackupConverter(
             setFeature("http://apache.org/xml/features/disallow-doctype-decl", true)
             setFeature("http://xml.org/sax/features/external-general-entities", false)
             setFeature("http://xml.org/sax/features/external-parameter-entities", false)
-            setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "")
-            setAttribute(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "")
+            // Android's XMLConstants stubs do not expose ACCESS_EXTERNAL_* on all
+            // supported API levels. Apply the standard properties by name where supported;
+            // the explicit parser features above remain the primary XXE protection.
+            runCatching { setAttribute("http://javax.xml.XMLConstants/property/accessExternalDTD", "") }
+            runCatching { setAttribute("http://javax.xml.XMLConstants/property/accessExternalSchema", "") }
             isXIncludeAware = false
             isExpandEntityReferences = false
         }
