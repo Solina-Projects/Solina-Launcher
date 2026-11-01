@@ -355,38 +355,43 @@ class LawnchairBackup(
             } else {
                 null
             }
-            val pfd = context.contentResolver.openFileDescriptor(fileUri, "w")
-                ?: throw IllegalArgumentException("Unable to create backup file")
-            withContext(Dispatchers.IO) {
-                pfd.use {
-                    ZipOutputStream(FileOutputStream(pfd.fileDescriptor).buffered()).use { out ->
-                        out.putNextEntry(ZipEntry(INFO_FILE_NAME))
-                        info.writeTo(out)
-                        out.closeEntry()
-
-                        if (contents.hasFlag(INCLUDE_WALLPAPER)) {
-                            out.putNextEntry(ZipEntry(WALLPAPER_FILE_NAME))
-                            require(requireNotNull(wallpaperBitmap).compress(Bitmap.CompressFormat.PNG, 100, out)) {
-                                "Unable to encode wallpaper"
-                            }
-                            out.closeEntry()
-                        }
-                        if (contents.hasFlag(INCLUDE_LAYOUT_AND_SETTINGS)) {
-                            out.putNextEntry(ZipEntry(SCREENSHOT_FILE_NAME))
-                            require(screenshotBitmap.compress(Bitmap.CompressFormat.PNG, 85, out)) {
-                                "Unable to encode backup preview"
-                            }
+            try {
+                val pfd = context.contentResolver.openFileDescriptor(fileUri, "w")
+                    ?: throw IllegalArgumentException("Unable to create backup file")
+                withContext(Dispatchers.IO) {
+                    pfd.use {
+                        ZipOutputStream(FileOutputStream(pfd.fileDescriptor).buffered()).use { out ->
+                            out.putNextEntry(ZipEntry(INFO_FILE_NAME))
+                            info.writeTo(out)
                             out.closeEntry()
 
-                            sourceFiles.forEach { (entryName, file) ->
-                                if (!file.isFile) return@forEach
-                                out.putNextEntry(ZipEntry(entryName))
-                                file.inputStream().use { input -> input.copyTo(out) }
+                            if (contents.hasFlag(INCLUDE_WALLPAPER)) {
+                                out.putNextEntry(ZipEntry(WALLPAPER_FILE_NAME))
+                                require(requireNotNull(wallpaperBitmap).compress(Bitmap.CompressFormat.PNG, 100, out)) {
+                                    "Unable to encode wallpaper"
+                                }
                                 out.closeEntry()
+                            }
+                            if (contents.hasFlag(INCLUDE_LAYOUT_AND_SETTINGS)) {
+                                out.putNextEntry(ZipEntry(SCREENSHOT_FILE_NAME))
+                                require(screenshotBitmap.compress(Bitmap.CompressFormat.PNG, 85, out)) {
+                                    "Unable to encode backup preview"
+                                }
+                                out.closeEntry()
+
+                                sourceFiles.forEach { (entryName, file) ->
+                                    if (!file.isFile) return@forEach
+                                    out.putNextEntry(ZipEntry(entryName))
+                                    file.inputStream().use { input -> input.copyTo(out) }
+                                    out.closeEntry()
+                                }
                             }
                         }
                     }
                 }
+            } finally {
+                // This bitmap is created here; the screenshot bitmap remains caller-owned.
+                wallpaperBitmap?.recycle()
             }
         }
 
