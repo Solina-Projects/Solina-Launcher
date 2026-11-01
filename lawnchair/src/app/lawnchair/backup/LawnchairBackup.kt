@@ -120,7 +120,7 @@ class LawnchairBackup(
                 (
                     LauncherFiles.GRID_DB_FILES.map(context::getDatabasePath) +
                         context.getDatabasePath(PREFS_DB_FILE_NAME)
-                ).distinct()
+                    ).distinct()
             } else {
                 emptyList()
             }
