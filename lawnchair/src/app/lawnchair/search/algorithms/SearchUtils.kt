@@ -26,7 +26,7 @@ object SearchUtils {
     }
 
     fun fuzzySearch(apps: List<AppInfo>, query: String, maxResultsCount: Int, hiddenApps: Set<String>, hiddenAppsInSearch: String): List<AppInfo> {
-        val queryTextLower = query.lowercase(Locale.getDefault())
+        val queryTextLower = SearchTextNormalizer.normalize(query)
         val filteredApps = apps.asSequence()
             .filterHiddenApps(queryTextLower, hiddenApps, hiddenAppsInSearch)
             .toList()
