@@ -44,6 +44,7 @@ class LawnchairAlphabeticalAppsList<T>(
     private val prefs = PreferenceManager.getInstance(context)
 
     private val folderList = mutableListOf<FolderEntry>()
+
     // Component keys are stable across AppInfo instances and avoid duplicate folder membership.
     private val folderedAppKeys = mutableSetOf<String>()
 
