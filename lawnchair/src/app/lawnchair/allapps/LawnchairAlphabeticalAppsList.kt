@@ -25,9 +25,9 @@ import com.android.launcher3.util.ComponentKey
 import com.android.launcher3.views.ActivityContext
 import com.patrykmichalik.opto.core.onEach as onEachPreference
 import java.util.Locale
+import java.util.function.Predicate
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
-import java.util.function.Predicate
 
 @Suppress("SYNTHETIC_PROPERTY_WITHOUT_JAVA_ORIGIN")
 class LawnchairAlphabeticalAppsList<T>(
@@ -48,7 +48,7 @@ class LawnchairAlphabeticalAppsList<T>(
         (context as? ComponentActivity)?.application ?: context.launcher.application,
     )
     private val folderList = mutableListOf<FolderEntry>()
-
+    
     // Component keys are stable across AppInfo instances and avoid duplicate folder membership.
     private val folderedAppKeys = mutableSetOf<String>()
 
