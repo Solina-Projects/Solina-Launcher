@@ -255,7 +255,12 @@ public class ShortcutAndWidgetContainer extends ViewGroup implements FolderIcon.
         // The QSB/search bar spans a separate region and must not move with icon columns.
         if (mContainerType == HOTSEAT && !isChildQsb(child)
                 && getParent() instanceof CellLayout cellLayout) {
-            childLeft += cellLayout.getTranslationXForCell(lp.getCellX(), lp.getCellY());
+            // lp.x is already mirrored in RTL, so mirror the column too or the dock would
+            // spread the wrong way around.
+            int visualColumn = invertLayoutHorizontally()
+                    ? mCountX - lp.getCellX() - lp.cellHSpan
+                    : lp.getCellX();
+            childLeft += cellLayout.getTranslationXForCell(visualColumn, lp.getCellY());
         }
 
         // We want to get the layout position of the widget, but layout() is a final

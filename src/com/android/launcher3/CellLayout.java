@@ -109,8 +109,14 @@ public class CellLayout extends ViewGroup {
     private int mFixedCellHeight;
     @ViewDebug.ExportedProperty(category = "launcher")
     protected Point mBorderSpace;
-    // Extra per-column horizontal spacing, applied symmetrically around the dock center.
-    private int mHotseatHorizontalSpacingAdjustmentPx = 0;
+    // Dock column spacing slider, as a fraction of the column pitch (cell width + gap) added to
+    // (positive) or removed from (negative) every column step. Applied symmetrically around the
+    // dock center, so it also moves the outer columns toward or away from the screen edges.
+    private float mHotseatColumnSpacingDelta = 0f;
+    // Free room between the dock content and the screen edge that the outer columns may use.
+    private int mHotseatEdgeRoomPx = 0;
+    // Icon size used to stop the columns from overlapping when the spacing is reduced.
+    private int mHotseatIconSizePx = 0;
 
     @ViewDebug.ExportedProperty(category = "launcher")
     protected int mCountX;
@@ -434,9 +440,15 @@ public class CellLayout extends ViewGroup {
                 int baseHotseatGap = Math.max(deviceProfile.hotseatBorderSpace, minimumHotseatGap);
                 // Keep the base cell geometry stable. Scaling mBorderSpace alone is ineffective
                 // because onMeasure shrinks each cell to fill the same width, cancelling most of
-                // the visible gap change. Instead, shift every column symmetrically around center.
-                mHotseatHorizontalSpacingAdjustmentPx = Math.round(
-                        baseHotseatGap * (Utilities.boundToRange(horizontalSpacingFactor, 0.8f, 1.5f) - 1f));
+                // the visible gap change. Instead, shift every column symmetrically around the
+                // center (see getTranslationXForCell), which also changes the dock's side margins.
+                mHotseatColumnSpacingDelta =
+                        Utilities.boundToRange(horizontalSpacingFactor, 0.8f, 1.5f) - 1f;
+                Rect hotseatPadding = deviceProfile.getHotseatLayoutPadding(getContext());
+                mHotseatEdgeRoomPx = Math.max(0, Math.min(hotseatPadding.left, hotseatPadding.right));
+                float hotseatIconScale = PreferenceCacheExtensionsKt.firstCached(
+                        pref.getHotseatIconSizeFactor(), pref);
+                mHotseatIconSizePx = Math.round(deviceProfile.iconSizePx * hotseatIconScale);
                 mBorderSpace = new Point(
                         baseHotseatGap,
                         Math.round(deviceProfile.hotseatBorderSpace
@@ -1906,15 +1918,33 @@ public class CellLayout extends ViewGroup {
         resultRect.set(x, y, x + width, y + height);
     }
 
-    /** Enables successors to provide an X adjustment for the cell. */
+    /**
+     * Enables successors to provide an X adjustment for the cell.
+     *
+     * @param cellX the column in left-to-right geometry (callers must already account for RTL
+     *              inversion, otherwise the dock spreads the wrong way)
+     */
     protected int getTranslationXForCell(int cellX, int cellY) {
-        if (mContainerType != HOTSEAT || mHotseatHorizontalSpacingAdjustmentPx == 0) {
+        if (mContainerType != HOTSEAT || mHotseatColumnSpacingDelta == 0f || mCountX < 2
+                || mCellWidth <= 0) {
             return 0;
         }
-        // Each adjacent column gains/loses the same gap; the first and last columns move
-        // equally in opposite directions, so the dock's side margins stay tied to the slider.
+        float basePitch = mCellWidth + mBorderSpace.x;
+        float pitchDelta = basePitch * mHotseatColumnSpacingDelta;
+        if (pitchDelta > 0f) {
+            // Spread out: never push the outer icons past the dock's free side room.
+            float cellSlack = Math.max(0f, (mCellWidth - mHotseatIconSizePx) / 2f);
+            float safetyMargin = 4f * getResources().getDisplayMetrics().density;
+            float room = Math.max(0f, mHotseatEdgeRoomPx + cellSlack - safetyMargin);
+            pitchDelta = Math.min(pitchDelta, 2f * room / (mCountX - 1));
+        } else {
+            // Pull together: keep neighbouring icons from overlapping.
+            float minPitch = mHotseatIconSizePx * 1.1f
+                    + 4f * getResources().getDisplayMetrics().density;
+            pitchDelta = Math.max(pitchDelta, Math.min(0f, minPitch - basePitch));
+        }
         float centeredColumn = cellX - ((mCountX - 1) / 2f);
-        return Math.round(centeredColumn * mHotseatHorizontalSpacingAdjustmentPx);
+        return Math.round(centeredColumn * pitchDelta);
     }
 
     public void markCellsAsOccupiedForView(View view) {
