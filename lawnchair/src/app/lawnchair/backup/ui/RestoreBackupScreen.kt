@@ -258,7 +258,7 @@ fun ColumnScope.RestoreBackupOptions(
             enabled = contents != 0 && !restoringBackup,
             shapes = ButtonDefaults.shapes(),
         ) {
-            Text(text = stringResource(id = R.string.action_restore))
+            Text(text = stringResource(id = if (restoringBackup) R.string.please_wait else R.string.action_restore))
         }
     }
 }
