@@ -85,6 +85,7 @@ class LawnchairBackup(
         require(stagingDir.mkdirs()) { "Unable to create restore staging directory" }
         val stagedFiles = mutableMapOf<File, File>()
         val rollbackFiles = mutableMapOf<File, File>()
+        val modifiedTargets = mutableSetOf<File>()
         var stagedWallpaper: Bitmap? = null
 
         try {
@@ -132,6 +133,7 @@ class LawnchairBackup(
                 if (restoreLayout) {
                     stagedFiles.forEach { (target, staged) ->
                         target.parentFile?.mkdirs()
+                        modifiedTargets.add(target)
                         staged.copyTo(target, overwrite = true)
                     }
                 }
@@ -150,7 +152,7 @@ class LawnchairBackup(
         } catch (throwable: Throwable) {
             // Restore the exact files modified by this operation if a later file operation fails.
             withContext(Dispatchers.IO) {
-                stagedFiles.keys.forEach { target ->
+                modifiedTargets.forEach { target ->
                     runCatching {
                         val rollback = rollbackFiles[target]
                         if (rollback != null && rollback.exists()) {
