@@ -3,6 +3,7 @@ package app.lawnchair.backup
 import android.annotation.SuppressLint
 import android.app.WallpaperManager
 import android.content.Context
+import android.database.sqlite.SQLiteDatabase
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
@@ -98,9 +99,10 @@ class LawnchairBackup(
                     }
                 }
                 readZip(handlers)
-                require(stagedFiles.keys.any { it.name == RESTORED_DB_FILE_NAME }) {
-                    "Backup does not contain a launcher database"
-                }
+                val stagedDatabase = stagedFiles.entries
+                    .firstOrNull { it.key.name == RESTORED_DB_FILE_NAME }
+                    ?.value ?: throw IllegalArgumentException("Backup does not contain a launcher database")
+                validateLauncherDatabase(stagedDatabase)
             }
 
             if (restoreWallpaper) {
@@ -217,6 +219,21 @@ class LawnchairBackup(
         }
         require(seen.containsAll(requiredEntries)) {
             "Backup is missing required entries: ${requiredEntries - seen}"
+        }
+    }
+
+    private fun validateLauncherDatabase(file: File) {
+        val database = SQLiteDatabase.openDatabase(file.absolutePath, null, SQLiteDatabase.OPEN_READONLY)
+        database.use { db ->
+            db.rawQuery("PRAGMA quick_check", null).use { cursor ->
+                require(cursor.moveToFirst() && cursor.getString(0) == "ok") {
+                    "Launcher database failed integrity validation"
+                }
+            }
+            db.rawQuery("SELECT 1 FROM sqlite_master WHERE type='table' AND name='favorites'", null)
+                .use { cursor ->
+                    require(cursor.moveToFirst()) { "Launcher database has no favorites table" }
+                }
         }
     }
 
