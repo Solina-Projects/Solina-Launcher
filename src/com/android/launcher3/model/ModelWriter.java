@@ -447,7 +447,7 @@ public class ModelWriter {
             try (SQLiteTransaction transaction =
                     mModel.getModelDbController().newTransaction()) {
                 for (ItemInfo item : items) {
-                    mModel.getModelDbController().delete(itemIdMatch(item.id), null);
+                    deleteItem(item.id);
                 }
                 transaction.commit();
             } catch (Exception e) {
@@ -460,6 +460,13 @@ public class ModelWriter {
             mBgDataModel.removeItem(mContext, items, mOwner);
             verifier.verifyModel();
         }));
+    }
+
+    /**
+     * Deletes one workspace item. Kept protected so tests can simulate delete failures.
+     */
+    protected int deleteItem(int itemId) {
+        return mModel.getModelDbController().delete(itemIdMatch(itemId), null);
     }
 
     /**
