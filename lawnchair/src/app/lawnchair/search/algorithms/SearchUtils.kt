@@ -3,8 +3,8 @@ package app.lawnchair.search.algorithms
 import android.content.Context
 import android.content.pm.ShortcutInfo
 import app.lawnchair.launcher
-import app.lawnchair.ui.preferences.components.HiddenAppsInSearch
 import app.lawnchair.search.algorithms.engine.provider.apps.SearchTextNormalizer
+import app.lawnchair.ui.preferences.components.HiddenAppsInSearch
 import com.android.launcher3.model.data.AppInfo
 import com.android.launcher3.popup.PopupPopulator
 import com.android.launcher3.search.StringMatcherUtility
