@@ -88,20 +88,21 @@ class LawnchairBackup(
         val rollbackFiles = mutableMapOf<File, File?>()
         val modifiedTargets = mutableSetOf<File>()
         var databaseRollbackSnapshotsReady = false
-        val databaseRollbackTargets =
+        val sqliteRollbackDatabases =
             if (restoreLayout) {
-                LauncherFiles.GRID_DB_FILES.flatMap { dbName ->
-                    val database = context.getDatabasePath(dbName)
-                    listOf(
-                        database,
-                        File(database.path + "-wal"),
-                        File(database.path + "-journal"),
-                        File(database.path + "-shm"),
-                    )
-                }.distinct()
+                (LauncherFiles.GRID_DB_FILES.map(context::getDatabasePath) +
+                    context.getDatabasePath(PREFS_DB_FILE_NAME)).distinct()
             } else {
                 emptyList()
             }
+        val databaseRollbackTargets = sqliteRollbackDatabases.flatMap { database ->
+            listOf(
+                database,
+                File(database.path + "-wal"),
+                File(database.path + "-journal"),
+                File(database.path + "-shm"),
+            )
+        }.distinct()
         var stagedWallpaper: Bitmap? = null
 
         try {
@@ -138,7 +139,7 @@ class LawnchairBackup(
             // Checkpoint live grid databases before taking rollback snapshots so committed WAL
             // pages are represented by the main database file.
             withContext(Dispatchers.IO) {
-                if (restoreLayout) checkpointLauncherDatabases(context)
+                if (restoreLayout) checkpointLauncherDatabases(sqliteRollbackDatabases)
                 val rollbackTargets = (stagedFiles.keys + databaseRollbackTargets).distinct()
                 rollbackTargets.forEachIndexed { index, target ->
                     if (target.exists() && !target.name.endsWith("-shm")) {
@@ -157,6 +158,15 @@ class LawnchairBackup(
                 if (restoreLayout) {
                     stagedFiles.forEach { (target, staged) ->
                         target.parentFile?.mkdirs()
+                        if (target.name == PREFS_DB_FILE_NAME) {
+                            // The preferences SQLite file is replaced as part of a layout restore;
+                            // stale sidecars must not be replayed against the restored database.
+                            listOf("-wal", "-shm", "-journal").forEach { suffix ->
+                                val sidecar = File(target.path + suffix)
+                                modifiedTargets.add(sidecar)
+                                sidecar.delete()
+                            }
+                        }
                         modifiedTargets.add(target)
                         staged.copyTo(target, overwrite = true)
                     }
@@ -270,9 +280,8 @@ class LawnchairBackup(
         }
     }
 
-    private fun checkpointLauncherDatabases(context: Context) {
-        LauncherFiles.GRID_DB_FILES.forEach { dbName ->
-            val databaseFile = context.getDatabasePath(dbName)
+    private fun checkpointLauncherDatabases(databaseFiles: List<File>) {
+        databaseFiles.forEach { databaseFile ->
             if (!databaseFile.isFile || databaseFile.length() == 0L) return@forEach
             val database = SQLiteDatabase.openDatabase(
                 databaseFile.absolutePath,
@@ -282,13 +291,13 @@ class LawnchairBackup(
             database.use { db ->
                 db.rawQuery("PRAGMA wal_checkpoint(FULL)", null).use { cursor ->
                     check(cursor.moveToFirst() && cursor.columnCount >= 3) {
-                        "Unable to verify checkpoint for launcher database $dbName"
+                        "Unable to verify checkpoint for database ${databaseFile.name}"
                     }
                     val busy = cursor.getInt(0)
                     val walFrames = cursor.getInt(1)
                     val checkpointedFrames = cursor.getInt(2)
                     check(busy == 0 && (walFrames < 0 || checkpointedFrames >= walFrames)) {
-                        "Incomplete WAL checkpoint for launcher database $dbName " +
+                        "Incomplete WAL checkpoint for database ${databaseFile.name} " +
                             "(busy=$busy, walFrames=$walFrames, checkpointed=$checkpointedFrames)"
                     }
                 }
