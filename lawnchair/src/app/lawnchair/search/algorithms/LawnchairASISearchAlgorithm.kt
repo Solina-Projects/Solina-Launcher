@@ -44,19 +44,22 @@ class LawnchairASISearchAlgorithm(context: Context) :
 
     override fun doSearch(query: String, callback: SearchCallback<BaseAllAppsAdapter.AdapterItem>) {
         activeQuery?.cancel()
-        val session = searchSession ?: run {
-            callback.onSearchResult(query, arrayListOf())
-            return
-        }
         val pending = PendingQuery(query, callback)
         activeQuery = pending
-        val searchQuery = Query(query, System.currentTimeMillis())
+        // Session creation is asynchronous. Keep the newest query pending instead of
+        // returning an empty result when the drawer opens before the session is ready.
+        searchSession?.let { submitQuery(it, pending) }
+    }
+
+    private fun submitQuery(session: SearchSession, pending: PendingQuery) {
+        if (activeQuery !== pending) return
+        val searchQuery = Query(pending.query, System.currentTimeMillis())
         try {
             session.query(searchQuery, Executors.MAIN_EXECUTOR, pending)
         } catch (_: RuntimeException) {
             if (activeQuery === pending) {
                 activeQuery = null
-                callback.onSearchResult(query, arrayListOf())
+                pending.deliverEmptyResult()
             }
         }
     }
@@ -110,12 +113,15 @@ class LawnchairASISearchAlgorithm(context: Context) :
             val searchContext = SearchContext(resultTypes, 200, extras)
             val searchSession = context.requireSystemService<SearchUiManager>()
                 .createSearchSession(searchContext)
-            Executors.MAIN_EXECUTOR.post { this.searchSession = searchSession }
+            Executors.MAIN_EXECUTOR.post {
+                this.searchSession = searchSession
+                activeQuery?.let { submitQuery(searchSession, it) }
+            }
         }
     }
 
     private inner class PendingQuery(
-        private val query: String,
+        val query: String,
         private val callback: SearchCallback<BaseAllAppsAdapter.AdapterItem>,
     ) : Consumer<List<SearchTarget>> {
         private var canceled = false
@@ -137,6 +143,12 @@ class LawnchairASISearchAlgorithm(context: Context) :
 
         fun cancel() {
             canceled = true
+        }
+
+        fun deliverEmptyResult() {
+            if (!canceled) {
+                callback.onSearchResult(query, arrayListOf())
+            }
         }
     }
 
