@@ -304,6 +304,37 @@ class LawnchairBackupSelectiveRestoreTest {
     }
 
     @Test
+    fun excessiveCentralDirectoryMetadataIsRejected() = runBlocking {
+        val backupFile = File(context.cacheDir, "excessive_central_directory.lawnchairbackup")
+        val info = app.lawnchair.LawnchairProto.BackupInfo.newBuilder()
+            .setBackupVersion(1)
+            .setContents(LawnchairBackup.INCLUDE_WALLPAPER)
+            .setPreviewWidth(1)
+            .setPreviewHeight(1)
+            .build()
+
+        try {
+            ZipOutputStream(FileOutputStream(backupFile)).use { zip ->
+                val entry = ZipEntry(LawnchairBackup.INFO_FILE_NAME).apply {
+                    comment = "x".repeat(65535)
+                }
+                zip.putNextEntry(entry)
+                info.writeTo(zip)
+                zip.closeEntry()
+            }
+
+            val backup = LawnchairBackup(context, Uri.fromFile(backupFile))
+            val failure = runCatching { backup.readInfoAndPreview() }.exceptionOrNull()
+            assertTrue(
+                "Oversized central-directory metadata must be rejected before ZipFile parsing",
+                failure?.message?.contains("central-directory metadata") == true,
+            )
+        } finally {
+            backupFile.delete()
+        }
+    }
+
+    @Test
     fun excessiveZipCompressionRatioIsRejected() = runBlocking {
         val backupFile = File(context.cacheDir, "excessive_compression_ratio.lawnchairbackup")
         val info = app.lawnchair.LawnchairProto.BackupInfo.newBuilder()
