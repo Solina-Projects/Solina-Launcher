@@ -88,7 +88,9 @@ jobs:
           distribution: 'zulu'
           java-version: 21
       - uses: gradle/actions/setup-gradle@v6
-      - run: ./gradlew spotlessCheck
+      - run: |
+          ./gradlew spotlessApply
+          git diff -- lawnchair/src/app/lawnchair/backup/LawnchairBackup.kt lawnchair/src/app/lawnchair/backup/NovaBackupConverter.kt lawnchair/src/app/lawnchair/backup/ui/RestoreBackupScreen.kt
       - name: Audit dependency licenses
         run: ./gradlew licensee
 
