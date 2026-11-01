@@ -184,15 +184,14 @@ public class ModelWriter {
      */
     public void moveItemInDatabase(final ItemInfo item,
             int container, int screenId, int cellX, int cellY) {
-        updateItemInfoProps(item, container, screenId, cellX, cellY);
-        notifyItemModified(item);
-
-        enqueueDeleteRunnable(new UpdateItemRunnable(item, () -> new ContentWriter(mContext)
-                .put(Favorites.CONTAINER, item.container)
-                .put(Favorites.CELLX, item.cellX)
-                .put(Favorites.CELLY, item.cellY)
-                .put(Favorites.RANK, item.rank)
-                .put(Favorites.SCREEN, item.screenId)));
+        CellPos modelPos = mCellPosMapper.mapPresenterToModel(cellX, cellY, screenId, container);
+        ContentValues values = new ContentValues();
+        values.put(Favorites.CONTAINER, container);
+        values.put(Favorites.CELLX, modelPos.cellX);
+        values.put(Favorites.CELLY, modelPos.cellY);
+        values.put(Favorites.RANK, item.rank);
+        values.put(Favorites.SCREEN, modelPos.screenId);
+        enqueueDeleteRunnable(new UpdateItemPositionRunnable(item, values));
     }
 
     /**
@@ -326,19 +325,16 @@ public class ModelWriter {
      */
     public void modifyItemInDatabase(final ItemInfo item,
             int container, int screenId, int cellX, int cellY, int spanX, int spanY) {
-        updateItemInfoProps(item, container, screenId, cellX, cellY);
-        item.spanX = spanX;
-        item.spanY = spanY;
-        notifyItemModified(item);
-        new UpdateItemRunnable(item, () -> new ContentWriter(mContext)
-                .put(Favorites.CONTAINER, item.container)
-                .put(Favorites.CELLX, item.cellX)
-                .put(Favorites.CELLY, item.cellY)
-                .put(Favorites.RANK, item.rank)
-                .put(Favorites.SPANX, item.spanX)
-                .put(Favorites.SPANY, item.spanY)
-                .put(Favorites.SCREEN, item.screenId))
-                .executeOnModelThread();
+        CellPos modelPos = mCellPosMapper.mapPresenterToModel(cellX, cellY, screenId, container);
+        ContentValues values = new ContentValues();
+        values.put(Favorites.CONTAINER, container);
+        values.put(Favorites.CELLX, modelPos.cellX);
+        values.put(Favorites.CELLY, modelPos.cellY);
+        values.put(Favorites.RANK, item.rank);
+        values.put(Favorites.SPANX, spanX);
+        values.put(Favorites.SPANY, spanY);
+        values.put(Favorites.SCREEN, modelPos.screenId);
+        new UpdateItemPositionRunnable(item, values).executeOnModelThread();
     }
 
     /**
@@ -562,6 +558,46 @@ public class ModelWriter {
                     mWriter.get().getValues(mContext), itemIdMatch(mItemId), null);
             updateItemArrays(mItem, mItemId);
             mBgDataModel.updateItems(Collections.singletonList(mItem), mOwner);
+        }
+    }
+
+    /**
+     * Persists a new item position before mutating the in-memory ItemInfo.
+     */
+    private class UpdateItemPositionRunnable extends UpdateItemBaseRunnable {
+        private final ItemInfo mItem;
+        private final ContentValues mValues;
+
+        UpdateItemPositionRunnable(ItemInfo item, ContentValues values) {
+            mItem = item;
+            mValues = values;
+        }
+
+        @Override
+        public void runImpl() {
+            int updatedRows = mModel.getModelDbController().update(
+                    mValues, itemIdMatch(mItem.id), null);
+            if (updatedRows != 1) {
+                Log.e(TAG, "Expected to update one workspace item with id " + mItem.id
+                        + " but updated " + updatedRows);
+                return;
+            }
+
+            mItem.container = mValues.getAsInteger(Favorites.CONTAINER);
+            mItem.cellX = mValues.getAsInteger(Favorites.CELLX);
+            mItem.cellY = mValues.getAsInteger(Favorites.CELLY);
+            mItem.rank = mValues.getAsInteger(Favorites.RANK);
+            mItem.screenId = mValues.getAsInteger(Favorites.SCREEN);
+            if (mValues.containsKey(Favorites.SPANX)) {
+                mItem.spanX = mValues.getAsInteger(Favorites.SPANX);
+                mItem.spanY = mValues.getAsInteger(Favorites.SPANY);
+            }
+
+            updateItemArrays(mItem, mItem.id);
+            synchronized (mBgDataModel) {
+                mBgDataModel.updateItems(Collections.singletonList(mItem), mOwner);
+            }
+            notifyOtherCallbacks(c -> c.bindItemsUpdated(Collections.singleton(mItem)));
         }
     }
 
