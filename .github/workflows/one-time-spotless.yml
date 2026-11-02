@@ -1,0 +1,35 @@
+name: One-time Solina formatter
+on:
+  push:
+    branches:
+      - feature/modular-complete-backup
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  format:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: feature/modular-complete-backup
+          submodules: true
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - uses: actions/setup-java@v6
+        with:
+          distribution: zulu
+          java-version: 21
+      - uses: gradle/actions/setup-gradle@v6
+      - name: Apply Kotlin formatting
+        run: ./gradlew --no-configuration-cache spotlessApply
+      - name: Commit formatter changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if ! git diff --quiet; then
+            git add lawnchair/src/app/lawnchair/backup/LawnchairBackup.kt lawnchair/src/app/lawnchair/backup/ModularPreferenceBackup.kt lawnchair/src/app/lawnchair/ui/preferences/components/layout/LazyColumnPreferenceGroup.kt
+            git commit -m "Apply Spotless formatting to modular backup"
+            git push origin HEAD:feature/modular-complete-backup
+          else
+            echo "No formatter changes required"
+          fi
