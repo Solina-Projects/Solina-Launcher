@@ -84,8 +84,8 @@
 
     <color name="wallpaper_popup_scrim">?android:attr/colorAccent</color>
 
-    <color name="workspace_accent_color_light">#D3E3FD</color>
-    <color name="workspace_accent_color_dark">#041E49</color>
+    <color name="workspace_accent_color_light">#CCF2EC</color>
+    <color name="workspace_accent_color_dark">#0B3B37</color>
     <color name="workspace_surface_color">#D3E3FD</color>
     <color name="drop_target_hover_text_color_light">#041E49</color>
     <color name="drop_target_hover_text_color_dark">#D3E3FD</color>
@@ -95,9 +95,9 @@
     <color name="taskbar_running_app_indicator_color">#000000</color>
     <color name="taskbar_minimized_app_indicator_color">#000000</color>
 
-    <color name="preload_icon_accent_color_light">#00668B</color>
+    <color name="preload_icon_accent_color_light">#00796B</color>
     <color name="preload_icon_background_color_light">#B5CAD7</color>
-    <color name="preload_icon_accent_color_dark">#4BB6E8</color>
+    <color name="preload_icon_accent_color_dark">#4DD0B8</color>
     <color name="preload_icon_background_color_dark">#40484D</color>
 
     <color name="blur_shade_panel_fg">#66D9E2FF</color>
