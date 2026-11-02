@@ -186,7 +186,7 @@ fun CreateBackupScreen(
                 enabled = contents != 0 && screenshotDone && !creatingBackup,
                 shapes = ButtonDefaults.shapes(),
             ) {
-                Text(text = stringResource(id = R.string.action_create))
+                Text(text = stringResource(id = if (creatingBackup) R.string.please_wait else R.string.action_create))
             }
         }
 

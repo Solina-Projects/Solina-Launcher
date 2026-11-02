@@ -15,11 +15,13 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
@@ -54,7 +56,9 @@ import app.lawnchair.util.BackHandler
 import app.lawnchair.util.hasFlag
 import app.lawnchair.util.restartLauncher
 import com.android.launcher3.R
+import java.text.DateFormat
 import java.util.Base64
+import java.util.Date
 import kotlinx.coroutines.launch
 
 fun NavGraphBuilder.restoreBackupGraph() {
@@ -124,6 +128,7 @@ fun ColumnScope.RestoreBackupOptions(
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     var restoringBackup by remember { mutableStateOf(false) }
+    var showRestoreConfirmation by remember { mutableStateOf(false) }
     if (restoringBackup) {
         BackHandler {}
     }
@@ -135,7 +140,9 @@ fun ColumnScope.RestoreBackupOptions(
             try {
                 backup.restore(contents)
                 Toast.makeText(context, R.string.backup_restore_success, Toast.LENGTH_SHORT).show()
-                restartLauncher(context)
+                if (contents.hasFlag(LawnchairBackup.INCLUDE_LAYOUT_AND_SETTINGS)) {
+                    restartLauncher(context)
+                }
             } catch (t: Throwable) {
                 Log.e("RestoreBackupScreen", "failed to restore backup", t)
                 Toast.makeText(context, R.string.backup_restore_error, Toast.LENGTH_SHORT).show()
@@ -178,6 +185,15 @@ fun ColumnScope.RestoreBackupOptions(
         modifier = modifier,
         heading = stringResource(id = R.string.what_to_restore),
     ) {
+        Text(
+            text = stringResource(
+                R.string.backup_restore_metadata,
+                DateFormat.getDateTimeInstance().format(Date(backup.info.createdAt.seconds * 1000L)),
+                backup.info.lawnchairVersion,
+            ),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
         FlagSwitchPreference(
             flags = contents,
             setFlags = viewModel::setBackupContents,
@@ -193,6 +209,44 @@ fun ColumnScope.RestoreBackupOptions(
             enabled = backupContents.hasFlag(LawnchairBackup.INCLUDE_WALLPAPER),
         )
     }
+    if (showRestoreConfirmation) {
+        val isLayoutRestore = contents.hasFlag(LawnchairBackup.INCLUDE_LAYOUT_AND_SETTINGS)
+        AlertDialog(
+            onDismissRequest = { if (!restoringBackup) showRestoreConfirmation = false },
+            title = { Text(stringResource(R.string.backup_restore_confirmation_title)) },
+            text = {
+                Text(
+                    stringResource(
+                        if (isLayoutRestore) {
+                            R.string.backup_restore_confirmation_layout_message
+                        } else {
+                            R.string.backup_restore_confirmation_wallpaper_message
+                        },
+                    ),
+                )
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        showRestoreConfirmation = false
+                        restoreBackup()
+                    },
+                    enabled = !restoringBackup,
+                ) {
+                    Text(stringResource(R.string.action_restore))
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = { showRestoreConfirmation = false },
+                    enabled = !restoringBackup,
+                ) {
+                    Text(stringResource(R.string.backup_restore_cancel))
+                }
+            },
+        )
+    }
+
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -200,14 +254,14 @@ fun ColumnScope.RestoreBackupOptions(
             .padding(horizontal = 16.dp),
     ) {
         Button(
-            onClick = { restoreBackup() },
+            onClick = { showRestoreConfirmation = true },
             modifier = Modifier
                 .align(Alignment.CenterEnd)
                 .fillMaxWidth(),
             enabled = contents != 0 && !restoringBackup,
             shapes = ButtonDefaults.shapes(),
         ) {
-            Text(text = stringResource(id = R.string.action_restore))
+            Text(text = stringResource(id = if (restoringBackup) R.string.please_wait else R.string.action_restore))
         }
     }
 }

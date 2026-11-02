@@ -94,6 +94,7 @@ public class ModelDbController {
     private LauncherPrefs mPrefs;
     private UserCache mUserCache;
     private LayoutParserFactory mLayoutParserFactory;
+    private final boolean mSkipPendingRestoreTask;
 
     @Inject
     public ModelDbController(
@@ -107,11 +108,18 @@ public class ModelDbController {
         mPrefs = prefs;
         mUserCache = userCache;
         mLayoutParserFactory = layoutParserFactory;
+        mSkipPendingRestoreTask = false;
     }
 
     // Lawnchair: ModelDbController
     public ModelDbController(Context context) {
+        this(context, false);
+    }
+
+    /** Creates a controller for an explicit restore flow that handles the pending task itself. */
+    public ModelDbController(Context context, boolean skipPendingRestoreTask) {
         mContext = context;
+        mSkipPendingRestoreTask = skipPendingRestoreTask;
         mIdp = InvariantDeviceProfile.INSTANCE.get(context);
         mPrefs = LauncherPrefs.get(context);
         mUserCache = UserCache.INSTANCE.get(context);
@@ -121,7 +129,8 @@ public class ModelDbController {
     private synchronized void createDbIfNotExists() {
         if (mOpenHelper == null) {
             // Initialize the restore task before opening the DB
-            Consumer<ModelDbController> restoreTask = RestoreDbTask.createRestoreTask(mContext);
+            Consumer<ModelDbController> restoreTask = mSkipPendingRestoreTask
+                    ? c -> { } : RestoreDbTask.createRestoreTask(mContext);
             String dbFile = mPrefs.get(DB_FILE);
             if (dbFile.isEmpty()) {
                 dbFile = mIdp.dbFile;
@@ -142,6 +151,17 @@ public class ModelDbController {
                 app.migrateDbName(dbName);
             }
         } catch (Throwable t) {
+            // Explicit backup restore must fail closed if the restored database cannot be moved
+            // into place. The normal launcher migration path retains its legacy best-effort behavior.
+            if (mSkipPendingRestoreTask) {
+                if (t instanceof RuntimeException) {
+                    throw (RuntimeException) t;
+                }
+                if (t instanceof Error) {
+                    throw (Error) t;
+                }
+                throw new IllegalStateException("Unable to prepare restored launcher database", t);
+            }
             // LC-Ignored
         }
 
@@ -491,6 +511,16 @@ public class ModelDbController {
             }
         } catch (Exception e) {
             FileLog.e(TAG, "sendMetricsForFailedDb: Error reading from database", e);
+        }
+    }
+
+    /**
+     * Closes the database helper if it has been initialized without forcing database creation.
+     */
+    public synchronized void close() {
+        if (mOpenHelper != null) {
+            mOpenHelper.close();
+            mOpenHelper = null;
         }
     }
 

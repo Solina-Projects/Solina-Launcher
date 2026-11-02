@@ -109,7 +109,14 @@ class LawnchairApp : LauncherApplication() {
         val restoredDbFile = getDatabasePath(LawnchairBackup.RESTORED_DB_FILE_NAME)
         if (!restoredDbFile.exists()) return
         val dbFile = getDatabasePath(dbName)
-        restoredDbFile.renameTo(dbFile)
+        // A restored main database must never be opened alongside stale sidecars from the
+        // previous database. The backup restore transaction snapshots these files beforehand.
+        listOf("-wal", "-shm", "-journal").forEach { suffix ->
+            File(dbFile.path + suffix).delete()
+        }
+        check(restoredDbFile.renameTo(dbFile)) {
+            "Unable to move restored launcher database into place"
+        }
     }
 
     fun migrateDbName(dbName: String) {
