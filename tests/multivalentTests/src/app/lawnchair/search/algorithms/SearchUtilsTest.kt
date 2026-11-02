@@ -60,6 +60,12 @@ class SearchUtilsTest {
     }
 
     @Test
+    fun persianArabicVariantsAndDigitsAreNormalized() {
+        assertThat(normalizeSearchText("ي ك ١٢۳")).isEqualTo("ی ک 123")
+        assertThat(normalizeSearchText("خانه\u200cی")).isEqualTo("خانهی")
+    }
+
+    @Test
     fun hiddenAppsAreExcludedWhenSearchPreferenceIsOff() {
         val hiddenApp = appInfo("com.example.hidden", "Hidden App")
         val visibleApp = appInfo("com.example.visible", "Visible App")
