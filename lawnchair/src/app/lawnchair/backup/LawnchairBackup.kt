@@ -93,7 +93,7 @@ class LawnchairBackup(
 
         // Partial restore must never delete the launcher's database.
         if (contents.hasFlag(INCLUDE_LAYOUT_AND_SETTINGS)) {
-            context.getDatabasePath(LAUNCHER_DB_FILE_NAME).parentFile?.deleteRecursively()
+            deleteLauncherDatabases(context)
         }
         readZip(handlers)
         if (contents.hasFlag(INCLUDE_LAYOUT_AND_SETTINGS)) {
@@ -184,9 +184,44 @@ class LawnchairBackup(
         val EXTRA_MIME_TYPES = arrayOf(MIME_TYPE, "application/x-zip", "application/octet-stream")
 
         val contentOptions = listOf(
-            INCLUDE_LAYOUT_AND_SETTINGS to R.string.backup_content_layout_and_settings,
-            INCLUDE_WALLPAPER to R.string.backup_content_wallpaper,
+            INCLUDE_LAYOUT_AND_SETTINGS to R.string.backup_module_home_screen,
+            INCLUDE_DOCK to R.string.backup_module_dock,
+            INCLUDE_APP_DRAWER to R.string.backup_module_app_drawer,
+            INCLUDE_FOLDERS to R.string.backup_module_folders,
+            INCLUDE_ICONS to R.string.backup_module_icons,
+            INCLUDE_THEME to R.string.backup_module_theme,
+            INCLUDE_TYPOGRAPHY to R.string.backup_module_typography,
+            INCLUDE_WALLPAPER to R.string.backup_module_wallpaper,
+            INCLUDE_WIDGETS to R.string.backup_module_widgets,
+            INCLUDE_GESTURES to R.string.backup_module_gestures,
+            INCLUDE_SEARCH to R.string.backup_module_search,
+            INCLUDE_SMARTSPACE to R.string.backup_module_smartspace,
+            INCLUDE_TASKBAR to R.string.backup_module_taskbar,
+            INCLUDE_ANIMATIONS to R.string.backup_module_animations,
+            INCLUDE_NOTIFICATIONS to R.string.backup_module_notifications,
+            INCLUDE_GENERAL to R.string.backup_module_general,
+            INCLUDE_APP_OVERRIDES to R.string.backup_module_app_overrides,
+            INCLUDE_OTHER to R.string.backup_module_other,
         )
+
+        const val ALL_MODULES_MASK = INCLUDE_LAYOUT_AND_SETTINGS or INCLUDE_DOCK or INCLUDE_APP_DRAWER or
+            INCLUDE_FOLDERS or INCLUDE_ICONS or INCLUDE_THEME or INCLUDE_TYPOGRAPHY or INCLUDE_WALLPAPER or
+            INCLUDE_WIDGETS or INCLUDE_GESTURES or INCLUDE_SEARCH or INCLUDE_SMARTSPACE or INCLUDE_TASKBAR or
+            INCLUDE_ANIMATIONS or INCLUDE_NOTIFICATIONS or INCLUDE_GENERAL or INCLUDE_APP_OVERRIDES or INCLUDE_OTHER
+
+        private fun deleteLauncherDatabases(context: Context) {
+            val names = listOf(
+                LauncherAppState.getIDP(context).dbFile,
+                RESTORED_DB_FILE_NAME,
+            )
+            names.forEach { name ->
+                val database = context.getDatabasePath(name)
+                database.delete()
+                File(database.path + "-wal").delete()
+                File(database.path + "-shm").delete()
+                File(database.path + "-journal").delete()
+            }
+        }
 
         fun generateBackupFileName(): String {
             val fileName = "Lawnchair_Backup ${SimpleDateFormat.getDateTimeInstance().format(Date())}"
