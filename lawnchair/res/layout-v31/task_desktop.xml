@@ -20,21 +20,22 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:clipChildren="true"
-    android:clipToOutline="true"
     android:defaultFocusHighlightEnabled="false"
     android:focusable="true">
 
-    <View
-        android:id="@+id/background"
+    <com.android.quickstep.views.DesktopTaskContentView
+        android:id="@+id/desktop_content"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent">
 
-    <!--
-         TODO(b249371338): DesktopTaskView extends from TaskView. TaskView expects TaskThumbnailView
-         and IconView with these ids to be present. Need to refactor RecentsView to accept child
-         views that do not inherint from TaskView only or create a generic TaskView that have
-         N number of tasks.
-     -->
+        <View
+            android:id="@+id/background"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+    </com.android.quickstep.views.DesktopTaskContentView>
+
+    <!-- DesktopTaskView extends TaskView, which still expects these compatibility children. -->
     <com.android.quickstep.views.TaskThumbnailViewDeprecated
         android:id="@+id/snapshot"
         android:layout_width="wrap_content"
