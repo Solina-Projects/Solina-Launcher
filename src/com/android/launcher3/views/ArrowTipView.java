@@ -57,7 +57,7 @@ public class ArrowTipView extends AbstractFloatingView {
     private static final String TAG = "ArrowTipView";
     private static final long AUTO_CLOSE_TIMEOUT_MILLIS = 10 * 1000;
     private static final long SHOW_DELAY_MS = 200;
-    private static final long SHOW_DURATION_MS = 300;
+    private static final long SHOW_DURATION_MS = 220;
     private static final long HIDE_DURATION_MS = 100;
 
     public static final IntProperty<ArrowTipView> TEXT_ALPHA =
