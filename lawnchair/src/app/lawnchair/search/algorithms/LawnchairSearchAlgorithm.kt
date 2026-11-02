@@ -225,7 +225,7 @@ sealed class LawnchairSearchAlgorithm(
         private var ranCompatibilityCheck = false
 
         fun isASISearchEnabled(context: Context): Boolean {
-            if (!Utilities.ATLEAST_S) return false
+            if (!Utilities.ATLEAST_S || LawnchairQuickstepCompat.ATLEAST_U) return false
             if (!LawnchairApp.isRecentsEnabled) return false
 
             if (!ranCompatibilityCheck) {
