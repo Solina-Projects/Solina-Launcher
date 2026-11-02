@@ -3,6 +3,7 @@
 import android.app.Application
 import android.content.Context
 import android.util.Log
+import android.widget.Toast
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import app.lawnchair.data.folder.FolderEntry
@@ -104,6 +105,7 @@ class FolderViewModel(
                 }
             }
             reloadHelper.reloadGrid()
+            Toast.makeText(context, R.string.smart_categories_done, Toast.LENGTH_SHORT).show()
         }
     }
 
