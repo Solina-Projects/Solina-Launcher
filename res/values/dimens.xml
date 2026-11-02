@@ -387,6 +387,7 @@
 
     <!-- Notifications -->
     <dimen name="bg_round_rect_radius">8dp</dimen>
+    <dimen name="solina_folder_corner_radius">22dp</dimen>
     <dimen name="notification_container_height">104dp</dimen>
     <dimen name="notification_max_trans">8dp</dimen>
     <dimen name="notification_space">8dp</dimen>
