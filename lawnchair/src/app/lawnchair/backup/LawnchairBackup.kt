@@ -563,18 +563,17 @@ class LawnchairBackup(
         }
     }
 
-    private fun isAllowedEntry(name: String): Boolean =
-        (
-            name in setOf(
-                INFO_FILE_NAME,
-                SCREENSHOT_FILE_NAME,
-                WALLPAPER_FILE_NAME,
-                LAUNCHER_DB_FILE_NAME,
-                PREFS_FILE_NAME,
-                PREFS_DB_FILE_NAME,
-                PREFS_DATASTORE_FILE_NAME,
-            ) || isWallpaperLibraryEntry(name)
-        ) && !name.contains("..") && !name.startsWith("/")
+    private fun isAllowedEntry(name: String): Boolean = (
+        name in setOf(
+            INFO_FILE_NAME,
+            SCREENSHOT_FILE_NAME,
+            WALLPAPER_FILE_NAME,
+            LAUNCHER_DB_FILE_NAME,
+            PREFS_FILE_NAME,
+            PREFS_DB_FILE_NAME,
+            PREFS_DATASTORE_FILE_NAME,
+        ) || isWallpaperLibraryEntry(name)
+    ) && !name.contains("..") && !name.startsWith("/")
 
     private fun isWallpaperLibraryEntry(name: String): Boolean {
         if (!name.startsWith(WALLPAPER_LIBRARY_ENTRY_PREFIX)) return false
