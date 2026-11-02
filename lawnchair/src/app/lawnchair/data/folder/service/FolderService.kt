@@ -46,7 +46,10 @@ class FolderService @Inject constructor(
         folderDao.replaceFolderItems(folderInfoId, title, items)
     }
 
-    suspend fun createOrReplaceSmartFolder(title: String, componentKeys: List<String>) = withContext(Dispatchers.IO) {
+    suspend fun createOrReplaceSmartFolder(
+        title: String,
+        componentKeys: List<String>,
+    ) = withContext(Dispatchers.IO) {
         val uniqueKeys = componentKeys.distinct()
         if (uniqueKeys.isEmpty()) return@withContext
         val existingId = folderDao.getFolderIdByTitle(title)
