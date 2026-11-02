@@ -238,7 +238,7 @@
     Notifications
 
     -->
-    <string name="set_default_launcher_tip">A parancsikonok és a további funkciók eléréséhez állítsa be a Lawnchair-t alapértelmezettként</string>
+    <string name="set_default_launcher_tip">A parancsikonok és a további funkciók eléréséhez állítsa be a Solina Launcher-t alapértelmezettként</string>
     <string name="notification_dots">Értesítési pöttyök</string>
     <string name="show_notification_count">Legyen látható az értesítés-számláló</string>
     <string name="notification_dots_color">Az értesítési pöttyök színe</string>
@@ -562,7 +562,7 @@
     Bug reporting
 
     -->
-    <string name="lawnchair_bug_report">Lawnchair-hibajelentés</string>
+    <string name="lawnchair_bug_report">Solina Launcher-hibajelentés</string>
     <string name="crash_report_notif_title">A(z) %1$s összeomlott</string>
     <string name="action_upload_crash_report">Összeomlási napló feltöltése</string>
     <string name="action_upload_error">Feltöltési hiba</string>
@@ -683,7 +683,7 @@
     <!-- Search providers -->
     <string name="search_provider_app_search">Alkalmazáskereső</string>
     <string name="search_provider_custom">Egyéni</string>
-    <string name="search_provider_sponsored_description">%1$s és a Solina Launcher bevételmegosztási megállapodást kötött.\n\nHa %1$s végzi a keresést, azzal segít a Lawnchair-nek is.</string>
+    <string name="search_provider_sponsored_description">%1$s és a Solina Launcher bevételmegosztási megállapodást kötött.\n\nHa %1$s végzi a keresést, azzal segít a Solina Launcher-nek is.</string>
     <string name="app_label">Alkalmazás</string>
     <string name="website_label">Weboldal</string>
     <string name="qsb_search_provider_app_required">Ehhez kell egy alkalmazás</string>
