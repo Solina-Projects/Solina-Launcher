@@ -139,7 +139,7 @@ fun CreateBackupScreen(
                             modifier = Modifier.fillMaxSize(),
                         )
                     }
-                    if (contents.hasFlag(LawnchairBackup.INCLUDE_LAYOUT_AND_SETTINGS)) {
+                    if (contents and (LawnchairBackup.ALL_MODULES_MASK xor LawnchairBackup.INCLUDE_WALLPAPER) != 0) {
                         Image(
                             bitmap = screenshot.asImageBitmap(),
                             contentDescription = null,
