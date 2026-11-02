@@ -13,6 +13,9 @@ on:
       - '**.md'
       - 'LICENSE'
       - 'NOTICE'
+  pull_request:
+    branches:
+      - main
   workflow_dispatch:
 
 concurrency:
