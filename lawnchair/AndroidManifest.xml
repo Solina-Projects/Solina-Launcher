@@ -218,7 +218,7 @@
             android:name="org.chickenhook.restrictionbypass.BypassProvider"
             android:authorities="${applicationId}.restrictionbypass"
             tools:node="remove"/>
-            <receiver
+        <receiver
             android:name="app.lawnchair.widget.PersianCalendarWidgetProvider"
             android:label="@string/solina_persian_calendar_widget_name"
             android:exported="true">
