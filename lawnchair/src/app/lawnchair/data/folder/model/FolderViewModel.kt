@@ -84,13 +84,32 @@ class FolderViewModel(
     fun createSmartFolders(apps: List<App>, context: Context) {
         viewModelScope.launch {
             val categoryTokens = listOf(
-                R.string.smart_category_social to listOf("instagram", "facebook", "tiktok", "snapchat", "reddit", "threads", "twitter", "com.x."),
-                R.string.smart_category_communication to listOf("whatsapp", "telegram", "signal", "messenger", "discord", "skype", "gmail", "outlook", "messages", "phone", "contacts", "meet"),
-                R.string.smart_category_games to listOf("game", "games", "supercell", "roblox", "mojang", "pubg", "activision", "epicgames", "king.com"),
-                R.string.smart_category_media to listOf("youtube", "netflix", "spotify", "music", "video", "photos", "gallery", "twitch", "vlc", "soundcloud", "podcast"),
-                R.string.smart_category_shopping to listOf("amazon", "ebay", "aliexpress", "walmart", "shop", "paypal", "wallet", "bank", "finance", "revolut", "venmo"),
-                R.string.smart_category_productivity to listOf("docs", "sheets", "drive", "office", "calendar", "notes", "tasks", "notion", "evernote", "github", "slack", "trello", "jira", "word", "excel"),
-                R.string.smart_category_tools to listOf("calculator", "clock", "files", "filemanager", "settings", "weather", "maps", "browser", "chrome", "firefox", "vpn", "security"),
+                R.string.smart_category_social to listOf(
+                    "instagram", "facebook", "tiktok", "snapchat", "reddit", "threads", "twitter", "com.x.",
+                ),
+                R.string.smart_category_communication to listOf(
+                    "whatsapp", "telegram", "signal", "messenger", "discord", "skype",
+                    "gmail", "outlook", "messages", "phone", "contacts", "meet",
+                ),
+                R.string.smart_category_games to listOf(
+                    "game", "games", "supercell", "roblox", "mojang", "pubg", "activision", "epicgames", "king.com",
+                ),
+                R.string.smart_category_media to listOf(
+                    "youtube", "netflix", "spotify", "music", "video", "photos", "gallery",
+                    "twitch", "vlc", "soundcloud", "podcast",
+                ),
+                R.string.smart_category_shopping to listOf(
+                    "amazon", "ebay", "aliexpress", "walmart", "shop", "paypal", "wallet",
+                    "bank", "finance", "revolut", "venmo",
+                ),
+                R.string.smart_category_productivity to listOf(
+                    "docs", "sheets", "drive", "office", "calendar", "notes", "tasks", "notion",
+                    "evernote", "github", "slack", "trello", "jira", "word", "excel",
+                ),
+                R.string.smart_category_tools to listOf(
+                    "calculator", "clock", "files", "filemanager", "settings", "weather",
+                    "maps", "browser", "chrome", "firefox", "vpn", "security",
+                ),
             )
             val grouped = mutableMapOf<Int, MutableList<App>>()
             apps.forEach { app ->
