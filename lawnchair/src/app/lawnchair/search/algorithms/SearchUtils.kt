@@ -72,7 +72,7 @@ fun Sequence<AppInfo>.filterHiddenApps(
             filter { it.toComponentKey().toString() !in hiddenApps }
         }
     }
+}
 
 /** Compatibility wrapper retained for existing search normalization callers and tests. */
 fun normalizeSearchText(value: String): String = SearchTextNormalizer.normalize(value)
-}
