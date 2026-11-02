@@ -332,7 +332,6 @@ public class LoaderCursorTest {
         assertFalse(mLoaderCursor.loadIconFromDb(itemInfo));
     }
 
-
     @Test
     public void hotseatCapacityIncludesConfiguredRowsAndPages() {
         assertThat(LoaderCursor.getHotseatItemCapacity(5, 3, 2)).isEqualTo(30);
