@@ -55,6 +55,11 @@ class LawnchairAppPredictor(private val context: Context) : StatsLogCompatManage
     private val eventResolver = PredictionEventResolver(userCache)
     private val usageStatsRanker = UsageStatsRanker(context)
     private val predictionEngine = LawnchairPredictionEngine(context, usageStatsRanker)
+    private val prefs2 = PreferenceManager2.getInstance(context)
+
+    private fun prefsSuggestionRows(): Int = prefs2.suggestionRows.firstCached()
+
+    private fun isDockSuggestionSource(): Boolean = prefs2.suggestionSource.firstCached() == "dock"
 
     private var dismissedApps: MutableSet<String> = loadDismissedApps()
     private var lastPruneTime = 0L
@@ -154,9 +159,18 @@ class LawnchairAppPredictor(private val context: Context) : StatsLogCompatManage
         val occupiedHotseatItems = predictionEngine.getOccupiedHotseatItems(dataModel)
         val excludedHotseatItems = occupiedHotseatItems + currentDismissedApps
 
+        val suggestionRows = prefsSuggestionRows().coerceIn(1, 3)
+        val suggestionColumns = idp.numDatabaseAllAppsColumns.coerceAtLeast(1)
+        // Dock mode starts with apps learned from dock launches, then fills remaining
+        // rows with the most-used all-apps ranking. mergeRanked preserves order and de-duplicates.
+        val suggestionRanked = if (isDockSuggestionSource()) {
+            predictionEngine.mergeRanked(hotseatRanked, allAppsRanked, fallbackRanked)
+        } else {
+            allAppsCandidateRanked
+        }
         val allAppsTargets = predictionEngine.compileAppTargets(
-            allAppsCandidateRanked,
-            idp.numDatabaseAllAppsColumns,
+            suggestionRanked,
+            suggestionColumns * suggestionRows,
             currentDismissedApps,
         )
         val hotseatTargets = predictionEngine.compileAppTargets(
