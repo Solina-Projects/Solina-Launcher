@@ -22,6 +22,7 @@ import com.android.launcher3.model.DeviceGridState
 import com.android.launcher3.model.ModelDbController
 import com.android.launcher3.provider.RestoreDbTask
 import com.google.protobuf.Timestamp
+import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileInputStream
 import java.io.FilterInputStream
