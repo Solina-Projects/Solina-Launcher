@@ -163,7 +163,7 @@ fun ColumnScope.RestoreBackupOptions(
                 )
             }
             val screenshot = backup.screenshot
-            if (contents.hasFlag(LawnchairBackup.INCLUDE_LAYOUT_AND_SETTINGS) && screenshot != null) {
+            if (contents != 0 && screenshot != null) {
                 Image(
                     bitmap = screenshot.asImageBitmap(),
                     contentDescription = null,
