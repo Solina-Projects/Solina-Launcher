@@ -217,4 +217,8 @@ class LawnchairLocalSearchAlgorithm(context: Context) : LawnchairSearchAlgorithm
             builder.build(context, factory, results)
         }
     }
+
+    companion object {
+        private const val TAG = "LawnchairLocalSearch"
+    }
 }
