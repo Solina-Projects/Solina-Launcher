@@ -184,15 +184,14 @@ public class ModelWriter {
      */
     public void moveItemInDatabase(final ItemInfo item,
             int container, int screenId, int cellX, int cellY) {
-        updateItemInfoProps(item, container, screenId, cellX, cellY);
-        notifyItemModified(item);
-
-        enqueueDeleteRunnable(new UpdateItemRunnable(item, () -> new ContentWriter(mContext)
-                .put(Favorites.CONTAINER, item.container)
-                .put(Favorites.CELLX, item.cellX)
-                .put(Favorites.CELLY, item.cellY)
-                .put(Favorites.RANK, item.rank)
-                .put(Favorites.SCREEN, item.screenId)));
+        CellPos modelPos = mCellPosMapper.mapPresenterToModel(cellX, cellY, screenId, container);
+        ContentValues values = new ContentValues();
+        values.put(Favorites.CONTAINER, container);
+        values.put(Favorites.CELLX, modelPos.cellX);
+        values.put(Favorites.CELLY, modelPos.cellY);
+        values.put(Favorites.RANK, item.rank);
+        values.put(Favorites.SCREEN, modelPos.screenId);
+        enqueueDeleteRunnable(new UpdateItemPositionRunnable(item, values));
     }
 
     /**
@@ -203,18 +202,18 @@ public class ModelWriter {
     public void moveItemsInDatabase(final ArrayList<ItemInfo> items, int container, int screen) {
         ArrayList<ContentValues> contentValues = new ArrayList<>();
         int count = items.size();
-        notifyOtherCallbacks(c -> c.bindItemsUpdated(new HashSet<>(items)));
 
         for (int i = 0; i < count; i++) {
             ItemInfo item = items.get(i);
-            updateItemInfoProps(item, container, screen, item.cellX, item.cellY);
+            CellPos modelPos =
+                    mCellPosMapper.mapPresenterToModel(item.cellX, item.cellY, screen, container);
 
             final ContentValues values = new ContentValues();
-            values.put(Favorites.CONTAINER, item.container);
-            values.put(Favorites.CELLX, item.cellX);
-            values.put(Favorites.CELLY, item.cellY);
+            values.put(Favorites.CONTAINER, container);
+            values.put(Favorites.CELLX, modelPos.cellX);
+            values.put(Favorites.CELLY, modelPos.cellY);
             values.put(Favorites.RANK, item.rank);
-            values.put(Favorites.SCREEN, item.screenId);
+            values.put(Favorites.SCREEN, modelPos.screenId);
 
             contentValues.add(values);
         }
@@ -326,19 +325,16 @@ public class ModelWriter {
      */
     public void modifyItemInDatabase(final ItemInfo item,
             int container, int screenId, int cellX, int cellY, int spanX, int spanY) {
-        updateItemInfoProps(item, container, screenId, cellX, cellY);
-        item.spanX = spanX;
-        item.spanY = spanY;
-        notifyItemModified(item);
-        new UpdateItemRunnable(item, () -> new ContentWriter(mContext)
-                .put(Favorites.CONTAINER, item.container)
-                .put(Favorites.CELLX, item.cellX)
-                .put(Favorites.CELLY, item.cellY)
-                .put(Favorites.RANK, item.rank)
-                .put(Favorites.SPANX, item.spanX)
-                .put(Favorites.SPANY, item.spanY)
-                .put(Favorites.SCREEN, item.screenId))
-                .executeOnModelThread();
+        CellPos modelPos = mCellPosMapper.mapPresenterToModel(cellX, cellY, screenId, container);
+        ContentValues values = new ContentValues();
+        values.put(Favorites.CONTAINER, container);
+        values.put(Favorites.CELLX, modelPos.cellX);
+        values.put(Favorites.CELLY, modelPos.cellY);
+        values.put(Favorites.RANK, item.rank);
+        values.put(Favorites.SPANX, spanX);
+        values.put(Favorites.SPANY, spanY);
+        values.put(Favorites.SCREEN, modelPos.screenId);
+        new UpdateItemPositionRunnable(item, values).executeOnModelThread();
     }
 
     /**
@@ -373,29 +369,49 @@ public class ModelWriter {
      */
     public void addItemsToDatabase(final List<ItemInfo> items) {
         items.forEach(info -> info.id = mModel.getModelDbController().generateNewItemId());
-        notifyOtherCallbacks(c -> c.bindItemsAdded(items));
 
         ModelVerifier verifier = new ModelVerifier();
         final StackTraceElement[] stackTrace = new Throwable().getStackTrace();
         newModelTask(() -> {
-            // Write the item on background thread, as some properties might have been
-            // updated in
-            // the background.
-            for (ItemInfo item: items) {
-                final ContentWriter writer = new ContentWriter(mContext);
-                item.onAddToDatabase(writer);
-                writer.put(Favorites._ID, item.id);
-                mModel.getModelDbController().insert(writer.getValues(mContext));
+            // Persist the complete batch atomically. The in-memory model and callbacks are only
+            // updated after the database transaction has committed successfully.
+            try (SQLiteTransaction transaction =
+                    mModel.getModelDbController().newTransaction()) {
+                for (ItemInfo item : items) {
+                    final ContentWriter writer = new ContentWriter(mContext);
+                    item.onAddToDatabase(writer);
+                    writer.put(Favorites._ID, item.id);
+                    int insertedRowId = insertItem(writer.getValues(mContext));
+                    if (insertedRowId != item.id) {
+                        throw new IllegalStateException(
+                                "Failed to insert workspace item " + item.id
+                                        + "; database returned row id " + insertedRowId);
+                    }
+                }
+                transaction.commit();
+            } catch (Exception e) {
+                // Do not leave caller-owned items with IDs for rows that were rolled back.
+                items.forEach(item -> item.id = ItemInfo.NO_ID);
+                Log.e(TAG, "Failed to add workspace items; batch was rolled back", e);
+                return;
             }
 
             synchronized (mBgDataModel) {
-                for (ItemInfo item: items) {
+                for (ItemInfo item : items) {
                     checkItemInfoLocked(item.id, item, stackTrace);
                 }
                 mBgDataModel.addItems(mContext, items, mOwner);
                 verifier.verifyModel();
             }
+            notifyOtherCallbacks(c -> c.bindItemsAdded(items));
         }).executeOnModelThread();
+    }
+
+    /**
+     * Inserts a workspace item. Kept protected so tests can simulate database insert failures.
+     */
+    protected int insertItem(ContentValues values) {
+        return mModel.getModelDbController().insert(values);
     }
 
     /**
@@ -428,12 +444,34 @@ public class ModelWriter {
                 + ". Reason: [" + (TextUtils.isEmpty(reason) ? "unknown" : reason) + "]");
         notifyDelete(items);
         enqueueDeleteRunnable(newModelTask(() -> {
-            for (ItemInfo item : items) {
-                mModel.getModelDbController().delete(itemIdMatch(item.id), null);
+            try (SQLiteTransaction transaction =
+                    mModel.getModelDbController().newTransaction()) {
+                for (ItemInfo item : items) {
+                    int deletedRows = deleteItem(item.id);
+                    if (deletedRows != 1) {
+                        throw new IllegalStateException(
+                                "Expected to delete one workspace item with id " + item.id
+                                        + " but deleted " + deletedRows);
+                    }
+                }
+                transaction.commit();
+            } catch (Exception e) {
+                Log.e(TAG, "Failed to delete workspace items; reloading model", e);
+                mModel.forceReload();
+                return;
             }
+
+            // Keep the in-memory model unchanged until every database deletion commits.
             mBgDataModel.removeItem(mContext, items, mOwner);
             verifier.verifyModel();
         }));
+    }
+
+    /**
+     * Deletes one workspace item. Kept protected so tests can simulate delete failures.
+     */
+    protected int deleteItem(int itemId) {
+        return mModel.getModelDbController().delete(itemIdMatch(itemId), null);
     }
 
     /**
@@ -444,17 +482,43 @@ public class ModelWriter {
         notifyDelete(Collections.singleton(info));
 
         enqueueDeleteRunnable(newModelTask(() -> {
-            mModel.getModelDbController().delete(
-                    Favorites.CONTAINER + "=" + info.id, null);
-
-            mModel.getModelDbController().delete(
-                    Favorites._ID + "=" + info.id, null);
+            try (SQLiteTransaction transaction =
+                    mModel.getModelDbController().newTransaction()) {
+                deleteCollectionContents(info.id);
+                int deletedCollectionRows = deleteCollectionRecord(info.id);
+                if (deletedCollectionRows != 1) {
+                    throw new IllegalStateException(
+                            "Expected to delete one collection with id " + info.id
+                                    + " but deleted " + deletedCollectionRows);
+                }
+                transaction.commit();
+            } catch (Exception e) {
+                Log.e(TAG, "Failed to delete collection and its contents; reloading model", e);
+                mModel.forceReload();
+                return;
+            }
 
             List<ItemInfo> itemsToDelete = new ArrayList<>(info.getContents());
             itemsToDelete.add(info);
             mBgDataModel.removeItem(mContext, itemsToDelete, mOwner);
             verifier.verifyModel();
         }));
+    }
+
+    /**
+     * Deletes all direct children of a collection. Kept protected for rollback tests.
+     */
+    protected int deleteCollectionContents(int collectionId) {
+        return mModel.getModelDbController().delete(
+                Favorites.CONTAINER + "=" + collectionId, null);
+    }
+
+    /**
+     * Deletes a collection record. Kept protected for rollback tests.
+     */
+    protected int deleteCollectionRecord(int collectionId) {
+        return mModel.getModelDbController().delete(
+                Favorites._ID + "=" + collectionId, null);
     }
 
     /**
@@ -555,10 +619,58 @@ public class ModelWriter {
 
         @Override
         public void runImpl() {
-            mModel.getModelDbController().update(
+            int updatedRows = mModel.getModelDbController().update(
                     mWriter.get().getValues(mContext), itemIdMatch(mItemId), null);
+            if (updatedRows != 1) {
+                Log.e(TAG, "Expected to update one workspace item with id " + mItemId
+                        + " but updated " + updatedRows + "; reloading model");
+                mModel.forceReload();
+                return;
+            }
             updateItemArrays(mItem, mItemId);
             mBgDataModel.updateItems(Collections.singletonList(mItem), mOwner);
+        }
+    }
+
+    /**
+     * Persists a new item position before mutating the in-memory ItemInfo.
+     */
+    private class UpdateItemPositionRunnable extends UpdateItemBaseRunnable {
+        private final ItemInfo mItem;
+        private final ContentValues mValues;
+
+        UpdateItemPositionRunnable(ItemInfo item, ContentValues values) {
+            mItem = item;
+            mValues = values;
+        }
+
+        @Override
+        public void runImpl() {
+            int updatedRows = mModel.getModelDbController().update(
+                    mValues, itemIdMatch(mItem.id), null);
+            if (updatedRows != 1) {
+                Log.e(TAG, "Expected to update one workspace item with id " + mItem.id
+                        + " but updated " + updatedRows + "; reloading model");
+                // The caller may have already changed this mutable ItemInfo instance.
+                mModel.forceReload();
+                return;
+            }
+
+            mItem.container = mValues.getAsInteger(Favorites.CONTAINER);
+            mItem.cellX = mValues.getAsInteger(Favorites.CELLX);
+            mItem.cellY = mValues.getAsInteger(Favorites.CELLY);
+            mItem.rank = mValues.getAsInteger(Favorites.RANK);
+            mItem.screenId = mValues.getAsInteger(Favorites.SCREEN);
+            if (mValues.containsKey(Favorites.SPANX)) {
+                mItem.spanX = mValues.getAsInteger(Favorites.SPANX);
+                mItem.spanY = mValues.getAsInteger(Favorites.SPANY);
+            }
+
+            updateItemArrays(mItem, mItem.id);
+            synchronized (mBgDataModel) {
+                mBgDataModel.updateItems(Collections.singletonList(mItem), mOwner);
+            }
+            notifyOtherCallbacks(c -> c.bindItemsUpdated(Collections.singleton(mItem)));
         }
     }
 
@@ -577,16 +689,38 @@ public class ModelWriter {
                 int count = mItems.size();
                 for (int i = 0; i < count; i++) {
                     ItemInfo item = mItems.get(i);
-                    final int itemId = item.id;
-                    mModel.getModelDbController().update(
-                            mValues.get(i), itemIdMatch(itemId), null);
-                    updateItemArrays(item, itemId);
+                    int updatedRows = mModel.getModelDbController().update(
+                            mValues.get(i), itemIdMatch(item.id), null);
+                    if (updatedRows != 1) {
+                        throw new IllegalStateException(
+                                "Expected to update one workspace item with id " + item.id
+                                        + " but updated " + updatedRows);
+                    }
                 }
                 t.commit();
-                mBgDataModel.updateItems(mItems, mOwner);
             } catch (Exception e) {
-                e.printStackTrace();
+                Log.e(TAG, "Failed to update workspace items; reloading model from database", e);
+                // Callers may have already changed the mutable ItemInfo instances before queuing
+                // this operation. Reload to restore the last committed database state.
+                mModel.forceReload();
+                return;
             }
+
+            // Apply the new positions only after the database transaction has committed.
+            for (int i = 0; i < mItems.size(); i++) {
+                ItemInfo item = mItems.get(i);
+                ContentValues values = mValues.get(i);
+                item.container = values.getAsInteger(Favorites.CONTAINER);
+                item.cellX = values.getAsInteger(Favorites.CELLX);
+                item.cellY = values.getAsInteger(Favorites.CELLY);
+                item.rank = values.getAsInteger(Favorites.RANK);
+                item.screenId = values.getAsInteger(Favorites.SCREEN);
+                updateItemArrays(item, item.id);
+            }
+            synchronized (mBgDataModel) {
+                mBgDataModel.updateItems(mItems, mOwner);
+            }
+            notifyOtherCallbacks(c -> c.bindItemsUpdated(new HashSet<>(mItems)));
         }
     }
 
@@ -595,6 +729,7 @@ public class ModelWriter {
         private final ModelVerifier mVerifier = new ModelVerifier();
 
         UpdateItemBaseRunnable() {
+            super(true);
             mStackTrace = new Throwable().getStackTrace();
         }
 
@@ -622,11 +757,25 @@ public class ModelWriter {
     private abstract class ModelTask implements Runnable {
 
         private final int mLoadId = mBgDataModel.lastLoadId;
+        private final boolean mReloadOnStale;
+
+        ModelTask() {
+            this(false);
+        }
+
+        ModelTask(boolean reloadOnStale) {
+            mReloadOnStale = reloadOnStale;
+        }
 
         @Override
         public final void run() {
             if (mLoadId != mModel.getLastLoadId()) {
                 Log.d(TAG, "Model changed before the task could execute");
+                if (mReloadOnStale) {
+                    // Some update callers mutate ItemInfo before this task is queued.
+                    // Restore the in-memory model from the committed database state.
+                    mModel.forceReload();
+                }
                 return;
             }
             runImpl();

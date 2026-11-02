@@ -398,27 +398,33 @@ public class LoaderTask implements Runnable {
         if (enableLauncherBrMetricsFixed()) {
             restoreEventLogger = mRestoreEventLoggerProvider.get();
         }
-        try (LauncherModel.LoaderTransaction transaction = mModel.beginLoader(this)) {
-            loadAllSurfacesOrdered(memoryLogger, restoreEventLogger);
+        try {
+            try (LauncherModel.LoaderTransaction transaction = mModel.beginLoader(this)) {
+                loadAllSurfacesOrdered(memoryLogger, restoreEventLogger);
 
-            transaction.commit();
-            memoryLogger.clearLogs();
-            if (mIsRestoreFromBackup) {
-                mIsRestoreFromBackup = false;
-                LauncherPrefs.get(mContext).putSync(IS_FIRST_LOAD_AFTER_RESTORE.to(false));
-                if (restoreEventLogger != null) {
-                    restoreEventLogger.reportLauncherRestoreResults();
+                transaction.commit();
+                memoryLogger.clearLogs();
+                if (mIsRestoreFromBackup) {
+                    mIsRestoreFromBackup = false;
+                    LauncherPrefs.get(mContext).putSync(IS_FIRST_LOAD_AFTER_RESTORE.to(false));
+                    if (restoreEventLogger != null) {
+                        restoreEventLogger.reportLauncherRestoreResults();
+                    }
                 }
+            } catch (CancellationException e) {
+                // Loader stopped, ignore
+                FileLog.w(TAG, "LoaderTask cancelled");
+            } catch (Exception e) {
+                memoryLogger.printLogs();
+                throw e;
             }
-        } catch (CancellationException e) {
-            // Loader stopped, ignore
-            FileLog.w(TAG, "LoaderTask cancelled");
-        } catch (Exception e) {
-            memoryLogger.printLogs();
-            throw e;
+        } finally {
+            try {
+                MODEL_EXECUTOR.restorePriority(CALLER_LOADER_TASK);
+            } finally {
+                TraceHelper.INSTANCE.endSection();
+            }
         }
-        MODEL_EXECUTOR.restorePriority(CALLER_LOADER_TASK);
-        TraceHelper.INSTANCE.endSection();
     }
 
     public synchronized void stopLocked() {
