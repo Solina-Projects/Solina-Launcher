@@ -36,11 +36,11 @@
     <color name="icon_background">#E0E0E0</color> <!-- Gray 300 -->
 
     <color name="popup_color_primary_light">#FFF</color>
-    <color name="popup_color_secondary_light">#F1F3F4</color>
+    <color name="popup_color_secondary_light">#E8F5F3</color>
     <color name="popup_color_tertiary_light">#E0E0E0</color> <!-- Gray 300 -->
     <color name="popup_text_color_light">#1F1F1F</color>
     <color name="popup_color_neutral_dark">#3C4043</color> <!-- Gray 800 -->
-    <color name="popup_color_primary_dark">#3C4043</color> <!-- Gray 800 -->
+    <color name="popup_color_primary_dark">#1E3A37</color>
     <color name="popup_color_secondary_dark">#202124</color>
     <color name="popup_color_tertiary_dark">#757575</color> <!-- Gray 600 -->
     <color name="popup_text_color_dark">#E3E3E3</color>
@@ -289,8 +289,8 @@
     <color name="system_palette_key_color_primary_light">#6476A5</color>
     <color name="system_palette_key_color_secondary_light">#70778B</color>
     <color name="system_palette_key_color_tertiary_light">#836E99</color>
-    <color name="system_primary_light">#4C5E8B</color>
-    <color name="system_primary_container_light">#B9CBFF</color>
+    <color name="system_primary_light">#00796B</color>
+    <color name="system_primary_container_light">#B2DFDB</color>
     <color name="system_primary_dim_light">#40527E</color>
     <color name="system_scrim_light">#000000</color>
     <color name="system_secondary_light">#585F72</color>
@@ -344,7 +344,7 @@
     <color name="system_palette_key_color_primary_dark">#69769A</color>
     <color name="system_palette_key_color_secondary_dark">#70778B</color>
     <color name="system_palette_key_color_tertiary_dark">#836E99</color>
-    <color name="system_primary_dark">#B8C6EE</color>
+    <color name="system_primary_dark">#4DD0B8</color>
     <color name="system_primary_container_dark">#445274</color>
     <color name="system_primary_dim_dark">#ABB8E0</color>
     <color name="system_scrim_dark">#000000</color>
