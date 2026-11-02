@@ -261,6 +261,11 @@ android {
             dimension "app"
         }
 
+        withoutQuickstep {
+            dimension "recents"
+            minSdk = 26
+        }
+
         withQuickstep {
             dimension "recents"
             minSdk = 26
@@ -312,6 +317,17 @@ android {
             manifest.srcFile "quickstep/AndroidManifest-launcher.xml"
         }
 
+        lawnWithoutQuickstepGithub {
+            manifest.srcFile "AndroidManifest.xml"
+        }
+
+        withoutQuickstep {
+            res.srcDirs = ['src/withoutQuickstep/res', 'quickstep/res', 'quickstep/recents_ui_overrides/res']
+            java.srcDirs = ['quickstep/src', 'quickstep/dagger', 'quickstep/recents_ui_overrides/src', 'quickstep/src_protolog']
+            kotlin.directories.addAll('quickstep/src', 'quickstep/dagger', 'quickstep/recents_ui_overrides/src', 'quickstep/src_protolog')
+            manifest.srcFile "AndroidManifest.xml"
+        }
+
         withQuickstep {
             res.srcDirs = ['quickstep/res', 'quickstep/recents_ui_overrides/res']
             java.srcDirs = ['quickstep/src', 'quickstep/dagger', 'quickstep/recents_ui_overrides/src', 'quickstep/src_protolog']
@@ -325,14 +341,19 @@ androidComponents {
     // Only two distributable APKs: a test build and a release build.
     beforeVariants(selector().all()) { variant ->
         variant.enable = variant.name in [
+            "lawnWithoutQuickstepGithubDebug",
+            "lawnWithoutQuickstepGithubRelease",
             "lawnWithQuickstepGithubDebug",
             "lawnWithQuickstepGithubRelease",
         ]
     }
 
     onVariants(selector().all()) { variant ->
+        def recentsFlavor = variant.productFlavors.find { it.first == "recents" }?.second
+        def platformLabel = recentsFlavor == "withQuickstep" ? "Quickstep" : "Standard"
+        def buildLabel = variant.buildType == "debug" ? "Test" : "Release"
         variant.outputs.forEach { output ->
-            output.outputFileName.set("Solina-Launcher.${variant.buildType == 'debug' ? 'Test' : 'Release'}.apk")
+            output.outputFileName.set("Solina-Launcher.${platformLabel}.${buildLabel}.apk")
         }
 
         // Lawnchair-TODO: A better way to sync proto file to the IDE preventing missing or outdated result. Please remove if this is the best solution we have right now
@@ -381,6 +402,32 @@ dependencies {
     withQuickstepCompileOnly projects.common
     withQuickstepCompileOnly projects.utils
 
+    // Standalone recents dependencies. These are kept separate from the Quickstep flavor.
+    withoutQuickstepCompileOnly projects.hiddenApi
+    withoutQuickstepImplementation projects.shared
+    withoutQuickstepImplementation projects.animation
+    withoutQuickstepImplementation projects.unfold
+    withoutQuickstepImplementation projects.log
+    withoutQuickstepCompileOnly projects.plugin
+    withoutQuickstepImplementation projects.plugincore
+    withoutQuickstepCompileOnly projects.common
+    withoutQuickstepCompileOnly projects.utils
+
+    // Standalone compatibility dependencies.
+    withoutQuickstepImplementation projects.compatLib
+    withoutQuickstepImplementation projects.compatLib.compatLibVQ
+    withoutQuickstepImplementation projects.compatLib.compatLibVR
+    withoutQuickstepImplementation projects.compatLib.compatLibVS
+    withoutQuickstepImplementation projects.compatLib.compatLibVT
+    withoutQuickstepImplementation projects.compatLib.compatLibVU
+    withoutQuickstepImplementation projects.compatLib.compatLibVV
+    withoutQuickstepImplementation projects.compatLib.compatLibVBaklava
+    withoutQuickstepImplementation projects.wmshell
+    withoutQuickstepImplementation projects.flags
+    withoutQuickstepImplementation projects.dagger
+    withoutQuickstepImplementation projects.concurrent
+    withoutQuickstepImplementation projects.modules.widgetpicker
+
     // QuickSwitch Compat
     withQuickstepImplementation projects.compatLib
     withQuickstepImplementation projects.compatLib.compatLibVQ
@@ -400,6 +447,7 @@ dependencies {
 
     implementation fileTree(dir: FRAMEWORK_PREBUILTS_DIR, include: 'SystemUI-statsd-16.jar')
     implementation fileTree(dir: FRAMEWORK_PREBUILTS_DIR, include: 'WindowManager-Shell-16.jar')
+    withoutQuickstepCompileOnly fileTree(dir: FRAMEWORK_PREBUILTS_DIR, include: 'framework-16.jar')
     withQuickstepCompileOnly fileTree(dir: FRAMEWORK_PREBUILTS_DIR, include: 'framework-16.jar')
     baselineProfile projects.baselineProfile
 
