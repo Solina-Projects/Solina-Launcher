@@ -52,6 +52,8 @@ import com.android.launcher3.util.PackageUserKey
 import java.io.PrintWriter
 import java.util.concurrent.CancellationException
 import java.util.concurrent.Callable
+import java.util.concurrent.Future
+import java.util.concurrent.FutureTask
 import java.util.function.Consumer
 import javax.inject.Inject
 import javax.inject.Named
@@ -207,17 +209,17 @@ constructor(
      * Runs a database file maintenance operation after pausing model loading and serializing it
      * behind any in-flight model work. The model is reloaded after the operation completes.
      */
-    fun <T> runDatabaseMaintenance(action: () -> T) =
+    fun <T> runDatabaseMaintenance(action: () -> T): Future<T> =
         synchronized(mLock) {
             stopLoader()
             mModelLoaded = false
-            MODEL_EXECUTOR.submit(Callable {
+            FutureTask(Callable {
                 try {
                     action()
                 } finally {
                     forceReload()
                 }
-            })
+            }).also(MODEL_EXECUTOR::post)
         }
 
     /**
