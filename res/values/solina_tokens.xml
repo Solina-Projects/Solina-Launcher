@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Solina design tokens (Material 3 Expressive direction).
+  Change shape and size values here; views read them instead of hard-coded numbers.
+-->
+<resources>
+    <!-- Shape scale: larger, softer corners than stock launcher -->
+    <dimen name="solina_corner_s">12dp</dimen>
+    <dimen name="solina_corner_m">20dp</dimen>
+    <dimen name="solina_corner_l">28dp</dimen>
+    <dimen name="solina_corner_xl">36dp</dimen>
+    <dimen name="solina_corner_pill">999dp</dimen>
+
+    <!-- Spacing rhythm used by drawer and search surfaces -->
+    <dimen name="solina_space_s">8dp</dimen>
+    <dimen name="solina_space_m">16dp</dimen>
+    <dimen name="solina_space_l">24dp</dimen>
+</resources>
