@@ -5,7 +5,7 @@ import android.content.Context
 import android.content.pm.ApplicationInfo
 import android.os.Bundle
 import app.lawnchair.FeedBridge
-import app.lawnchair.SolinaLauncher
+import app.lawnchair.LawnchairLauncher
 import app.lawnchair.preferences2.PreferenceManager2
 import app.lawnchair.preferences2.firstCached
 import com.android.launcher3.Launcher
@@ -25,7 +25,7 @@ import com.google.android.libraries.launcherclient.StaticInteger
  *
  * Implements [LauncherClientCallbacks] and sends all the corresponding callbacks to [Launcher].
  */
-class OverlayCallbackImpl(private val mLauncher: SolinaLauncher) :
+class OverlayCallbackImpl(private val mLauncher: LawnchairLauncher) :
     LauncherOverlay,
     LauncherClientCallbacks,
     LauncherOverlayManager,

@@ -6,7 +6,7 @@ import android.app.ActivityTaskManager
 import android.content.Context
 import android.os.Process
 import android.os.UserHandle
-import app.lawnchair.SolinaLauncher
+import app.lawnchair.LawnchairLauncher
 import app.lawnchair.launcher
 import com.android.launcher3.BuildConfig
 import com.android.quickstep.views.RecentsView
@@ -18,7 +18,7 @@ object RecentHelper {
     fun clearAllTaskStacks(context: Context) {
         try {
             val launcher = context.launcher
-            val recentsView = launcher.getOverviewPanel<RecentsView<SolinaLauncher, *>>()
+            val recentsView = launcher.getOverviewPanel<RecentsView<LawnchairLauncher, *>>()
             val taskViewCount = recentsView.getTaskViewCount()
             val currentUserId = Process.myUid()
             for (i in 0..taskViewCount) {

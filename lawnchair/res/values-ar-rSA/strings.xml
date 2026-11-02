@@ -707,7 +707,7 @@
     <!-- Search providers -->
     <string name="search_provider_app_search">بحث التطبيقات</string>
     <string name="search_provider_custom">مخصّص</string>
-    <string name="search_provider_sponsored_description">%1$s وSolina Launcher لديهما اتفاقية مشاركة الإيرادات.\n\nالبحث باستخدام %1$s يساعد في دعم Solina Launcher.</string>
+    <string name="search_provider_sponsored_description">%1$s وLawnchair لديهما اتفاقية مشاركة الإيرادات.\n\nالبحث باستخدام %1$s يساعد في دعم Solina Launcher.</string>
     <string name="app_label">التطبيق</string>
     <string name="website_label">الموقع الإلكتروني</string>
     <string name="qsb_search_provider_app_required">التطبيق مطلوب</string>

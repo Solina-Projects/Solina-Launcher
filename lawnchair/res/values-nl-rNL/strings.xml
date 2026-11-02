@@ -136,7 +136,7 @@
     <string name="my_folder_label">Mijn map</string>
     <string name="sort_active_items_action">Sorteer active item\'s</string>
     <!-- A11y description -->
-    <string name="accessibility_service_description">Om bepaalde acties uit te voeren, zoals het vergrendelen van je telefoon bij het uitvoeren van een gebaar, heeft Solina Launcher de toegankelijkheidsdienst nodig.\n\nSolina Launcher observeert echter geen gebruikersacties, hoewel de bevoegdheid om dat te doen vereist is voor alle toegankelijkheidsdiensten. Solina Launcher negeert elke gebeurtenis die door het systeem wordt gemeld.\n\nOm je telefoon te vergrendelen of om het recente apps-scherm te openen, maakt Solina Launcher gebruik van performGlobalAction.</string>
+    <string name="accessibility_service_description">Om bepaalde acties uit te voeren, zoals het vergrendelen van je telefoon bij het uitvoeren van een gebaar, heeft Solina Launcher de toegankelijkheidsdienst nodig.\n\nLawnchair observeert echter geen gebruikersacties, hoewel de bevoegdheid om dat te doen vereist is voor alle toegankelijkheidsdiensten. Solina Launcher negeert elke gebeurtenis die door het systeem wordt gemeld.\n\nOm je telefoon te vergrendelen of om het recente apps-scherm te openen, maakt Solina Launcher gebruik van performGlobalAction.</string>
     <string name="x_with_y_count">%1$s (%2$d)</string>
     <string name="x_by_y">%1$d &#xd7; %2$d</string>
     <string name="x_and_y">%1$s &amp; %2$s</string>
@@ -451,7 +451,7 @@
     <string name="event_provider_missing_notification_dots">Schakel meldingsstippen in om <xliff:g example="My Provider" id="providerName">%1$s</xliff:g>te gebruiken</string>
     <!-- Toggle button for enabling Smartspace -->
     <string name="smartspace_widget_toggle_label">Weergeven op startscherm</string>
-    <string name="smartspace_widget_toggle_description">In een oogopslag kan aan het startscherm worden toegevoegd met de Solina Launcher-widget</string>
+    <string name="smartspace_widget_toggle_description">In een oogopslag kan aan het startscherm worden toegevoegd met de Lawnchair-widget</string>
     <!-- List of available providers -->
     <string name="smartspace_mode_label">Aanbieder</string>
     <string name="smartspace_mode_google">Google</string>

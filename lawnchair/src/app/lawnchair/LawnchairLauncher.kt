@@ -95,7 +95,7 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 
-class SolinaLauncher : QuickstepLauncher() {
+class LawnchairLauncher : QuickstepLauncher() {
     private val defaultOverlay by unsafeLazy { OverlayCallbackImpl(this) }
     private val prefs by unsafeLazy { PreferenceManager.getInstance(this) }
     private val preferenceManager2 by unsafeLazy { PreferenceManager2.getInstance(this) }
@@ -171,7 +171,7 @@ class SolinaLauncher : QuickstepLauncher() {
         if (prefs.autoLaunchRoot.get()) {
             lifecycleScope.launch {
                 try {
-                    RootHelperManager.INSTANCE.get(this@SolinaLauncher)
+                    RootHelperManager.INSTANCE.get(this@LawnchairLauncher)
                 } catch (_: RootNotAvailableException) {
                 }
             }
@@ -353,7 +353,7 @@ class SolinaLauncher : QuickstepLauncher() {
         val showWallpaperCarousel = "+carousel" in preferenceManager2.launcherPopupOrder.firstCached()
 
         if (showWallpaperCarousel) {
-            show<SolinaLauncher>(
+            show<LawnchairLauncher>(
                 this,
                 getPopupTarget(x, y),
                 OptionsPopupView.getOptions(this),
@@ -562,10 +562,10 @@ class SolinaLauncher : QuickstepLauncher() {
     }
 }
 
-val Context.launcher: SolinaLauncher
+val Context.launcher: LawnchairLauncher
     get() = BaseActivity.fromContext(this)
 
-val Context.launcherNullable: SolinaLauncher? get() = try {
+val Context.launcherNullable: LawnchairLauncher? get() = try {
     launcher
 } catch (_: IllegalArgumentException) {
     null

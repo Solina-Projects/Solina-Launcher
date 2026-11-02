@@ -1,12 +1,12 @@
 package app.lawnchair.gestures.handlers
 
 import android.content.Context
-import app.lawnchair.SolinaLauncher
+import app.lawnchair.LawnchairLauncher
 import app.lawnchair.animateToAllApps
 
 class OpenAppDrawerGestureHandler(context: Context) : GestureHandler(context) {
 
-    override suspend fun onTrigger(launcher: SolinaLauncher) {
+    override suspend fun onTrigger(launcher: LawnchairLauncher) {
         launcher.animateToAllApps()
     }
 }

@@ -2,7 +2,7 @@ package app.lawnchair.deck
 
 import android.content.Context
 import android.util.Log
-import app.lawnchair.SolinaLauncher
+import app.lawnchair.LawnchairLauncher
 import app.lawnchair.flowerpot.Flowerpot
 import app.lawnchair.launcher
 import app.lawnchair.launcherNullable
@@ -31,7 +31,7 @@ class LawndeckManager(private val context: Context) {
 
     // TODO
 
-    private val launcher = context.launcherNullable ?: SolinaLauncher.instance?.launcher
+    private val launcher = context.launcherNullable ?: LawnchairLauncher.instance?.launcher
 
     suspend fun enableLawndeck(
         onProgress: ((String) -> Unit)? = null,

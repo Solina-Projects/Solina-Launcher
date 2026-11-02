@@ -25,7 +25,7 @@ import androidx.core.graphics.createBitmap
 import androidx.dynamicanimation.animation.DynamicAnimation
 import androidx.dynamicanimation.animation.SpringAnimation
 import androidx.dynamicanimation.animation.SpringForce
-import app.lawnchair.SolinaLauncher
+import app.lawnchair.LawnchairLauncher
 import app.lawnchair.launcher
 import com.android.app.animation.Interpolators
 import com.android.launcher3.AbstractFloatingView
@@ -55,7 +55,7 @@ class LawnchairFloatingSurfaceView @JvmOverloads constructor(
     SurfaceHolder.Callback2 {
     private val mTmpPosition = RectF()
 
-    private val mLauncher: SolinaLauncher = context!!.launcher
+    private val mLauncher: LawnchairLauncher = context!!.launcher
     private val mIconPosition = RectF()
     private val mDeviceProfile = mLauncher.deviceProfile
 
@@ -168,7 +168,7 @@ class LawnchairFloatingSurfaceView @JvmOverloads constructor(
 
     private fun getBackgroundAnimator(): ObjectAnimator {
         val depthController = DepthController(mLauncher)
-        val targetDepth = mLauncher.stateManager.state.getDepth<SolinaLauncher?>(mLauncher)
+        val targetDepth = mLauncher.stateManager.state.getDepth<LawnchairLauncher?>(mLauncher)
 
         val backgroundRadiusAnim = createDepthAnimator(
             depthController,
@@ -395,7 +395,7 @@ class LawnchairFloatingSurfaceView @JvmOverloads constructor(
         /**
          * Shows the surfaceView for the provided contract
          */
-        fun show(launcher: SolinaLauncher, contract: GestureNavContract?) {
+        fun show(launcher: LawnchairLauncher, contract: GestureNavContract?) {
             val view: LawnchairFloatingSurfaceView =
                 launcher.viewCache.getView(
                     R.layout.floating_surface_view,

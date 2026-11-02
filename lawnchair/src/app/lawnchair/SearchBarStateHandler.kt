@@ -17,7 +17,7 @@ import com.android.launcher3.statemanager.StateManager
 import com.android.launcher3.states.StateAnimationConfig
 import com.patrykmichalik.opto.core.onEach
 
-class SearchBarStateHandler(private val launcher: SolinaLauncher) : StateManager.StateHandler<LauncherState> {
+class SearchBarStateHandler(private val launcher: LawnchairLauncher) : StateManager.StateHandler<LauncherState> {
 
     private val preferenceManager2 = PreferenceManager2.getInstance(launcher)
     private var autoShowKeyboard = false

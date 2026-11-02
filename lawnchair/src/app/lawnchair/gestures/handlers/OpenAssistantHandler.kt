@@ -6,11 +6,11 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.provider.Settings
 import android.util.Log
-import app.lawnchair.SolinaLauncher
+import app.lawnchair.LawnchairLauncher
 
 class OpenAssistantHandler(context: Context) : GestureHandler(context) {
 
-    override suspend fun onTrigger(launcher: SolinaLauncher) {
+    override suspend fun onTrigger(launcher: LawnchairLauncher) {
         try {
             val component = getCurrentlySelectedDefaultAssistant(context)
             Log.d(TAG, "Detected assistant: $component")

@@ -148,7 +148,7 @@
     <string name="my_folder_label">Моя папка</string>
     <string name="sort_active_items_action">Сортировать активные элементы</string>
     <!-- A11y description -->
-    <string name="accessibility_service_description">Для выполнения определённых действий (например, блокировки телефона) с помощью жестов, Solina Launcher требуется доступ к спец. возможностям.\n\nSolina Launcher не отслеживает действий пользователя, хотя это требуется для всех служб спец. возможностей. Solina Launcher не учитывает любые системные события.\n\nЧтобы заблокировать телефон или открыть Экран недавних приложений, Solina Launcher использует службу спец. возможностей PerformGlobalAction.</string>
+    <string name="accessibility_service_description">Для выполнения определённых действий (например, блокировки телефона) с помощью жестов, Solina Launcher требуется доступ к спец. возможностям.\n\nLawnchair не отслеживает действий пользователя, хотя это требуется для всех служб спец. возможностей. Solina Launcher не учитывает любые системные события.\n\nЧтобы заблокировать телефон или открыть Экран недавних приложений, Solina Launcher использует службу спец. возможностей PerformGlobalAction.</string>
     <string name="x_with_y_count">%1$s (%2$d)</string>
     <string name="x_by_y">%1$d &#xd7; %2$d</string>
     <string name="x_and_y">%1$s и %2$s</string>

@@ -24,7 +24,7 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.os.Build
-import app.lawnchair.SolinaLauncher
+import app.lawnchair.LawnchairLauncher
 import app.lawnchair.preferences2.PreferenceManager2
 import app.lawnchair.util.requireSystemService
 import app.lawnchair.views.ComposeBottomSheet
@@ -35,7 +35,7 @@ import kotlinx.coroutines.flow.first
 
 class SleepGestureHandler(context: Context) : GestureHandler(context) {
 
-    override suspend fun onTrigger(launcher: SolinaLauncher) {
+    override suspend fun onTrigger(launcher: LawnchairLauncher) {
         val pref = PreferenceManager2.getInstance(context).sleepMode.get().first()
         val method = when (pref) {
             SleepMode.AUTO -> methods.first { it.isSupported() }
@@ -60,7 +60,7 @@ class SleepGestureHandler(context: Context) : GestureHandler(context) {
 
     sealed class SleepMethod(protected val context: Context) {
         abstract suspend fun isSupported(): Boolean
-        abstract suspend fun sleep(launcher: SolinaLauncher)
+        abstract suspend fun sleep(launcher: LawnchairLauncher)
     }
 }
 
@@ -68,7 +68,7 @@ class SleepMethodRoot(context: Context) : SleepGestureHandler.SleepMethod(contex
 
     override suspend fun isSupported() = Shell.getShell().isRoot
 
-    override suspend fun sleep(launcher: SolinaLauncher) {
+    override suspend fun sleep(launcher: LawnchairLauncher) {
         Shell.cmd("input keyevent 26").exec()
     }
 }
@@ -77,7 +77,7 @@ class SleepMethodPieAccessibility(context: Context) : SleepGestureHandler.SleepM
     override suspend fun isSupported() = Utilities.ATLEAST_P
 
     @TargetApi(Build.VERSION_CODES.P)
-    override suspend fun sleep(launcher: SolinaLauncher) {
+    override suspend fun sleep(launcher: LawnchairLauncher) {
         GestureWithAccessibilityHandler.onTrigger(
             launcher,
             R.string.sleep_a11y_hint,
@@ -89,7 +89,7 @@ class SleepMethodPieAccessibility(context: Context) : SleepGestureHandler.SleepM
 class SleepMethodDeviceAdmin(context: Context) : SleepGestureHandler.SleepMethod(context) {
     override suspend fun isSupported() = true
 
-    override suspend fun sleep(launcher: SolinaLauncher) {
+    override suspend fun sleep(launcher: LawnchairLauncher) {
         val devicePolicyManager: DevicePolicyManager = context.requireSystemService()
         if (!devicePolicyManager.isAdminActive(ComponentName(context, SleepDeviceAdmin::class.java))) {
             val intent = Intent(DevicePolicyManager.ACTION_ADD_DEVICE_ADMIN)

@@ -53,7 +53,7 @@ import com.android.launcher3.views.ScrimColors;
 
 import java.util.Arrays;
 
-import app.lawnchair.SolinaLauncher;
+import app.lawnchair.LawnchairLauncher;
 
 /**
  * Base state for various states used for the Launcher
@@ -132,8 +132,8 @@ public abstract class LauncherState implements BaseState<LauncherState> {
 
         @Override
         public void onBackPressed(Launcher launcher) {
-            if (launcher instanceof SolinaLauncher) {
-                ((SolinaLauncher) launcher).getGestureController().onBackPressed();
+            if (launcher instanceof LawnchairLauncher) {
+                ((LawnchairLauncher) launcher).getGestureController().onBackPressed();
             }
             super.onBackPressed(launcher);
         }

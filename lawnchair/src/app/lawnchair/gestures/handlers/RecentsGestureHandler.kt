@@ -18,12 +18,12 @@ package app.lawnchair.gestures.handlers
 
 import android.accessibilityservice.AccessibilityService
 import android.content.Context
-import app.lawnchair.SolinaLauncher
+import app.lawnchair.LawnchairLauncher
 import com.android.launcher3.R
 
 class RecentsGestureHandler(context: Context) : GestureHandler(context) {
 
-    override suspend fun onTrigger(launcher: SolinaLauncher) {
+    override suspend fun onTrigger(launcher: LawnchairLauncher) {
         GestureWithAccessibilityHandler.onTrigger(
             launcher,
             R.string.recents_screen_a11y_hint,

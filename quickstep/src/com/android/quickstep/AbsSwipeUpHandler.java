@@ -1690,7 +1690,7 @@ public abstract class AbsSwipeUpHandler<
                     && runningTaskTarget.leash.isValid();
 
             boolean enableDesktopWindowingPipCompat = false;
-            // Literal int because https://github.com/SolinaLauncher/lawnchair/issues/6817
+            // Literal int because https://github.com/LawnchairLauncher/lawnchair/issues/6817
             if (Build.VERSION.SDK_INT >= 36 && Build.VERSION.SDK_INT_FULL >= 3600001) {
                 try {
                     enableDesktopWindowingPipCompat = DesktopExperienceFlags.ENABLE_DESKTOP_WINDOWING_PIP.isTrue();
@@ -1883,7 +1883,7 @@ public abstract class AbsSwipeUpHandler<
 
     private int calculateWindowRotation(RemoteAnimationTarget runningTaskTarget,
                                         RecentsOrientedState orientationState) {
-        // LC: https://github.com/SolinaLauncher/lawnchair/pull/3776
+        // LC: https://github.com/LawnchairLauncher/lawnchair/pull/3776
         try {
             if (runningTaskTarget.rotationChange != 0) {
                 return Math.abs(runningTaskTarget.rotationChange) == ROTATION_90

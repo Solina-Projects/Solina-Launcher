@@ -4,7 +4,7 @@ import android.graphics.PointF
 import android.view.MotionEvent
 import android.view.ViewConfiguration
 import androidx.lifecycle.lifecycleScope
-import app.lawnchair.SolinaLauncher
+import app.lawnchair.LawnchairLauncher
 import app.lawnchair.gestures.config.GestureHandlerConfig
 import app.lawnchair.preferences2.PreferenceManager2
 import com.android.launcher3.AbstractFloatingView
@@ -18,7 +18,7 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 
 class VerticalSwipeTouchController(
-    private val launcher: SolinaLauncher,
+    private val launcher: LawnchairLauncher,
     private val gestureController: GestureController,
 ) : TouchController,
     BothAxesSwipeDetector.Listener {

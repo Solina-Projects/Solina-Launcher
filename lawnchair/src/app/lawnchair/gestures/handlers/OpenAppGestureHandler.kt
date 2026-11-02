@@ -5,7 +5,7 @@ import android.content.Intent
 import android.content.pm.LauncherApps
 import android.os.UserHandle
 import androidx.core.content.getSystemService
-import app.lawnchair.SolinaLauncher
+import app.lawnchair.LawnchairLauncher
 import app.lawnchair.util.ComponentKeySerializer
 import app.lawnchair.util.IntentSerializer
 import app.lawnchair.util.UserHandlerSerializer
@@ -18,7 +18,7 @@ class OpenAppGestureHandler(
     private val target: OpenAppTarget,
 ) : GestureHandler(context) {
 
-    override suspend fun onTrigger(launcher: SolinaLauncher) {
+    override suspend fun onTrigger(launcher: LawnchairLauncher) {
         when (target) {
             is OpenAppTarget.App -> {
                 val key = target.key

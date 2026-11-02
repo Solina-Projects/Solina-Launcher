@@ -130,7 +130,7 @@
     <string name="my_folder_label">Thư mục của tôi</string>
     <string name="sort_active_items_action">Sắp xếp các mục đang hoạt động</string>
     <!-- A11y description -->
-    <string name="accessibility_service_description">Để thực hiện một số thao tác nhất định khi bạn sử dụng cử chỉ, chẳng hạn như khóa điện thoại, Solina Launcher yêu cầu quyền truy cập trợ năng.\n\nSolina Launcher không theo dõi hành động của bạn, mặc dù tất cả các dịch vụ hỗ trợ tiếp cận đều yêu cầu đặc quyền này. Solina Launcher sẽ loại bỏ bất kỳ sự kiện nào được hệ thống gửi đến.\n\nĐể khóa điện thoại hoặc mở màn hình Ứng dụng gần đây, Solina Launcher sử dụng dịch vụ hỗ trợ tiếp cận performGlobalAction.</string>
+    <string name="accessibility_service_description">Để thực hiện một số thao tác nhất định khi bạn sử dụng cử chỉ, chẳng hạn như khóa điện thoại, Solina Launcher yêu cầu quyền truy cập trợ năng.\n\nLawnchair không theo dõi hành động của bạn, mặc dù tất cả các dịch vụ hỗ trợ tiếp cận đều yêu cầu đặc quyền này. Solina Launcher sẽ loại bỏ bất kỳ sự kiện nào được hệ thống gửi đến.\n\nĐể khóa điện thoại hoặc mở màn hình Ứng dụng gần đây, Solina Launcher sử dụng dịch vụ hỗ trợ tiếp cận performGlobalAction.</string>
     <string name="x_with_y_count">%1$s (%2$d)</string>
     <string name="x_by_y">%1$d &#xd7; %2$d</string>
     <string name="x_and_y">%1$s &amp; %2$s</string>

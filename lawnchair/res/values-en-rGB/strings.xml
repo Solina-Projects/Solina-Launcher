@@ -87,7 +87,7 @@
     <string name="what_to_show">What to show</string>
 
     <!-- A11y description -->
-    <string name="accessibility_service_description">To lock your phone when performing a gesture, and to open Recents via gesture, Solina Launcher requires accessibility access.\n\nSolina Launcher doesn\'t watch any user action, though the privilege to do so is required for all accessibility services. Solina Launcher discards any event sent by the system.\n\nIn order to lock your phone, or to open Recents, Solina Launcher uses the performGlobalAction Accessibility service.</string>
+    <string name="accessibility_service_description">To lock your phone when performing a gesture, and to open Recents via gesture, Solina Launcher requires accessibility access.\n\nLawnchair doesn\'t watch any user action, though the privilege to do so is required for all accessibility services. Solina Launcher discards any event sent by the system.\n\nIn order to lock your phone, or to open Recents, Solina Launcher uses the performGlobalAction Accessibility service.</string>
 
     <string name="x_by_y">%1$d x %2$d</string>
     <string name="x_and_y">%1$s &amp; %2$s</string>
@@ -434,10 +434,10 @@
 
 
     <string name="d2ts_recents_a11y_hint_title">Turn on accessibility service</string>
-    <string name="dt2s_a11y_hint">To use Double-Tap to Sleep, turn on the Solina Launcher accessibility service. Tap \"Open settings\", select \"Solina Launcher\" and turn on \"Use Solina Launcher.\"\n\nSolina Launcher uses Accessibility\'s `performGlobalAction` method to perform this action. This is a sensitive permission that allows monitoring other apps. However, Solina Launcher is not configured for that functionality and receives no events.</string>
+    <string name="dt2s_a11y_hint">To use Double-Tap to Sleep, turn on the Solina Launcher accessibility service. Tap \"Open settings\", select \"Solina Launcher\" and turn on \"Use Solina Launcher.\"\n\nLawnchair uses Accessibility\'s `performGlobalAction` method to perform this action. This is a sensitive permission that allows monitoring other apps. However, Solina Launcher is not configured for that functionality and receives no events.</string>
     <string name="dt2s_recents_warning_open_settings">Open settings</string>
 
-<string name="recents_a11y_hint">To use Open Recents, turn on the Solina Launcher accessibility service. Tap \"Open settings\", select \"Solina Launcher\" and turn on \"Use Solina Launcher.\"\n\nSolina Launcher uses Accessibility\'s `performGlobalAction` method to perform this action. This is a sensitive permission that allows monitoring other apps. However, Solina Launcher is not configured for that functionality and receives no events.</string>
+<string name="recents_a11y_hint">To use Open Recents, turn on the Solina Launcher accessibility service. Tap \"Open settings\", select \"Solina Launcher\" and turn on \"Use Solina Launcher.\"\n\nLawnchair uses Accessibility\'s `performGlobalAction` method to perform this action. This is a sensitive permission that allows monitoring other apps. However, Solina Launcher is not configured for that functionality and receives no events.</string>
 
     <!--
 

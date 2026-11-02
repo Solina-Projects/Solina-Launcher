@@ -130,7 +130,7 @@
     <string name="my_folder_label">自分のフォルダー</string>
     <string name="sort_active_items_action">アクティブなアイテムを整理</string>
     <!-- A11y description -->
-    <string name="accessibility_service_description">ジェスチャー操作時に特定の操作、例えばスマートフォンのロックなどをするにはSolina Launcherにユーザー補助機能へのアクセスを許可する必要があります。\n\nSolina Launcherはユーザーの操作を監視しませんが、全てのユーザー補助機能にはこの機能を要求します。Solina Launcherはシステムから送信された全てのイベントを削除します。\n\nSolina Launcherはスマートフォンをロックしたり、最近使ったアプリを管理したりするために、performGlobalActionユーザー補助機能を使用します。</string>
+    <string name="accessibility_service_description">ジェスチャー操作時に特定の操作、例えばスマートフォンのロックなどをするにはLawnchairにユーザー補助機能へのアクセスを許可する必要があります。\n\nLawnchairはユーザーの操作を監視しませんが、全てのユーザー補助機能にはこの機能を要求します。Solina Launcherはシステムから送信された全てのイベントを削除します。\n\nLawnchairはスマートフォンをロックしたり、最近使ったアプリを管理したりするために、performGlobalActionユーザー補助機能を使用します。</string>
     <string name="x_with_y_count">%1$s (%2$d)</string>
     <string name="x_by_y">%1$d &#xd7; %2$d</string>
     <string name="x_and_y">%1$s &amp; %2$s</string>
@@ -432,7 +432,7 @@
     <!-- Onboarding strings -->
     <string name="onboarding_open_settings_title">Solina Launcherをセットアップする</string>
     <string name="onboarding_open_settings_subtitle">ホーム画面を長押しして設定を開きます</string>
-    <string name="onboarding_major_upgrade_title">新しいSolina Launcherを使おう</string>
+    <string name="onboarding_major_upgrade_title">新しいLawnchairを使おう</string>
     <string name="onboarding_major_upgrade_subtitle">最新情報を見る</string>
     <string name="onboarding_welcome">Solina Launcher へようこそ！</string>
     <string name="onboarding_swipe_up">上にスワイプしてアプリドロワーを開く</string>
@@ -677,7 +677,7 @@
     <!-- Search providers -->
     <string name="search_provider_app_search">アプリ検索</string>
     <string name="search_provider_custom">カスタム</string>
-    <string name="search_provider_sponsored_description">%1$s と Solina Launcher は収益分配契約を持っています。\n\n %1$s で検索するとSolina Launcher をサポートすることができます。</string>
+    <string name="search_provider_sponsored_description">%1$s と Solina Launcher は収益分配契約を持っています。\n\n %1$s で検索するとLawnchair をサポートすることができます。</string>
     <string name="app_label">アプリ</string>
     <string name="website_label">ウェブサイト</string>
     <string name="qsb_search_provider_app_required">アプリが必要</string>

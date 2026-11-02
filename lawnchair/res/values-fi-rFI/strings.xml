@@ -136,7 +136,7 @@
     <string name="my_folder_label">Minun kansioni</string>
     <string name="sort_active_items_action">Lajittele aktiiviset kohteet</string>
     <!-- A11y description -->
-    <string name="accessibility_service_description">Suorittaakseen tiettyjä toimintoja, kuten lukitakseen puhelimesi, kun käytät jotain elettä, Solina Launcher pitää asettaa saavutettavuussovellukseksi.\n\nSolina Launcher ei seuraa mitään käyttäjän toimintaa, vaikkakin kyseistä lupaa käytetään kaikille saavutettavuussovelluksille. Solina Launcher hylkää kaikki tapahtumat, jotka käyttöjärjestelmä lähettää.\n\nJotta Solina Launcher voisi lukita puhelimesi tai avata viimeisimpien sovellusten näkymän, se käyttää performGlobalAction saavutettavuuspalvelua.</string>
+    <string name="accessibility_service_description">Suorittaakseen tiettyjä toimintoja, kuten lukitakseen puhelimesi, kun käytät jotain elettä, Solina Launcher pitää asettaa saavutettavuussovellukseksi.\n\nLawnchair ei seuraa mitään käyttäjän toimintaa, vaikkakin kyseistä lupaa käytetään kaikille saavutettavuussovelluksille. Solina Launcher hylkää kaikki tapahtumat, jotka käyttöjärjestelmä lähettää.\n\nJotta Solina Launcher voisi lukita puhelimesi tai avata viimeisimpien sovellusten näkymän, se käyttää performGlobalAction saavutettavuuspalvelua.</string>
     <string name="x_with_y_count">%1$s (%2$d)</string>
     <string name="x_by_y">%1$d &#xd7; %2$d</string>
     <string name="x_and_y">%1$s &amp; %2$s</string>

@@ -82,7 +82,7 @@ public class PreviewItemManager {
     // These hold the first page preview items
     private ArrayList<PreviewItemDrawingParams> mFirstPageParams = new ArrayList<>();
 
-    static final int INITIAL_ITEM_ANIMATION_DURATION = 280;
+    static final int INITIAL_ITEM_ANIMATION_DURATION = 350;
     private static final int FINAL_ITEM_ANIMATION_DURATION = 200;
 
     public PreviewItemManager(FolderIcon icon) {

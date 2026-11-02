@@ -17,12 +17,12 @@
 package app.lawnchair.gestures.handlers
 
 import android.content.Context
-import app.lawnchair.SolinaLauncher
+import app.lawnchair.LawnchairLauncher
 
 sealed class GestureHandler(val context: Context) {
-    abstract suspend fun onTrigger(launcher: SolinaLauncher)
+    abstract suspend fun onTrigger(launcher: LawnchairLauncher)
 }
 
 class NoOpGestureHandler(context: Context) : GestureHandler(context) {
-    override suspend fun onTrigger(launcher: SolinaLauncher) = Unit
+    override suspend fun onTrigger(launcher: LawnchairLauncher) = Unit
 }

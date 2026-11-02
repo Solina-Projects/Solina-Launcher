@@ -136,7 +136,7 @@
     <string name="my_folder_label">O meu cartafol</string>
     <string name="sort_active_items_action">Ordenar os elementos activos</string>
     <!-- A11y description -->
-    <string name="accessibility_service_description">Para realizar determinadas accións ao usar un xesto, como bloquear o teléfono, Solina Launcher require acceso aos servizos de accesibilidade. \n\nSolina Launcher non supervisa as túas accións, aínda que todos os servizos de accesibilidade requiren este permiso. Solina Launcher desbota calquera evento enviado polo sistema. \n\nPara bloquear o teléfono ou abrir a pantalla das aplicacións recentes, Solina Launcher utiliza a función performGlobalAction dos servizos de accesibilidade.</string>
+    <string name="accessibility_service_description">Para realizar determinadas accións ao usar un xesto, como bloquear o teléfono, Solina Launcher require acceso aos servizos de accesibilidade. \n\nLawnchair non supervisa as túas accións, aínda que todos os servizos de accesibilidade requiren este permiso. Solina Launcher desbota calquera evento enviado polo sistema. \n\nPara bloquear o teléfono ou abrir a pantalla das aplicacións recentes, Solina Launcher utiliza a función performGlobalAction dos servizos de accesibilidade.</string>
     <string name="x_with_y_count">%1$s (%2$d)</string>
     <string name="x_by_y">%1$d &#xd7; %2$d</string>
     <string name="x_and_y">%1$s &amp; %2$s</string>

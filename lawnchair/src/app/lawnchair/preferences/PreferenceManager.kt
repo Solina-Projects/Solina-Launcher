@@ -19,7 +19,7 @@ package app.lawnchair.preferences
 import android.content.Context
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
-import app.lawnchair.SolinaLauncher
+import app.lawnchair.LawnchairLauncher
 import app.lawnchair.font.FontCache
 import app.lawnchair.util.getApkVersionComparison
 import app.lawnchair.util.isGestureNavContractCompatible
@@ -66,7 +66,7 @@ class PreferenceManager @Inject constructor(
     private val deviceType = dc.info.deviceType
 
     private val recreate = {
-        SolinaLauncher.instance?.recreateIfNotScheduled()
+        LawnchairLauncher.instance?.recreateIfNotScheduled()
         Unit
     }
 
