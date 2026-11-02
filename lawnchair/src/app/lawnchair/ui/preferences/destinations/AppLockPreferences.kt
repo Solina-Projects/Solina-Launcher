@@ -75,7 +75,9 @@ fun AppLockPreferences(modifier: Modifier = Modifier) {
             LazyColumn {
                 items(apps, key = { it.packageName }) { app ->
                     Row(
-                        modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 8.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 20.dp, vertical = 8.dp),
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(16.dp),
                     ) {
