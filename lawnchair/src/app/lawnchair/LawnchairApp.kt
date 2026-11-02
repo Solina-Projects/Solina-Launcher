@@ -111,21 +111,38 @@ class LawnchairApp : LauncherApplication() {
         val dbFile = getDatabasePath(dbName)
         check(!dbFile.exists()) { "Refusing to overwrite an existing launcher database" }
 
-        val movedSidecars = mutableListOf<Pair<File, File>>()
-        listOf("-wal", "-journal").forEach { suffix ->
+        val sidecars = listOf("-wal", "-journal").mapNotNull { suffix ->
             val source = File(restoredDbFile.path + suffix)
-            if (source.exists()) {
-                val target = File(dbFile.path + suffix)
-                check(!target.exists() && source.renameTo(target)) {
-                    "Unable to install restored launcher database sidecar: $suffix"
-                }
-                movedSidecars += source to target
+            if (source.exists()) source to File(dbFile.path + suffix) else null
+        }
+        // Check every destination before moving anything. A collision on a later sidecar
+        // must not leave an earlier sidecar detached from the staged database.
+        sidecars.forEach { (source, target) ->
+            check(!target.exists()) {
+                "Refusing to overwrite restored launcher database sidecar: ${target.name}"
             }
         }
 
-        if (!restoredDbFile.renameTo(dbFile)) {
-            movedSidecars.asReversed().forEach { (source, target) -> target.renameTo(source) }
-            throw IllegalStateException("Unable to install restored launcher database")
+        val movedSidecars = mutableListOf<Pair<File, File>>()
+        try {
+            sidecars.forEach { (source, target) ->
+                check(source.renameTo(target)) {
+                    "Unable to install restored launcher database sidecar: ${source.name}"
+                }
+                movedSidecars += source to target
+            }
+            check(restoredDbFile.renameTo(dbFile)) {
+                "Unable to install restored launcher database"
+            }
+        } catch (failure: Throwable) {
+            movedSidecars.asReversed().forEach { (source, target) ->
+                if (target.exists() && !target.renameTo(source)) {
+                    failure.addSuppressed(
+                        IllegalStateException("Unable to roll back restored database sidecar: ${target.name}"),
+                    )
+                }
+            }
+            throw failure
         }
         File(restoredDbFile.path + "-shm").delete()
     }
