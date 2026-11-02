@@ -58,33 +58,50 @@ class LawnchairBackup(
     }
 
     suspend fun restore(selectedContents: Int) {
-        val handlers = mutableMapOf<String, suspend (InputStream) -> Unit>()
         val contents = selectedContents and info.contents
-        if (contents.hasFlag(INCLUDE_LAYOUT_AND_SETTINGS)) {
-            handlers.putAll(
-                getFiles(context, forRestore = true).mapValues { entry ->
-                    {
-                        val file = entry.value
-                        file.parentFile?.mkdirs()
-                        file.outputStream().use { out -> it.copyTo(out) }
-                    }
-                },
-            )
+        val handlers = mutableMapOf<String, suspend (InputStream) -> Unit>()
+        if (info.backupVersion < MODULAR_BACKUP_VERSION && contents.hasFlag(INCLUDE_LAYOUT_AND_SETTINGS)) {
+            // Backward compatibility for v1 archives, which stored all preference files together.
+            handlers.putAll(getFiles(context, forRestore = true).mapValues { entry ->
+                {
+                    val file = entry.value
+                    file.parentFile?.mkdirs()
+                    file.outputStream().use { out -> it.copyTo(out) }
+                }
+            })
+        } else if (contents.hasFlag(INCLUDE_LAYOUT_AND_SETTINGS)) {
+            val database = launcherDbFile(context, forRestore = true)
+            handlers[LAUNCHER_DB_FILE_NAME] = {
+                database.parentFile?.mkdirs()
+                database.outputStream().use { out -> it.copyTo(out) }
+            }
+        }
+
+        val selectedModules = modulesForContents(contents)
+        if (selectedModules.isNotEmpty()) {
+            handlers[MODULE_PREFERENCES_FILE_NAME] = {
+                ModularPreferenceBackup.restore(context, it.readBytes(), selectedModules)
+            }
         }
         if (contents.hasFlag(INCLUDE_WALLPAPER)) {
             handlers[WALLPAPER_FILE_NAME] = {
-                val wallpaperManager = WallpaperManager.getInstance(context)
-                wallpaperManager.setBitmap(BitmapFactory.decodeStream(it))
+                val bitmap = BitmapFactory.decodeStream(it)
+                    ?: throw IllegalArgumentException("Invalid wallpaper image")
+                WallpaperManager.getInstance(context).setBitmap(bitmap)
             }
         }
-        context.getDatabasePath(LAUNCHER_DB_FILE_NAME).parentFile?.deleteRecursively()
-        readZip(handlers)
-        // Written after the zip has been extracted: the backed up preferences file is one of
-        // the restored entries, so writing the grid state first would let it be overwritten.
-        DeviceGridState(info.gridState).writeToPrefs(context, true)
 
-        val dbController = ModelDbController(context)
-        RestoreDbTask.performRestore(context, dbController)
+        // Partial restore must never delete the launcher's database.
+        if (contents.hasFlag(INCLUDE_LAYOUT_AND_SETTINGS)) {
+            context.getDatabasePath(LAUNCHER_DB_FILE_NAME).parentFile?.deleteRecursively()
+        }
+        readZip(handlers)
+        if (contents.hasFlag(INCLUDE_LAYOUT_AND_SETTINGS)) {
+            DeviceGridState(info.gridState).writeToPrefs(context, true)
+            check(RestoreDbTask.performRestore(context, ModelDbController(context))) {
+                "Launcher database restore failed"
+            }
+        }
     }
 
     private suspend fun readZip(handlers: Map<String, suspend (InputStream) -> Unit>) {
@@ -106,7 +123,8 @@ class LawnchairBackup(
     }
 
     companion object {
-        private const val BACKUP_VERSION = 1
+        private const val BACKUP_VERSION = 2
+        private const val MODULAR_BACKUP_VERSION = 2
         private const val PREFS_FILE_NAME = "${LauncherFiles.SHARED_PREFERENCES_KEY}.xml"
         private const val PREFS_DB_FILE_NAME = "preferences"
         private const val PREFS_DATASTORE_FILE_NAME = "preferences.preferences_pb"
@@ -114,11 +132,53 @@ class LawnchairBackup(
         const val INFO_FILE_NAME = "info.pb"
         const val WALLPAPER_FILE_NAME = "wallpaper.png"
         const val SCREENSHOT_FILE_NAME = "screenshot.png"
+        const val MODULE_PREFERENCES_FILE_NAME = "preferences.modules.json"
         const val LAUNCHER_DB_FILE_NAME = "launcher.db"
         const val RESTORED_DB_FILE_NAME = "restored.db"
 
+        // Bit 0 retains the legacy layout/settings flag; bit 1 remains wallpaper.
         const val INCLUDE_LAYOUT_AND_SETTINGS = 1 shl 0
         const val INCLUDE_WALLPAPER = 1 shl 1
+        const val INCLUDE_DOCK = 1 shl 2
+        const val INCLUDE_APP_DRAWER = 1 shl 3
+        const val INCLUDE_FOLDERS = 1 shl 4
+        const val INCLUDE_ICONS = 1 shl 5
+        const val INCLUDE_THEME = 1 shl 6
+        const val INCLUDE_TYPOGRAPHY = 1 shl 7
+        const val INCLUDE_WIDGETS = 1 shl 8
+        const val INCLUDE_GESTURES = 1 shl 9
+        const val INCLUDE_SEARCH = 1 shl 10
+        const val INCLUDE_SMARTSPACE = 1 shl 11
+        const val INCLUDE_TASKBAR = 1 shl 12
+        const val INCLUDE_ANIMATIONS = 1 shl 13
+        const val INCLUDE_NOTIFICATIONS = 1 shl 14
+        const val INCLUDE_GENERAL = 1 shl 15
+        const val INCLUDE_APP_OVERRIDES = 1 shl 16
+        const val INCLUDE_OTHER = 1 shl 17
+
+        private val MODULE_FLAGS = linkedMapOf(
+            INCLUDE_LAYOUT_AND_SETTINGS to "home_screen",
+            INCLUDE_DOCK to "dock",
+            INCLUDE_APP_DRAWER to "app_drawer",
+            INCLUDE_FOLDERS to "folders",
+            INCLUDE_ICONS to "icons",
+            INCLUDE_THEME to "theme",
+            INCLUDE_TYPOGRAPHY to "typography",
+            INCLUDE_WALLPAPER to "wallpaper",
+            INCLUDE_WIDGETS to "widgets",
+            INCLUDE_GESTURES to "gestures",
+            INCLUDE_SEARCH to "search",
+            INCLUDE_SMARTSPACE to "smartspace",
+            INCLUDE_TASKBAR to "taskbar",
+            INCLUDE_ANIMATIONS to "animations",
+            INCLUDE_NOTIFICATIONS to "notifications",
+            INCLUDE_GENERAL to "general",
+            INCLUDE_APP_OVERRIDES to "app_overrides",
+            INCLUDE_OTHER to "other",
+        )
+
+        private fun modulesForContents(contents: Int): Set<String> =
+            MODULE_FLAGS.filterKeys { flag -> contents.hasFlag(flag) }.values.toSet()
 
         const val MIME_TYPE = "application/zip"
         val EXTRA_MIME_TYPES = arrayOf(MIME_TYPE, "application/x-zip", "application/octet-stream")
@@ -175,12 +235,19 @@ class LawnchairBackup(
                                 wallpaperBitmap.compress(Bitmap.CompressFormat.PNG, 100, out)
                             }
                         }
-                        if (contents.hasFlag(INCLUDE_LAYOUT_AND_SETTINGS)) {
+                        if (modulesForContents(contents).isNotEmpty()) {
                             out.putNextEntry(ZipEntry(SCREENSHOT_FILE_NAME))
                             screenshotBitmap.compress(Bitmap.CompressFormat.PNG, 85, out)
+                            out.putNextEntry(ZipEntry(MODULE_PREFERENCES_FILE_NAME))
+                            out.write(ModularPreferenceBackup.export(context, modulesForContents(contents)))
                         }
 
-                        getFiles(context, forRestore = false).entries.forEach {
+                        val files = if (contents.hasFlag(INCLUDE_LAYOUT_AND_SETTINGS)) {
+                            mapOf(LAUNCHER_DB_FILE_NAME to launcherDbFile(context, forRestore = false))
+                        } else {
+                            emptyMap()
+                        }
+                        files.entries.forEach {
                             if (!it.value.exists()) return@forEach
                             out.putNextEntry(ZipEntry(it.key))
                             it.value.inputStream().use { input -> input.copyTo(out) }
