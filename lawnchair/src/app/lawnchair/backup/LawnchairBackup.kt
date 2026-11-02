@@ -443,17 +443,17 @@ class LawnchairBackup(
         private fun deleteActiveLauncherDatabase(context: Context) {
             val database = context.getDatabasePath(LauncherAppState.getIDP(context).dbFile)
 
-            // Stop immediately if the main database cannot be removed. In particular, do not
-            // continue deleting its WAL/journal files after a failed main-file deletion.
-            check(!database.exists() || database.delete()) {
-                "Unable to remove active launcher database: ${database.name}"
-            }
-
+            // Remove sidecars first. If any sidecar cannot be removed, keep the main database
+            // file in place rather than leaving it detached from an incomplete cleanup.
             listOf("-wal", "-shm", "-journal").forEach { suffix ->
                 val sidecar = File(database.path + suffix)
                 check(!sidecar.exists() || sidecar.delete()) {
                     "Unable to remove active launcher database sidecar: ${sidecar.name}"
                 }
+            }
+
+            check(!database.exists() || database.delete()) {
+                "Unable to remove active launcher database: ${database.name}"
             }
         }
 
