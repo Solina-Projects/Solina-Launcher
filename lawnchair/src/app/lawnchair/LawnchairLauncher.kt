@@ -98,7 +98,7 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 
 class LawnchairLauncher : QuickstepLauncher() {
-    override fun startActivitySafely(v: View?, intent: Intent?, item: LauncherItemInfo?): RunnableList? {
+    override fun startActivitySafely(v: View?, intent: Intent?, item: ItemInfo?): RunnableList? {
         val packageName = intent?.component?.packageName ?: intent?.`package`
         if (packageName != null && AppLockStore.isLocked(this, packageName)) {
             startActivity(
