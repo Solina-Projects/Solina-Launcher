@@ -1,7 +1,6 @@
 package app.lawnchair.backup
 
 import android.content.Context
-import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.doublePreferencesKey
 import androidx.datastore.preferences.core.edit
@@ -67,7 +66,7 @@ internal object ModularPreferenceBackup {
         val manager = PreferenceManager.getInstance(context)
         val shared = JSONObject()
         manager.sp.all.forEach { (key, value) ->
-            if (moduleFor(key) in selectedModules) shared.put(key, encode(value))
+            if (value != null && moduleFor(key) in selectedModules) shared.put(key, encode(value))
         }
         root.put("shared_preferences", shared)
 
