@@ -54,6 +54,8 @@ class LawnchairBackup(
                 WALLPAPER_FILE_NAME to { tmpWallpaper = decodeBoundedBitmap(it, MAX_WALLPAPER_BYTES) },
             ),
         )
+        require(info.backupVersion in 1..BACKUP_VERSION) { "Unsupported backup version" }
+        require(info.contents != 0) { "Backup contains no restorable sections" }
         val size = max(info.previewWidth, info.previewHeight).coerceAtMost(4000)
         screenshot = tmpScreenshot?.scaleDownTo(size)
         wallpaper = tmpWallpaper?.scaleDownToDisplaySize(context)
@@ -96,9 +98,22 @@ class LawnchairBackup(
             }
         }
 
-        // Validate every entry, CRC and archive-wide size limit before mutating preferences,
-        // wallpaper or databases. This prevents a truncated tail entry from causing a partial restore.
-        val archiveEntries = readZip(emptyMap())
+        // Validate every entry, CRC, selected snapshot and image before mutating user data.
+        val validationHandlers = mutableMapOf<String, suspend (InputStream) -> Unit>()
+        if (info.backupVersion >= MODULAR_BACKUP_VERSION && selectedModules.isNotEmpty()) {
+            validationHandlers[MODULE_PREFERENCES_FILE_NAME] = {
+                ModularPreferenceBackup.validate(it.readBytes())
+            }
+        }
+        if (contents.hasFlag(INCLUDE_WALLPAPER)) {
+            validationHandlers[WALLPAPER_FILE_NAME] = {
+                decodeBoundedBitmap(it, MAX_WALLPAPER_BYTES)
+            }
+        }
+        val archiveEntries = readZip(
+            validationHandlers,
+            validateCustomFonts = "typography" in selectedModules,
+        )
         if (info.backupVersion >= MODULAR_BACKUP_VERSION && selectedModules.isNotEmpty()) {
             require(MODULE_PREFERENCES_FILE_NAME in archiveEntries) {
                 "Backup is missing its modular preferences snapshot"
@@ -135,6 +150,7 @@ class LawnchairBackup(
     private suspend fun readZip(
         handlers: Map<String, suspend (InputStream) -> Unit>,
         restoreCustomFonts: Boolean = false,
+        validateCustomFonts: Boolean = false,
     ): Set<String> = withContext(Dispatchers.IO) {
             val pfd = context.contentResolver.openFileDescriptor(uri, "r")
                 ?: throw IllegalArgumentException("Unable to open backup file")
@@ -153,10 +169,16 @@ class LawnchairBackup(
                             require(entry.size < 0L || entry.size <= limit) { "Backup entry is too large: ${entry.name}" }
                             val bounded = EntryLimitedInputStream(zipIs, limit)
                             val handler = handlers[entry.name] ?: if (
-                                restoreCustomFonts && entry.name.startsWith(CUSTOM_FONT_ENTRY_PREFIX)
+                                (restoreCustomFonts || validateCustomFonts) &&
+                                entry.name.startsWith(CUSTOM_FONT_ENTRY_PREFIX)
                             ) {
                                 { input: InputStream ->
-                                    restoreCustomFont(entry.name.removePrefix(CUSTOM_FONT_ENTRY_PREFIX), input)
+                                    val fontName = entry.name.removePrefix(CUSTOM_FONT_ENTRY_PREFIX)
+                                    if (restoreCustomFonts) {
+                                        restoreCustomFont(fontName, input)
+                                    } else {
+                                        validateCustomFont(fontName, input)
+                                    }
                                 }
                             } else {
                                 null
@@ -211,17 +233,39 @@ class LawnchairBackup(
         else -> MAX_UNKNOWN_ENTRY_BYTES
     }
 
+    private fun validateCustomFont(entryName: String, input: InputStream) {
+        validateFontEntryName(entryName)
+        val temporary = File(context.cacheDir, "solina-font-check-${entryName.hashCode()}.tmp")
+        try {
+            temporary.outputStream().use { output -> input.copyTo(output) }
+            require(FontCache.TTFFont.createTypeface(temporary) != null) { "Invalid custom font file" }
+        } finally {
+            temporary.delete()
+        }
+    }
+
     private fun restoreCustomFont(entryName: String, input: InputStream) {
-        require(entryName.isNotBlank() && File(entryName).name == entryName &&
-            !entryName.contains('/') && !entryName.contains('\\')
-        ) { "Invalid custom font path" }
+        validateFontEntryName(entryName)
         val directory = FontCache.TTFFont.getFontsDir(context)
         val target = File(directory, entryName)
         val temporary = File(directory, "$entryName.restore.tmp")
+        val previous = File(directory, "$entryName.restore.bak")
         temporary.outputStream().use { output -> input.copyTo(output) }
         require(FontCache.TTFFont.createTypeface(temporary) != null) { "Invalid custom font file" }
-        if (target.exists()) require(target.delete()) { "Unable to replace custom font" }
-        require(temporary.renameTo(target)) { "Unable to install custom font" }
+        if (previous.exists()) previous.delete()
+        if (target.exists()) require(target.renameTo(previous)) { "Unable to stage existing custom font" }
+        if (!temporary.renameTo(target)) {
+            previous.takeIf { it.exists() }?.renameTo(target)
+            throw IllegalStateException("Unable to install custom font")
+        }
+        previous.delete()
+    }
+
+    private fun validateFontEntryName(entryName: String) {
+        require(entryName.isNotBlank() && File(entryName).name == entryName &&
+            !entryName.contains('/') && !entryName.contains('\\') &&
+            !entryName.contains("..")
+        ) { "Invalid custom font path" }
     }
 
     private fun decodeBoundedBitmap(input: InputStream, maxBytes: Long): Bitmap? {
