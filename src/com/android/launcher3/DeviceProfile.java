@@ -229,6 +229,7 @@ public class DeviceProfile {
     // In portrait: size = height, in landscape: size = width
     public int hotseatBarSizePx;
     public int hotseatBarBottomSpacePx;
+    private int mHotseatBarBottomSpaceBasePx;
     public int hotseatQsbSpace;
     public int hotseatQsbWidth; // only used when isQsbInline
     public int hotseatBorderSpace;
@@ -598,6 +599,7 @@ public class DeviceProfile {
             }
         }
 
+        mHotseatBarBottomSpaceBasePx = hotseatBarBottomSpacePx;
         mHotseatQsbSpaceBase = hotseatQsbSpace;
 
         if (mIsResponsiveGrid) {
@@ -915,8 +917,9 @@ public class DeviceProfile {
         int verticalPadding = Math.round(PreferenceCacheExtensionsKt.firstCached(
                 preferenceManager2.getHotseatVerticalPaddingDp()) * mMetrics.density);
 
-        hotseatBarBottomSpacePx *= PreferenceCacheExtensionsKt
-            .firstCached(preferenceManager2.getHotseatBottomFactor());
+        hotseatBarBottomSpacePx = Math.round(mHotseatBarBottomSpaceBasePx
+                * PreferenceCacheExtensionsKt.firstCached(
+                        preferenceManager2.getHotseatBottomFactor()));
 
         // Reserve the scaled cell height and scaled inter-row border space for every
         // additional dock row, matching CellLayout's actual vertical geometry.
