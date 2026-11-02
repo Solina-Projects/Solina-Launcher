@@ -165,7 +165,11 @@ class LawnchairAppPredictor(private val context: Context) : StatsLogCompatManage
         // Dock mode starts with apps learned from dock launches, then fills remaining
         // rows with the most-used all-apps ranking. mergeRanked preserves order and de-duplicates.
         val suggestionRanked = if (isDockSuggestionSource()) {
-            predictionEngine.mergeRanked(hotseatRanked, allAppsRanked, fallbackRanked)
+            predictionEngine.mergeRanked(
+                predictionEngine.getDockRanked(dataModel),
+                allAppsRanked,
+                fallbackRanked,
+            )
         } else {
             allAppsCandidateRanked
         }
