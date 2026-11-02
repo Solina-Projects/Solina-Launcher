@@ -85,7 +85,7 @@ public abstract class AbstractSlideInView<T extends Context & ActivityContext>
             };
     protected static final float TRANSLATION_SHIFT_CLOSED = 1f;
     protected static final float TRANSLATION_SHIFT_OPENED = 0f;
-    private static final int DEFAULT_DURATION = 300;
+    private static final int DEFAULT_DURATION = 240;
 
     protected final T mActivityContext;
 
