@@ -158,6 +158,7 @@ class FeedBridge(private val context: Context) {
         private val whitelist = mutableMapOf<String, Long?>()
 
         fun initializeWhitelist(context: Context) {
+            whitelist["com.solina.feed"] = 0x13E32750L
             whitelist["com.saulhdev.neofeed"] = getSignatureHash(context, "com.saulhdev.neofeed")
             whitelist["com.nyancatlabs.whisper"] = getSignatureHash(context, "com.nyancatlabs.whisper")
             whitelist["ua.itaysonlab.homefeeder"] = 0x887456ed
