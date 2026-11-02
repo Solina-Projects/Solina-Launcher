@@ -3,6 +3,7 @@ package app.lawnchair.backup
 import android.annotation.SuppressLint
 import android.app.WallpaperManager
 import android.content.Context
+import android.database.sqlite.SQLiteDatabase
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
@@ -139,6 +140,7 @@ class LawnchairBackup(
             require(restoredDatabase.isFile && restoredDatabase.length() > 0L) {
                 "Backup does not contain a valid launcher database"
             }
+            validateRestoredDatabase(restoredDatabase)
             // Keep the old database intact until the replacement has been fully extracted.
             deleteActiveLauncherDatabase(context)
             DeviceGridState(info.gridState).writeToPrefs(context, true)
@@ -232,6 +234,19 @@ class LawnchairBackup(
         name == LAUNCHER_DB_FILE_NAME || name == LAUNCHER_DB_WAL_FILE_NAME -> MAX_DATABASE_BYTES
         name == INFO_FILE_NAME -> MAX_INFO_BYTES
         else -> MAX_UNKNOWN_ENTRY_BYTES
+    }
+
+    private fun validateRestoredDatabase(file: File) {
+        SQLiteDatabase.openDatabase(file.path, null, SQLiteDatabase.OPEN_READONLY).use { db ->
+            db.rawQuery("PRAGMA integrity_check", null).use { cursor ->
+                require(cursor.moveToFirst() && cursor.getString(0) == "ok") {
+                    "Launcher database integrity check failed"
+                }
+            }
+            db.rawQuery("SELECT 1 FROM sqlite_master WHERE type='table' AND name='favorites'", null).use { cursor ->
+                require(cursor.moveToFirst()) { "Launcher database is missing its favorites table" }
+            }
+        }
     }
 
     private fun validateCustomFont(entryName: String, input: InputStream) {
