@@ -8,6 +8,7 @@ import android.graphics.BitmapFactory
 import android.net.Uri
 import androidx.core.graphics.drawable.toBitmap
 import app.lawnchair.LawnchairProto.BackupInfo
+import app.lawnchair.font.FontCache
 import app.lawnchair.util.hasFlag
 import app.lawnchair.util.scaleDownTo
 import app.lawnchair.util.scaleDownToDisplaySize
@@ -116,7 +117,7 @@ class LawnchairBackup(
         if (contents.hasFlag(INCLUDE_WALLPAPER)) {
             require(WALLPAPER_FILE_NAME in archiveEntries) { "Backup does not contain a wallpaper image" }
         }
-        readZip(handlers)
+        readZip(handlers, restoreCustomFonts = "typography" in selectedModules)
         if (contents.hasFlag(INCLUDE_LAYOUT_AND_SETTINGS)) {
             val restoredDatabase = launcherDbFile(context, forRestore = true)
             require(restoredDatabase.isFile && restoredDatabase.length() > 0L) {
@@ -131,8 +132,10 @@ class LawnchairBackup(
         }
     }
 
-    private suspend fun readZip(handlers: Map<String, suspend (InputStream) -> Unit>): Set<String> =
-        withContext(Dispatchers.IO) {
+    private suspend fun readZip(
+        handlers: Map<String, suspend (InputStream) -> Unit>,
+        restoreCustomFonts: Boolean = false,
+    ): Set<String> = withContext(Dispatchers.IO) {
             val pfd = context.contentResolver.openFileDescriptor(uri, "r")
                 ?: throw IllegalArgumentException("Unable to open backup file")
             pfd.use {
@@ -149,7 +152,16 @@ class LawnchairBackup(
                             val limit = maxEntryBytes(entry.name)
                             require(entry.size < 0L || entry.size <= limit) { "Backup entry is too large: ${entry.name}" }
                             val bounded = EntryLimitedInputStream(zipIs, limit)
-                            handlers[entry.name]?.invoke(bounded)
+                            val handler = handlers[entry.name] ?: if (
+                                restoreCustomFonts && entry.name.startsWith(CUSTOM_FONT_ENTRY_PREFIX)
+                            ) {
+                                { input: InputStream ->
+                                    restoreCustomFont(entry.name.removePrefix(CUSTOM_FONT_ENTRY_PREFIX), input)
+                                }
+                            } else {
+                                null
+                            }
+                            handler?.invoke(bounded)
                             val buffer = ByteArray(DEFAULT_BUFFER_SIZE)
                             while (bounded.read(buffer) != -1) { }
                             if (entry.name == LAUNCHER_DB_FILE_NAME) {
@@ -189,13 +201,27 @@ class LawnchairBackup(
         override fun close() = Unit
     }
 
-    private fun maxEntryBytes(name: String): Long = when (name) {
-        MODULE_PREFERENCES_FILE_NAME -> MAX_PREFERENCES_BYTES
-        WALLPAPER_FILE_NAME -> MAX_WALLPAPER_BYTES
-        SCREENSHOT_FILE_NAME -> MAX_SCREENSHOT_BYTES
-        LAUNCHER_DB_FILE_NAME, LAUNCHER_DB_WAL_FILE_NAME -> MAX_DATABASE_BYTES
-        INFO_FILE_NAME -> MAX_INFO_BYTES
+    private fun maxEntryBytes(name: String): Long = when {
+        name.startsWith(CUSTOM_FONT_ENTRY_PREFIX) -> MAX_CUSTOM_FONT_BYTES
+        name == MODULE_PREFERENCES_FILE_NAME -> MAX_PREFERENCES_BYTES
+        name == WALLPAPER_FILE_NAME -> MAX_WALLPAPER_BYTES
+        name == SCREENSHOT_FILE_NAME -> MAX_SCREENSHOT_BYTES
+        name == LAUNCHER_DB_FILE_NAME || name == LAUNCHER_DB_WAL_FILE_NAME -> MAX_DATABASE_BYTES
+        name == INFO_FILE_NAME -> MAX_INFO_BYTES
         else -> MAX_UNKNOWN_ENTRY_BYTES
+    }
+
+    private fun restoreCustomFont(entryName: String, input: InputStream) {
+        require(entryName.isNotBlank() && File(entryName).name == entryName &&
+            !entryName.contains('/') && !entryName.contains('\\')
+        ) { "Invalid custom font path" }
+        val directory = FontCache.TTFFont.getFontsDir(context)
+        val target = File(directory, entryName)
+        val temporary = File(directory, "$entryName.restore.tmp")
+        temporary.outputStream().use { output -> input.copyTo(output) }
+        require(FontCache.TTFFont.createTypeface(temporary) != null) { "Invalid custom font file" }
+        if (target.exists()) require(target.delete()) { "Unable to replace custom font" }
+        require(temporary.renameTo(target)) { "Unable to install custom font" }
     }
 
     private fun decodeBoundedBitmap(input: InputStream, maxBytes: Long): Bitmap? {
@@ -237,6 +263,7 @@ class LawnchairBackup(
         const val WALLPAPER_FILE_NAME = "wallpaper.png"
         const val SCREENSHOT_FILE_NAME = "screenshot.png"
         const val MODULE_PREFERENCES_FILE_NAME = "preferences.modules.json"
+        private const val CUSTOM_FONT_ENTRY_PREFIX = "custom_fonts/"
         const val LAUNCHER_DB_FILE_NAME = "launcher.db"
         const val LAUNCHER_DB_WAL_FILE_NAME = "launcher.db-wal"
         const val RESTORED_DB_FILE_NAME = "restored.db"
@@ -290,6 +317,8 @@ class LawnchairBackup(
         private const val MAX_DATABASE_BYTES = 256L * 1024 * 1024
         private const val MAX_PREFERENCES_BYTES = 16L * 1024 * 1024
         private const val MAX_WALLPAPER_BYTES = 64L * 1024 * 1024
+        private const val MAX_CUSTOM_FONT_BYTES = 64L * 1024 * 1024
+        private const val MAX_CUSTOM_FONT_FILES = 32
         private const val MAX_SCREENSHOT_BYTES = 32L * 1024 * 1024
         private const val MAX_INFO_BYTES = 1024L * 1024
         private const val MAX_UNKNOWN_ENTRY_BYTES = 8L * 1024 * 1024
@@ -381,11 +410,22 @@ class LawnchairBackup(
                             out.putNextEntry(ZipEntry(WALLPAPER_FILE_NAME))
                             wallpaperBitmap.compress(Bitmap.CompressFormat.PNG, 100, out)
                         }
-                        if (modulesForContents(contents).isNotEmpty()) {
+                        val selectedModules = modulesForContents(contents)
+                        if (selectedModules.isNotEmpty()) {
                             out.putNextEntry(ZipEntry(SCREENSHOT_FILE_NAME))
                             screenshotBitmap.compress(Bitmap.CompressFormat.PNG, 85, out)
                             out.putNextEntry(ZipEntry(MODULE_PREFERENCES_FILE_NAME))
-                            out.write(ModularPreferenceBackup.export(context, modulesForContents(contents)))
+                            out.write(ModularPreferenceBackup.export(context, selectedModules))
+                        }
+                        if ("typography" in selectedModules) {
+                            val fonts = FontCache.TTFFont.getFontsDir(context).listFiles()
+                                ?.filter { it.isFile } ?: emptyList()
+                            require(fonts.size <= MAX_CUSTOM_FONT_FILES) { "Too many custom fonts to back up" }
+                            fonts.forEach { font ->
+                                require(font.length() <= MAX_CUSTOM_FONT_BYTES) { "Custom font is too large" }
+                                out.putNextEntry(ZipEntry(CUSTOM_FONT_ENTRY_PREFIX + font.name))
+                                font.inputStream().use { input -> input.copyTo(out) }
+                            }
                         }
 
                         if (contents.hasFlag(INCLUDE_LAYOUT_AND_SETTINGS)) {
