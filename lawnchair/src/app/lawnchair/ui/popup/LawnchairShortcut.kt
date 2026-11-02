@@ -20,7 +20,7 @@ import android.view.View
 import android.widget.Toast
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.ui.unit.dp
-import app.lawnchair.LawnchairLauncher
+import app.lawnchair.SolinaLauncher
 import app.lawnchair.override.CustomizeAppDialog
 import app.lawnchair.preferences2.PreferenceManager2
 import app.lawnchair.preferences2.firstCached
@@ -51,7 +51,7 @@ class LawnchairShortcut {
     companion object {
 
         fun showAppDrawerFolderPopup(
-            launcher: LawnchairLauncher,
+            launcher: SolinaLauncher,
             folderIcon: FolderIcon,
         ): Boolean {
             val folderId = folderIcon.mInfo.id
@@ -64,7 +64,7 @@ class LawnchairShortcut {
             //
             // In the future we should perhaps move this entire code to a dedicated file like
             // LawnchairFolderShortcut.kt
-            return OptionsPopupView.show<LawnchairLauncher>(
+            return OptionsPopupView.show<SolinaLauncher>(
                 launcher,
                 RectF(bounds),
                 listOf(
@@ -88,7 +88,7 @@ class LawnchairShortcut {
         }
 
         val CUSTOMIZE =
-            SystemShortcut.Factory { activity: LawnchairLauncher, itemInfo, originalView ->
+            SystemShortcut.Factory { activity: SolinaLauncher, itemInfo, originalView ->
                 val prefs2 = PreferenceManager2.getInstance(activity)
                 if (prefs2.lockHomeScreen.firstCached()) {
                     null
@@ -97,7 +97,7 @@ class LawnchairShortcut {
                 }
             }
 
-        private fun getAppInfo(launcher: LawnchairLauncher, itemInfo: ItemInfo): ModelAppInfo? {
+        private fun getAppInfo(launcher: SolinaLauncher, itemInfo: ItemInfo): ModelAppInfo? {
             if (itemInfo is ModelAppInfo) return itemInfo
             if (itemInfo.itemType != ITEM_TYPE_APPLICATION) return null
             val key = ComponentKey(itemInfo.targetComponent, itemInfo.user)
@@ -144,7 +144,7 @@ class LawnchairShortcut {
                 OpenInStore(activity, itemInfo, originalView, packageName, installer)
             }
 
-        val PAUSE_APPS = SystemShortcut.Factory { activity: LawnchairLauncher, itemInfo: ItemInfo, originalView: View ->
+        val PAUSE_APPS = SystemShortcut.Factory { activity: SolinaLauncher, itemInfo: ItemInfo, originalView: View ->
             val targetCmp = itemInfo.targetComponent
             val packageName = targetCmp?.packageName ?: return@Factory null
 
@@ -162,11 +162,11 @@ class LawnchairShortcut {
     }
 
     class Customize(
-        private val launcher: LawnchairLauncher,
+        private val launcher: SolinaLauncher,
         private val appInfo: ModelAppInfo,
         itemInfo: ItemInfo,
         originalView: View,
-    ) : SystemShortcut<LawnchairLauncher>(R.drawable.ic_edit, R.string.action_customize, launcher, itemInfo, originalView) {
+    ) : SystemShortcut<SolinaLauncher>(R.drawable.ic_edit, R.string.action_customize, launcher, itemInfo, originalView) {
 
         override fun onClick(v: View) {
             val outObj = Array<Any?>(1) { null }
@@ -208,10 +208,10 @@ class LawnchairShortcut {
     }
 
     class PauseApps(
-        target: LawnchairLauncher,
+        target: SolinaLauncher,
         itemInfo: ItemInfo,
         originalView: View,
-    ) : SystemShortcut<LawnchairLauncher>(
+    ) : SystemShortcut<SolinaLauncher>(
         R.drawable.ic_hourglass_top,
         R.string.paused_apps_drop_target_label,
         target,

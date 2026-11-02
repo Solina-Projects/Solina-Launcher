@@ -17,7 +17,7 @@
 package app.lawnchair.preferences2
 
 import android.content.Context
-import app.lawnchair.LawnchairLauncher
+import app.lawnchair.SolinaLauncher
 import com.android.launcher3.InvariantDeviceProfile
 import com.android.launcher3.LauncherAppState
 import com.android.launcher3.graphics.ThemeManager
@@ -39,7 +39,7 @@ class ReloadHelper(private val context: Context) {
     }
 
     fun recreate() {
-        LawnchairLauncher.instance?.recreateIfNotScheduled()
+        SolinaLauncher.instance?.recreateIfNotScheduled()
     }
 
     fun restart() {

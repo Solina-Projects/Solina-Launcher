@@ -19,14 +19,14 @@ package app.lawnchair.gestures.ui
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
-import app.lawnchair.LawnchairLauncher
+import app.lawnchair.SolinaLauncher
 
 class RunHandlerActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         if (intent.action == LawnchairShortcutActivity.START_ACTION) {
             startActivity(
-                Intent(this, LawnchairLauncher::class.java).apply {
+                Intent(this, SolinaLauncher::class.java).apply {
                     action = LawnchairShortcutActivity.START_ACTION
                     putExtra(
                         LawnchairShortcutActivity.EXTRA_HANDLER,

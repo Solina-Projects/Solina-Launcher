@@ -54,7 +54,7 @@ import com.android.launcher3.testing.TestLogging;
 import com.android.launcher3.testing.shared.TestProtocol;
 import com.android.launcher3.util.TouchUtil;
 
-import app.lawnchair.LawnchairLauncher;
+import app.lawnchair.SolinaLauncher;
 
 /**
  * Helper class to handle touch on empty space in workspace and show options popup on long press
@@ -261,7 +261,7 @@ public class WorkspaceTouchListener extends GestureDetector.SimpleOnGestureListe
     public boolean onDoubleTap(MotionEvent event) {
         mDoubleTapPending = true;
         Context context = mWorkspace.getContext();
-        LawnchairLauncher launcher = Launcher.fromContext(context);
+        SolinaLauncher launcher = Launcher.fromContext(context);
         launcher.getGestureController().onDoubleTap();
         return true;
     }
