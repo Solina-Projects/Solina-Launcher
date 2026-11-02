@@ -925,7 +925,7 @@ public class DeviceProfile {
         // additional dock row, matching CellLayout's actual vertical geometry.
         int dockRowSpacingPx = Math.round(hotseatBorderSpace * rowSpaceFactor);
         int extraRowsHeight = (numHotseatRows - 1)
-                * (hotseatCellHeightPx + dockRowSpacingPx);
+                * (hotseatCellHeightPx + dockRowSpacingPx + verticalPadding * 2);
 
         if (isVerticalBarLayout()) {
             hotseatBarSizePx = hotseatIconSizePx + getHotseatProfile().getBarEdgePaddingPx()
