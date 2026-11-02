@@ -1122,7 +1122,7 @@
     <string name="solina_persian_calendar_widget_description">Shows today\'s date in the Solar Hijri calendar.</string>
     <string name="solina_persian_calendar_caption">Solar Hijri calendar</string>
     <string name="app_lock_title">App lock</string>
-    <string name="app_lock_description">Require your device screen lock or biometrics before opening selected apps from Solina Launcher.</string>
+    <string name="app_lock_description">Require your device PIN, pattern, or password before opening selected apps from Solina Launcher.</string>
     <string name="app_lock_unlock_title">Unlock app</string>
     <string name="app_lock_unlock_subtitle">Authenticate to open this app.</string>
     <string name="app_lock_unavailable">Secure device authentication is not configured. Set a screen lock or biometrics in Android settings.</string>
