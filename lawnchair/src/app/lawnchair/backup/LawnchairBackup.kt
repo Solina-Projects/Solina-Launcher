@@ -91,12 +91,14 @@ class LawnchairBackup(
             }
         }
 
-        // Partial restore must never delete the launcher's database.
-        if (contents.hasFlag(INCLUDE_LAYOUT_AND_SETTINGS)) {
-            deleteLauncherDatabases(context)
-        }
         readZip(handlers)
         if (contents.hasFlag(INCLUDE_LAYOUT_AND_SETTINGS)) {
+            val restoredDatabase = launcherDbFile(context, forRestore = true)
+            require(restoredDatabase.isFile && restoredDatabase.length() > 0L) {
+                "Backup does not contain a valid launcher database"
+            }
+            // Keep the old database intact until the replacement has been fully extracted.
+            deleteActiveLauncherDatabase(context)
             DeviceGridState(info.gridState).writeToPrefs(context, true)
             check(RestoreDbTask.performRestore(context, ModelDbController(context))) {
                 "Launcher database restore failed"
@@ -209,18 +211,12 @@ class LawnchairBackup(
             INCLUDE_WIDGETS or INCLUDE_GESTURES or INCLUDE_SEARCH or INCLUDE_SMARTSPACE or INCLUDE_TASKBAR or
             INCLUDE_ANIMATIONS or INCLUDE_NOTIFICATIONS or INCLUDE_GENERAL or INCLUDE_APP_OVERRIDES or INCLUDE_OTHER
 
-        private fun deleteLauncherDatabases(context: Context) {
-            val names = listOf(
-                LauncherAppState.getIDP(context).dbFile,
-                RESTORED_DB_FILE_NAME,
-            )
-            names.forEach { name ->
-                val database = context.getDatabasePath(name)
-                database.delete()
-                File(database.path + "-wal").delete()
-                File(database.path + "-shm").delete()
-                File(database.path + "-journal").delete()
-            }
+        private fun deleteActiveLauncherDatabase(context: Context) {
+            val database = context.getDatabasePath(LauncherAppState.getIDP(context).dbFile)
+            database.delete()
+            File(database.path + "-wal").delete()
+            File(database.path + "-shm").delete()
+            File(database.path + "-journal").delete()
         }
 
         fun generateBackupFileName(): String {
