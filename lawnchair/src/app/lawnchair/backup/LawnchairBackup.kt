@@ -91,6 +91,13 @@ class LawnchairBackup(
             }
         }
 
+        if (contents.hasFlag(INCLUDE_LAYOUT_AND_SETTINGS)) {
+            val staleRestoreDatabase = launcherDbFile(context, forRestore = true)
+            staleRestoreDatabase.delete()
+            File(staleRestoreDatabase.path + "-wal").delete()
+            File(staleRestoreDatabase.path + "-shm").delete()
+            File(staleRestoreDatabase.path + "-journal").delete()
+        }
         readZip(handlers)
         if (contents.hasFlag(INCLUDE_LAYOUT_AND_SETTINGS)) {
             val restoredDatabase = launcherDbFile(context, forRestore = true)
