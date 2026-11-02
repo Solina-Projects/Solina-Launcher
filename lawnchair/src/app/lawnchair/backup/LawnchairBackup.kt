@@ -195,7 +195,9 @@ class LawnchairBackup(
                             require(bounded.bytesRead > 0L) { "Launcher database entry is empty" }
                         }
                         totalBytes += bounded.bytesRead
-                        require(totalBytes <= MAX_ARCHIVE_UNCOMPRESSED_BYTES) { "Backup expands beyond the allowed size" }
+                        require(totalBytes <= MAX_ARCHIVE_UNCOMPRESSED_BYTES) {
+                            "Backup expands beyond the allowed size"
+                        }
                         zipIs.closeEntry()
                     }
                     seenEntries
