@@ -114,7 +114,13 @@ internal object ModularPreferenceBackup {
         val root = JSONObject(bytes.toString(Charsets.UTF_8))
 
         val shared = root.optJSONObject("shared_preferences") ?: JSONObject()
-        val editor = PreferenceManager.getInstance(context).sp.edit()
+        val sharedPreferences = PreferenceManager.getInstance(context).sp
+        val editor = sharedPreferences.edit()
+        // A selected module is replaced as a unit: remove its current keys first, while
+        // preserving every key belonging to modules the user did not select.
+        sharedPreferences.all.keys
+            .filter { moduleFor(it) in selectedModules }
+            .forEach(editor::remove)
         shared.keys().forEach { key ->
             if (moduleFor(key) in selectedModules) decode(shared.getJSONObject(key))?.let { value ->
                 when (value) {
@@ -127,11 +133,14 @@ internal object ModularPreferenceBackup {
                 }
             }
         }
-        editor.apply()
+        editor.commit().also { check(it) { "Unable to commit SharedPreferences restore" } }
 
         val data = root.optJSONObject("datastore_preferences") ?: JSONObject()
         val store = PreferenceManager2.getInstance(context).preferencesDataStore
         store.edit { current ->
+            current.asMap().keys
+                .filter { moduleFor(it.name) in selectedModules }
+                .forEach { key -> current.remove(key) }
             data.keys().forEach { name ->
                 if (moduleFor(name) !in selectedModules) return@forEach
                 val value = decode(data.getJSONObject(name)) ?: return@forEach
