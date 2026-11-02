@@ -43,6 +43,11 @@ import android.util.LongSparseArray;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 
+import app.lawnchair.LawnchairApp;
+import app.lawnchair.preferences.PreferenceManager;
+import app.lawnchair.preferences2.PreferenceCacheExtensionsKt;
+import app.lawnchair.preferences2.PreferenceManager2;
+
 import com.android.launcher3.BuildConfig;
 import com.android.launcher3.BuildConfigs;
 import com.android.launcher3.Flags;
