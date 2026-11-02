@@ -288,14 +288,6 @@ class LawnchairBackup(
         previous.delete()
     }
 
-    private fun validateFontEntryName(entryName: String) {
-        require(
-            entryName.isNotBlank() && File(entryName).name == entryName &&
-                !entryName.contains('/') && !entryName.contains('\\') &&
-                !entryName.contains(".."),
-        ) { "Invalid custom font path" }
-    }
-
     private fun decodeBoundedBitmap(input: InputStream, maxBytes: Long): Bitmap? {
         val bytes = input.readLimited(maxBytes)
         val bounds = BitmapFactory.Options().apply { inJustDecodeBounds = true }
@@ -384,6 +376,14 @@ class LawnchairBackup(
         )
 
         private fun modulesForContents(contents: Int): Set<String> = MODULE_FLAGS.filterKeys { flag -> contents.hasFlag(flag) }.values.toSet()
+
+        private fun validateFontEntryName(entryName: String) {
+            require(
+                entryName.isNotBlank() && File(entryName).name == entryName &&
+                    !entryName.contains('/') && !entryName.contains('\\') &&
+                    !entryName.contains(".."),
+            ) { "Invalid custom font path" }
+        }
 
         private const val MAX_ARCHIVE_ENTRIES = 128
         private const val MAX_ARCHIVE_UNCOMPRESSED_BYTES = 512L * 1024 * 1024
