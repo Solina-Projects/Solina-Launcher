@@ -82,10 +82,17 @@ internal object ModularPreferenceBackup {
         return root.toString().toByteArray(Charsets.UTF_8)
     }
 
-    suspend fun restore(context: Context, bytes: ByteArray, selectedModules: Set<String>) {
+    fun validate(bytes: ByteArray) {
         require(bytes.size <= MAX_SNAPSHOT_BYTES) { "Preference snapshot is too large" }
         val root = JSONObject(bytes.toString(Charsets.UTF_8))
         require(root.optInt("schema", -1) in 1..SCHEMA_VERSION) { "Unsupported preference snapshot" }
+        require(root.optJSONObject("shared_preferences") != null) { "Missing SharedPreferences snapshot" }
+        require(root.optJSONObject("datastore_preferences") != null) { "Missing DataStore snapshot" }
+    }
+
+    suspend fun restore(context: Context, bytes: ByteArray, selectedModules: Set<String>) {
+        validate(bytes)
+        val root = JSONObject(bytes.toString(Charsets.UTF_8))
 
         val shared = root.optJSONObject("shared_preferences") ?: JSONObject()
         val editor = PreferenceManager.getInstance(context).sp.edit()
