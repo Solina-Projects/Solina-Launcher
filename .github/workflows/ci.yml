@@ -16,6 +16,7 @@ on:
   pull_request:
     branches:
       - main
+      - 'Solina-Launcher-Test'
   workflow_dispatch:
 
 concurrency:
@@ -108,8 +109,9 @@ jobs:
           RESULTS: ${{ toJSON(needs.*.result) }}
         shell: bash
         run: |
-          if grep -q -E '"(failure|cancelled)"' <<< "$RESULTS"; then
-            echo "A build or required check failed."
+          success_count=$(grep -o '"success"' <<< "$RESULTS" | wc -l)
+          if [[ "$success_count" -ne 2 ]]; then
+            echo "Expected both build and check jobs to succeed; got: $RESULTS"
             exit 1
           fi
           echo "All four Standard/Quickstep Test/Release APK variants and required checks completed successfully."
