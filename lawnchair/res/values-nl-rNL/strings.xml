@@ -451,7 +451,7 @@
     <string name="event_provider_missing_notification_dots">Schakel meldingsstippen in om <xliff:g example="My Provider" id="providerName">%1$s</xliff:g>te gebruiken</string>
     <!-- Toggle button for enabling Smartspace -->
     <string name="smartspace_widget_toggle_label">Weergeven op startscherm</string>
-    <string name="smartspace_widget_toggle_description">In een oogopslag kan aan het startscherm worden toegevoegd met de Lawnchair-widget</string>
+    <string name="smartspace_widget_toggle_description">In een oogopslag kan aan het startscherm worden toegevoegd met de Solina Launcher-widget</string>
     <!-- List of available providers -->
     <string name="smartspace_mode_label">Aanbieder</string>
     <string name="smartspace_mode_google">Google</string>

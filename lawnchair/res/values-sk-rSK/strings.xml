@@ -574,7 +574,7 @@
     Bug reporting
 
     -->
-    <string name="lawnchair_bug_report">Správa o chybe v Lawnchair-i</string>
+    <string name="lawnchair_bug_report">Správa o chybe v Solina Launcher-i</string>
     <string name="crash_report_notif_title">%1$s Spadol</string>
     <string name="action_upload_crash_report">Nahrať výpis o páde</string>
     <string name="action_upload_error">Nahrávanie zlyhalo</string>
