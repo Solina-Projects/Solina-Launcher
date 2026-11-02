@@ -49,8 +49,9 @@ internal object ModularPreferenceBackup {
     fun moduleFor(key: String): String {
         val k = key.lowercase()
         return when {
-            k.contains("double_tap") || k.contains("swipe_up") || k.contains("swipe_down") ||
-                k.contains("two_finger") || k.contains("home_press") || k.contains("back_press") -> "gestures"
+            k.contains("double_tap") || k.contains("doubletap") || k == "dt2s" ||
+                k.contains("swipe_up") || k.contains("swipe_down") || k.contains("two_finger") ||
+                k.contains("home_press") || k.contains("back_press") -> "gestures"
             k.contains("hotseat") || k.startsWith("dock_") || k.contains("dock") -> "dock"
             k.contains("drawer") || k.startsWith("all_apps") || k.contains("prediction") ||
                 k.contains("hidden_apps") || k.contains("two_line_all_apps") || k.contains("show_component_names") -> "app_drawer"
@@ -60,7 +61,8 @@ internal object ModularPreferenceBackup {
                 k.contains("grid") || k.contains("lock_home") || k.contains("launcher_popup") || k.contains("_on_popup") || k.contains("legacy_popup") ||
                 k.contains("lawn_deck") || k.contains("deck_layout") -> "home_screen"
             k.contains("icon") || k.contains("themed_icons") || k.contains("adaptive") -> "icons"
-            k.contains("font") || k.contains("typography") -> "typography"
+            k.contains("font") || k.contains("typography") || k.contains("textsizefactor") ||
+                k.contains("text_size_factor") || k.contains("enable_font_selection") -> "typography"
             k.contains("wallpaper") -> "wallpaper"
             k.contains("smartspace") || k.contains("smart_space") || k.contains("feed") -> "smartspace"
             k.contains("widget") -> "widgets"
@@ -74,7 +76,8 @@ internal object ModularPreferenceBackup {
             k.contains("notification") || k.contains("dot") -> "notifications"
             k.contains("color") || k.contains("theme") || k.contains("accent") ||
                 k.contains("background") || k.contains("opacity") || k.contains("blur") ||
-                k.contains("corner_radius") || k.contains("status_bar") || k.contains("top_shadow") -> "theme"
+                k.contains("corner_radius") || k.contains("cornerRadius".lowercase()) ||
+                k.contains("status_bar") || k.contains("top_shadow") -> "theme"
             k.contains("appname") || k.contains("app_override") || k.contains("componentkey") -> "app_overrides"
             k.contains("nightly_auto_updater") || k.startsWith("pref_") || k.startsWith("prefs_") ||
                 k in setOf("allowrotation", "auto_launch_root", "infinite_scrolling", "vibration_feedback_level") -> "general"
