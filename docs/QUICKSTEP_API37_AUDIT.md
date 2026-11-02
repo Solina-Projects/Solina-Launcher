@@ -1,5 +1,23 @@
 # Quickstep / Android 17 (API 37) audit
 
+## Solina-Launcher-Test integration note (2026-11-02)
+
+The test branch now builds four maintained variants: Standard Test, Standard Release,
+Quickstep Test, and Quickstep Release. These build variants are not a declaration of
+Android 17 Quickstep runtime compatibility.
+
+The experimental API 37 manifest from the source audit branch was intentionally not
+copied into the maintained test flavors. It requests signature/privileged system
+permissions and relies on an SDK-range override for its experimental build. Neither
+manifest packaging nor a successful APK build grants those permissions or proves that
+the OS will bind the Quickstep service. Keep the release compatibility bounds unchanged
+until a supported device/ROM has passed the read-only checklist in
+[QUICKSTEP_API37_DEVICE_TEST.md](QUICKSTEP_API37_DEVICE_TEST.md).
+
+The remainder of this document records the original feature-branch audit evidence and
+should be read as a historical snapshot, not as a statement that the experimental
+manifest is enabled in `Solina-Launcher-Test`.
+
 ## Current facts
 
 - The project compiles against Android API 37.
