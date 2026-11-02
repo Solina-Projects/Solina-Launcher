@@ -135,14 +135,17 @@ public class ModelDbController {
         boolean isSandbox = mContext instanceof SandboxContext;
         String dbName = isSandbox ? null : InvariantDeviceProfile.INSTANCE.get(mContext).dbFile;
 
-        try {
-            if (!forMigration && dbName != null) {
-                LawnchairApp app = LawnchairAppKt.getLawnchairApp(mContext);
-                app.renameRestoredDb(dbName);
+        if (!forMigration && dbName != null) {
+            LawnchairApp app = LawnchairAppKt.getLawnchairApp(mContext);
+            // Installing a staged restore is part of database initialization. Do not swallow
+            // failures here: creating a fresh helper after a failed rename can make a failed
+            // restore look like a successful empty-database initialization.
+            app.renameRestoredDb(dbName);
+            try {
                 app.migrateDbName(dbName);
+            } catch (Throwable t) {
+                // LC-Ignored
             }
-        } catch (Throwable t) {
-            // LC-Ignored
         }
 
         // Set the flag for empty DB
