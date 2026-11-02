@@ -498,6 +498,18 @@ public class ModelDbController {
     }
 
     /**
+     * Closes the current database helper so a controlled restore can replace the database file.
+     * Must be called from the model executor after model work has been paused.
+     */
+    @WorkerThread
+    public synchronized void closeDatabase() {
+        if (mOpenHelper != null) {
+            mOpenHelper.close();
+            mOpenHelper = null;
+        }
+    }
+
+    /**
      * Returns the underlying model database
      */
     public SQLiteDatabase getDb() {
