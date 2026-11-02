@@ -55,11 +55,13 @@ internal object ModularPreferenceBackup {
                 k.contains("home_press") || k.contains("back_press") -> "gestures"
             k.contains("hotseat") || k.startsWith("dock_") || k.contains("dock") -> "dock"
             k.contains("drawer") || k.startsWith("all_apps") || k.contains("prediction") ||
-                k.contains("hidden_apps") || k.contains("two_line_all_apps") || k.contains("show_component_names") -> "app_drawer"
+                k.contains("hidden_apps") || k.contains("two_line_all_apps") ||
+                    k.contains("show_component_names") -> "app_drawer"
             k.contains("folder") -> "folders"
             k.contains("home_icon") || k.contains("show_icon_labels_on_home_screen") ||
                 k.contains("default_home_page") || k.contains("workspace") || k.contains("page_indicator") ||
-                k.contains("grid") || k.contains("lock_home") || k.contains("launcher_popup") || k.contains("_on_popup") || k.contains("legacy_popup") ||
+                k.contains("grid") || k.contains("lock_home") || k.contains("launcher_popup") ||
+                    k.contains("_on_popup") || k.contains("legacy_popup") ||
                 k.contains("lawn_deck") || k.contains("deck_layout") -> "home_screen"
             k.contains("icon") || k.contains("themed_icons") || k.contains("adaptive") -> "icons"
             k.contains("font") || k.contains("typography") || k.contains("textsizefactor") ||
@@ -81,7 +83,9 @@ internal object ModularPreferenceBackup {
                 k.contains("status_bar") || k.contains("top_shadow") -> "theme"
             k.contains("appname") || k.contains("app_override") || k.contains("componentkey") -> "app_overrides"
             k.contains("nightly_auto_updater") || k.startsWith("pref_") || k.startsWith("prefs_") ||
-                k in setOf("allowrotation", "auto_launch_root", "infinite_scrolling", "vibration_feedback_level") -> "general"
+                k in setOf(
+                    "allowrotation", "auto_launch_root", "infinite_scrolling", "vibration_feedback_level",
+                ) -> "general"
             else -> "other"
         }
     }
