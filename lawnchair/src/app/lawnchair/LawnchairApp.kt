@@ -109,7 +109,25 @@ class LawnchairApp : LauncherApplication() {
         val restoredDbFile = getDatabasePath(LawnchairBackup.RESTORED_DB_FILE_NAME)
         if (!restoredDbFile.exists()) return
         val dbFile = getDatabasePath(dbName)
-        restoredDbFile.renameTo(dbFile)
+        check(!dbFile.exists()) { "Refusing to overwrite an existing launcher database" }
+
+        val movedSidecars = mutableListOf<Pair<File, File>>()
+        listOf("-wal", "-journal").forEach { suffix ->
+            val source = File(restoredDbFile.path + suffix)
+            if (source.exists()) {
+                val target = File(dbFile.path + suffix)
+                check(!target.exists() && source.renameTo(target)) {
+                    "Unable to install restored launcher database sidecar: $suffix"
+                }
+                movedSidecars += source to target
+            }
+        }
+
+        if (!restoredDbFile.renameTo(dbFile)) {
+            movedSidecars.asReversed().forEach { (source, target) -> target.renameTo(source) }
+            throw IllegalStateException("Unable to install restored launcher database")
+        }
+        File(restoredDbFile.path + "-shm").delete()
     }
 
     fun migrateDbName(dbName: String) {
