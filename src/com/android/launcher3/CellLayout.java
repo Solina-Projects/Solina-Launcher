@@ -449,10 +449,15 @@ public class CellLayout extends ViewGroup {
                 float hotseatIconScale = PreferenceCacheExtensionsKt.firstCached(
                         pref.getHotseatIconSizeFactor(), pref);
                 mHotseatIconSizePx = Math.round(deviceProfile.iconSizePx * hotseatIconScale);
+                int verticalPaddingPx = Math.round(
+                        PreferenceCacheExtensionsKt.firstCached(
+                                pref.getHotseatVerticalPaddingDp(), pref)
+                                * getResources().getDisplayMetrics().density);
                 mBorderSpace = new Point(
                         baseHotseatGap,
                         Math.round(deviceProfile.hotseatBorderSpace
-                                * Utilities.boundToRange(verticalSpacingFactor, 0.8f, 1.5f)));
+                                * Utilities.boundToRange(verticalSpacingFactor, 0.8f, 1.5f))
+                                + verticalPaddingPx);
                 break;
             case WORKSPACE:
             default:
