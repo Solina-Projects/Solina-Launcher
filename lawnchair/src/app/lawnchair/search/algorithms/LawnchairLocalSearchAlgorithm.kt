@@ -1,6 +1,7 @@
 package app.lawnchair.search.algorithms
 
 import android.content.Context
+import android.util.Log
 import app.lawnchair.preferences.PreferenceManager
 import app.lawnchair.preferences2.PreferenceManager2
 import app.lawnchair.preferences2.firstCached
@@ -38,6 +39,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.onStart
@@ -80,17 +82,24 @@ class LawnchairLocalSearchAlgorithm(context: Context) : LawnchairSearchAlgorithm
                 // See issue #7325 (symptom 1: results gated behind the slowest provider).
                 val nonAppProvidersFlow = combine(
                     searchProviders.map { provider ->
-                        provider.search(context, query).onStart { emit(emptyList()) }
+                        provider.search(context, query)
+                            .catch { error ->
+                                Log.w(TAG, "Search provider ${provider.id} failed", error)
+                                emit(emptyList())
+                            }
+                            .onStart { emit(emptyList()) }
                     },
                 ) { resultsArray ->
                     resultsArray.toList().flatten()
                 }
 
-                nonAppProvidersFlow.collect { nonAppResults ->
-                    val calcResult = CalculatorSearchProvider.search(context, query)
-                        .firstOrNull()
+                // Calculator parsing is independent from provider updates. Evaluate it once per
+                // query instead of repeating it whenever a slower provider emits.
+                val calcResult = CalculatorSearchProvider.search(context, query).firstOrNull()
 
-                    val allResults = appResults + shortcutResults + (calcResult ?: emptyList()) + nonAppResults + generateActionResults(query)
+                nonAppProvidersFlow.collect { nonAppResults ->
+                    val allResults =
+                        appResults + shortcutResults + (calcResult ?: emptyList()) + nonAppResults + generateActionResults(query)
 
                     val searchTargets = translateToSearchTargets(allResults)
                     setFirstItemQuickLaunch(searchTargets)
@@ -141,8 +150,11 @@ class LawnchairLocalSearchAlgorithm(context: Context) : LawnchairSearchAlgorithm
     }
 
     override fun cancel(interruptActiveRequests: Boolean) {
+        if (!interruptActiveRequests) return
         modelRetryJob?.cancel()
         currentJob?.cancel()
+        modelRetryJob = null
+        currentJob = null
     }
 
     override fun destroy() {
@@ -159,11 +171,8 @@ class LawnchairLocalSearchAlgorithm(context: Context) : LawnchairSearchAlgorithm
             val provider = prefs2.webSuggestionProvider.firstCached()
             val webProvider = provider.configure(context)
 
-            val providerName = if (webProvider is CustomWebSearchProvider) {
-                webProvider.getDisplayName()
-            } else {
-                context.getString(webProvider.label)
-            }
+            val providerName = webProvider.displayName?.takeIf { it.isNotBlank() }
+                ?: context.getString(webProvider.label)
 
             actions.add(
                 SearchResult.Action.WebSearch(
@@ -171,7 +180,7 @@ class LawnchairLocalSearchAlgorithm(context: Context) : LawnchairSearchAlgorithm
                     providerName = providerName,
                     searchUrl = webProvider.getSearchUrl(query),
                     providerIconRes = webProvider.iconRes,
-                    tintIcon = webProvider is CustomWebSearchProvider,
+                    tintIcon = webProvider.id == CustomWebSearchProvider.id,
                 ),
             )
         }
