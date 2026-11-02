@@ -5,7 +5,6 @@ import app.lawnchair.preferences2.PreferenceManager2
 import app.lawnchair.preferences2.firstCached
 import app.lawnchair.search.algorithms.engine.SearchResult
 import app.lawnchair.search.algorithms.filterHiddenApps
-import app.lawnchair.search.algorithms.normalizeSearchText
 import com.android.launcher3.model.AllAppsList
 import com.android.launcher3.model.data.AppInfo
 import com.android.launcher3.search.StringMatcherUtility
@@ -19,7 +18,7 @@ object AppSearchProvider {
         val maxAppResults = prefs.maxAppSearchResultCount.firstCached()
         val enableFuzzySearch = prefs.enableFuzzySearch.firstCached()
 
-        val queryNormalized = normalizeSearchText(query)
+        val queryNormalized = SearchTextNormalizer.normalize(query)
         if (queryNormalized.isEmpty() || maxAppResults <= 0) return emptyList()
 
         val appResults = if (enableFuzzySearch) {
@@ -36,7 +35,7 @@ object AppSearchProvider {
         // apps that don't match all of the words in the query.
         val matcher = StringMatcherUtility.StringMatcher.getInstance()
         return apps.asSequence()
-            .filter { StringMatcherUtility.matches(query, normalizeSearchText(it.title.toString()), matcher) }
+            .filter { StringMatcherUtility.matches(query, SearchTextNormalizer.normalize(it.title.toString()), matcher) }
             .filterHiddenApps(query, hiddenApps, hiddenAppsInSearch)
             .take(maxResultsCount)
             .toList()
@@ -49,7 +48,7 @@ object AppSearchProvider {
 
         return filteredApps
             .mapNotNull { app ->
-                val matchResult = AppMatcher.match(normalizeSearchText(app.title.toString()), query)
+                val matchResult = AppMatcher.match(SearchTextNormalizer.normalize(app.title.toString()), query)
                 if (matchResult.type == MatchType.NO_MATCH) null else Pair(app, matchResult)
             }
             .sortedWith(
