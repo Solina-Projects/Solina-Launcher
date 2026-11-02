@@ -100,7 +100,12 @@ class LawnchairBackup(
             File(staleRestoreDatabase.path + "-shm").delete()
             File(staleRestoreDatabase.path + "-journal").delete()
         }
-        readZip(handlers)
+        val restoredEntries = readZip(handlers)
+        if (info.backupVersion >= MODULAR_BACKUP_VERSION && selectedModules.isNotEmpty()) {
+            require(MODULE_PREFERENCES_FILE_NAME in restoredEntries) {
+                "Backup is missing its modular preferences snapshot"
+            }
+        }
         if (contents.hasFlag(INCLUDE_LAYOUT_AND_SETTINGS)) {
             val restoredDatabase = launcherDbFile(context, forRestore = true)
             require(restoredDatabase.isFile && restoredDatabase.length() > 0L) {
@@ -115,7 +120,7 @@ class LawnchairBackup(
         }
     }
 
-    private suspend fun readZip(handlers: Map<String, suspend (InputStream) -> Unit>) {
+    private suspend fun readZip(handlers: Map<String, suspend (InputStream) -> Unit>): Set<String> =
         withContext(Dispatchers.IO) {
             val pfd = context.contentResolver.openFileDescriptor(uri, "r")
                 ?: throw IllegalArgumentException("Unable to open backup file")
@@ -140,11 +145,11 @@ class LawnchairBackup(
                             require(totalBytes <= MAX_ARCHIVE_UNCOMPRESSED_BYTES) { "Backup expands beyond the allowed size" }
                             zipIs.closeEntry()
                         }
+                        seenEntries
                     }
                 }
             }
         }
-    }
 
     private class EntryLimitedInputStream(input: InputStream, private val limit: Long) : FilterInputStream(input) {
         var bytesRead: Long = 0
