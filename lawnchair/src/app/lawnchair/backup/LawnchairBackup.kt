@@ -163,11 +163,18 @@ class LawnchairBackup(
             FileInputStream(it.fileDescriptor).use { inStream ->
                 ZipInputStream(inStream).use { zipIs ->
                     var entryCount = 0
+                    var customFontCount = 0
                     var totalBytes = 0L
                     val seenEntries = mutableSetOf<String>()
                     while (true) {
                         val entry = zipIs.nextEntry ?: break
                         require(seenEntries.add(entry.name)) { "Backup contains duplicate entries" }
+                        if (entry.name.startsWith(CUSTOM_FONT_ENTRY_PREFIX)) {
+                            customFontCount++
+                            require(customFontCount <= MAX_CUSTOM_FONT_FILES) {
+                                "Backup contains too many custom fonts"
+                            }
+                        }
                         entryCount++
                         require(entryCount <= MAX_ARCHIVE_ENTRIES) { "Backup contains too many entries" }
                         val limit = maxEntryBytes(entry.name)
@@ -255,7 +262,7 @@ class LawnchairBackup(
 
     private fun validateCustomFont(entryName: String, input: InputStream) {
         validateFontEntryName(entryName)
-        val temporary = File(context.cacheDir, "solina-font-check-${entryName.hashCode()}.tmp")
+        val temporary = File.createTempFile("solina-font-check-", ".tmp", context.cacheDir)
         try {
             temporary.outputStream().use { output -> input.copyTo(output) }
             require(FontCache.TTFFont.createTypeface(temporary) != null) { "Invalid custom font file" }
@@ -300,7 +307,9 @@ class LawnchairBackup(
         require(bounds.outWidth.toLong() * bounds.outHeight <= MAX_IMAGE_PIXELS) {
             "Backup image pixel count is too large"
         }
-        return BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
+        return requireNotNull(BitmapFactory.decodeByteArray(bytes, 0, bytes.size)) {
+            "Unable to decode image in backup"
+        }
     }
 
     private fun InputStream.readLimited(maxBytes: Long): ByteArray {
@@ -486,6 +495,7 @@ class LawnchairBackup(
                                 ?.filter { it.isFile } ?: emptyList()
                             require(fonts.size <= MAX_CUSTOM_FONT_FILES) { "Too many custom fonts to back up" }
                             fonts.forEach { font ->
+                                validateFontEntryName(font.name)
                                 require(font.length() <= MAX_CUSTOM_FONT_BYTES) { "Custom font is too large" }
                                 out.putNextEntry(ZipEntry(CUSTOM_FONT_ENTRY_PREFIX + font.name))
                                 font.inputStream().use { input -> input.copyTo(out) }
@@ -494,13 +504,16 @@ class LawnchairBackup(
 
                         if (contents.hasFlag(INCLUDE_LAYOUT_AND_SETTINGS)) {
                             val database = launcherDbFile(context, forRestore = false)
-                            require(database.isFile && database.length() > 0L) {
-                                "Launcher database is unavailable for backup"
+                            require(database.isFile && database.length() in 1..MAX_DATABASE_BYTES) {
+                                "Launcher database is unavailable or exceeds the backup size limit"
                             }
                             out.putNextEntry(ZipEntry(LAUNCHER_DB_FILE_NAME))
                             database.inputStream().use { input -> input.copyTo(out) }
                             val wal = File(database.path + "-wal")
                             if (wal.isFile && wal.length() > 0L) {
+                                require(wal.length() <= MAX_DATABASE_BYTES) {
+                                    "Launcher database WAL exceeds the backup size limit"
+                                }
                                 out.putNextEntry(ZipEntry(LAUNCHER_DB_WAL_FILE_NAME))
                                 wal.inputStream().use { input -> input.copyTo(out) }
                             }
