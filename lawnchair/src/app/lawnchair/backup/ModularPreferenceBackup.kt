@@ -37,28 +37,31 @@ internal object ModularPreferenceBackup {
                 k.contains("two_finger") || k.contains("home_press") || k.contains("back_press") -> "gestures"
             k.contains("hotseat") || k.startsWith("dock_") || k.contains("dock") -> "dock"
             k.contains("drawer") || k.startsWith("all_apps") || k.contains("prediction") ||
-                k.contains("hidden_apps") -> "app_drawer"
+                k.contains("hidden_apps") || k.contains("two_line_all_apps") || k.contains("show_component_names") -> "app_drawer"
             k.contains("folder") -> "folders"
+            k.contains("home_icon") || k.contains("show_icon_labels_on_home_screen") ||
+                k.contains("default_home_page") || k.contains("workspace") || k.contains("page_indicator") ||
+                k.contains("grid") || k.contains("lock_home") || k.contains("launcher_popup") ||
+                k.contains("_on_popup") || k.contains("lawn_deck") || k.contains("deck_layout") -> "home_screen"
             k.contains("icon") || k.contains("themed_icons") || k.contains("adaptive") -> "icons"
             k.contains("font") || k.contains("typography") -> "typography"
             k.contains("wallpaper") -> "wallpaper"
+            k.contains("smartspace") || k.contains("smart_space") || k.contains("feed") -> "smartspace"
             k.contains("widget") -> "widgets"
             k.contains("gesture") || k.contains("sleep_mode") -> "gestures"
-            k.contains("search") || k.contains("qsb") || k.contains("web_suggestion") -> "search"
-            k.contains("smartspace") || k.contains("smart_space") || k.contains("feed") -> "smartspace"
+            k.contains("search") || k.contains("qsb") || k.contains("web_suggestion") ||
+                k.contains("suggestion_result") || k.contains("files_result") ||
+                k.contains("people_result") || k.contains("settings_entry_result") ||
+                k.contains("recent_result") || k.contains("max_web_suggestion") -> "search"
             k.contains("taskbar") || k.contains("quickstep") -> "taskbar"
-            k.contains("animation") || k.contains("transition") -> "animations"
+            k.contains("animation") || k.contains("transition") || k.contains("closing_app_overlay") -> "animations"
             k.contains("notification") || k.contains("dot") -> "notifications"
             k.contains("color") || k.contains("theme") || k.contains("accent") ||
                 k.contains("background") || k.contains("opacity") || k.contains("blur") ||
-                k.contains("corner_radius") -> "theme"
-            k.contains("workspace") || k.contains("home_screen") || k.contains("home_icon") ||
-                k.contains("page_indicator") || k.contains("grid") || k.contains("rotation") ||
-                k.contains("lock_home") -> "home_screen"
+                k.contains("corner_radius") || k.contains("status_bar") || k.contains("top_shadow") -> "theme"
             k.contains("appname") || k.contains("app_override") || k.contains("componentkey") -> "app_overrides"
-            k.startsWith("pref_") || k.startsWith("prefs_") || k in setOf(
-                "allowrotation", "auto_launch_root", "infinite_scrolling", "vibration_feedback_level",
-            ) -> "general"
+            k.contains("nightly_auto_updater") || k.startsWith("pref_") || k.startsWith("prefs_") ||
+                k in setOf("allowrotation", "auto_launch_root", "infinite_scrolling", "vibration_feedback_level") -> "general"
             else -> "other"
         }
     }
