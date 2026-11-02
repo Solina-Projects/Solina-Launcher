@@ -280,6 +280,9 @@ public class FolderPagedView extends PagedView<PageIndicatorDots> implements Cli
      * Removes all the icons from the folder
      */
     public void unbindItems() {
+        // Finish cross-page reorder animations before recycling their views. Their end actions
+        // may otherwise try to move a view after its parent page has already been removed.
+        completePendingPageChanges();
         for (int i = getChildCount() - 1; i >= 0; i--) {
             CellLayout page = (CellLayout) getChildAt(i);
             ShortcutAndWidgetContainer container = page.getShortcutsAndWidgets();
@@ -775,8 +778,13 @@ public class FolderPagedView extends PagedView<PageIndicatorDots> implements Cli
                         public void run() {
                             mPendingAnimations.remove(v);
                             v.setTranslationX(oldTranslateX);
-                            ((CellLayout) v.getParent().getParent()).removeView(v);
-                            addViewForRank(v, (ItemInfo) v.getTag(), newRank);
+                            int destinationPage = newRank / mOrganizer.getMaxItemsPerPage();
+                            if (mViewsBound && getPageAt(destinationPage) != null) {
+                                if (v.getParent() instanceof android.view.ViewGroup parent) {
+                                    parent.removeView(v);
+                                }
+                                addViewForRank(v, (ItemInfo) v.getTag(), newRank);
+                            }
                         }
                     };
                     v.animate()

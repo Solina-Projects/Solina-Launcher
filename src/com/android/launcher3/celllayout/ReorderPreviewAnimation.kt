@@ -68,7 +68,9 @@ class ReorderPreviewAnimation<T>(
         ObjectAnimator.ofFloat(0f, 1f).also {
             it.addUpdateListener(this)
             it.setDuration((if (mode == MODE_HINT) HINT_DURATION else PREVIEW_DURATION).toLong())
-            it.startDelay = (Math.random() * 60).toLong()
+            // Stagger nearby cells deterministically so reorder previews feel coordinated
+            // and remain reproducible across runs and devices.
+            it.startDelay = (Math.floorMod(cellX1 * 3 + cellY1 * 5, 5) * 12L)
             // Animations are disabled in power save mode, causing the repeated animation to jump
             // spastically between beginning and end states. Since this looks bad, we don't repeat
             // the animation in power save mode.
