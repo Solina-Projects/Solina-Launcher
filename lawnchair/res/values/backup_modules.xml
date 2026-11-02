@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="backup_module_home_screen">Home screen and layout</string>
+    <string name="backup_module_dock">Dock</string>
+    <string name="backup_module_app_drawer">App drawer</string>
+    <string name="backup_module_folders">Folders</string>
+    <string name="backup_module_icons">Icons and icon packs</string>
+    <string name="backup_module_theme">Theme, colors and backgrounds</string>
+    <string name="backup_module_typography">Fonts and typography</string>
+    <string name="backup_module_wallpaper">Wallpaper</string>
+    <string name="backup_module_widgets">Widgets</string>
+    <string name="backup_module_gestures">Gestures</string>
+    <string name="backup_module_search">Search</string>
+    <string name="backup_module_smartspace">Smartspace and feed</string>
+    <string name="backup_module_taskbar">Taskbar and Quickstep</string>
+    <string name="backup_module_animations">Animations and transitions</string>
+    <string name="backup_module_notifications">Notifications and dots</string>
+    <string name="backup_module_general">General behavior</string>
+    <string name="backup_module_app_overrides">Per-app overrides</string>
+    <string name="backup_module_other">Other and future settings</string>
+</resources>
