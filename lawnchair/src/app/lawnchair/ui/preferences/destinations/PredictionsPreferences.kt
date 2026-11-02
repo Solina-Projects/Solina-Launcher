@@ -39,6 +39,8 @@ import app.lawnchair.ui.preferences.components.controls.ListPreference
 import app.lawnchair.ui.preferences.components.controls.ListPreferenceEntry
 import app.lawnchair.ui.preferences.components.controls.MainSwitchPreference
 import app.lawnchair.ui.preferences.components.controls.SwitchPreference
+import app.lawnchair.ui.preferences.components.controls.SliderPreference
+import app.lawnchair.ui.preferences.components.colorpreference.ColorPreference
 import app.lawnchair.ui.preferences.components.layout.PreferenceGroup
 import app.lawnchair.ui.preferences.components.layout.PreferenceLayout
 import app.lawnchair.ui.preferences.navigation.DismissedPredictionApps
@@ -123,6 +125,80 @@ private fun AppPredictionsFeature(
             )
 
             NoPredictor -> Unit
+        }
+    }
+
+    SuggestionStripSettings(prefs2)
+}
+
+@Composable
+private fun SuggestionStripSettings(prefs2: PreferenceManager2) {
+    val enabled = prefs2.showSuggestedAppsInDrawer.getAdapter()
+    val rows = prefs2.suggestionRows.getAdapter()
+    val position = prefs2.suggestionPosition.getAdapter()
+    val source = prefs2.suggestionSource.getAdapter()
+    val iconScale = prefs2.suggestionIconScale.getAdapter()
+    val labelScale = prefs2.suggestionLabelScale.getAdapter()
+    val background = prefs2.suggestionBackgroundEnabled.getAdapter()
+    val radius = prefs2.suggestionCornerRadius.getAdapter()
+
+    PreferenceGroup(heading = "App suggestion strip") {
+        SwitchPreference(
+            adapter = enabled,
+            label = "Show app suggestions",
+        )
+        ExpandAndShrink(visible = enabled.state.value) {
+            ListPreference(
+                adapter = position,
+                label = "Position",
+                entries = listOf(
+                    ListPreferenceEntry(value = "top", label = { "Top" }),
+                    ListPreferenceEntry(value = "bottom", label = { "Bottom" }),
+                ),
+            )
+            SliderPreference(
+                adapter = rows,
+                label = "Suggestion rows",
+                valueRange = 1..3,
+                step = 1,
+            )
+            ListPreference(
+                adapter = source,
+                label = "Suggestion source",
+                entries = listOf(
+                    ListPreferenceEntry(value = "usage", label = { "Most used apps" }),
+                    ListPreferenceEntry(value = "dock", label = { "Dock apps" }),
+                ),
+            )
+            SliderPreference(
+                adapter = iconScale,
+                label = "Suggestion icon size",
+                valueRange = 0.5f..1.5f,
+                step = 0.1f,
+                showAsPercentage = true,
+            )
+            SliderPreference(
+                adapter = labelScale,
+                label = "Suggestion label size",
+                valueRange = 0.5f..1.5f,
+                step = 0.1f,
+                showAsPercentage = true,
+            )
+            ColorPreference(preference = prefs2.suggestionLabelColor)
+            SwitchPreference(
+                adapter = background,
+                label = "Suggestion background",
+            )
+            ExpandAndShrink(visible = background.state.value) {
+                ColorPreference(preference = prefs2.suggestionBackgroundColor)
+                SliderPreference(
+                    adapter = radius,
+                    label = "Suggestion corner radius",
+                    valueRange = 0f..32f,
+                    step = 1f,
+                    showUnit = "dp",
+                )
+            }
         }
     }
 }
