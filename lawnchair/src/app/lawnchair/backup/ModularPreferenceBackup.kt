@@ -33,6 +33,8 @@ internal object ModularPreferenceBackup {
     fun moduleFor(key: String): String {
         val k = key.lowercase()
         return when {
+            k.contains("double_tap") || k.contains("swipe_up") || k.contains("swipe_down") ||
+                k.contains("two_finger") || k.contains("home_press") || k.contains("back_press") -> "gestures"
             k.contains("hotseat") || k.startsWith("dock_") || k.contains("dock") -> "dock"
             k.contains("drawer") || k.startsWith("all_apps") || k.contains("prediction") ||
                 k.contains("hidden_apps") -> "app_drawer"
