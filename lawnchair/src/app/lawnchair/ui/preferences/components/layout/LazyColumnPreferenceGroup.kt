@@ -30,7 +30,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import app.lawnchair.ui.theme.preferenceGroupColor
 
 fun LazyListScope.preferenceGroupItems(
     count: Int,
