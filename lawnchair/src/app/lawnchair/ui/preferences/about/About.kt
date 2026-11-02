@@ -151,7 +151,7 @@ fun About(
                             onClick = {},
                             onLongClick = {
                                 val commitUrl =
-                                    "https://github.com/Solina-Projects/Solina-Launcher2/commit/${BuildConfig.COMMIT_HASH}"
+                                    "https://github.com/Solina-Projects/Solina-Launcher/commit/${BuildConfig.COMMIT_HASH}"
                                 context.startActivity(Intent(Intent.ACTION_VIEW, commitUrl.toUri()))
                             },
                         ),
@@ -295,5 +295,5 @@ fun About(
     }
 }
 
-private const val NOTICE_URL = "https://github.com/Solina-Projects/Solina-Launcher2/blob/main/NOTICE.md"
-private const val PRIVACY_POLICY = "https://github.com/Solina-Projects/Solina-Launcher2/blob/main/PRIVACY.md"
+private const val NOTICE_URL = "https://github.com/Solina-Projects/Solina-Launcher/blob/main/NOTICE.md"
+private const val PRIVACY_POLICY = "https://github.com/Solina-Projects/Solina-Launcher/blob/main/PRIVACY.md"
