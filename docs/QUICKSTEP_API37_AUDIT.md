@@ -1,0 +1,42 @@
+# Quickstep / Android 17 (API 37) audit
+
+## Current facts
+
+- The project compiles against Android API 37.
+- The existing distributable variants remain `solinaWithoutQuickstepGithubDebug` and `solinaWithoutQuickstepGithubRelease`.
+- A dedicated experimental `solinaQuickstepGithubDebug` variant is now enabled on this feature branch only; it is debug-only and is not a release/distribution declaration.
+- CI run [40815028487](https://github.com/Solina-Projects/Solina-Launcher/actions/runs/40815028487) completed successfully at commit `0c4c2de20beaecce7d3d4c78e07ec9bc7a221b1a`. Its `assembleSolinaQuickstepGithubDebug` artifact was downloaded and the ZIP was inspected: it contains `solinaQuickstepGithub/debug/solina-launcher.16.Dev.(#74).github.debug.apk` (121,388,144 bytes). This verifies the experimental variant was packaged, not that it works at runtime.
+- The release manifest/configuration uses Quickstep SDK bounds 35–36. The Debug build overrides those bounds to 0–100000, which is a test override, not a compatibility declaration.
+- The shared launcher manifest declares `app.lawnchair.LawnchairLauncher` as HOME. The experimental Quickstep manifest declares `com.android.quickstep.TouchInteractionService` for `android.intent.action.QUICKSTEP_SERVICE` and a `RecentsActivity`.
+- That Quickstep manifest also requests system/signature-level permissions such as `STATUS_BAR_SERVICE`, `WRITE_SECURE_SETTINGS`, `MANAGE_ACTIVITY_TASKS`, and `INTERNAL_SYSTEM_WINDOW`. Packaging these components in a regular APK does not grant those privileges; the device/ROM integration and installation context matter.
+- Source inspection confirms the compat chain ends at `QuickstepCompatFactoryVBaklava` (`@RequiresApi(36)`), which extends `QuickstepCompatFactoryVV` (`@RequiresApi(35)`). The API-36 layer overrides `ActivityManagerCompat` with an empty subclass of the API-35 implementation, overrides `ActivityOptions.makeCustomAnimation(...)` to use the API-36 listener overload, and uses `RemoteTransition::new`. No API-37-specific factory or compat implementation exists in this branch. This is a compatibility gap to investigate, but not proof that API 37 requires a new factory: compare Android 17 framework/API changes and run targeted tests before adding a speculative subclass.
+- The `withoutQuickstep` flavor name is misleading in isolation: its source set includes `quickstep/src`, `quickstep/dagger`, and Quickstep resources, and it depends on compat libraries. However, that flavor uses the root `AndroidManifest.xml`, while the Quickstep service/Recents declarations are in `quickstep/AndroidManifest.xml`. The experimental flavor is configured to use `quickstep/AndroidManifest-api37-experimental.xml`.
+- The APK's binary Android manifest was decoded from the downloaded artifact. It reports package `com.solina.launcher.debug`, `minSdkVersion=29`, `targetSdkVersion=37`, and includes the Quickstep service/action, Recents activity, search-indexables provider, gesture tutorial activities, widget-picker activity, and overview FileProvider. The Quickstep service is exported and protected by `android.permission.STATUS_BAR_SERVICE`; the widget-picker activity is exported and protected by the app-specific `signature|privileged` permission. This confirms manifest packaging, not that the OS grants the requested privileges or will bind/use the service.
+- Therefore neither a successful build nor the Debug SDK override establishes Android 17 Quickstep/QuickSwitch runtime support.
+
+## Required next checks
+
+1. Compare the decoded manifest against Android 17 runtime expectations and ROM privilege grants; in particular, confirm whether the system recognizes and binds `com.android.quickstep.TouchInteractionService` for this package.
+2. Compare Android 17 framework/API changes against the API-35/36 compat implementations; prioritize `ActivityOptions` animation callbacks, `ActivityManager` recents/task behavior, and `RemoteTransition`. Add API-37 overrides only for verified API differences, not just to raise the SDK ceiling.
+3. Determine whether API 37 needs a new compat factory or whether the API-36 implementation is demonstrably compatible; do not widen the SDK range until supported by source review and tests.
+4. Resolve licensing/redistribution and system-integration requirements before preparing any installable QuickSwitch root module.
+5. Test installation and runtime behavior on a disposable/test setup before changing the active HOME provider or installing a root module.
+6. Only after those checks pass, consider a release variant or QuickSwitch module. Keep rollback instructions and preserve the currently selected launcher.
+
+## Not yet verified
+
+- Runtime recognition/binding of the Quickstep service and actual API 37 gesture/Recents behavior remain unverified.
+- No on-device Recents/gesture test has been run.
+- No QuickSwitch module has been built or installed, and no system provider setting has been changed.
+
+
+## API 37 framework-source comparison (2026-10-29)
+
+- The API-35 implementation `ActivityOptionsCompatVV` calls the hidden/Test API overload `ActivityOptions.makeCustomAnimation(context, enter, exit, backgroundColor, handler, startedListener, finishedListener)`. It adapts the framework start/finish callbacks to the compat `Runnable` callbacks. The API-36 class retains that call shape; no API-37 override is present.
+- The Android framework source for `ActivityOptions` still documents this seven-argument overload as `@TestApi` in the current AOSP source. This confirms the implementation relies on non-SDK/test surface, but does not itself show a change introduced in API 37. See [AOSP ActivityOptions.java](https://android.googlesource.com/platform/frameworks/base/+/master/core/java/android/app/ActivityOptions.java) and [Android API reference](https://developer.android.com/reference/android/app/ActivityOptions).
+- The same AOSP source contains the `RemoteTransition`-based activity options APIs, but public API docs and the current source view alone are insufficient to establish that a device ROM grants the privileges or that Quickstep is registered as the active overview provider.
+- `ActivityManagerCompatVV` is an empty subclass of the API-34 implementation. There is no API-35 or API-36 behavior override in that class, and no API-37-specific override was found in the audited factory chain. This is evidence to focus testing on inherited task/recents behavior, not evidence of a confirmed break.
+
+### Conclusion from this comparison
+
+No verified API-37-only framework signature or behavior change has yet been found in the three inspected areas that justifies adding a speculative API-37 factory. Keep the release SDK support range at 35–36 until the full AOSP/API diff and a device runtime test establish compatibility. Next test should separately record (1) whether the system binds the Quickstep service, (2) whether overview/Recents opens, and (3) whether gesture navigation and animation start/finish callbacks work. A successful APK build is not a substitute for these checks.
