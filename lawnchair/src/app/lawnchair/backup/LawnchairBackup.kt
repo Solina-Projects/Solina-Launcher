@@ -573,7 +573,7 @@ class LawnchairBackup(
             PREFS_DB_FILE_NAME,
             PREFS_DATASTORE_FILE_NAME,
         ) || isWallpaperLibraryEntry(name)
-    ) && !name.contains("..") && !name.startsWith("/")
+        ) && !name.contains("..") && !name.startsWith("/")
 
     private fun isWallpaperLibraryEntry(name: String): Boolean {
         if (!name.startsWith(WALLPAPER_LIBRARY_ENTRY_PREFIX)) return false
