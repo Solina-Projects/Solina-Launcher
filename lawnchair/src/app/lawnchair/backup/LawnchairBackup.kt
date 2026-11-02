@@ -204,7 +204,7 @@ class LawnchairBackup(
                 }
             }
         }
-        }
+    }
 
     private class EntryLimitedInputStream(input: InputStream, private val limit: Long) : FilterInputStream(input) {
         var bytesRead: Long = 0
@@ -282,9 +282,10 @@ class LawnchairBackup(
     }
 
     private fun validateFontEntryName(entryName: String) {
-        require(entryName.isNotBlank() && File(entryName).name == entryName &&
-            !entryName.contains('/') && !entryName.contains('\\') &&
-            !entryName.contains("..")
+        require(
+            entryName.isNotBlank() && File(entryName).name == entryName &&
+                !entryName.contains('/') && !entryName.contains('\\') &&
+                !entryName.contains(".."),
         ) { "Invalid custom font path" }
     }
 
@@ -373,8 +374,7 @@ class LawnchairBackup(
             INCLUDE_OTHER to "other",
         )
 
-        private fun modulesForContents(contents: Int): Set<String> =
-            MODULE_FLAGS.filterKeys { flag -> contents.hasFlag(flag) }.values.toSet()
+        private fun modulesForContents(contents: Int): Set<String> = MODULE_FLAGS.filterKeys { flag -> contents.hasFlag(flag) }.values.toSet()
 
         private const val MAX_ARCHIVE_ENTRIES = 128
         private const val MAX_ARCHIVE_UNCOMPRESSED_BYTES = 512L * 1024 * 1024
