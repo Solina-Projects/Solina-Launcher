@@ -30,4 +30,14 @@
     <string name="home_label_vertical_offset">موقعیت عمودی برچسب صفحهٔ اصلی</string>
     <string name="drawer_label_vertical_offset">موقعیت عمودی برچسب کشوی برنامه‌ها</string>
     <string name="dock_label_vertical_offset">موقعیت عمودی برچسب داک</string>
+    <string name="solina_persian_calendar_widget_name">تقویم شمسی</string>
+    <string name="solina_persian_calendar_widget_description">نمایش تاریخ امروز در تقویم هجری شمسی.</string>
+    <string name="solina_persian_calendar_caption">تقویم هجری شمسی</string>
+    <string name="app_lock_title">قفل برنامه‌ها</string>
+    <string name="app_lock_description">برای باز کردن برنامه‌های انتخاب‌شده از طریق سولینا، احراز هویت دستگاه یا اثر انگشت لازم است.</string>
+    <string name="app_lock_unlock_title">باز کردن قفل برنامه</string>
+    <string name="app_lock_unlock_subtitle">برای اجرای این برنامه هویت خود را تأیید کنید.</string>
+    <string name="app_lock_unavailable">احراز هویت امن تنظیم نشده است. در تنظیمات اندروید قفل صفحه یا اثر انگشت را فعال کنید.</string>
+    <string name="app_lock_apps_heading">برنامه‌های موردنظر برای قفل</string>
+    <string name="app_lock_empty">برنامه قابل اجرایی پیدا نشد.</string>
 </resources>
