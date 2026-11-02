@@ -125,6 +125,28 @@ internal object ModularPreferenceBackup {
             "Missing device-protected preferences snapshot"
         }
         require(root.optJSONObject("datastore_preferences") != null) { "Missing DataStore snapshot" }
+
+        validateValues(root.getJSONObject("shared_preferences"))
+        validateValues(root.getJSONObject("device_protected_preferences"))
+        validateValues(root.getJSONObject("datastore_preferences"))
+    }
+
+    private fun validateValues(values: JSONObject) {
+        values.keys().forEach { key ->
+            val encoded = values.optJSONObject(key)
+                ?: throw IllegalArgumentException("Invalid preference value for $key")
+            val value = encoded.opt("value")
+            val valid = when (encoded.optString("type")) {
+                "boolean" -> value is Boolean
+                "int", "long", "float", "double" -> value is Number
+                "string" -> value is String
+                "string_set" -> value is JSONArray && (0 until value.length()).all {
+                    value.opt(it) is String
+                }
+                else -> false
+            }
+            require(valid) { "Invalid or unsupported preference value for $key" }
+        }
     }
 
     suspend fun restore(context: Context, bytes: ByteArray, selectedModules: Set<String>) {
@@ -204,7 +226,7 @@ internal object ModularPreferenceBackup {
         is Double -> JSONObject().put("type", "double").put("value", value)
         is String -> JSONObject().put("type", "string").put("value", value)
         is Set<*> -> JSONObject().put("type", "string_set").put("value", JSONArray(value.toList()))
-        else -> JSONObject().put("type", "unsupported")
+        else -> throw IllegalArgumentException("Unsupported preference value type: ${value::class.java.name}")
     }
 
     private fun decode(encoded: JSONObject): Any? {
