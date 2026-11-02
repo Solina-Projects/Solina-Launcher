@@ -93,19 +93,28 @@ class LawnchairBackup(
             }
         }
 
+        // Validate every entry, CRC and archive-wide size limit before mutating preferences,
+        // wallpaper or databases. This prevents a truncated tail entry from causing a partial restore.
+        val archiveEntries = readZip(emptyMap())
+        if (info.backupVersion >= MODULAR_BACKUP_VERSION && selectedModules.isNotEmpty()) {
+            require(MODULE_PREFERENCES_FILE_NAME in archiveEntries) {
+                "Backup is missing its modular preferences snapshot"
+            }
+        }
         if (contents.hasFlag(INCLUDE_LAYOUT_AND_SETTINGS)) {
+            require(LAUNCHER_DB_FILE_NAME in archiveEntries) {
+                "Backup does not contain a launcher database"
+            }
             val staleRestoreDatabase = launcherDbFile(context, forRestore = true)
             staleRestoreDatabase.delete()
             File(staleRestoreDatabase.path + "-wal").delete()
             File(staleRestoreDatabase.path + "-shm").delete()
             File(staleRestoreDatabase.path + "-journal").delete()
         }
-        val restoredEntries = readZip(handlers)
-        if (info.backupVersion >= MODULAR_BACKUP_VERSION && selectedModules.isNotEmpty()) {
-            require(MODULE_PREFERENCES_FILE_NAME in restoredEntries) {
-                "Backup is missing its modular preferences snapshot"
-            }
+        if (contents.hasFlag(INCLUDE_WALLPAPER)) {
+            require(WALLPAPER_FILE_NAME in archiveEntries) { "Backup does not contain a wallpaper image" }
         }
+        readZip(handlers)
         if (contents.hasFlag(INCLUDE_LAYOUT_AND_SETTINGS)) {
             val restoredDatabase = launcherDbFile(context, forRestore = true)
             require(restoredDatabase.isFile && restoredDatabase.length() > 0L) {
