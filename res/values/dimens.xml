@@ -110,14 +110,14 @@
 
     <!-- All Apps -->
     <dimen name="all_apps_starting_vertical_translate">300dp</dimen>
-    <dimen name="all_apps_search_bar_field_height">48dp</dimen>
+    <dimen name="all_apps_search_bar_field_height">56dp</dimen>
     <!-- all_apps_search_bar_field_height / 2 -->
-    <dimen name="all_apps_search_bar_content_overlap">24dp</dimen>
+    <dimen name="all_apps_search_bar_content_overlap">28dp</dimen>
     <dimen name="all_apps_search_bar_bottom_padding">30dp</dimen>
     <dimen name="all_apps_empty_search_message_top_offset">40dp</dimen>
     <dimen name="all_apps_search_top_row_extra_height">4dp</dimen>
     <dimen name="all_apps_header_pill_height">48dp</dimen>
-    <dimen name="all_apps_header_pill_corner_radius">12dp</dimen>
+    <dimen name="all_apps_header_pill_corner_radius">20dp</dimen>
     <dimen name="all_apps_header_tab_height">48dp</dimen>
     <dimen name="all_apps_tabs_indicator_height">2dp</dimen>
     <dimen name="all_apps_header_top_margin">33dp</dimen>
@@ -387,6 +387,7 @@
 
     <!-- Notifications -->
     <dimen name="bg_round_rect_radius">8dp</dimen>
+    <dimen name="solina_folder_corner_radius">22dp</dimen>
     <dimen name="notification_container_height">104dp</dimen>
     <dimen name="notification_max_trans">8dp</dimen>
     <dimen name="notification_space">8dp</dimen>
@@ -426,7 +427,7 @@
     <dimen name="developer_options_filter_margins">10dp</dimen>
 
     <!-- Theming related -->
-    <dimen name="default_dialog_corner_radius">26dp</dimen>
+    <dimen name="default_dialog_corner_radius">32dp</dimen>
     <dimen name="dialogCornerRadius">@dimen/default_dialog_corner_radius</dimen>
 
     <!-- Onboarding bottomsheet related -->

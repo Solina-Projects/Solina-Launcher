@@ -18,7 +18,7 @@ package app.lawnchair.gestures
 
 import androidx.lifecycle.lifecycleScope
 import app.lawnchair.LawnchairApp
-import app.lawnchair.LawnchairLauncher
+import app.lawnchair.SolinaLauncher
 import app.lawnchair.gestures.config.GestureHandlerConfig
 import app.lawnchair.gestures.handlers.GestureHandler
 import app.lawnchair.gestures.handlers.NoOpGestureHandler
@@ -33,7 +33,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.launch
 
-class GestureController(private val launcher: LawnchairLauncher) {
+class GestureController(private val launcher: SolinaLauncher) {
     private val prefs = PreferenceManager2.getInstance(launcher)
     private val scope = launcher.lifecycleScope
 

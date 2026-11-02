@@ -1362,7 +1362,7 @@ public class QuickstepTransitionManager implements OnDeviceProfileChangeListener
     private static int getRotationChange(RemoteAnimationTarget[] appTargets) {
         int rotationChange = 0;
         for (RemoteAnimationTarget target : appTargets) {
-            // LC: https://github.com/LawnchairLauncher/lawnchair/pull/3776
+            // LC: https://github.com/SolinaLauncher/lawnchair/pull/3776
             try {
                 if (Math.abs(target.rotationChange) > Math.abs(rotationChange)) {
                     rotationChange = target.rotationChange;

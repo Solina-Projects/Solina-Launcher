@@ -66,7 +66,7 @@ import app.lawnchair.theme.color.tokens.ColorTokens;
 public class PageIndicatorDots extends View implements Insettable, PageIndicator {
     private static final float SHIFT_PER_ANIMATION = 0.5f;
     private static final float SHIFT_THRESHOLD = (enableLauncherVisualRefresh() ? 0.5f : 0.2f);
-    private static final long ANIMATION_DURATION = (enableLauncherVisualRefresh() ? 200 : 150);
+    private static final long ANIMATION_DURATION = (enableLauncherVisualRefresh() ? 160 : 130);
     private static final int PAGINATION_FADE_DELAY = ViewConfiguration.getScrollDefaultDelay();
     private static final int PAGINATION_FADE_IN_DURATION = 83;
     private static final int PAGINATION_FADE_OUT_DURATION = 167;

@@ -8,7 +8,7 @@ import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
 import android.widget.FrameLayout
-import app.lawnchair.LawnchairLauncher
+import app.lawnchair.SolinaLauncher
 import app.lawnchair.launcher
 import app.lawnchair.ui.preferences.PreferenceActivity
 import app.lawnchair.ui.preferences.navigation.Smartspace
@@ -48,7 +48,7 @@ class SmartspaceViewContainer @JvmOverloads constructor(
         val launcher = context.launcher
         val pos = Rect()
         launcher.dragLayer.getDescendantRectRelativeToSelf(smartspaceView, pos)
-        OptionsPopupView.show<LawnchairLauncher>(launcher, RectF(pos), listOf(getCustomizeOption()), true)
+        OptionsPopupView.show<SolinaLauncher>(launcher, RectF(pos), listOf(getCustomizeOption()), true)
     }
 
     private fun getCustomizeOption() = OptionsPopupView.OptionItem(

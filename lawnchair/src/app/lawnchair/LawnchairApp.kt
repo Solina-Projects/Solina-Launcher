@@ -160,8 +160,8 @@ class LawnchairApp : LauncherApplication() {
         var foregroundActivity: Activity? = null
             private set
 
-        val launcher: LawnchairLauncher?
-            get() = activities.filterIsInstance<LawnchairLauncher>().firstOrNull()
+        val launcher: SolinaLauncher?
+            get() = activities.filterIsInstance<SolinaLauncher>().firstOrNull()
 
         fun finishAll() {
             HashSet(activities).forEach { it.finish() }
@@ -238,7 +238,7 @@ class LawnchairApp : LauncherApplication() {
         val isAtleastT: Boolean get() = instance.isAtleastT
 
         @JvmStatic
-        val launcher: LawnchairLauncher? get() = instance.activityHandler.launcher
+        val launcher: SolinaLauncher? get() = instance.activityHandler.launcher
 
         @OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalMaterial3Api::class)
         fun Launcher.showQuickstepWarningIfNecessary() {

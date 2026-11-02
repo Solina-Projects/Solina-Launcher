@@ -54,7 +54,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.core.content.getSystemService
 import app.lawnchair.LawnchairApp
-import app.lawnchair.LawnchairLauncher
+import app.lawnchair.SolinaLauncher
 import app.lawnchair.preferences.getAdapter
 import app.lawnchair.preferences.observeAsState
 import app.lawnchair.preferences.preferenceManager
@@ -378,6 +378,6 @@ fun PreferencesSetDefaultLauncherWarning(
 
 fun openAppInfo(context: Context) {
     val launcherApps = context.getSystemService<LauncherApps>()
-    val componentName = ComponentName(context, LawnchairLauncher::class.java)
+    val componentName = ComponentName(context, SolinaLauncher::class.java)
     launcherApps?.startAppDetailsActivity(componentName, Process.myUserHandle(), null, null)
 }
