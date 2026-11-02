@@ -149,6 +149,11 @@ class LawnchairBackup(
             check(RestoreDbTask.performRestore(context, ModelDbController(context))) {
                 "Launcher database restore failed"
             }
+            val activeDatabase = context.getDatabasePath(LauncherAppState.getIDP(context).dbFile)
+            require(activeDatabase.isFile && activeDatabase.length() > 0L && !restoredDatabase.exists()) {
+                "Restored launcher database was not installed correctly"
+            }
+            validateRestoredDatabase(activeDatabase)
         }
     }
 
