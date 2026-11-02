@@ -189,7 +189,7 @@ class LawnchairLauncher : QuickstepLauncher() {
         if (prefs.autoLaunchRoot.get()) {
             lifecycleScope.launch {
                 try {
-                    RootHelperManager.INSTANCE.get(this@LawnchairLauncher)
+                    RootHelperManager.INSTANCE.get(this@SolinaLauncher)
                 } catch (_: RootNotAvailableException) {
                 }
             }
@@ -371,7 +371,7 @@ class LawnchairLauncher : QuickstepLauncher() {
         val showWallpaperCarousel = "+carousel" in preferenceManager2.launcherPopupOrder.firstCached()
 
         if (showWallpaperCarousel) {
-            show<LawnchairLauncher>(
+            show<SolinaLauncher>(
                 this,
                 getPopupTarget(x, y),
                 OptionsPopupView.getOptions(this),
@@ -580,10 +580,10 @@ class LawnchairLauncher : QuickstepLauncher() {
     }
 }
 
-val Context.launcher: LawnchairLauncher
+val Context.launcher: SolinaLauncher
     get() = BaseActivity.fromContext(this)
 
-val Context.launcherNullable: LawnchairLauncher? get() = try {
+val Context.launcherNullable: SolinaLauncher? get() = try {
     launcher
 } catch (_: IllegalArgumentException) {
     null

@@ -16,7 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import app.lawnchair.LawnchairLauncher
+import app.lawnchair.SolinaLauncher
 import app.lawnchair.lawnchairApp
 import app.lawnchair.ui.ModalBottomSheetContent
 import app.lawnchair.views.ComposeBottomSheet
@@ -24,7 +24,7 @@ import com.android.launcher3.R
 
 object GestureWithAccessibilityHandler {
 
-    fun onTrigger(launcher: LawnchairLauncher, stringAction: Int, action: Int) {
+    fun onTrigger(launcher: SolinaLauncher, stringAction: Int, action: Int) {
         val app = launcher.lawnchairApp
         if (!app.isAccessibilityServiceBound()) {
             val intent = Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)

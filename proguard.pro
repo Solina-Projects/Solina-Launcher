@@ -20,7 +20,7 @@
 # Lawnchair specific rules.
 -keep,allowshrinking,allowoptimization class app.lawnchair.LawnchairProto$* { *; }
 -keep,allowshrinking,allowoptimization class app.lawnchair.LawnchairApp { *; }
--keep,allowshrinking,allowoptimization class app.lawnchair.LawnchairLauncher { *; }
+-keep,allowshrinking,allowoptimization class app.lawnchair.SolinaLauncher { *; }
 -keep,allowshrinking,allowoptimization class app.lawnchair.compatlib.** { *; }
 
 -keep,allowshrinking,allowoptimization class com.google.protobuf.Timestamp { *; }
