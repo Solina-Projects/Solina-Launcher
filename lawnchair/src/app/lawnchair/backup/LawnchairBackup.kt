@@ -23,7 +23,6 @@ import com.android.launcher3.provider.RestoreDbTask
 import com.google.protobuf.Timestamp
 import java.io.File
 import java.io.FileInputStream
-import java.io.ByteArrayOutputStream
 import java.io.FilterInputStream
 import java.io.FileOutputStream
 import java.io.InputStream
@@ -153,6 +152,9 @@ class LawnchairBackup(
                             handlers[entry.name]?.invoke(bounded)
                             val buffer = ByteArray(DEFAULT_BUFFER_SIZE)
                             while (bounded.read(buffer) != -1) { }
+                            if (entry.name == LAUNCHER_DB_FILE_NAME) {
+                                require(bounded.bytesRead > 0L) { "Launcher database entry is empty" }
+                            }
                             totalBytes += bounded.bytesRead
                             require(totalBytes <= MAX_ARCHIVE_UNCOMPRESSED_BYTES) { "Backup expands beyond the allowed size" }
                             zipIs.closeEntry()
@@ -373,10 +375,11 @@ class LawnchairBackup(
                         if (contents.hasFlag(INCLUDE_WALLPAPER)) {
                             val wallpaperManager = WallpaperManager.getInstance(context)
                             val wallpaperBitmap = wallpaperManager.drawable?.toBitmap()
-                            if (wallpaperBitmap != null) {
-                                out.putNextEntry(ZipEntry(WALLPAPER_FILE_NAME))
-                                wallpaperBitmap.compress(Bitmap.CompressFormat.PNG, 100, out)
+                            require(wallpaperBitmap != null) {
+                                "Wallpaper could not be read for backup"
                             }
+                            out.putNextEntry(ZipEntry(WALLPAPER_FILE_NAME))
+                            wallpaperBitmap.compress(Bitmap.CompressFormat.PNG, 100, out)
                         }
                         if (modulesForContents(contents).isNotEmpty()) {
                             out.putNextEntry(ZipEntry(SCREENSHOT_FILE_NAME))
