@@ -9,7 +9,8 @@ branch was not merged wholesale where it would replace newer target implementati
 ## Integrated
 
 - `feature/quickstep-api37-audit`
-  - Added the API 37 compatibility audit and read-only device validation checklist.
+  - Added the API 37 compatibility audit, read-only device validation checklist, and
+    third-party source/licensing inventory.
   - Integrated the distinct multi-row / multi-page hotseat database capacity fix into
     `LoaderCursor`, including bounds validation and unit coverage.
   - Did not import the experimental API 37 manifest or its alternate Gradle flavor.
@@ -34,8 +35,9 @@ branch was not merged wholesale where it would replace newer target implementati
     wholesale merge was performed.
 - `fix/dock-settings-backup-stability` and `fix/dock-vertical-row-spacing`
   - Retained the target's newer row-space factor, horizontal dock spacing, label
-    positioning, and backup hardening. The older DeviceProfile/CellLayout variants
-    would regress or conflict with those changes.
+    positioning, and backup hardening. Extracted the missing per-row vertical-padding
+    contribution into the current CellLayout and DeviceProfile geometry instead of
+    replacing either file with the older branch implementation.
 - `feature/solina-core-2-6` and `fix/solina-dock-spacing-core`
   - Compared against the target; neither contains commits ahead of the test branch.
 
