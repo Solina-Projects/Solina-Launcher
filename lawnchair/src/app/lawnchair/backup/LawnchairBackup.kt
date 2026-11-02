@@ -128,10 +128,7 @@ class LawnchairBackup(
                 "Backup does not contain a launcher database"
             }
             val staleRestoreDatabase = launcherDbFile(context, forRestore = true)
-            staleRestoreDatabase.delete()
-            File(staleRestoreDatabase.path + "-wal").delete()
-            File(staleRestoreDatabase.path + "-shm").delete()
-            File(staleRestoreDatabase.path + "-journal").delete()
+            deleteDatabaseFiles(staleRestoreDatabase)
         }
         if (contents.hasFlag(INCLUDE_WALLPAPER)) {
             require(WALLPAPER_FILE_NAME in archiveEntries) { "Backup does not contain a wallpaper image" }
@@ -431,6 +428,17 @@ class LawnchairBackup(
             INCLUDE_FOLDERS or INCLUDE_ICONS or INCLUDE_THEME or INCLUDE_TYPOGRAPHY or INCLUDE_WALLPAPER or
             INCLUDE_WIDGETS or INCLUDE_GESTURES or INCLUDE_SEARCH or INCLUDE_SMARTSPACE or INCLUDE_TASKBAR or
             INCLUDE_ANIMATIONS or INCLUDE_NOTIFICATIONS or INCLUDE_GENERAL or INCLUDE_APP_OVERRIDES or INCLUDE_OTHER
+
+        private fun deleteDatabaseFiles(database: File) {
+            // Remove sidecars before the main file and fail if the filesystem refuses a deletion.
+            // This is used only for the stale staging database, never the active user database.
+            listOf("-wal", "-shm", "-journal", "").forEach { suffix ->
+                val file = if (suffix.isEmpty()) database else File(database.path + suffix)
+                check(!file.exists() || file.delete()) {
+                    "Unable to remove stale restore database file: ${file.name}"
+                }
+            }
+        }
 
         private fun deleteActiveLauncherDatabase(context: Context) {
             val database = context.getDatabasePath(LauncherAppState.getIDP(context).dbFile)
