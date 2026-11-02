@@ -7,12 +7,14 @@ import androidx.lifecycle.viewModelScope
 import app.lawnchair.data.folder.FolderEntry
 import app.lawnchair.data.folder.service.FolderService
 import app.lawnchair.preferences2.ReloadHelper
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.retryWhen
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
@@ -22,9 +24,14 @@ class FolderViewModel(
     private val repository: FolderService = FolderService.INSTANCE.get(application)
 
     val folders: StateFlow<List<FolderEntry>?> = repository.getFoldersFlow()
+        .retryWhen { cause, attempt ->
+            Log.e("FolderViewModel", "Error in folders flow; retrying", cause)
+            delay(minOf(30_000L, 1_000L * (1L shl attempt.coerceAtMost(5).toInt())))
+            true
+        }
         .distinctUntilChanged()
         .catch { exception ->
-            Log.e("FolderViewModel", "Error in folders flow", exception)
+            Log.e("FolderViewModel", "Folder flow stopped unexpectedly", exception)
             emit(emptyList())
         }
         .stateIn(
@@ -52,30 +59,44 @@ class FolderViewModel(
     }
 
     fun renameFolder(folderId: Int, title: String) {
+        val normalizedTitle = title.trim()
+        if (normalizedTitle.isEmpty()) return
         viewModelScope.launch {
-            repository.renameFolderInfo(folderId, title)
+            repository.renameFolderInfo(folderId, normalizedTitle)
             reloadHelper.reloadGrid()
         }
     }
 
     fun updateFolderItems(id: Int, title: String, componentKeys: List<String>) {
+        val normalizedTitle = title.trim()
+        if (normalizedTitle.isEmpty()) return
+        val uniqueComponentKeys = componentKeys.distinct()
         viewModelScope.launch {
-            repository.updateFolderWithItems(id, title, componentKeys)
+            repository.updateFolderWithItems(id, normalizedTitle, uniqueComponentKeys)
             reloadHelper.reloadGrid()
         }
     }
 
     fun createFolder(title: String) {
+        val normalizedTitle = title.trim()
+        if (normalizedTitle.isEmpty()) return
         viewModelScope.launch {
-            repository.saveFolderInfo(title)
+            repository.saveFolderInfo(normalizedTitle)
+        }
+    }
+
+    fun setFolderHidden(folderId: Int, hide: Boolean) {
+        viewModelScope.launch {
+            repository.setFolderHidden(folderId, hide)
+            reloadHelper.reloadGrid()
         }
     }
 
     fun deleteFolder(id: Int) {
         viewModelScope.launch {
             repository.deleteFolderInfo(id)
+            reloadHelper.reloadGrid()
         }
-        reloadHelper.reloadGrid()
     }
 
     fun updateFolderOrder(orderedIds: List<Int>) {

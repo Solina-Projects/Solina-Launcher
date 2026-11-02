@@ -12,6 +12,7 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
@@ -44,14 +45,26 @@ fun SelectAppsForDrawerFolder(
     modifier: Modifier = Modifier,
     viewModel: FolderViewModel = viewModel(),
 ) {
+    val backDispatcher = LocalOnBackPressedDispatcherOwner.current?.onBackPressedDispatcher
+
     if (folderInfoId == null) {
-        val backDispatcher = LocalOnBackPressedDispatcherOwner.current?.onBackPressedDispatcher
-        backDispatcher?.onBackPressed()
+        LaunchedEffect(backDispatcher) {
+            backDispatcher?.onBackPressed()
+        }
         return
     }
 
+    val folders by viewModel.folders.collectAsStateWithLifecycle()
     val apps by appsState()
-    val folderEntry by viewModel.getFolderFlowForId(folderInfoId).collectAsStateWithLifecycle(null)
+    val folderEntry = folders?.find { it.id == folderInfoId }
+
+    // Derive the entry from the same loaded list so the validity check cannot race
+    // a second Flow collector that has not received the folder list yet.
+    LaunchedEffect(folderInfoId, folders, backDispatcher) {
+        if (folders != null && folderEntry == null) {
+            backDispatcher?.onBackPressed()
+        }
+    }
     val allFolderPackages by viewModel.allFolderPackages.collectAsStateWithLifecycle()
 
     SelectAppsForDrawerFolder(
@@ -105,18 +118,16 @@ fun SelectAppsForDrawerFolder(
             onOrderChange = { newList, newCount ->
                 val sorted = PositionalListState.sortInactiveItems(newList, newCount) { it.label }
                 val activeKeys = PositionalListState.getEnabledKeys(sorted, newCount)
-                onUpdate(folderEntry?.title.toString(), activeKeys)
+                folderEntry?.title?.let { title -> onUpdate(title, activeKeys) }
             },
             labelSelector = { it.label },
         )
     }
 
     PreferenceScaffold(
-        label = if (loading) {
-            stringResource(R.string.loading)
-        } else {
-            stringResource(R.string.x_with_y_count, folderEntry.title, state.activeCount)
-        },
+        label = folderEntry?.takeIf { !loading }?.let { entry ->
+            stringResource(R.string.x_with_y_count, entry.title, state.activeCount)
+        } ?: stringResource(R.string.loading),
         modifier = modifier,
         actions = {
             if (!loading) {

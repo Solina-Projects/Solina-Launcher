@@ -16,7 +16,10 @@ import com.patrykmichalik.opto.core.onEach
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class LawnchairAppSearchAlgorithm(context: Context) : LawnchairSearchAlgorithm(context) {
 
@@ -34,7 +37,7 @@ class LawnchairAppSearchAlgorithm(context: Context) : LawnchairSearchAlgorithm(c
 
     private val prefs2 = PreferenceManager2.getInstance(context)
 
-    val coroutineScope = CoroutineScope(context = Dispatchers.IO)
+    private val coroutineScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
 
     private var modelRetryJob: Job? = null
     private var currentJob: Job? = null
@@ -56,13 +59,18 @@ class LawnchairAppSearchAlgorithm(context: Context) : LawnchairSearchAlgorithm(c
 
     override fun doSearch(query: String, callback: SearchCallback<BaseAllAppsAdapter.AdapterItem>) {
         modelRetryJob?.cancel()
+        currentJob?.cancel()
         modelRetryJob = appState.model.runWhenModelLoaded(coroutineScope) { apps ->
             // Track the delivery job so cancel(true) (e.g. from a drawer close) can stop a
             // late-arriving result from being delivered after reset. See issue #7325.
             currentJob?.cancel()
-            currentJob = coroutineScope.launch(Dispatchers.Main) {
-                val results = getResult(apps.data, query)
-                callback.onSearchResult(query, results)
+            currentJob = coroutineScope.launch {
+                val results = withContext(Dispatchers.Default) {
+                    getResult(apps.data, query)
+                }
+                withContext(Dispatchers.Main) {
+                    callback.onSearchResult(query, results)
+                }
             }
         }
     }
@@ -73,6 +81,11 @@ class LawnchairAppSearchAlgorithm(context: Context) : LawnchairSearchAlgorithm(c
             currentJob?.cancel()
             resultHandler.removeCallbacksAndMessages(null)
         }
+    }
+
+    override fun destroy() {
+        cancel(interruptActiveRequests = true)
+        coroutineScope.cancel()
     }
 
     private fun getResult(

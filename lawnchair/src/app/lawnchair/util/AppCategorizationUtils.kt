@@ -4,14 +4,13 @@ import android.content.Context
 import app.lawnchair.flowerpot.Flowerpot
 import com.android.launcher3.model.data.AppInfo
 import com.android.launcher3.util.ApplicationInfoWrapper
-import com.android.launcher3.util.PackageManagerHelper
+import java.util.Locale
 
 /**
- * Categorizes apps into System Apps, Google Apps, and Flowerpot categories.
+ * Categorizes apps into stable, alphabetically ordered System, Google and Flowerpot groups.
  *
- * @param apps List of apps to categorize
- * @param context Context for checking system apps and accessing Flowerpot
- * @return Map of category names to lists of apps in that category
+ * Google apps are checked first because some of them are also system applications. Flowerpot
+ * remains responsible for categorizing all other applications.
  */
 fun categorizeAppsWithSystemAndGoogle(
     apps: List<AppInfo>,
@@ -25,31 +24,34 @@ fun categorizeAppsWithSystemAndGoogle(
         val packageName = app.targetPackage ?: return@forEach
         val intent = app.intent
 
-        // Check if it's a Google app first (Google apps can also be system apps)
         when {
-            packageName.startsWith("com.google.") -> googleApps.add(app)
+            packageName.startsWith("com.google.", ignoreCase = true) -> googleApps.add(app)
             intent != null && ApplicationInfoWrapper(context, intent).isSystem() -> systemApps.add(app)
             else -> otherApps.add(app)
         }
     }
 
-    // Use flowerpot to categorize other apps (non-system, non-Google)
-    val potsManager = Flowerpot.Manager.getInstance(context)
-    val categorizedApps = potsManager.categorizeApps(otherApps)
+    val categorizedApps = Flowerpot.Manager.getInstance(context).categorizeApps(otherApps)
+    val result = linkedMapOf<String, List<AppInfo>>()
 
-    // Build final categorized apps map
-    val finalCategorizedApps = mutableMapOf<String, List<AppInfo>>()
-
-    if (systemApps.isNotEmpty()) {
-        finalCategorizedApps["System Apps"] = systemApps
+    fun addCategory(name: String, categoryApps: List<AppInfo>) {
+        if (categoryApps.isNotEmpty()) {
+            result[name] = categoryApps.sortedWith(
+                compareBy<AppInfo> { it.title.toString().lowercase(Locale.ROOT) }
+                    .thenBy { it.targetPackage.orEmpty() }
+                    .thenBy { it.targetComponent?.className.orEmpty() },
+            )
+        }
     }
 
-    if (googleApps.isNotEmpty()) {
-        finalCategorizedApps["Google Apps"] = googleApps
-    }
+    addCategory("System Apps", systemApps)
+    addCategory("Google Apps", googleApps)
 
-    // Add flowerpot categorized apps
-    finalCategorizedApps.putAll(categorizedApps)
+    // Flowerpot category order is made deterministic so Drawer positions do not jump between
+    // refreshes when the underlying map implementation changes.
+    categorizedApps.entries
+        .sortedWith(compareBy<Map.Entry<String, List<AppInfo>>> { it.key.lowercase(Locale.ROOT) }.thenBy { it.key })
+        .forEach { (name, categoryApps) -> addCategory(name, categoryApps) }
 
-    return finalCategorizedApps
+    return result
 }

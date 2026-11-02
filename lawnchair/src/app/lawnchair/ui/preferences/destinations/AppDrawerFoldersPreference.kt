@@ -20,6 +20,7 @@ import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -101,6 +102,9 @@ fun AppDrawerFoldersPreference(
         onDeleteFolder = {
             viewModel.deleteFolder(it.id)
         },
+        onFolderVisibilityChange = { folderId, hide ->
+            viewModel.setFolderHidden(folderId, hide)
+        },
         onOrderChange = {
             viewModel.updateFolderOrder(it)
         },
@@ -116,6 +120,7 @@ fun AppDrawerFoldersPreference(
     onDeleteFolder: (FolderEntry) -> Unit,
     onOrderChange: (List<Int>) -> Unit,
     modifier: Modifier = Modifier,
+    onFolderVisibilityChange: (Int, Boolean) -> Unit = { _, _ -> },
 ) {
     val mMSDLPlayerWrapper = MSDLPlayerWrapper.INSTANCE.get(LocalContext.current)
     val bottomSheetHandler = bottomSheetHandler
@@ -173,8 +178,8 @@ fun AppDrawerFoldersPreference(
                 label = null,
                 items = sortedDisplayList,
                 defaultList = sortedDisplayList,
-                onOrderChange = { updatedFolders ->
-                    onOrderChange(updatedFolders.map { it.id })
+                onOrderChange = { folderOrder ->
+                    onOrderChange(folderOrder.map { it.id })
                 },
             ) { folderEntry, _, _ ->
                 val interactionSource = remember { MutableInteractionSource() }
@@ -198,6 +203,7 @@ fun AppDrawerFoldersPreference(
                             )
                         }
                     },
+                    onVisibilityChange = { folderId, hide -> onFolderVisibilityChange(folderId, hide) },
                     onItemDelete = { folderToDelete ->
                         mMSDLPlayerWrapper.playToken(MSDLToken.SUCCESS)
                         onDeleteFolder(folderToDelete)
@@ -240,9 +246,10 @@ fun FolderEditSheet(
             Spacer(Modifier.width(8.dp))
             Button(
                 onClick = {
-                    onRename(folderId, textFieldValue.text)
+                    onRename(folderId, textFieldValue.text.trim())
                     onDismiss()
                 },
+                enabled = textFieldValue.text.isNotBlank(),
                 shapes = ButtonDefaults.shapes(),
             ) {
                 Text(stringResource(android.R.string.ok))
@@ -261,7 +268,7 @@ fun FolderEditSheet(
                     .padding(horizontal = 16.dp)
                     .fillMaxWidth(),
                 singleLine = true,
-                isError = textFieldValue.text.isEmpty(),
+                isError = textFieldValue.text.isBlank(),
             )
             if (!hideAppPicker) {
                 ClickablePreference(
@@ -288,6 +295,7 @@ fun FolderItem(
     onItemClick: (FolderEntry) -> Unit,
     onItemDelete: (FolderEntry) -> Unit,
     modifier: Modifier = Modifier,
+    onVisibilityChange: (Int, Boolean) -> Unit = { _, _ -> },
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     dragIndicator: @Composable () -> Unit,
 ) {
@@ -313,6 +321,10 @@ fun FolderItem(
         },
         endWidget = {
             Row {
+                Switch(
+                    checked = folderEntry.hide,
+                    onCheckedChange = { onVisibilityChange(folderEntry.id, it) },
+                )
                 IconButton(
                     onClick = {
                         onItemDelete(folderEntry)

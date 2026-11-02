@@ -55,6 +55,10 @@ class FolderService @Inject constructor(
         folderDao.updateFolderTitle(folderId, title)
     }
 
+    suspend fun setFolderHidden(folderId: Int, hide: Boolean) = withContext(Dispatchers.IO) {
+        folderDao.setFolderHidden(folderId, hide)
+    }
+
     suspend fun deleteFolderInfo(id: Int) = withContext(Dispatchers.IO) {
         folderDao.deleteFolder(id)
     }

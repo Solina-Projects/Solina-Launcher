@@ -293,8 +293,10 @@ class AllAppsSearchInput(context: Context, attrs: AttributeSet?) :
                 setBackgroundVisibility(true, 1f)
                 animateHintVisibility(false)
                 if (prefs.searchResulRecentSuggestion.get()) {
-                    val query = editText.text.toString()
-                    suggestionsRecent.saveRecentQuery(query, null)
+                    val query = editText.text.toString().trim()
+                    if (query.isNotEmpty()) {
+                        suggestionsRecent.saveRecentQuery(query, null)
+                    }
                 }
 
                 if (input.text.isNullOrEmpty()) {
@@ -402,19 +404,20 @@ class AllAppsSearchInput(context: Context, attrs: AttributeSet?) :
 
     private fun updateHint() {
         val inputString = input.text.toString()
-        val inputLowerCase = inputString.lowercase(Locale.getDefault())
-        val focusedLowerCase = focusedResultTitle.lowercase(Locale.getDefault())
-        if (canShowHint &&
-            inputLowerCase.isNotEmpty() &&
-            focusedLowerCase.isNotEmpty() &&
-            focusedLowerCase.matches(Regex("^[\\x00-\\x7F]*$")) &&
-            focusedLowerCase.startsWith(inputLowerCase)
-        ) {
+        val hasMatchingPrefix = inputString.isNotEmpty() &&
+            focusedResultTitle.regionMatches(
+                thisOffset = 0,
+                other = inputString,
+                otherOffset = 0,
+                length = inputString.length,
+                ignoreCase = true,
+            )
+        if (canShowHint && hasMatchingPrefix) {
             val hintColor = Themes.getAttrColor(context, android.R.attr.textColorTertiary)
             val hintText = SpannableStringBuilder(inputString)
-                .append(focusedLowerCase.substring(inputLowerCase.length))
-            hintText.setSpan(ForegroundColorSpan(Color.TRANSPARENT), 0, inputLowerCase.length, SPAN_POINT_MARK)
-            hintText.setSpan(ForegroundColorSpan(hintColor), inputLowerCase.length, hintText.length, SPAN_POINT_MARK)
+                .append(focusedResultTitle.substring(inputString.length).lowercase(Locale.getDefault()))
+            hintText.setSpan(ForegroundColorSpan(Color.TRANSPARENT), 0, inputString.length, SPAN_POINT_MARK)
+            hintText.setSpan(ForegroundColorSpan(hintColor), inputString.length, hintText.length, SPAN_POINT_MARK)
             hint.text = hintText
             hint.isVisible = true
         }
@@ -442,6 +445,11 @@ class AllAppsSearchInput(context: Context, attrs: AttributeSet?) :
             appsView.appsStore?.removeUpdateListener(this)
         }
         input.viewTreeObserver.removeOnGlobalLayoutListener(this)
+        paddingAnimator?.cancel()
+        paddingAnimator = null
+        bgAlphaAnimator.cancel()
+        hint.animate().cancel()
+        searchAlgorithm?.cancel(true)
         setDirectFocus(false)
     }
 
@@ -452,6 +460,7 @@ class AllAppsSearchInput(context: Context, attrs: AttributeSet?) :
     override fun initializeSearch(appsView: ActivityAllAppsContainerView<*>) {
         apps = appsView.searchResultList as LawnchairAlphabeticalAppsList<*>
         this.appsView = appsView
+        searchAlgorithm?.destroy()
         val algorithm = LawnchairSearchAlgorithm.create(context)
         this.searchAlgorithm = algorithm
         searchBarController.initialize(
