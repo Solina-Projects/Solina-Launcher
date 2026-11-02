@@ -161,10 +161,24 @@ internal object ModularPreferenceBackup {
             val encoded = values.optJSONObject(key)
                 ?: throw IllegalArgumentException("Invalid preference value for $key")
             val value = encoded.opt("value")
+            val number = value as? Number
+            val numericValue = number?.toDouble()
             val valid = when (encoded.optString("type")) {
                 "boolean" -> value is Boolean
 
-                "int", "long", "float", "double" -> value is Number
+                "int" -> numericValue != null && numericValue.isFinite() &&
+                    numericValue % 1.0 == 0.0 &&
+                    numericValue >= Int.MIN_VALUE && numericValue <= Int.MAX_VALUE
+
+                "long" -> numericValue != null && numericValue.isFinite() &&
+                    numericValue % 1.0 == 0.0 &&
+                    numericValue >= Long.MIN_VALUE.toDouble() &&
+                    numericValue < Long.MAX_VALUE.toDouble()
+
+                "float" -> numericValue != null && numericValue.isFinite() &&
+                    numericValue >= -Float.MAX_VALUE && numericValue <= Float.MAX_VALUE
+
+                "double" -> numericValue != null && numericValue.isFinite()
 
                 "string" -> value is String
 
@@ -278,7 +292,7 @@ internal object ModularPreferenceBackup {
             "string" -> value as? String
 
             "string_set" -> (value as? JSONArray)?.let { array ->
-                buildSet { for (i in 0 until array.length()) array.optString(i).takeIf(String::isNotEmpty)?.let(::add) }
+                buildSet { for (i in 0 until array.length()) add(array.getString(i)) }
             }
 
             else -> null
