@@ -51,6 +51,7 @@ import com.android.launcher3.util.Executors.MODEL_EXECUTOR
 import com.android.launcher3.util.PackageUserKey
 import java.io.PrintWriter
 import java.util.concurrent.CancellationException
+import java.util.concurrent.Callable
 import java.util.function.Consumer
 import javax.inject.Inject
 import javax.inject.Named
@@ -201,6 +202,23 @@ constructor(
             }
         }
     }
+
+    /**
+     * Runs a database file maintenance operation after pausing model loading and serializing it
+     * behind any in-flight model work. The model is reloaded after the operation completes.
+     */
+    fun <T> runDatabaseMaintenance(action: () -> T) =
+        synchronized(mLock) {
+            stopLoader()
+            mModelLoaded = false
+            MODEL_EXECUTOR.submit(Callable {
+                try {
+                    action()
+                } finally {
+                    forceReload()
+                }
+            })
+        }
 
     /**
      * Reloads the workspace items from the DB and re-binds the workspace. This should generally not
