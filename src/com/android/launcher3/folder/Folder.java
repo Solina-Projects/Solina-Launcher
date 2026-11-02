@@ -192,7 +192,7 @@ public class Folder extends AbstractFloatingView implements ClipPathView, DragSo
      */
     private static final float ICON_OVERSCROLL_WIDTH_FACTOR = 0.45f;
 
-    private static final int FOLDER_NAME_ANIMATION_DURATION = 633;
+    private static final int FOLDER_NAME_ANIMATION_DURATION = 400;
     private static final int FOLDER_COLOR_ANIMATION_DURATION = 200;
 
     private static final int REORDER_DELAY = 250;
