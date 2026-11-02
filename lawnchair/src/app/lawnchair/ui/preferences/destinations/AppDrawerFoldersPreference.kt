@@ -38,6 +38,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import app.lawnchair.data.folder.FolderEntry
 import app.lawnchair.data.folder.model.FolderViewModel
+import app.lawnchair.util.App
+import app.lawnchair.util.appsState
 import app.lawnchair.preferences.getAdapter
 import app.lawnchair.preferences.preferenceManager
 import app.lawnchair.ui.ModalBottomSheetContent
@@ -85,6 +87,8 @@ fun AppDrawerFoldersPreference(
     viewModel: FolderViewModel = viewModel(),
 ) {
     val navController = LocalNavController.current
+    val context = LocalContext.current
+    val apps by appsState()
     val folders by viewModel.folders.collectAsStateWithLifecycle()
 
     AppDrawerFoldersPreference(
@@ -108,6 +112,8 @@ fun AppDrawerFoldersPreference(
         onOrderChange = {
             viewModel.updateFolderOrder(it)
         },
+        apps = apps,
+        onCreateSmartFolders = { viewModel.createSmartFolders(apps, context) },
     )
 }
 
@@ -121,6 +127,8 @@ fun AppDrawerFoldersPreference(
     onOrderChange: (List<Int>) -> Unit,
     modifier: Modifier = Modifier,
     onFolderVisibilityChange: (Int, Boolean) -> Unit = { _, _ -> },
+    apps: List<App> = emptyList(),
+    onCreateSmartFolders: () -> Unit = {},
 ) {
     val mMSDLPlayerWrapper = MSDLPlayerWrapper.INSTANCE.get(LocalContext.current)
     val bottomSheetHandler = bottomSheetHandler
@@ -146,6 +154,16 @@ fun AppDrawerFoldersPreference(
                 )
             }
             PreferenceGroup(heading = stringResource(R.string.folders_label)) {
+                Text(
+                    text = stringResource(R.string.smart_categories_description),
+                    modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
+                )
+                Button(
+                    onClick = onCreateSmartFolders,
+                    modifier = Modifier.fillMaxWidth(),
+                ) {
+                    Text(stringResource(R.string.smart_categories_create))
+                }
                 PreferenceTemplate(
                     title = {
                         Text(
