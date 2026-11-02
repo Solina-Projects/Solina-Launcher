@@ -216,7 +216,10 @@ public class Hotseat extends FrameLayout implements Insettable {
     }
 
     private void setUpBackground() {
-        if(!preferenceManager.getHotseatBG().get()) return;
+        if (!preferenceManager.getHotseatBG().get()) {
+            setBackground(null);
+            return;
+        }
 
         var bgColor = PreferenceCacheExtensionsKt.firstCached(preferenceManager2.getHotseatBackgroundColor());
         var transparency = preferenceManager.getHotseatBGAlpha().get();
@@ -341,6 +344,7 @@ public class Hotseat extends FrameLayout implements Insettable {
         DeviceProfile dp = mActivity.getDeviceProfile();
 
         mPagedView.resetPages(hasVerticalHotseat, mWorkspace, dp);
+        setUpBackground();
 
         if (bubbleBarEnabled) {
             for (CellLayout page : getPageLayouts()) {
