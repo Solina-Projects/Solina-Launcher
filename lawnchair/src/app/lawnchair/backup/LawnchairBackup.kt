@@ -23,6 +23,8 @@ import com.android.launcher3.provider.RestoreDbTask
 import com.google.protobuf.Timestamp
 import java.io.File
 import java.io.FileInputStream
+import java.io.ByteArrayOutputStream
+import java.io.FilterInputStream
 import java.io.FileOutputStream
 import java.io.InputStream
 import java.text.SimpleDateFormat
@@ -48,8 +50,8 @@ class LawnchairBackup(
         readZip(
             mapOf(
                 INFO_FILE_NAME to { info = BackupInfo.newBuilder().mergeFrom(it).build() },
-                SCREENSHOT_FILE_NAME to { tmpScreenshot = BitmapFactory.decodeStream(it) },
-                WALLPAPER_FILE_NAME to { tmpWallpaper = BitmapFactory.decodeStream(it) },
+                SCREENSHOT_FILE_NAME to { tmpScreenshot = decodeBoundedBitmap(it, MAX_SCREENSHOT_BYTES) },
+                WALLPAPER_FILE_NAME to { tmpWallpaper = decodeBoundedBitmap(it, MAX_WALLPAPER_BYTES) },
             ),
         )
         val size = max(info.previewWidth, info.previewHeight).coerceAtMost(4000)
@@ -85,7 +87,7 @@ class LawnchairBackup(
         }
         if (contents.hasFlag(INCLUDE_WALLPAPER)) {
             handlers[WALLPAPER_FILE_NAME] = {
-                val bitmap = BitmapFactory.decodeStream(it)
+                val bitmap = decodeBoundedBitmap(it, MAX_WALLPAPER_BYTES)
                     ?: throw IllegalArgumentException("Invalid wallpaper image")
                 WallpaperManager.getInstance(context).setBitmap(bitmap)
             }
@@ -115,20 +117,92 @@ class LawnchairBackup(
 
     private suspend fun readZip(handlers: Map<String, suspend (InputStream) -> Unit>) {
         withContext(Dispatchers.IO) {
-            val pfd = context.contentResolver.openFileDescriptor(uri, "r")!!
+            val pfd = context.contentResolver.openFileDescriptor(uri, "r")
+                ?: throw IllegalArgumentException("Unable to open backup file")
             pfd.use {
                 FileInputStream(it.fileDescriptor).use { inStream ->
                     ZipInputStream(inStream).use { zipIs ->
-                        var entry: ZipEntry?
+                        var entryCount = 0
+                        var totalBytes = 0L
                         while (true) {
-                            entry = zipIs.nextEntry
-                            if (entry == null) break
-                            handlers[entry.name]?.invoke(zipIs)
+                            val entry = zipIs.nextEntry ?: break
+                            entryCount++
+                            require(entryCount <= MAX_ARCHIVE_ENTRIES) { "Backup contains too many entries" }
+                            val limit = maxEntryBytes(entry.name)
+                            require(entry.size < 0L || entry.size <= limit) { "Backup entry is too large: ${entry.name}" }
+                            val bounded = EntryLimitedInputStream(zipIs, limit)
+                            handlers[entry.name]?.invoke(bounded)
+                            val buffer = ByteArray(DEFAULT_BUFFER_SIZE)
+                            while (bounded.read(buffer) != -1) { }
+                            totalBytes += bounded.bytesRead
+                            require(totalBytes <= MAX_ARCHIVE_UNCOMPRESSED_BYTES) { "Backup expands beyond the allowed size" }
+                            zipIs.closeEntry()
                         }
                     }
                 }
             }
         }
+    }
+
+    private class EntryLimitedInputStream(input: InputStream, private val limit: Long) : FilterInputStream(input) {
+        var bytesRead: Long = 0
+            private set
+
+        override fun read(): Int {
+            val value = super.read()
+            if (value >= 0) count(1)
+            return value
+        }
+
+        override fun read(buffer: ByteArray, offset: Int, length: Int): Int {
+            val read = super.read(buffer, offset, length)
+            if (read > 0) count(read)
+            return read
+        }
+
+        private fun count(amount: Int) {
+            bytesRead += amount
+            require(bytesRead <= limit) { "Backup entry exceeds its size limit" }
+        }
+
+        override fun close() = Unit
+    }
+
+    private fun maxEntryBytes(name: String): Long = when (name) {
+        MODULE_PREFERENCES_FILE_NAME -> MAX_PREFERENCES_BYTES
+        WALLPAPER_FILE_NAME -> MAX_WALLPAPER_BYTES
+        SCREENSHOT_FILE_NAME -> MAX_SCREENSHOT_BYTES
+        LAUNCHER_DB_FILE_NAME -> MAX_DATABASE_BYTES
+        INFO_FILE_NAME -> MAX_INFO_BYTES
+        else -> MAX_UNKNOWN_ENTRY_BYTES
+    }
+
+    private fun decodeBoundedBitmap(input: InputStream, maxBytes: Long): Bitmap? {
+        val bytes = input.readLimited(maxBytes)
+        val bounds = BitmapFactory.Options().apply { inJustDecodeBounds = true }
+        BitmapFactory.decodeByteArray(bytes, 0, bytes.size, bounds)
+        require(bounds.outWidth > 0 && bounds.outHeight > 0) { "Invalid image in backup" }
+        require(bounds.outWidth <= MAX_IMAGE_DIMENSION && bounds.outHeight <= MAX_IMAGE_DIMENSION) {
+            "Backup image dimensions are too large"
+        }
+        require(bounds.outWidth.toLong() * bounds.outHeight <= MAX_IMAGE_PIXELS) {
+            "Backup image pixel count is too large"
+        }
+        return BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
+    }
+
+    private fun InputStream.readLimited(maxBytes: Long): ByteArray {
+        val output = ByteArrayOutputStream()
+        val buffer = ByteArray(DEFAULT_BUFFER_SIZE)
+        var total = 0L
+        while (true) {
+            val count = read(buffer)
+            if (count < 0) break
+            total += count
+            require(total <= maxBytes) { "Backup item exceeds its size limit" }
+            output.write(buffer, 0, count)
+        }
+        return output.toByteArray()
     }
 
     companion object {
@@ -188,6 +262,17 @@ class LawnchairBackup(
 
         private fun modulesForContents(contents: Int): Set<String> =
             MODULE_FLAGS.filterKeys { flag -> contents.hasFlag(flag) }.values.toSet()
+
+        private const val MAX_ARCHIVE_ENTRIES = 128
+        private const val MAX_ARCHIVE_UNCOMPRESSED_BYTES = 512L * 1024 * 1024
+        private const val MAX_DATABASE_BYTES = 256L * 1024 * 1024
+        private const val MAX_PREFERENCES_BYTES = 16L * 1024 * 1024
+        private const val MAX_WALLPAPER_BYTES = 64L * 1024 * 1024
+        private const val MAX_SCREENSHOT_BYTES = 32L * 1024 * 1024
+        private const val MAX_INFO_BYTES = 1024L * 1024
+        private const val MAX_UNKNOWN_ENTRY_BYTES = 8L * 1024 * 1024
+        private const val MAX_IMAGE_DIMENSION = 16_384
+        private const val MAX_IMAGE_PIXELS = 40_000_000L
 
         const val MIME_TYPE = "application/zip"
         val EXTRA_MIME_TYPES = arrayOf(MIME_TYPE, "application/x-zip", "application/octet-stream")
