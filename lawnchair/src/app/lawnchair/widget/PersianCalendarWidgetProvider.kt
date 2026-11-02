@@ -41,14 +41,18 @@ class PersianCalendarWidgetProvider : AppWidgetProvider() {
         val views = RemoteViews(context.packageName, R.layout.solina_persian_calendar_widget)
         val now = Date()
         val locale = Locale("fa", "IR")
-        val gregorian = SimpleDateFormat("yyyy-MM-dd", Locale.US).format(now).split("-").map { it.toInt() }
+        val gregorian = SimpleDateFormat("yyyy-MM-dd", Locale.US)
+            .format(now)
+            .split("-")
+            .map { it.toInt() }
         val (year, month, day) = gregorianToJalali(gregorian[0], gregorian[1], gregorian[2])
         val monthNames = listOf(
             "فروردین", "اردیبهشت", "خرداد", "تیر", "مرداد", "شهریور",
             "مهر", "آبان", "آذر", "دی", "بهمن", "اسفند",
         )
         val weekday = SimpleDateFormat("EEEE", locale).format(now)
-        val dateText = "$weekday، $day ${monthNames[month - 1]} $year".toPersianDigits()
+        val dateText = "$weekday، $day ${monthNames[month - 1]} $year"
+            .toPersianDigits()
         views.setTextViewText(R.id.solina_persian_calendar_date, dateText)
         views.setTextViewText(
             R.id.solina_persian_calendar_caption,
