@@ -56,7 +56,7 @@
         android:name="${packageName}.permission.HOTSEAT_EDU"
         tools:node="remove" />
 
-    <application>
+    <application android:localeConfig="@xml/locales_config">
         <meta-data
             android:name="preloaded_fonts"
             android:resource="@array/preloaded_fonts" />
@@ -211,5 +211,25 @@
             android:name="org.chickenhook.restrictionbypass.BypassProvider"
             android:authorities="${applicationId}.restrictionbypass"
             tools:node="remove"/>
+            <receiver
+            android:name="app.lawnchair.widget.PersianCalendarWidgetProvider"
+            android:label="@string/solina_persian_calendar_widget_name"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="android.intent.action.DATE_CHANGED" />
+                <action android:name="android.intent.action.TIME_SET" />
+                <action android:name="android.intent.action.TIMEZONE_CHANGED" />
+                <action android:name="android.intent.action.LOCALE_CHANGED" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/solina_persian_calendar_widget_info" />
+        </receiver>
+        <activity
+            android:name="app.lawnchair.security.AppUnlockActivity"
+            android:exported="false"
+            android:excludeFromRecents="true"
+            android:theme="@style/Theme.Lawnchair" />
     </application>
 </manifest>
