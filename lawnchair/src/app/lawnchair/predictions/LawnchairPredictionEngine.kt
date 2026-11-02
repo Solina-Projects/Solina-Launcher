@@ -148,6 +148,23 @@ class LawnchairPredictionEngine(
     fun toStoreKey(componentName: ComponentName, user: UserHandle): String = PredictionAppKey.create(componentName, userToken(user))
 
     /**
+     * Returns currently pinned dock apps in their visual order. Folders and non-app items
+     * are naturally skipped because they do not expose a target component.
+     */
+    fun getDockRanked(dataModel: BgDataModel): List<String> {
+        val itemsSnapshot = synchronized(dataModel) { dataModel.itemsIdMap.copy() }
+        return itemsSnapshot
+            .filter { it.container == CONTAINER_HOTSEAT }
+            .sortedBy { it.rank }
+            .mapNotNull { item ->
+                item.targetComponent?.let { component ->
+                    toStoreKey(component, item.user)
+                }
+            }
+            .distinct()
+    }
+
+    /**
      * Returns the set of store keys for items currently occupying the hotseat.
      */
     fun getOccupiedHotseatItems(dataModel: BgDataModel): Set<String> {
