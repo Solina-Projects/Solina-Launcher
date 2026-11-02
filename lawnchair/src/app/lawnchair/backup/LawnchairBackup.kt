@@ -149,14 +149,15 @@ class LawnchairBackup(
 
             if (restoreLayout) {
                 val restoreTargets = getFiles(context, forRestore = true)
-                val handlers = restoreTargets.mapValues { (entryName, target) ->
-                    { input: InputStream ->
+                val handlers = mutableMapOf<String, suspend (InputStream) -> Unit>()
+                restoreTargets.forEach { (entryName, target) ->
+                    handlers[entryName] = { input: InputStream ->
                         val staged = File(stagingDir, "files/${entryName.replace('/', '_')}")
                         staged.parentFile?.mkdirs()
                         staged.outputStream().use { output -> input.copyTo(output) }
                         stagedFiles[target] = staged
                     }
-                }.toMutableMap()
+                }
 
                 // Restore wallpaper-library images alongside their Room metadata so restored
                 // wallpaper records never point at files that were omitted from the archive.
