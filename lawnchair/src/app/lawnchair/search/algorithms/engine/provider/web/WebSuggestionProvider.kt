@@ -8,6 +8,7 @@ import app.lawnchair.preferences2.firstCached
 import app.lawnchair.search.algorithms.engine.SearchProvider
 import app.lawnchair.search.algorithms.engine.SearchResult
 import kotlin.time.Duration.Companion.milliseconds
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
@@ -38,11 +39,18 @@ object WebSuggestionProvider : SearchProvider {
 
         return webProvider.getSuggestions(query)
             .timeout(timeout.milliseconds)
-            .catch {
-                if (it is TimeoutCancellationException) {
-                    Log.w(TAG, "Web suggestion request timed out")
-                    emit(emptyList())
+            .catch { error ->
+                if (error is CancellationException && error !is TimeoutCancellationException) {
+                    throw error
                 }
+                if (error is TimeoutCancellationException) {
+                    Log.w(TAG, "Web suggestion request timed out")
+                } else {
+                    Log.e(TAG, "Web suggestion request failed", error)
+                }
+                // A failed optional web provider must not cancel app, contacts, file,
+                // settings, or calculator results in the combined search flow.
+                emit(emptyList())
             }
             .map { suggestions ->
                 suggestions
