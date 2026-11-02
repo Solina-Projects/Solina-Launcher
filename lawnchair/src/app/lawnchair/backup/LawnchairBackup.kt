@@ -77,6 +77,9 @@ class LawnchairBackup(
                 database.parentFile?.mkdirs()
                 database.outputStream().use { out -> it.copyTo(out) }
             }
+            handlers[LAUNCHER_DB_WAL_FILE_NAME] = {
+                File(database.path + "-wal").outputStream().use { out -> it.copyTo(out) }
+            }
         }
 
         val selectedModules = modulesForContents(contents)
@@ -188,7 +191,7 @@ class LawnchairBackup(
         MODULE_PREFERENCES_FILE_NAME -> MAX_PREFERENCES_BYTES
         WALLPAPER_FILE_NAME -> MAX_WALLPAPER_BYTES
         SCREENSHOT_FILE_NAME -> MAX_SCREENSHOT_BYTES
-        LAUNCHER_DB_FILE_NAME -> MAX_DATABASE_BYTES
+        LAUNCHER_DB_FILE_NAME, LAUNCHER_DB_WAL_FILE_NAME -> MAX_DATABASE_BYTES
         INFO_FILE_NAME -> MAX_INFO_BYTES
         else -> MAX_UNKNOWN_ENTRY_BYTES
     }
@@ -233,6 +236,7 @@ class LawnchairBackup(
         const val SCREENSHOT_FILE_NAME = "screenshot.png"
         const val MODULE_PREFERENCES_FILE_NAME = "preferences.modules.json"
         const val LAUNCHER_DB_FILE_NAME = "launcher.db"
+        const val LAUNCHER_DB_WAL_FILE_NAME = "launcher.db-wal"
         const val RESTORED_DB_FILE_NAME = "restored.db"
 
         // Bit 0 retains the legacy layout/settings flag; bit 1 remains wallpaper.
@@ -381,15 +385,18 @@ class LawnchairBackup(
                             out.write(ModularPreferenceBackup.export(context, modulesForContents(contents)))
                         }
 
-                        val files = if (contents.hasFlag(INCLUDE_LAYOUT_AND_SETTINGS)) {
-                            mapOf(LAUNCHER_DB_FILE_NAME to launcherDbFile(context, forRestore = false))
-                        } else {
-                            emptyMap()
-                        }
-                        files.entries.forEach {
-                            if (!it.value.exists()) return@forEach
-                            out.putNextEntry(ZipEntry(it.key))
-                            it.value.inputStream().use { input -> input.copyTo(out) }
+                        if (contents.hasFlag(INCLUDE_LAYOUT_AND_SETTINGS)) {
+                            val database = launcherDbFile(context, forRestore = false)
+                            require(database.isFile && database.length() > 0L) {
+                                "Launcher database is unavailable for backup"
+                            }
+                            out.putNextEntry(ZipEntry(LAUNCHER_DB_FILE_NAME))
+                            database.inputStream().use { input -> input.copyTo(out) }
+                            val wal = File(database.path + "-wal")
+                            if (wal.isFile && wal.length() > 0L) {
+                                out.putNextEntry(ZipEntry(LAUNCHER_DB_WAL_FILE_NAME))
+                                wal.inputStream().use { input -> input.copyTo(out) }
+                            }
                         }
                     }
                 }
