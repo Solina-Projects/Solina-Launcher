@@ -17,6 +17,7 @@
 package app.lawnchair.backup
 
 import android.content.Context
+import android.content.Context.MODE_PRIVATE
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.doublePreferencesKey
 import androidx.datastore.preferences.core.edit
@@ -94,6 +95,17 @@ internal object ModularPreferenceBackup {
         }
         root.put("shared_preferences", shared)
 
+        // LauncherPrefs also keeps boot-aware values in device-protected storage.
+        val deviceProtected = JSONObject()
+        context.createDeviceProtectedStorageContext()
+            .getSharedPreferences("boot_aware_prefs", MODE_PRIVATE)
+            .all.forEach { (key, value) ->
+                if (value != null && moduleFor(key) in selectedModules) {
+                    deviceProtected.put(key, encode(value))
+                }
+            }
+        root.put("device_protected_preferences", deviceProtected)
+
         val dataStore = PreferenceManager2.getInstance(context).preferencesDataStore
         val snapshot = dataStore.data.first()
         val data = JSONObject()
@@ -109,6 +121,9 @@ internal object ModularPreferenceBackup {
         val root = JSONObject(bytes.toString(Charsets.UTF_8))
         require(root.optInt("schema", -1) in 1..SCHEMA_VERSION) { "Unsupported preference snapshot" }
         require(root.optJSONObject("shared_preferences") != null) { "Missing SharedPreferences snapshot" }
+        require(root.optJSONObject("device_protected_preferences") != null) {
+            "Missing device-protected preferences snapshot"
+        }
         require(root.optJSONObject("datastore_preferences") != null) { "Missing DataStore snapshot" }
     }
 
@@ -137,6 +152,27 @@ internal object ModularPreferenceBackup {
             }
         }
         editor.commit().also { check(it) { "Unable to commit SharedPreferences restore" } }
+
+        val deviceProtectedPreferences = context.createDeviceProtectedStorageContext()
+            .getSharedPreferences("boot_aware_prefs", MODE_PRIVATE)
+        val deviceProtectedData = root.optJSONObject("device_protected_preferences") ?: JSONObject()
+        val deviceProtectedEditor = deviceProtectedPreferences.edit()
+        deviceProtectedPreferences.all.keys
+            .filter { moduleFor(it) in selectedModules }
+            .forEach(deviceProtectedEditor::remove)
+        deviceProtectedData.keys().forEach { key ->
+            if (moduleFor(key) in selectedModules) decode(deviceProtectedData.getJSONObject(key))?.let { value ->
+                when (value) {
+                    is Boolean -> deviceProtectedEditor.putBoolean(key, value)
+                    is Int -> deviceProtectedEditor.putInt(key, value)
+                    is Long -> deviceProtectedEditor.putLong(key, value)
+                    is Float -> deviceProtectedEditor.putFloat(key, value)
+                    is String -> deviceProtectedEditor.putString(key, value)
+                    is Set<*> -> deviceProtectedEditor.putStringSet(key, value.filterIsInstance<String>().toSet())
+                }
+            }
+        }
+        check(deviceProtectedEditor.commit()) { "Unable to commit device-protected preferences restore" }
 
         val data = root.optJSONObject("datastore_preferences") ?: JSONObject()
         val store = PreferenceManager2.getInstance(context).preferencesDataStore
