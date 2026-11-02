@@ -97,7 +97,7 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 
-class LawnchairLauncher : QuickstepLauncher() {
+class SolinaLauncher : QuickstepLauncher() {
     override fun startActivitySafely(
         v: View?,
         intent: Intent?,
