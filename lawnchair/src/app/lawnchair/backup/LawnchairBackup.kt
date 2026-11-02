@@ -26,8 +26,8 @@ import com.google.protobuf.Timestamp
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileInputStream
-import java.io.FilterInputStream
 import java.io.FileOutputStream
+import java.io.FilterInputStream
 import java.io.InputStream
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -68,13 +68,15 @@ class LawnchairBackup(
         val handlers = mutableMapOf<String, suspend (InputStream) -> Unit>()
         if (info.backupVersion < MODULAR_BACKUP_VERSION && contents.hasFlag(INCLUDE_LAYOUT_AND_SETTINGS)) {
             // Backward compatibility for v1 archives, which stored all preference files together.
-            handlers.putAll(getFiles(context, forRestore = true).mapValues { entry ->
-                {
-                    val file = entry.value
-                    file.parentFile?.mkdirs()
-                    file.outputStream().use { out -> it.copyTo(out) }
-                }
-            })
+            handlers.putAll(
+                getFiles(context, forRestore = true).mapValues { entry ->
+                    {
+                        val file = entry.value
+                        file.parentFile?.mkdirs()
+                        file.outputStream().use { out -> it.copyTo(out) }
+                    }
+                },
+            )
         } else if (contents.hasFlag(INCLUDE_LAYOUT_AND_SETTINGS)) {
             val database = launcherDbFile(context, forRestore = true)
             handlers[LAUNCHER_DB_FILE_NAME] = {
@@ -155,51 +157,51 @@ class LawnchairBackup(
         restoreCustomFonts: Boolean = false,
         validateCustomFonts: Boolean = false,
     ): Set<String> = withContext(Dispatchers.IO) {
-            val pfd = context.contentResolver.openFileDescriptor(uri, "r")
-                ?: throw IllegalArgumentException("Unable to open backup file")
-            pfd.use {
-                FileInputStream(it.fileDescriptor).use { inStream ->
-                    ZipInputStream(inStream).use { zipIs ->
-                        var entryCount = 0
-                        var totalBytes = 0L
-                        val seenEntries = mutableSetOf<String>()
-                        while (true) {
-                            val entry = zipIs.nextEntry ?: break
-                            require(seenEntries.add(entry.name)) { "Backup contains duplicate entries" }
-                            entryCount++
-                            require(entryCount <= MAX_ARCHIVE_ENTRIES) { "Backup contains too many entries" }
-                            val limit = maxEntryBytes(entry.name)
-                            require(entry.size < 0L || entry.size <= limit) { "Backup entry is too large: ${entry.name}" }
-                            val bounded = EntryLimitedInputStream(zipIs, limit)
-                            val handler = handlers[entry.name] ?: if (
-                                (restoreCustomFonts || validateCustomFonts) &&
-                                entry.name.startsWith(CUSTOM_FONT_ENTRY_PREFIX)
-                            ) {
-                                { input: InputStream ->
-                                    val fontName = entry.name.removePrefix(CUSTOM_FONT_ENTRY_PREFIX)
-                                    if (restoreCustomFonts) {
-                                        restoreCustomFont(fontName, input)
-                                    } else {
-                                        validateCustomFont(fontName, input)
-                                    }
+        val pfd = context.contentResolver.openFileDescriptor(uri, "r")
+            ?: throw IllegalArgumentException("Unable to open backup file")
+        pfd.use {
+            FileInputStream(it.fileDescriptor).use { inStream ->
+                ZipInputStream(inStream).use { zipIs ->
+                    var entryCount = 0
+                    var totalBytes = 0L
+                    val seenEntries = mutableSetOf<String>()
+                    while (true) {
+                        val entry = zipIs.nextEntry ?: break
+                        require(seenEntries.add(entry.name)) { "Backup contains duplicate entries" }
+                        entryCount++
+                        require(entryCount <= MAX_ARCHIVE_ENTRIES) { "Backup contains too many entries" }
+                        val limit = maxEntryBytes(entry.name)
+                        require(entry.size < 0L || entry.size <= limit) { "Backup entry is too large: ${entry.name}" }
+                        val bounded = EntryLimitedInputStream(zipIs, limit)
+                        val handler = handlers[entry.name] ?: if (
+                            (restoreCustomFonts || validateCustomFonts) &&
+                            entry.name.startsWith(CUSTOM_FONT_ENTRY_PREFIX)
+                        ) {
+                            { input: InputStream ->
+                                val fontName = entry.name.removePrefix(CUSTOM_FONT_ENTRY_PREFIX)
+                                if (restoreCustomFonts) {
+                                    restoreCustomFont(fontName, input)
+                                } else {
+                                    validateCustomFont(fontName, input)
                                 }
-                            } else {
-                                null
                             }
-                            handler?.invoke(bounded)
-                            val buffer = ByteArray(DEFAULT_BUFFER_SIZE)
-                            while (bounded.read(buffer) != -1) { }
-                            if (entry.name == LAUNCHER_DB_FILE_NAME) {
-                                require(bounded.bytesRead > 0L) { "Launcher database entry is empty" }
-                            }
-                            totalBytes += bounded.bytesRead
-                            require(totalBytes <= MAX_ARCHIVE_UNCOMPRESSED_BYTES) { "Backup expands beyond the allowed size" }
-                            zipIs.closeEntry()
+                        } else {
+                            null
                         }
-                        seenEntries
+                        handler?.invoke(bounded)
+                        val buffer = ByteArray(DEFAULT_BUFFER_SIZE)
+                        while (bounded.read(buffer) != -1) { }
+                        if (entry.name == LAUNCHER_DB_FILE_NAME) {
+                            require(bounded.bytesRead > 0L) { "Launcher database entry is empty" }
+                        }
+                        totalBytes += bounded.bytesRead
+                        require(totalBytes <= MAX_ARCHIVE_UNCOMPRESSED_BYTES) { "Backup expands beyond the allowed size" }
+                        zipIs.closeEntry()
                     }
+                    seenEntries
                 }
             }
+        }
         }
 
     private class EntryLimitedInputStream(input: InputStream, private val limit: Long) : FilterInputStream(input) {
