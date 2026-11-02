@@ -45,6 +45,8 @@ import app.lawnchair.preferences2.PreferenceManager2
 import app.lawnchair.preferences2.firstCached
 import app.lawnchair.root.RootHelperManager
 import app.lawnchair.root.RootNotAvailableException
+import app.lawnchair.security.AppLockStore
+import app.lawnchair.security.AppUnlockActivity
 import app.lawnchair.theme.ThemeProvider
 import app.lawnchair.ui.popup.LauncherOptionsPopup
 import app.lawnchair.ui.popup.LawnchairShortcut
@@ -96,6 +98,18 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 
 class LawnchairLauncher : QuickstepLauncher() {
+    override fun startActivitySafely(v: View?, intent: Intent?, item: LauncherItemInfo?): RunnableList? {
+        val packageName = intent?.component?.packageName
+        if (packageName != null && AppLockStore.isLocked(this, packageName)) {
+            startActivity(
+                Intent(this, AppUnlockActivity::class.java)
+                    .putExtra(AppUnlockActivity.EXTRA_TARGET_INTENT, intent),
+            )
+            return RunnableList()
+        }
+        return super.startActivitySafely(v, intent, item)
+    }
+
     private val defaultOverlay by unsafeLazy { OverlayCallbackImpl(this) }
     private val prefs by unsafeLazy { PreferenceManager.getInstance(this) }
     private val preferenceManager2 by unsafeLazy { PreferenceManager2.getInstance(this) }
