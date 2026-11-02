@@ -44,6 +44,9 @@ class SearchResultEmptyState(context: Context, attrs: AttributeSet?) :
         val titleRes = extras.getInt("titleRes")
         val subtitleRes = extras.getInt("subtitleRes")
 
+        // Views are recycled; clear previous content before binding optional text.
+        title.text = ""
+        subtitle.text = ""
         if (titleRes != 0) title.setText(titleRes)
         if (subtitleRes != 0) subtitle.setText(subtitleRes)
     }
