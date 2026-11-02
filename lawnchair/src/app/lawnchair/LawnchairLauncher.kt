@@ -99,7 +99,7 @@ import kotlinx.coroutines.launch
 
 class LawnchairLauncher : QuickstepLauncher() {
     override fun startActivitySafely(v: View?, intent: Intent?, item: LauncherItemInfo?): RunnableList? {
-        val packageName = intent?.component?.packageName
+        val packageName = intent?.component?.packageName ?: intent?.`package`
         if (packageName != null && AppLockStore.isLocked(this, packageName)) {
             startActivity(
                 Intent(this, AppUnlockActivity::class.java)
