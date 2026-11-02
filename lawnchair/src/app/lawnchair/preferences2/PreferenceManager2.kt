@@ -414,6 +414,66 @@ class PreferenceManager2 @Inject constructor(
         save = { it.toString() },
     )
 
+    // App drawer suggestion strip configuration. The number of columns always follows
+    // the active drawer grid; only the number of rows is independently configurable.
+    val suggestionRows = preference(
+        key = intPreferencesKey(name = "suggestion_rows"),
+        defaultValue = 1,
+        onSet = { reloadHelper.recreate() },
+    )
+
+    val suggestionPosition = preference(
+        key = stringPreferencesKey(name = "suggestion_position"),
+        defaultValue = "top",
+        onSet = { reloadHelper.recreate() },
+    )
+
+    val suggestionSource = preference(
+        key = stringPreferencesKey(name = "suggestion_source"),
+        defaultValue = "usage",
+        onSet = { reloadHelper.recreate() },
+    )
+
+    val suggestionIconScale = preference(
+        key = floatPreferencesKey(name = "suggestion_icon_scale"),
+        defaultValue = 1f,
+        onSet = { reloadHelper.reloadGrid() },
+    )
+
+    val suggestionLabelScale = preference(
+        key = floatPreferencesKey(name = "suggestion_label_scale"),
+        defaultValue = 1f,
+        onSet = { reloadHelper.reloadGrid() },
+    )
+
+    val suggestionLabelColor = preference(
+        key = stringPreferencesKey(name = "suggestion_label_color"),
+        parse = ColorOption::fromString,
+        save = ColorOption::toString,
+        defaultValue = ColorOption.Default,
+        onSet = { reloadHelper.reloadGrid() },
+    )
+
+    val suggestionBackgroundEnabled = preference(
+        key = booleanPreferencesKey(name = "suggestion_background_enabled"),
+        defaultValue = true,
+        onSet = { reloadHelper.recreate() },
+    )
+
+    val suggestionBackgroundColor = preference(
+        key = stringPreferencesKey(name = "suggestion_background_color"),
+        parse = ColorOption::fromString,
+        save = ColorOption::toString,
+        defaultValue = ColorOption.Default,
+        onSet = { reloadHelper.recreate() },
+    )
+
+    val suggestionCornerRadius = preference(
+        key = floatPreferencesKey(name = "suggestion_corner_radius"),
+        defaultValue = 16f,
+        onSet = { reloadHelper.recreate() },
+    )
+
     val lawnchairPredictorUseWeightedUsageStats = preference(
         key = booleanPreferencesKey(name = "lawnchair_prediction_use_weighted_usage"),
         defaultValue = false,
