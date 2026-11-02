@@ -70,6 +70,8 @@ public class PredictionRowView<T extends Context & ActivityContext>
 
     // The set of predicted apps resolved from the component names and the current set of apps
     private final List<WorkspaceItemInfo> mPredictedApps = new ArrayList<>();
+    private final List<LinearLayout> mPredictionRows = new ArrayList<>();
+    private final List<BubbleTextView> mPredictionIcons = new ArrayList<>();
 
     private FloatingHeaderView mParent;
 
@@ -85,7 +87,7 @@ public class PredictionRowView<T extends Context & ActivityContext>
 
     public PredictionRowView(@NonNull Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
-        setOrientation(LinearLayout.HORIZONTAL);
+        setOrientation(LinearLayout.VERTICAL);
 
         mFocusHelper = new SimpleFocusIndicatorHelper(this);
         mActivityContext = ActivityContext.lookupContext(context);
@@ -153,12 +155,14 @@ public class PredictionRowView<T extends Context & ActivityContext>
         int textHeight = Utilities.calculateTextHeight(
                 deviceProfile.getAllAppsProfile().getIconTextSizePx());
         int totalHeight = iconHeight + iconPadding + textHeight + mVerticalPadding * 2;
-        // Prediction row height will be 4dp bigger than the regular apps in A-Z list when two line
-        // is not enabled. Otherwise, the extra height will increase by just the textHeight.
+        // Keep the existing prediction-row spacing, multiplied by the configured row count.
         int extraHeight = deviceProfile.inv.enableTwoLinesInAllApps
                 ? (textHeight + mTopRowExtraHeight) : mTopRowExtraHeight;
         totalHeight += extraHeight;
-        return getVisibility() == GONE ? 0 : totalHeight + getPaddingTop() + getPaddingBottom();
+        int rows = Math.max(1, Math.min(3,
+                PreferenceCacheExtensionsKt.firstCached(prefs2.getSuggestionRows())));
+        return getVisibility() == GONE ? 0
+                : totalHeight * rows + getPaddingTop() + getPaddingBottom();
     }
 
     @Override
@@ -208,6 +212,8 @@ public class PredictionRowView<T extends Context & ActivityContext>
     public void onDeviceProfileChanged(DeviceProfile dp) {
         mNumPredictedAppsPerRow = dp.numShownAllAppsColumns;
         removeAllViews();
+        mPredictionRows.clear();
+        mPredictionIcons.clear();
         applyPredictionApps();
     }
 
@@ -223,50 +229,59 @@ public class PredictionRowView<T extends Context & ActivityContext>
         if (mPredictionUiUpdatePaused) {
             return;
         }
-        if (getChildCount() != mNumPredictedAppsPerRow) {
-            while (getChildCount() > mNumPredictedAppsPerRow) {
-                removeViewAt(0);
-            }
+        int rows = Math.max(1, Math.min(3,
+                PreferenceCacheExtensionsKt.firstCached(prefs2.getSuggestionRows())));
+        int columns = Math.max(1, mNumPredictedAppsPerRow);
+        if (mPredictionRows.size() != rows || mPredictionIcons.size() != rows * columns) {
+            removeAllViews();
+            mPredictionRows.clear();
+            mPredictionIcons.clear();
             LayoutInflater inflater = mActivityContext.getAppsView().getLayoutInflater();
-            while (getChildCount() < mNumPredictedAppsPerRow) {
-                BubbleTextView icon = (BubbleTextView) inflater.inflate(
-                        R.layout.all_apps_prediction_row_icon, this, false);
-                icon.setOnClickListener(mActivityContext.getItemOnClickListener());
-                icon.setOnLongClickListener(mActivityContext.getAllAppsItemLongClickListener());
-                icon.setLongPressTimeoutFactor(1f);
-                icon.setOnFocusChangeListener(mFocusHelper);
-
-                LayoutParams lp = (LayoutParams) icon.getLayoutParams();
-                if (Flags.enableFocusOutline()) {
-                    lp.height = ViewGroup.LayoutParams.MATCH_PARENT;
-                } else {
-                    // Ensure the all apps icon height matches the workspace icons in portrait mode.
-                    lp.height =
-                            mActivityContext
-                                    .getDeviceProfile()
-                                    .getAllAppsProfile()
-                                    .getCellHeightPx();
+            for (int rowIndex = 0; rowIndex < rows; rowIndex++) {
+                LinearLayout row = new LinearLayout(getContext());
+                row.setOrientation(LinearLayout.HORIZONTAL);
+                addView(row, new LinearLayout.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+                mPredictionRows.add(row);
+                for (int column = 0; column < columns; column++) {
+                    BubbleTextView icon = (BubbleTextView) inflater.inflate(
+                            R.layout.all_apps_prediction_row_icon, row, false);
+                    icon.setOnClickListener(mActivityContext.getItemOnClickListener());
+                    icon.setOnLongClickListener(mActivityContext.getAllAppsItemLongClickListener());
+                    icon.setLongPressTimeoutFactor(1f);
+                    icon.setOnFocusChangeListener(mFocusHelper);
+                    LayoutParams lp = (LayoutParams) icon.getLayoutParams();
+                    if (Flags.enableFocusOutline()) {
+                        lp.height = ViewGroup.LayoutParams.MATCH_PARENT;
+                    } else {
+                        lp.height = mActivityContext.getDeviceProfile()
+                                .getAllAppsProfile().getCellHeightPx();
+                    }
+                    lp.width = 0;
+                    lp.weight = 1;
+                    row.addView(icon, lp);
+                    mPredictionIcons.add(icon);
                 }
-                lp.width = 0;
-                lp.weight = 1;
-                addView(icon);
             }
         }
 
         int predictionCount = mPredictedApps.size();
-
-        for (int i = 0; i < getChildCount(); i++) {
-            BubbleTextView icon = (BubbleTextView) getChildAt(i);
-            icon.reset();
-            if (predictionCount > i) {
-                icon.setVisibility(View.VISIBLE);
-                WorkspaceItemInfo predictedItem = mPredictedApps.get(i);
-                predictedItem.rank = i;
-                predictedItem.cellX = i;
-                predictedItem.cellY = 0;
-                icon.applyFromWorkspaceItem(predictedItem);
-            } else {
-                icon.setVisibility(predictionCount == 0 ? GONE : INVISIBLE);
+        for (int rowIndex = 0; rowIndex < rows; rowIndex++) {
+            for (int column = 0; column < columns; column++) {
+                int iconIndex = rowIndex * columns + column;
+                int predictionIndex = (rows - 1 - rowIndex) * columns + column;
+                BubbleTextView icon = mPredictionIcons.get(iconIndex);
+                icon.reset();
+                if (predictionCount > predictionIndex) {
+                    icon.setVisibility(View.VISIBLE);
+                    WorkspaceItemInfo predictedItem = mPredictedApps.get(predictionIndex);
+                    predictedItem.rank = predictionIndex;
+                    predictedItem.cellX = column;
+                    predictedItem.cellY = rows - 1 - rowIndex;
+                    icon.applyFromWorkspaceItem(predictedItem);
+                } else {
+                    icon.setVisibility(predictionCount == 0 ? GONE : INVISIBLE);
+                }
             }
         }
 
@@ -302,7 +317,7 @@ public class PredictionRowView<T extends Context & ActivityContext>
 
     @Override
     public View getFocusedChild() {
-        return getChildAt(0);
+        return mPredictionIcons.isEmpty() ? null : mPredictionIcons.get(0);
     }
 
     public void dump(String prefix, PrintWriter writer) {
@@ -310,6 +325,7 @@ public class PredictionRowView<T extends Context & ActivityContext>
         writer.println(prefix + "\tmPredictionsEnabled: " + mPredictionsEnabled);
         writer.println(prefix + "\tmPredictionUiUpdatePaused: " + mPredictionUiUpdatePaused);
         writer.println(prefix + "\tmNumPredictedAppsPerRow: " + mNumPredictedAppsPerRow);
+        writer.println(prefix + "\tmSuggestionRows: " + mPredictionRows.size());
         writer.println(prefix + "\tmPredictedApps: " + mPredictedApps.size());
         for (WorkspaceItemInfo info : mPredictedApps) {
             writer.println(prefix + "\t\t" + info);
