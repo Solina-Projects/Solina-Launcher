@@ -85,7 +85,7 @@ class FolderViewModel(
         viewModelScope.launch {
             val categoryTokens = listOf(
                 R.string.smart_category_social to listOf(
-                        "instagram",
+                    "instagram",
                     "facebook",
                     "tiktok",
                     "snapchat",
