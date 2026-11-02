@@ -124,8 +124,10 @@ class LawnchairBackup(
                     ZipInputStream(inStream).use { zipIs ->
                         var entryCount = 0
                         var totalBytes = 0L
+                        val seenEntries = mutableSetOf<String>()
                         while (true) {
                             val entry = zipIs.nextEntry ?: break
+                            require(seenEntries.add(entry.name)) { "Backup contains duplicate entries" }
                             entryCount++
                             require(entryCount <= MAX_ARCHIVE_ENTRIES) { "Backup contains too many entries" }
                             val limit = maxEntryBytes(entry.name)
