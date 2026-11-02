@@ -21,10 +21,14 @@ jobs:
       fail-fast: false
       matrix:
         include:
+          - variant: assembleLawnWithoutQuickstepGithubDebug
+            artifact: Solina-Launcher-Standard-Test
+          - variant: assembleLawnWithoutQuickstepGithubRelease
+            artifact: Solina-Launcher-Standard-Release
           - variant: assembleLawnWithQuickstepGithubDebug
-            artifact: Solina-Launcher-Test
+            artifact: Solina-Launcher-Quickstep-Test
           - variant: assembleLawnWithQuickstepGithubRelease
-            artifact: Solina-Launcher-Release
+            artifact: Solina-Launcher-Quickstep-Release
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
@@ -101,4 +105,4 @@ jobs:
             echo "A build or required check failed."
             exit 1
           fi
-          echo "Both APK variants and required checks completed successfully."
+          echo "All four Standard/Quickstep Test/Release APK variants and required checks completed successfully."
