@@ -5,8 +5,9 @@ import android.content.pm.PackageManager
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.annotation.WorkerThread
-import com.android.launcher3.InvariantDeviceProfile
+import app.lawnchair.preferences2.PreferenceManager2
 import app.lawnchair.preferences2.firstCached
+import com.android.launcher3.InvariantDeviceProfile
 import com.android.launcher3.LauncherModel
 import com.android.launcher3.logger.LauncherAtom.ItemInfo
 import com.android.launcher3.logging.StatsLogManager.EventEnum
