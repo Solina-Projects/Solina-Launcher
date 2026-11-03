@@ -84,6 +84,23 @@ public class PredictionRowView<T extends Context & ActivityContext>
     private boolean mPredictionUiUpdatePaused = false;
 
     private final PreferenceManager2 prefs2 = PreferenceManager2.getInstance(getContext());
+    private Runnable mStandaloneHeightChangeListener;
+
+    /** Receives size changes when this row is hosted outside the floating header. */
+    public void setStandaloneHeightChangeListener(@Nullable Runnable listener) {
+        mStandaloneHeightChangeListener = listener;
+    }
+
+    private void notifyExpectedHeightChanged() {
+        if (mParent != null) {
+            mParent.onHeightUpdated();
+        } else {
+            requestLayout();
+            if (mStandaloneHeightChangeListener != null) {
+                mStandaloneHeightChangeListener.run();
+            }
+        }
+    }
 
     public PredictionRowView(@NonNull Context context) {
         this(context, null);
@@ -279,11 +296,7 @@ public class PredictionRowView<T extends Context & ActivityContext>
                 mPredictionsEnabled = false;
                 updateVisibility();
             }
-            if (mParent != null) {
-                mParent.onHeightUpdated();
-            } else {
-                requestLayout();
-            }
+            notifyExpectedHeightChanged();
             return;
         }
         if (mPredictionRows.size() != rows || mPredictionIcons.size() != rows * columns) {
@@ -356,11 +369,7 @@ public class PredictionRowView<T extends Context & ActivityContext>
             mPredictionsEnabled = predictionsEnabled;
             updateVisibility();
         }
-        if (mParent != null) {
-            mParent.onHeightUpdated();
-        } else {
-            requestLayout();
-        }
+        notifyExpectedHeightChanged();
     }
 
     @Override
