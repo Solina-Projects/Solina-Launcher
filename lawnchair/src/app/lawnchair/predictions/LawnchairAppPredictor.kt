@@ -173,7 +173,7 @@ class LawnchairAppPredictor(private val context: Context) : StatsLogCompatManage
             usageRanked = allAppsCandidateRanked,
             suggestionRows = suggestionRows,
             columns = suggestionColumns,
-            dockRows = predictionEngine.getDockRowCount(dataModel),
+            dockRows = predictionEngine.getDockRowCount(),
         ).flatten()
         val allAppsTargets = predictionEngine.compileAppTargets(
             arrangedSuggestions,
