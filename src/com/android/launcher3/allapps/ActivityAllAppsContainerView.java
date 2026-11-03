@@ -184,6 +184,7 @@ public class ActivityAllAppsContainerView<T extends Context & ActivityContext>
     protected final List<AllAppsRow> mAdditionalHeaderRows = new ArrayList<>();
     @Nullable protected View mSuggestionFooterView;
     protected int mSuggestionFooterHeight;
+    protected int mSuggestionFooterOuterMargin;
     protected View mBottomSheetBackground;
     protected RecyclerViewFastScroller mFastScroller;
     private ConstraintLayout mFastScrollLetterLayout;
@@ -1472,7 +1473,23 @@ public class ActivityAllAppsContainerView<T extends Context & ActivityContext>
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         layoutParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
         layoutParams.bottomMargin = getSuggestionFooterBottomInset();
-        addView(footer, layoutParams);
+        View fastScroller = findViewById(R.id.fast_scroller);
+        int insertionIndex = fastScroller == null ? -1 : indexOfChild(fastScroller);
+        if (insertionIndex >= 0) {
+            addView(footer, insertionIndex, layoutParams);
+        } else {
+            addView(footer, layoutParams);
+        }
+        applyAdapterSideAndBottomPaddings(mActivityContext.getDeviceProfile());
+    }
+
+    /** Applies independent outer spacing below a bottom-positioned suggestion component. */
+    protected final void setSuggestionFooterOuterMargin(int margin) {
+        int safeMargin = Math.max(0, margin);
+        if (mSuggestionFooterOuterMargin == safeMargin) {
+            return;
+        }
+        mSuggestionFooterOuterMargin = safeMargin;
         applyAdapterSideAndBottomPaddings(mActivityContext.getDeviceProfile());
     }
 
@@ -1488,13 +1505,14 @@ public class ActivityAllAppsContainerView<T extends Context & ActivityContext>
 
     private void applyAdapterSideAndBottomPaddings(DeviceProfile grid) {
         int bottomInset = getSuggestionFooterBottomInset();
-        int bottomPadding = bottomInset + mSuggestionFooterHeight;
+        int bottomPadding = bottomInset + mSuggestionFooterHeight + mSuggestionFooterOuterMargin;
         if (mSuggestionFooterView != null
                 && mSuggestionFooterView.getLayoutParams() instanceof RelativeLayout.LayoutParams) {
             RelativeLayout.LayoutParams layoutParams =
                     (RelativeLayout.LayoutParams) mSuggestionFooterView.getLayoutParams();
-            if (layoutParams.bottomMargin != bottomInset) {
-                layoutParams.bottomMargin = bottomInset;
+            int footerBottomMargin = bottomInset + mSuggestionFooterOuterMargin;
+            if (layoutParams.bottomMargin != footerBottomMargin) {
+                layoutParams.bottomMargin = footerBottomMargin;
                 mSuggestionFooterView.setLayoutParams(layoutParams);
             }
         }
