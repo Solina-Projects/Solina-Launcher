@@ -9,6 +9,9 @@ import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Process
 import android.provider.Settings
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.material3.ListItemDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -153,82 +156,86 @@ private fun SuggestionStripSettings(prefs2: PreferenceManager2) {
             label = stringResource(R.string.suggestion_strip_enabled),
         )
         ExpandAndShrink(visible = enabled.state.value) {
-            ListPreference(
-                adapter = position,
-                label = stringResource(R.string.suggestion_strip_position),
-                entries = listOf(
-                    ListPreferenceEntry(value = "top", label = { stringResource(R.string.suggestion_strip_top) }),
-                    ListPreferenceEntry(value = "bottom", label = { stringResource(R.string.suggestion_strip_bottom) }),
-                ),
-            )
-            SliderPreference(
-                adapter = rows,
-                label = stringResource(R.string.suggestion_strip_rows),
-                valueRange = 1..3,
-                step = 1,
-            )
-            ListPreference(
-                adapter = source,
-                label = stringResource(R.string.suggestion_strip_source),
-                entries = listOf(
-                    ListPreferenceEntry(value = "usage", label = { stringResource(R.string.suggestion_strip_source_usage) }),
-                    ListPreferenceEntry(value = "dock", label = { stringResource(R.string.suggestion_strip_source_dock) }),
-                ),
-            )
-            SliderPreference(
-                adapter = iconScale,
-                label = stringResource(R.string.suggestion_strip_icon_size),
-                valueRange = 0.5f..1.5f,
-                step = 0.1f,
-                showAsPercentage = true,
-            )
-            SliderPreference(
-                adapter = labelScale,
-                label = stringResource(R.string.suggestion_strip_label_size),
-                valueRange = 0.5f..1.5f,
-                step = 0.1f,
-                showAsPercentage = true,
-            )
-            SwitchPreference(
-                adapter = labelsVisible,
-                label = stringResource(R.string.suggestion_strip_show_labels),
-            )
-            ColorPreference(preference = prefs2.suggestionLabelColor)
-            SwitchPreference(
-                adapter = background,
-                label = stringResource(R.string.suggestion_strip_background),
-            )
-            ExpandAndShrink(visible = background.state.value) {
-                ColorPreference(preference = prefs2.suggestionBackgroundColor)
+            Column(verticalArrangement = Arrangement.spacedBy(ListItemDefaults.SegmentedGap)) {
+                ListPreference(
+                    adapter = position,
+                    label = stringResource(R.string.suggestion_strip_position),
+                    entries = listOf(
+                        ListPreferenceEntry(value = "top", label = { stringResource(R.string.suggestion_strip_top) }),
+                        ListPreferenceEntry(value = "bottom", label = { stringResource(R.string.suggestion_strip_bottom) }),
+                    ),
+                )
                 SliderPreference(
-                    adapter = backgroundAlpha,
-                    label = stringResource(R.string.suggestion_strip_background_opacity),
-                    valueRange = 0f..1f,
-                    step = 0.05f,
+                    adapter = rows,
+                    label = stringResource(R.string.suggestion_strip_rows),
+                    valueRange = 1..3,
+                    step = 1,
+                )
+                ListPreference(
+                    adapter = source,
+                    label = stringResource(R.string.suggestion_strip_source),
+                    entries = listOf(
+                        ListPreferenceEntry(value = "usage", label = { stringResource(R.string.suggestion_strip_source_usage) }),
+                        ListPreferenceEntry(value = "dock", label = { stringResource(R.string.suggestion_strip_source_dock) }),
+                    ),
+                )
+                SliderPreference(
+                    adapter = iconScale,
+                    label = stringResource(R.string.suggestion_strip_icon_size),
+                    valueRange = 0.5f..1.5f,
+                    step = 0.1f,
                     showAsPercentage = true,
                 )
                 SliderPreference(
-                    adapter = radius,
-                    label = stringResource(R.string.suggestion_strip_corner_radius),
-                    valueRange = 0f..32f,
+                    adapter = labelScale,
+                    label = stringResource(R.string.suggestion_strip_label_size),
+                    valueRange = 0.5f..1.5f,
+                    step = 0.1f,
+                    showAsPercentage = true,
+                )
+                SwitchPreference(
+                    adapter = labelsVisible,
+                    label = stringResource(R.string.suggestion_strip_show_labels),
+                )
+                ColorPreference(preference = prefs2.suggestionLabelColor)
+                SwitchPreference(
+                    adapter = background,
+                    label = stringResource(R.string.suggestion_strip_background),
+                )
+                ExpandAndShrink(visible = background.state.value) {
+                    Column(verticalArrangement = Arrangement.spacedBy(ListItemDefaults.SegmentedGap)) {
+                        ColorPreference(preference = prefs2.suggestionBackgroundColor)
+                        SliderPreference(
+                            adapter = backgroundAlpha,
+                            label = stringResource(R.string.suggestion_strip_background_opacity),
+                            valueRange = 0f..1f,
+                            step = 0.05f,
+                            showAsPercentage = true,
+                        )
+                        SliderPreference(
+                            adapter = radius,
+                            label = stringResource(R.string.suggestion_strip_corner_radius),
+                            valueRange = 0f..32f,
+                            step = 1f,
+                            showUnit = "dp",
+                        )
+                    }
+                }
+                SliderPreference(
+                    adapter = padding,
+                    label = stringResource(R.string.suggestion_strip_inner_spacing),
+                    valueRange = 0f..24f,
+                    step = 1f,
+                    showUnit = "dp",
+                )
+                SliderPreference(
+                    adapter = margin,
+                    label = stringResource(R.string.suggestion_strip_outer_spacing),
+                    valueRange = 0f..24f,
                     step = 1f,
                     showUnit = "dp",
                 )
             }
-            SliderPreference(
-                adapter = padding,
-                label = stringResource(R.string.suggestion_strip_inner_spacing),
-                valueRange = 0f..24f,
-                step = 1f,
-                showUnit = "dp",
-            )
-            SliderPreference(
-                adapter = margin,
-                label = stringResource(R.string.suggestion_strip_outer_spacing),
-                valueRange = 0f..24f,
-                step = 1f,
-                showUnit = "dp",
-            )
         }
     }
 }
