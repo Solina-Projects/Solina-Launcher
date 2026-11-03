@@ -20,15 +20,15 @@ import android.util.AttributeSet;
 import android.view.WindowInsets;
 import android.widget.RelativeLayout;
 
-import com.android.launcher3.Launcher;
-import com.android.launcher3.LauncherState;
-import com.android.launcher3.appprediction.PredictionRowView;
-import com.android.launcher3.allapps.FloatingHeaderRow;
-import com.android.launcher3.model.data.ItemInfo;
-import com.android.launcher3.Utilities;
-import com.android.launcher3.statemanager.StateManager;
 import app.lawnchair.preferences2.PreferenceCacheExtensionsKt;
 import app.lawnchair.preferences2.PreferenceManager2;
+import com.android.launcher3.Launcher;
+import com.android.launcher3.LauncherState;
+import com.android.launcher3.Utilities;
+import com.android.launcher3.appprediction.AppDrawerSuggestionRow;
+import com.android.launcher3.appprediction.PredictionRowView;
+import com.android.launcher3.model.data.ItemInfo;
+import com.android.launcher3.statemanager.StateManager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -50,8 +50,7 @@ public class LauncherAllAppsContainerView extends ActivityAllAppsContainerView<L
         super(context, attrs, defStyleAttr);
     }
 
-    private final com.android.launcher3.appprediction.AppDrawerSuggestionRow mSuggestionRow =
-            new com.android.launcher3.appprediction.AppDrawerSuggestionRow();
+    private final AppDrawerSuggestionRow mSuggestionRow = new AppDrawerSuggestionRow();
     private final List<ItemInfo> mLatestSuggestedApps = new ArrayList<>();
     private PredictionRowView<Launcher> mSuggestionFooterView;
 
