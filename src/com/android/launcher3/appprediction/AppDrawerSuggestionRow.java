@@ -61,7 +61,7 @@ public final class AppDrawerSuggestionRow implements AllAppsRow {
 
     @Override
     public int getExpectedHeight() {
-        if (mView == null) {
+        if (mView == null || mView.getVisibility() == View.GONE) {
             return 0;
         }
         float density = mView.getResources().getDisplayMetrics().density;
