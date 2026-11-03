@@ -155,7 +155,7 @@ class NightlyBuildsRepository(
             val branch = "main"
 
             // Get the latest commits (last 100)
-            val commits = api.getRepositoryCommits("Solina-Projects", "Solina-Launcher2", branch)
+            val commits = api.getRepositoryCommits("Solina-Projects", "Solina-Launcher", branch)
 
             // Find the index of current commit
             val currentIndex = commits.indexOfFirst { it.sha.startsWith(currentCommitHash) }

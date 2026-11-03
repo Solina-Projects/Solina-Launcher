@@ -86,7 +86,7 @@ class AboutViewModel(
 
     private suspend fun fetchActiveContributors(): Set<String> {
         return runCatching {
-            nightlyBuildsRepository.api.getRepositoryEvents("Solina-Projects", "Solina-Launcher2")
+            nightlyBuildsRepository.api.getRepositoryEvents("Solina-Projects", "Solina-Launcher")
                 .map { it.actor.login.lowercase() }
                 .toSet()
         }.getOrDefault(emptySet())
@@ -106,7 +106,7 @@ class AboutViewModel(
             Link(
                 iconResId = R.drawable.ic_github,
                 labelResId = R.string.github,
-                url = "https://github.com/Solina-Projects/Solina-Launcher2",
+                url = "https://github.com/Solina-Projects/Solina-Launcher",
             ),
         )
 
