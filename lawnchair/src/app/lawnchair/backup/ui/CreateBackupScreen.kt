@@ -171,6 +171,12 @@ fun CreateBackupScreen(
                 label = stringResource(id = R.string.backup_content_wallpaper),
                 enabled = !hasLiveWallpaper,
             )
+            FlagSwitchPreference(
+                flags = contents,
+                setFlags = viewModel::setBackupContents,
+                mask = LawnchairBackup.INCLUDE_SUGGESTION_SETTINGS,
+                label = stringResource(id = R.string.backup_content_suggestion_settings),
+            )
         }
         Box(
             modifier = Modifier
