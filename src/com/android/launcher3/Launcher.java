@@ -171,6 +171,7 @@ import androidx.window.embedding.RuleController;
 import com.android.launcher3.DropTarget.DragObject;
 import com.android.launcher3.accessibility.LauncherAccessibilityDelegate;
 import com.android.launcher3.allapps.ActivityAllAppsContainerView;
+import com.android.launcher3.allapps.LauncherAllAppsContainerView;
 import com.android.launcher3.allapps.AllAppsTransitionController;
 import com.android.launcher3.allapps.DiscoveryBounce;
 import com.android.launcher3.anim.AnimationSuccessListener;
@@ -2492,7 +2493,12 @@ public class Launcher extends StatefulActivity<LauncherState>
     }
 
     /** Called to updated any prediction info by the {@link #mModelCallbacks} */
-    public void bindPredictedContainerInfo(PredictedContainerInfo info) { }
+    public void bindPredictedContainerInfo(PredictedContainerInfo info) {
+        if (info.container == LauncherSettings.Favorites.CONTAINER_ALL_APPS_PREDICTION
+                && mAppsView instanceof LauncherAllAppsContainerView) {
+            ((LauncherAllAppsContainerView) mAppsView).setSuggestedApps(info.getContents());
+        }
+    }
 
     /**
      * @param packageUser if null, refreshes all widgets and shortcuts, otherwise only
