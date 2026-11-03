@@ -18,14 +18,21 @@ package app.lawnchair.backup
 
 import android.graphics.Bitmap
 import android.net.Uri
+import androidx.datastore.preferences.core.booleanPreferencesKey
+import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.intPreferencesKey
+import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import app.lawnchair.preferences2.PreferenceManager2
 import com.android.launcher3.util.SandboxApplication
 import java.io.File
 import java.io.FileOutputStream
 import java.util.zip.CRC32
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
@@ -76,6 +83,72 @@ class LawnchairBackupSelectiveRestoreTest {
         )
         unrelatedDatabase.delete()
         backupFile.delete()
+    }
+
+    @Test
+    fun suggestionOnlyRestoreChangesSuggestionPreferencesWithoutLayoutRestore() = runBlocking {
+        val backupFile = File(context.cacheDir, "suggestion_settings_only.lawnchairbackup")
+        val info = app.lawnchair.LawnchairProto.BackupInfo.newBuilder()
+            .setBackupVersion(1)
+            .setContents(LawnchairBackup.INCLUDE_SUGGESTION_SETTINGS)
+            .setPreviewWidth(1)
+            .setPreviewHeight(1)
+            .build()
+        val payload = """
+            {
+              "version": 1,
+              "show_suggested_apps_at_drawer_top": true,
+              "suggestion_rows": 2,
+              "suggestion_position": "bottom",
+              "suggestion_source": "dock",
+              "suggestion_icon_scale": 1.15,
+              "suggestion_label_scale": 0.9,
+              "suggestion_label_color": null,
+              "suggestion_labels_visible": false,
+              "suggestion_background_enabled": true,
+              "suggestion_background_color": null,
+              "suggestion_background_alpha": 0.35,
+              "suggestion_corner_radius": 20,
+              "suggestion_padding": 10,
+              "suggestion_margin": 6
+            }
+        """.trimIndent().toByteArray(Charsets.UTF_8)
+        val manager = PreferenceManager2.getInstance(context)
+        try {
+            manager.preferencesDataStore.edit { preferences ->
+                preferences[intPreferencesKey("suggestion_rows")] = 1
+                preferences[stringPreferencesKey("suggestion_position")] = "top"
+                preferences[stringPreferencesKey("suggestion_source")] = "usage"
+            }
+            ZipOutputStream(FileOutputStream(backupFile)).use { zip ->
+                zip.putNextEntry(ZipEntry(LawnchairBackup.INFO_FILE_NAME))
+                info.writeTo(zip)
+                zip.closeEntry()
+                zip.putNextEntry(ZipEntry(LawnchairBackup.SUGGESTION_SETTINGS_FILE_NAME))
+                zip.write(payload)
+                zip.closeEntry()
+            }
+
+            val backup = LawnchairBackup(context, Uri.fromFile(backupFile))
+            backup.readInfoAndPreview()
+            backup.restore(LawnchairBackup.INCLUDE_SUGGESTION_SETTINGS)
+
+            val restored = manager.preferencesDataStore.data.first()
+            assertEquals(2, restored[intPreferencesKey("suggestion_rows")])
+            assertEquals("bottom", restored[stringPreferencesKey("suggestion_position")])
+            assertEquals("dock", restored[stringPreferencesKey("suggestion_source")])
+            assertEquals(false, restored[booleanPreferencesKey("suggestion_labels_visible")])
+            assertEquals(true, restored[booleanPreferencesKey("show_suggested_apps_at_drawer_top")])
+        } finally {
+            manager.preferencesDataStore.edit { preferences ->
+                preferences.remove(intPreferencesKey("suggestion_rows"))
+                preferences.remove(stringPreferencesKey("suggestion_position"))
+                preferences.remove(stringPreferencesKey("suggestion_source"))
+                preferences.remove(booleanPreferencesKey("suggestion_labels_visible"))
+                preferences.remove(booleanPreferencesKey("show_suggested_apps_at_drawer_top"))
+            }
+            backupFile.delete()
+        }
     }
 
     @Test
