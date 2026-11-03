@@ -20,6 +20,8 @@ import static android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE;
 
 import android.content.Context;
 import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.drawable.GradientDrawable;
 import android.os.Build;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
@@ -32,6 +34,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import app.lawnchair.preferences2.PreferenceManager2;
+import app.lawnchair.theme.color.ColorOption;
 import com.android.launcher3.BubbleTextView;
 import com.android.launcher3.DeviceProfile;
 import com.android.launcher3.DeviceProfile.OnDeviceProfileChangeListener;
@@ -99,6 +102,35 @@ public class PredictionRowView<T extends Context & ActivityContext>
         updateVisibility();
     }
 
+    private void applySuggestionStyle() {
+        float density = getResources().getDisplayMetrics().density;
+        int padding = Math.round(PreferenceCacheExtensionsKt.firstCached(
+                prefs2.getSuggestionPadding()) * density);
+        setPadding(padding, padding, padding, padding);
+        if (!PreferenceCacheExtensionsKt.firstCached(prefs2.getSuggestionBackgroundEnabled())) {
+            setBackground(null);
+            return;
+        }
+        ColorOption backgroundOption = PreferenceCacheExtensionsKt.firstCached(
+                prefs2.getSuggestionBackgroundColor());
+        int color = Color.TRANSPARENT;
+        if (backgroundOption != null && backgroundOption.isSupported()) {
+            color = backgroundOption.getColorPreferenceEntry()
+                    .getLightColor().invoke(getContext());
+        } else {
+            color = Color.BLACK;
+        }
+        float alpha = Math.max(0f, Math.min(1f, PreferenceCacheExtensionsKt.firstCached(
+                prefs2.getSuggestionBackgroundAlpha())));
+        color = Color.argb(Math.round(Color.alpha(color) * alpha),
+                Color.red(color), Color.green(color), Color.blue(color));
+        GradientDrawable drawable = new GradientDrawable();
+        drawable.setColor(color);
+        drawable.setCornerRadius(PreferenceCacheExtensionsKt.firstCached(
+                prefs2.getSuggestionCornerRadius()) * density);
+        setBackground(drawable);
+    }
+
     @Override
     public void onInitializeAccessibilityNodeInfo(AccessibilityNodeInfo info) {
         super.onInitializeAccessibilityNodeInfo(info);
@@ -121,6 +153,7 @@ public class PredictionRowView<T extends Context & ActivityContext>
 
     public void setup(FloatingHeaderView parent, FloatingHeaderRow[] rows, boolean tabsHidden) {
         mParent = parent;
+        applySuggestionStyle();
     }
 
     private void updateVisibility() {
@@ -152,8 +185,12 @@ public class PredictionRowView<T extends Context & ActivityContext>
         DeviceProfile deviceProfile = mActivityContext.getDeviceProfile();
         int iconHeight = deviceProfile.getAllAppsProfile().getIconSizePx();
         int iconPadding = deviceProfile.getAllAppsProfile().getIconDrawablePaddingPx();
-        int textHeight = Utilities.calculateTextHeight(
-                deviceProfile.getAllAppsProfile().getIconTextSizePx());
+        boolean labelsVisible = PreferenceCacheExtensionsKt.firstCached(
+                prefs2.getSuggestionLabelsVisible());
+        float labelScale = PreferenceCacheExtensionsKt.firstCached(
+                prefs2.getSuggestionLabelScale());
+        int textHeight = labelsVisible ? Utilities.calculateTextHeight(
+                Math.round(deviceProfile.getAllAppsProfile().getIconTextSizePx() * labelScale)) : 0;
         int totalHeight = iconHeight + iconPadding + textHeight + mVerticalPadding * 2;
         // Keep the existing prediction-row spacing, multiplied by the configured row count.
         int extraHeight = deviceProfile.inv.enableTwoLinesInAllApps
@@ -161,8 +198,10 @@ public class PredictionRowView<T extends Context & ActivityContext>
         totalHeight += extraHeight;
         int rows = Math.max(1, Math.min(3,
                 PreferenceCacheExtensionsKt.firstCached(prefs2.getSuggestionRows())));
+        float margin = PreferenceCacheExtensionsKt.firstCached(prefs2.getSuggestionMargin());
+        int marginPx = Math.round(margin * getResources().getDisplayMetrics().density);
         return getVisibility() == GONE ? 0
-                : totalHeight * rows + getPaddingTop() + getPaddingBottom();
+                : totalHeight * rows + getPaddingTop() + getPaddingBottom() + marginPx * 2;
     }
 
     @Override
@@ -250,6 +289,18 @@ public class PredictionRowView<T extends Context & ActivityContext>
                     icon.setOnLongClickListener(mActivityContext.getAllAppsItemLongClickListener());
                     icon.setLongPressTimeoutFactor(1f);
                     icon.setOnFocusChangeListener(mFocusHelper);
+                    icon.setIconSizeFactor(PreferenceCacheExtensionsKt.firstCached(
+                            prefs2.getSuggestionIconScale()));
+                    icon.setTextSizeFactor(PreferenceCacheExtensionsKt.firstCached(
+                            prefs2.getSuggestionLabelScale()));
+                    icon.setTextVisibility(PreferenceCacheExtensionsKt.firstCached(
+                            prefs2.getSuggestionLabelsVisible()));
+                    ColorOption labelColor = PreferenceCacheExtensionsKt.firstCached(
+                            prefs2.getSuggestionLabelColor());
+                    if (labelColor != null && labelColor.isSupported()) {
+                        icon.setTextColor(labelColor.getColorPreferenceEntry()
+                                .getLightColor().invoke(getContext()));
+                    }
                     LayoutParams lp = (LayoutParams) icon.getLayoutParams();
                     if (Flags.enableFocusOutline()) {
                         lp.height = ViewGroup.LayoutParams.MATCH_PARENT;
