@@ -628,6 +628,7 @@
     <string name="what_to_backup">What to back up</string>
     <string name="backup_content_layout_and_settings">Layout and settings</string>
     <string name="backup_content_wallpaper">Wallpaper</string>
+    <string name="backup_content_suggestion_settings">App drawer suggestions</string>
     <string name="backup_create_success">Backup created</string>
     <string name="backup_create_error">Failed to create backup</string>
     <string name="restore_backup">Restore backup</string>
@@ -1118,6 +1119,7 @@
     <string name="backup_restore_confirmation_title">Restore backup?</string>
     <string name="backup_restore_confirmation_layout_message">This replaces the current launcher layout and settings. Make sure you have a recent backup before continuing.</string>
     <string name="backup_restore_confirmation_wallpaper_message">This replaces your current wallpaper. Continue?</string>
+    <string name="backup_restore_confirmation_suggestions_message">This replaces your current App Drawer suggestion settings without changing your layout or wallpaper. Continue?</string>
     <string name="backup_restore_metadata">Created: %1$s · Lawnchair version: %2$d</string>
     <string name="backup_restore_cancel">Cancel</string>
     <string name="solina_persian_calendar_widget_name">Persian calendar</string>
