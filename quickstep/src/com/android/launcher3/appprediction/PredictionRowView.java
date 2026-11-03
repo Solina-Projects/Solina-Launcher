@@ -269,7 +269,8 @@ public class PredictionRowView<T extends Context & ActivityContext>
         for (int rowIndex = 0; rowIndex < rows; rowIndex++) {
             for (int column = 0; column < columns; column++) {
                 int iconIndex = rowIndex * columns + column;
-                int predictionIndex = (rows - 1 - rowIndex) * columns + column;
+                // SuggestionGridLayout returns rows in visual top-to-bottom order.
+                int predictionIndex = rowIndex * columns + column;
                 BubbleTextView icon = mPredictionIcons.get(iconIndex);
                 icon.reset();
                 if (predictionCount > predictionIndex) {
@@ -277,7 +278,7 @@ public class PredictionRowView<T extends Context & ActivityContext>
                     WorkspaceItemInfo predictedItem = mPredictedApps.get(predictionIndex);
                     predictedItem.rank = predictionIndex;
                     predictedItem.cellX = column;
-                    predictedItem.cellY = rows - 1 - rowIndex;
+                    predictedItem.cellY = rowIndex;
                     icon.applyFromWorkspaceItem(predictedItem);
                 } else {
                     icon.setVisibility(predictionCount == 0 ? GONE : INVISIBLE);
