@@ -164,19 +164,11 @@ class LawnchairPredictionEngine(
             .distinct()
     }
 
-    /**
-     * Returns the configured dock row count inferred from the current hotseat model.
-     * Empty docks use one row so suggestion fallback remains deterministic.
-     */
-    fun getDockRowCount(dataModel: BgDataModel): Int {
-        val itemsSnapshot = synchronized(dataModel) { dataModel.itemsIdMap.copy() }
-        return itemsSnapshot
-            .asSequence()
-            .filter { it.container == CONTAINER_HOTSEAT }
-            .maxOfOrNull { it.cellY + 1 }
-            ?.coerceAtLeast(1)
-            ?: 1
-    }
+    /** Returns the configured dock row count used by the active DeviceProfile. */
+    fun getDockRowCount(): Int = PreferenceManager.getInstance(context)
+        .getHotseatRows()
+        .get()
+        .coerceIn(1, 3)
 
     /**
      * Returns the set of store keys for items currently occupying the hotseat.
