@@ -76,6 +76,23 @@ class SuggestionGridLayoutTest {
     }
 
     @Test
+    fun usageFallbackCompletesPartiallyFilledDockRow() {
+        assertThat(
+            SuggestionGridLayout.arrange(
+                source = SuggestionGridLayout.Source.DOCK,
+                dockRanked = listOf("dock-a", "dock-b", "dock-c", "dock-d"),
+                usageRanked = listOf("used-a", "used-b", "used-c"),
+                suggestionRows = 2,
+                columns = 3,
+                dockRows = 3,
+            ),
+        ).containsExactly(
+            listOf("dock-d", "used-a", "used-b"),
+            listOf("dock-a", "dock-b", "dock-c"),
+        ).inOrder()
+    }
+
+    @Test
     fun usageFallbackNeverDuplicatesDockApps() {
         assertThat(
             SuggestionGridLayout.arrange(
