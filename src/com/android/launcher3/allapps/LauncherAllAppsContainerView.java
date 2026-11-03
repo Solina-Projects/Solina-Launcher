@@ -41,6 +41,19 @@ public class LauncherAllAppsContainerView extends ActivityAllAppsContainerView<L
         super(context, attrs, defStyleAttr);
     }
 
+    private final com.android.launcher3.appprediction.AppDrawerSuggestionRow mSuggestionRow =
+            new com.android.launcher3.appprediction.AppDrawerSuggestionRow();
+
+    @Override
+    public java.util.List<com.android.systemui.plugins.AllAppsRow> getAdditionalHeaderRows() {
+        return java.util.List.of(mSuggestionRow);
+    }
+
+    /** Updates the independent suggestion component with the latest model prediction items. */
+    public void setSuggestedApps(java.util.List<com.android.launcher3.model.data.ItemInfo> items) {
+        mSuggestionRow.setPredictedApps(items);
+    }
+
     @Override
     protected int computeNavBarScrimHeight(WindowInsets insets) {
         return Utilities.ATLEAST_Q ? insets.getTappableElementInsets().bottom : insets.getStableInsetBottom();
