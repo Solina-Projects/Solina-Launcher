@@ -140,8 +140,8 @@ fun ColumnScope.RestoreBackupOptions(
             try {
                 backup.restore(contents)
                 Toast.makeText(context, R.string.backup_restore_success, Toast.LENGTH_SHORT).show()
-                if (contents.hasFlag(LawnchairBackup.INCLUDE_LAYOUT_AND_SETTINGS)
-                    || contents.hasFlag(LawnchairBackup.INCLUDE_SUGGESTION_SETTINGS)
+                if (contents.hasFlag(LawnchairBackup.INCLUDE_LAYOUT_AND_SETTINGS) ||
+                    contents.hasFlag(LawnchairBackup.INCLUDE_SUGGESTION_SETTINGS)
                 ) {
                     restartLauncher(context)
                 }
@@ -228,8 +228,8 @@ fun ColumnScope.RestoreBackupOptions(
                     stringResource(
                         when {
                             isLayoutRestore -> R.string.backup_restore_confirmation_layout_message
-                            contents.hasFlag(LawnchairBackup.INCLUDE_SUGGESTION_SETTINGS)
-                                && contents.hasFlag(LawnchairBackup.INCLUDE_WALLPAPER) ->
+                            contents.hasFlag(LawnchairBackup.INCLUDE_SUGGESTION_SETTINGS) &&
+                                contents.hasFlag(LawnchairBackup.INCLUDE_WALLPAPER) ->
                                 R.string.backup_restore_confirmation_suggestions_and_wallpaper_message
                             contents.hasFlag(LawnchairBackup.INCLUDE_SUGGESTION_SETTINGS) ->
                                 R.string.backup_restore_confirmation_suggestions_message
