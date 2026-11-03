@@ -170,4 +170,6 @@
     <string name="open_by_default_dialog_in_browser_text" msgid="8042769465958497081">"در مرورگر"</string>
     <string name="open_by_default_dialog_dismiss_button_text" msgid="3487238795534582291">"تأیید"</string>
     <string name="desktop_windowing_app_to_web_education_text" msgid="1599668769538703570">"در اینجا سریع برنامه‌ها را در مرورگرتان باز کنید"</string>
+    <string name="pip_phone_minimize">کوچک‌کردن</string>
+    <string name="pip_phone_dismiss_hint">برای بستن، به پایین بکشید</string>
 </resources>
