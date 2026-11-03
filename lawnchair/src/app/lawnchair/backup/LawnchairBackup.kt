@@ -36,8 +36,10 @@ import java.util.zip.ZipEntry
 import java.util.zip.ZipFile
 import java.util.zip.ZipInputStream
 import java.util.zip.ZipOutputStream
+import org.json.JSONObject
 import kotlin.math.max
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
 
 class LawnchairBackup(
@@ -108,10 +110,12 @@ class LawnchairBackup(
 
         val restoreLayout = contents.hasFlag(INCLUDE_LAYOUT_AND_SETTINGS)
         val restoreWallpaper = contents.hasFlag(INCLUDE_WALLPAPER)
+        val restoreSuggestions = contents.hasFlag(INCLUDE_SUGGESTION_SETTINGS)
         val requiredEntries = buildSet {
             add(INFO_FILE_NAME)
             if (restoreLayout) add(LAUNCHER_DB_FILE_NAME)
             if (restoreWallpaper) add(WALLPAPER_FILE_NAME)
+            if (restoreSuggestions) add(SUGGESTION_SETTINGS_FILE_NAME)
         }
         requireNotNull(archiveSnapshot?.takeIf(File::isFile)) {
             "Backup archive snapshot is unavailable; read backup metadata again"
@@ -140,6 +144,7 @@ class LawnchairBackup(
             )
         }.distinct()
         var stagedWallpaper: Bitmap? = null
+        var stagedSuggestionSettings: ByteArray? = null
 
         try {
             // Keep validation inside the cleanup scope: a malformed archive must not leave its
@@ -188,6 +193,21 @@ class LawnchairBackup(
                     .firstOrNull { it.key.name == RESTORED_DB_FILE_NAME }
                     ?.value ?: throw IllegalArgumentException("Backup does not contain a launcher database")
                 validateLauncherDatabase(stagedDatabase)
+            }
+
+            if (restoreSuggestions) {
+                readZip(
+                    mapOf(
+                        SUGGESTION_SETTINGS_FILE_NAME to { input ->
+                            val payload = input.readBytes()
+                            require(payload.size <= MAX_SUGGESTION_SETTINGS_BYTES) {
+                                "Suggestion settings payload is too large"
+                            }
+                            validateSuggestionSettings(payload)
+                            stagedSuggestionSettings = payload
+                        },
+                    ),
+                )
             }
 
             if (restoreWallpaper) {
@@ -253,6 +273,13 @@ class LawnchairBackup(
                 // The explicit restore above also handles widget-ID remapping while the pending
                 // flag is present. Clear it only after the database restore has succeeded.
                 LauncherPrefs.get(context).removeSync(LauncherPrefs.RESTORE_DEVICE)
+            }
+
+            if (restoreSuggestions && !restoreLayout) {
+                restoreSuggestionSettings(
+                    context,
+                    requireNotNull(stagedSuggestionSettings),
+                )
             }
 
             if (restoreWallpaper) {
@@ -570,6 +597,7 @@ class LawnchairBackup(
             SCREENSHOT_FILE_NAME,
             WALLPAPER_FILE_NAME,
             LAUNCHER_DB_FILE_NAME,
+            SUGGESTION_SETTINGS_FILE_NAME,
             PREFS_FILE_NAME,
             PREFS_DB_FILE_NAME,
             PREFS_DATASTORE_FILE_NAME,
@@ -599,7 +627,8 @@ class LawnchairBackup(
         private const val ZIP32_SENTINEL = 0xffffffffL
         private const val MAX_ENTRY_BYTES = 256L * 1024 * 1024
         private const val MAX_ARCHIVE_BYTES = 512L * 1024 * 1024
-        private const val KNOWN_CONTENTS = (1 shl 0) or (1 shl 1)
+        private const val KNOWN_CONTENTS = (1 shl 0) or (1 shl 1) or (1 shl 2)
+        private const val MAX_SUGGESTION_SETTINGS_BYTES = 64 * 1024
         private const val PREFS_FILE_NAME = "${LauncherFiles.SHARED_PREFERENCES_KEY}.xml"
         private const val PREFS_DB_FILE_NAME = "preferences"
         private const val PREFS_DATASTORE_FILE_NAME = "preferences.preferences_pb"
@@ -607,12 +636,14 @@ class LawnchairBackup(
         const val INFO_FILE_NAME = "info.pb"
         const val WALLPAPER_FILE_NAME = "wallpaper.png"
         const val SCREENSHOT_FILE_NAME = "screenshot.png"
+        const val SUGGESTION_SETTINGS_FILE_NAME = "suggestion-settings.json"
         private const val WALLPAPER_LIBRARY_ENTRY_PREFIX = "wallpapers/"
         const val LAUNCHER_DB_FILE_NAME = "launcher.db"
         const val RESTORED_DB_FILE_NAME = "restored.db"
 
         const val INCLUDE_LAYOUT_AND_SETTINGS = 1 shl 0
         const val INCLUDE_WALLPAPER = 1 shl 1
+        const val INCLUDE_SUGGESTION_SETTINGS = 1 shl 2
 
         const val MIME_TYPE = "application/zip"
         val EXTRA_MIME_TYPES = arrayOf(MIME_TYPE, "application/x-zip", "application/octet-stream")
@@ -620,6 +651,7 @@ class LawnchairBackup(
         val contentOptions = listOf(
             INCLUDE_LAYOUT_AND_SETTINGS to R.string.backup_content_layout_and_settings,
             INCLUDE_WALLPAPER to R.string.backup_content_wallpaper,
+            INCLUDE_SUGGESTION_SETTINGS to R.string.backup_content_suggestion_settings,
         )
 
         fun generateBackupFileName(): String {
@@ -691,6 +723,11 @@ class LawnchairBackup(
             } else {
                 emptyMap()
             }
+            val suggestionSettingsSnapshot = if (contents.hasFlag(INCLUDE_SUGGESTION_SETTINGS)) {
+                createSuggestionSettingsSnapshot(context)
+            } else {
+                null
+            }
             val wallpaperBitmap = if (contents.hasFlag(INCLUDE_WALLPAPER)) {
                 WallpaperManager.getInstance(context).drawable?.toBitmap()
                     ?: throw IllegalStateException("Wallpaper could not be read")
@@ -712,6 +749,11 @@ class LawnchairBackup(
                                 require(requireNotNull(wallpaperBitmap).compress(Bitmap.CompressFormat.PNG, 100, out)) {
                                     "Unable to encode wallpaper"
                                 }
+                                out.closeEntry()
+                            }
+                            suggestionSettingsSnapshot?.let { payload ->
+                                out.putNextEntry(ZipEntry(SUGGESTION_SETTINGS_FILE_NAME))
+                                out.write(payload)
                                 out.closeEntry()
                             }
                             if (contents.hasFlag(INCLUDE_LAYOUT_AND_SETTINGS)) {
@@ -741,6 +783,105 @@ class LawnchairBackup(
             } finally {
                 // This bitmap is created here; the screenshot bitmap remains caller-owned.
                 wallpaperBitmap?.recycle()
+            }
+        }
+
+        private suspend fun createSuggestionSettingsSnapshot(context: Context): ByteArray {
+            val preferences = PreferenceManager2.getInstance(context).preferencesDataStore.data.first()
+            val json = JSONObject().apply {
+                put("version", 1)
+                put("show_suggested_apps_at_drawer_top",
+                    preferences[booleanPreferencesKey("show_suggested_apps_at_drawer_top")]
+                        ?: context.resources.getBoolean(R.bool.config_default_show_suggested_apps_at_drawer_top))
+                put("suggestion_rows", preferences[intPreferencesKey("suggestion_rows")] ?: 1)
+                put("suggestion_position", preferences[stringPreferencesKey("suggestion_position")] ?: "top")
+                put("suggestion_source", preferences[stringPreferencesKey("suggestion_source")] ?: "usage")
+                put("suggestion_icon_scale", preferences[floatPreferencesKey("suggestion_icon_scale")] ?: 1f)
+                put("suggestion_label_scale", preferences[floatPreferencesKey("suggestion_label_scale")] ?: 1f)
+                putNullable("suggestion_label_color", preferences[stringPreferencesKey("suggestion_label_color")])
+                put("suggestion_labels_visible", preferences[booleanPreferencesKey("suggestion_labels_visible")] ?: true)
+                put("suggestion_background_enabled", preferences[booleanPreferencesKey("suggestion_background_enabled")] ?: true)
+                putNullable("suggestion_background_color", preferences[stringPreferencesKey("suggestion_background_color")])
+                put("suggestion_background_alpha", preferences[floatPreferencesKey("suggestion_background_alpha")] ?: 0.20f)
+                put("suggestion_corner_radius", preferences[floatPreferencesKey("suggestion_corner_radius")] ?: 16f)
+                put("suggestion_padding", preferences[floatPreferencesKey("suggestion_padding")] ?: 8f)
+                put("suggestion_margin", preferences[floatPreferencesKey("suggestion_margin")] ?: 4f)
+            }
+            return json.toString().toByteArray(Charsets.UTF_8)
+        }
+
+        private fun JSONObject.putNullable(name: String, value: String?) {
+            put(name, value ?: JSONObject.NULL)
+        }
+
+        private fun validateSuggestionSettings(payload: ByteArray) {
+            val json = JSONObject(payload.toString(Charsets.UTF_8))
+            require(json.getInt("version") == 1) { "Unsupported suggestion settings version" }
+            require(json.getInt("suggestion_rows") in 1..3) { "Invalid suggestion row count" }
+            require(json.getString("suggestion_position") in setOf("top", "bottom")) {
+                "Invalid suggestion position"
+            }
+            require(json.getString("suggestion_source") in setOf("usage", "dock")) {
+                "Invalid suggestion source"
+            }
+            require(json.getDouble("suggestion_icon_scale") in 0.5..1.5) {
+                "Invalid suggestion icon scale"
+            }
+            require(json.getDouble("suggestion_label_scale") in 0.5..1.5) {
+                "Invalid suggestion label scale"
+            }
+            require(json.getDouble("suggestion_background_alpha") in 0.0..1.0) {
+                "Invalid suggestion background opacity"
+            }
+            require(json.getDouble("suggestion_corner_radius") in 0.0..32.0) {
+                "Invalid suggestion corner radius"
+            }
+            require(json.getDouble("suggestion_padding") in 0.0..24.0) {
+                "Invalid suggestion padding"
+            }
+            require(json.getDouble("suggestion_margin") in 0.0..24.0) {
+                "Invalid suggestion margin"
+            }
+        }
+
+        private suspend fun restoreSuggestionSettings(context: Context, payload: ByteArray) {
+            validateSuggestionSettings(payload)
+            val json = JSONObject(payload.toString(Charsets.UTF_8))
+            PreferenceManager2.getInstance(context).preferencesDataStore.edit { preferences ->
+                preferences[booleanPreferencesKey("show_suggested_apps_at_drawer_top")] =
+                    json.getBoolean("show_suggested_apps_at_drawer_top")
+                preferences[intPreferencesKey("suggestion_rows")] = json.getInt("suggestion_rows")
+                preferences[stringPreferencesKey("suggestion_position")] = json.getString("suggestion_position")
+                preferences[stringPreferencesKey("suggestion_source")] = json.getString("suggestion_source")
+                preferences[floatPreferencesKey("suggestion_icon_scale")] =
+                    json.getDouble("suggestion_icon_scale").toFloat()
+                preferences[floatPreferencesKey("suggestion_label_scale")] =
+                    json.getDouble("suggestion_label_scale").toFloat()
+                preferences[booleanPreferencesKey("suggestion_labels_visible")] =
+                    json.getBoolean("suggestion_labels_visible")
+                preferences[booleanPreferencesKey("suggestion_background_enabled")] =
+                    json.getBoolean("suggestion_background_enabled")
+                preferences[floatPreferencesKey("suggestion_background_alpha")] =
+                    json.getDouble("suggestion_background_alpha").toFloat()
+                preferences[floatPreferencesKey("suggestion_corner_radius")] =
+                    json.getDouble("suggestion_corner_radius").toFloat()
+                preferences[floatPreferencesKey("suggestion_padding")] =
+                    json.getDouble("suggestion_padding").toFloat()
+                preferences[floatPreferencesKey("suggestion_margin")] =
+                    json.getDouble("suggestion_margin").toFloat()
+
+                val labelColorKey = stringPreferencesKey("suggestion_label_color")
+                if (json.isNull("suggestion_label_color")) {
+                    preferences.remove(labelColorKey)
+                } else {
+                    preferences[labelColorKey] = json.getString("suggestion_label_color")
+                }
+                val backgroundColorKey = stringPreferencesKey("suggestion_background_color")
+                if (json.isNull("suggestion_background_color")) {
+                    preferences.remove(backgroundColorKey)
+                } else {
+                    preferences[backgroundColorKey] = json.getString("suggestion_background_color")
+                }
             }
         }
 
