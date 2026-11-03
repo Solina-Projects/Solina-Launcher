@@ -182,6 +182,8 @@ public class ActivityAllAppsContainerView<T extends Context & ActivityContext>
     protected AllAppsPagedView mViewPager;
     protected FloatingHeaderView mHeader;
     protected final List<AllAppsRow> mAdditionalHeaderRows = new ArrayList<>();
+    @Nullable protected View mSuggestionFooterView;
+    protected int mSuggestionFooterHeight;
     protected View mBottomSheetBackground;
     protected RecyclerViewFastScroller mFastScroller;
     private ConstraintLayout mFastScrollLetterLayout;
@@ -1459,8 +1461,43 @@ public class ActivityAllAppsContainerView<T extends Context & ActivityContext>
         }
     }
 
+    protected final int getSuggestionFooterBottomInset() {
+        return Math.max(mInsets.bottom, mNavBarScrimHeight);
+    }
+
+    /** Adds the standalone bottom-positioned suggestion component above the navigation inset. */
+    protected final void attachSuggestionFooterView(View footer) {
+        mSuggestionFooterView = footer;
+        RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        layoutParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+        layoutParams.bottomMargin = getSuggestionFooterBottomInset();
+        addView(footer, layoutParams);
+        applyAdapterSideAndBottomPaddings(mActivityContext.getDeviceProfile());
+    }
+
+    /** Reserves exactly the visible suggestion component height in the app list. */
+    protected final void setSuggestionFooterHeight(int height) {
+        int safeHeight = Math.max(0, height);
+        if (mSuggestionFooterHeight == safeHeight) {
+            return;
+        }
+        mSuggestionFooterHeight = safeHeight;
+        applyAdapterSideAndBottomPaddings(mActivityContext.getDeviceProfile());
+    }
+
     private void applyAdapterSideAndBottomPaddings(DeviceProfile grid) {
-        int bottomPadding = Math.max(mInsets.bottom, mNavBarScrimHeight);
+        int bottomInset = getSuggestionFooterBottomInset();
+        int bottomPadding = bottomInset + mSuggestionFooterHeight;
+        if (mSuggestionFooterView != null
+                && mSuggestionFooterView.getLayoutParams() instanceof RelativeLayout.LayoutParams) {
+            RelativeLayout.LayoutParams layoutParams =
+                    (RelativeLayout.LayoutParams) mSuggestionFooterView.getLayoutParams();
+            if (layoutParams.bottomMargin != bottomInset) {
+                layoutParams.bottomMargin = bottomInset;
+                mSuggestionFooterView.setLayoutParams(layoutParams);
+            }
+        }
         mAH.forEach(adapterHolder -> {
             adapterHolder.mPadding.bottom = bottomPadding;
             adapterHolder.mPadding.left = grid.allAppsPadding.left;
