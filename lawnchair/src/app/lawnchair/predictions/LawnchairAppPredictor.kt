@@ -172,8 +172,8 @@ class LawnchairAppPredictor(private val context: Context) : StatsLogCompatManage
             } else {
                 SuggestionGridLayout.Source.MOST_USED
             },
-            dockRanked = dockRanked,
-            usageRanked = allAppsCandidateRanked,
+            dockRanked = dockRanked.filterNot { it in currentDismissedApps },
+            usageRanked = allAppsCandidateRanked.filterNot { it in currentDismissedApps },
             suggestionRows = suggestionRows,
             columns = suggestionColumns,
             dockRows = predictionEngine.getDockRowCount(),
