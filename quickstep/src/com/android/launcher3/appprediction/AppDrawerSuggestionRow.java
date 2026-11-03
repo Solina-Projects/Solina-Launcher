@@ -24,6 +24,7 @@ import com.android.launcher3.allapps.FloatingHeaderView;
 import com.android.launcher3.model.data.ItemInfo;
 import com.android.systemui.plugins.AllAppsRow;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -36,6 +37,8 @@ public final class AppDrawerSuggestionRow implements AllAppsRow {
 
     private PredictionRowView<Launcher> mView;
     private OnHeightUpdatedListener mHeightUpdatedListener;
+    private final List<ItemInfo> mPendingItems = new ArrayList<>();
+    private boolean mHasPendingUpdate;
 
     @Override
     public View setup(ViewGroup parent) {
@@ -55,10 +58,18 @@ public final class AppDrawerSuggestionRow implements AllAppsRow {
     @Override
     public void setOnHeightUpdatedListener(OnHeightUpdatedListener listener) {
         mHeightUpdatedListener = listener;
+        if (mView != null && mHasPendingUpdate) {
+            mHasPendingUpdate = false;
+            mView.setPredictedApps(new ArrayList<>(mPendingItems));
+            mPendingItems.clear();
+        }
     }
 
     public void setPredictedApps(List<ItemInfo> items) {
         if (mView == null) {
+            mPendingItems.clear();
+            mPendingItems.addAll(items);
+            mHasPendingUpdate = true;
             return;
         }
         mView.setPredictedApps(items);
