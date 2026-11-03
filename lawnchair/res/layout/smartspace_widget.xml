@@ -20,7 +20,7 @@
             android:id="@+id/smartspace_page_indicator"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="bottom|left|center_vertical|center_horizontal|center|start"
+            android:layout_gravity="bottom|center_vertical|center_horizontal|center|start"
             android:importantForAccessibility="no"
             android:paddingStart="@dimen/page_indicator_padding_start"
             android:paddingTop="@dimen/page_indicator_padding_top_bottom"
