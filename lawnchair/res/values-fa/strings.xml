@@ -600,4 +600,103 @@
     <string name="hotseat_bg_alpha">شفافیت پس‌زمینه</string>
     <string name="pause">مکث</string>
     <string name="pause_apps_dialog_title">مکث برای %1$s؟</string>
+    <string name="pause_apps_dialog_message">اعلان‌های %1$s متوقف خواهند شد</string>
+    <string name="paused_apps_dialog_title">برنامه متوقف شد</string>
+    <string name="paused_apps_dialog_message">%1$s مستقیماً از لانچر متوقف شد</string>
+    <string name="paused_apps_drop_target_label">توقف برنامه</string>
+    <string name="open_in_store_drop_target_label">بازکردن در فروشگاه</string>
+    <string name="dock_icons">آیکون‌های داک</string>
+    <string name="dock_rows">ردیف‌های داک</string>
+    <string name="dock_row_spacing">فاصله میان ردیف‌های داک</string>
+    <string name="dock_pages">صفحات داک</string>
+    <string name="state_folded">%1$s (تا‌شده)</string>
+    <string name="state_unfolded">%1$s (بازشده)</string>
+    <string name="folded_label">تا‌شده</string>
+    <string name="unfolded_label">بازشده</string>
+    <string name="when_folded_label">در حالت تا‌شده</string>
+    <string name="when_unfolded_label">در حالت بازشده</string>
+    <string name="unfolded_grid_description">لانچر سولینا دو صفحه را برای پرکردن نمایشگر بزرگ‌تر کنار هم قرار می‌دهد</string>
+    <string name="foldable_columns_error">مقدار حالت تا‌شده باید کمتر یا مساوی مقدار حالت بازشده باشد. در صورت نیاز به‌طور خودکار اصلاح می‌شود.</string>
+    <string name="hotseat_bottom_space_label">فاصله از پایین</string>
+    <string name="page_indicator_height">ارتفاع نشانگر صفحه</string>
+    <string name="search_provider_app_search">جست‌وجوی برنامه</string>
+    <string name="search_provider_startpage" translatable="false">Startpage</string>
+    <string name="search_provider_startpage_eu" translatable="false">Startpage (اروپا)</string>
+    <string name="search_provider_google" translatable="false">گوگل</string>
+    <string name="search_provider_google_go" translatable="false">Google Go</string>
+    <string name="search_provider_duckduckgo" translatable="false">DuckDuckGo</string>
+    <string name="search_provider_wikipedia" translatable="false">ویکی‌پدیا</string>
+    <string name="search_provider_presearch" translatable="false">Presearch</string>
+    <string name="search_provider_bing" translatable="false">بینگ</string>
+    <string name="search_provider_ecosia" translatable="false">Ecosia</string>
+    <string name="search_provider_sesame" translatable="false">Sesame</string>
+    <string name="search_provider_brave" translatable="false">Brave</string>
+    <string name="search_provider_github" translatable="false">گیت‌هاب</string>
+    <string name="search_provider_youtube" translatable="false">یوتیوب</string>
+    <string name="search_provider_pixel_search" translatable="false">Pixel Search</string>
+    <string name="search_provider_yandex" translatable="false">Yandex</string>
+    <string name="search_provider_fennec" translatable="false">Fennec</string>
+    <string name="search_provider_firefox" translatable="false">فایرفاکس</string>
+    <string name="search_provider_firefox_beta" translatable="false">فایرفاکس بتا</string>
+    <string name="search_provider_firefox_nightly" translatable="false">فایرفاکس شبانه</string>
+    <string name="search_provider_iceraven" translatable="false">Iceraven</string>
+    <string name="search_provider_ironfox" translatable="false">IronFox</string>
+    <string name="search_provider_waterfox" translatable="false">Waterfox</string>
+    <string name="search_provider_kagi" translatable="false">Kagi</string>
+    <string name="search_provider_cromite" translatable="false">Cromite</string>
+    <string name="search_provider_vivaldi" translatable="false">Vivaldi</string>
+    <string name="search_provider_custom">سفارشی</string>
+    <string name="search_provider_sponsored_description">میان %1$s و لانچر سولینا توافق مشارکت در درآمد وجود دارد.
+
+جست‌وجو با %1$s به پشتیبانی از لانچر سولینا کمک می‌کند.</string>
+    <string name="app_label">برنامه</string>
+    <string name="website_label">وب‌سایت</string>
+    <string name="qsb_search_provider_app_required">برنامه لازم است</string>
+    <string name="label_search">جست‌وجو</string>
+    <string name="label_lens">لنز گوگل</string>
+    <string name="label_voice_search">جست‌وجوی صوتی</string>
+    <string name="hidden_apps_label">برنامه‌های مخفی</string>
+    <string name="pref_all_apps_bulk_icon_loading_title">بارگذاری گروهی برنامه‌ها</string>
+    <string name="pref_all_apps_bulk_icon_loading_description">آیکون‌ها را به‌صورت گروهی و نه جداگانه بارگذاری و نمایش دهید</string>
+    <string name="pref_all_apps_remember_position_title">به‌خاطرسپردن موقعیت پیمایش</string>
+    <string name="pref_all_apps_remember_position_description">هنگام بستن کشوی برنامه‌ها، آخرین موقعیت پیمایش را ذخیره کنید</string>
+    <string name="pref_all_apps_show_scrollbar_title">نمایش نوار پیمایش</string>
+    <string name="app_drawer_columns">ستون‌های کشوی برنامه‌ها</string>
+    <string name="row_height_label">ارتفاع ردیف</string>
+    <string name="app_drawer_haptic_feedback_label">بازخورد لمسی</string>
+    <string name="app_drawer_indent_label">فاصله افقی</string>
+    <string name="app_drawer_bg_color_label">رنگ پس‌زمینه</string>
+    <string name="work_profile_tab_background_label">رنگ پس‌زمینه زبانه</string>
+    <string name="pref_all_apps_search_bar_background">نمایش پس‌زمینه پشت نوار جست‌وجو</string>
+    <string name="work_profile_tab_container_background_label">نمایش پس‌زمینه پشت زبانه‌ها</string>
+    <string name="hide_from_drawer">پنهان‌کردن از کشوی برنامه‌ها</string>
+    <string name="hidden_apps_label_with_count">برنامه‌های مخفی (%1$d)</string>
+    <string name="folder_preview_bg_opacity_label">شفافیت پس‌زمینه پیش‌نمایش آیکون</string>
+    <string name="folder_bg_opacity_label">شفافیت پس‌زمینه پوشه</string>
+    <string name="folder_preview_bg_color_label">رنگ پس‌زمینه آیکون</string>
+    <string name="max_folder_columns">حداکثر ستون‌های پوشه</string>
+    <string name="max_folder_rows">حداکثر ردیف‌های پوشه</string>
+    <string name="quickswitch_ignored_warning">این تنظیمات نادیده گرفته می‌شوند، زیرا لانچر سولینا به‌عنوان ارائه‌دهنده صفحه برنامه‌های اخیر انتخاب نشده است</string>
+    <string name="quickstep_incompatible">یکپارچه‌سازی ناسازگار با سیستم</string>
+    <string name="translucent_background">پس‌زمینه نیمه‌شفاف</string>
+    <string name="translucent_background_alpha">شفافیت پس‌زمینه</string>
+    <string name="recents_actions_label">عملیات سریع</string>
+    <string name="action_share">اشتراک‌گذاری</string>
+    <string name="action_lens">لنز</string>
+    <string name="recents_clear_all">بستن همه</string>
+    <string name="task_menu_force_stop">توقف اجباری</string>
+    <string name="window_corner_radius_label">شعاع گوشه صفحه</string>
+    <string name="override_window_corner_radius_label">شعاع گوشه سفارشی صفحه</string>
+    <string name="taskbar_label">نوار وظیفه</string>
+    <string name="enable_taskbar_experimental">نمایش نوار وظیفه (آزمایشی)</string>
+    <string name="all_apps_device_search_hint">جست‌وجو در وب و موارد دیگر</string>
+    <string name="all_apps_search_bar_hint">جست‌وجوی برنامه‌ها</string>
+    <string name="all_apps_no_search_results">هیچ برنامه‌ای مطابق «<xliff:g example="Android" id="query">%1$s</xliff:g>» پیدا نشد</string>
+    <string name="all_apps_search_result_suggestions">از وب</string>
+    <string name="all_apps_search_result_contacts_from_device">مخاطبین دستگاه</string>
+    <string name="all_apps_search_result_files">فایل‌های دستگاه</string>
+    <string name="all_apps_search_result_settings_entry_from_device">تنظیمات دستگاه</string>
+    <string name="all_apps_search_market_message">جست‌وجوی برنامه‌های بیشتر</string>
+    <string name="all_apps_search_on_web_message">جست‌وجو در <xliff:g example="Startpage" id="web_search_provider">%1$s</xliff:g></string>
+    <string name="error_no_market_or_browser_installed">هیچ فروشگاه برنامه یا مرورگری نصب نشده است</string>
 </resources>
