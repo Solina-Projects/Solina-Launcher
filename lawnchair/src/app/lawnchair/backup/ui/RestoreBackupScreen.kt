@@ -140,7 +140,9 @@ fun ColumnScope.RestoreBackupOptions(
             try {
                 backup.restore(contents)
                 Toast.makeText(context, R.string.backup_restore_success, Toast.LENGTH_SHORT).show()
-                if (contents.hasFlag(LawnchairBackup.INCLUDE_LAYOUT_AND_SETTINGS)) {
+                if (contents.hasFlag(LawnchairBackup.INCLUDE_LAYOUT_AND_SETTINGS)
+                    || contents.hasFlag(LawnchairBackup.INCLUDE_SUGGESTION_SETTINGS)
+                ) {
                     restartLauncher(context)
                 }
             } catch (t: Throwable) {
@@ -208,6 +210,13 @@ fun ColumnScope.RestoreBackupOptions(
             label = stringResource(id = R.string.backup_content_wallpaper),
             enabled = backupContents.hasFlag(LawnchairBackup.INCLUDE_WALLPAPER),
         )
+        FlagSwitchPreference(
+            flags = contents,
+            setFlags = viewModel::setBackupContents,
+            mask = LawnchairBackup.INCLUDE_SUGGESTION_SETTINGS,
+            label = stringResource(id = R.string.backup_content_suggestion_settings),
+            enabled = backupContents.hasFlag(LawnchairBackup.INCLUDE_SUGGESTION_SETTINGS),
+        )
     }
     if (showRestoreConfirmation) {
         val isLayoutRestore = contents.hasFlag(LawnchairBackup.INCLUDE_LAYOUT_AND_SETTINGS)
@@ -217,10 +226,11 @@ fun ColumnScope.RestoreBackupOptions(
             text = {
                 Text(
                     stringResource(
-                        if (isLayoutRestore) {
-                            R.string.backup_restore_confirmation_layout_message
-                        } else {
-                            R.string.backup_restore_confirmation_wallpaper_message
+                        when {
+                            isLayoutRestore -> R.string.backup_restore_confirmation_layout_message
+                            contents.hasFlag(LawnchairBackup.INCLUDE_SUGGESTION_SETTINGS) ->
+                                R.string.backup_restore_confirmation_suggestions_message
+                            else -> R.string.backup_restore_confirmation_wallpaper_message
                         },
                     ),
                 )
