@@ -163,19 +163,20 @@ class LawnchairAppPredictor(private val context: Context) : StatsLogCompatManage
 
         val suggestionRows = prefsSuggestionRows().coerceIn(1, 3)
         val suggestionColumns = idp.numDatabaseAllAppsColumns.coerceAtLeast(1)
-        // Dock mode starts with apps learned from dock launches, then fills remaining
-        // rows with the most-used all-apps ranking. mergeRanked preserves order and de-duplicates.
-        val suggestionRanked = if (isDockSuggestionSource()) {
-            predictionEngine.mergeRanked(
-                predictionEngine.getDockRanked(dataModel),
-                allAppsRanked,
-                fallbackRanked,
-            )
-        } else {
-            allAppsCandidateRanked
-        }
+        // Keep suggestion layout independent from the main drawer grid data. The helper
+        // consumes the active drawer column count and applies dock-row anchoring + de-duplication.
+        val dockRanked = predictionEngine.getDockRanked(dataModel)
+        val arrangedSuggestions = SuggestionGridLayout.arrange(
+            source = if (isDockSuggestionSource()) SuggestionGridLayout.Source.DOCK
+                else SuggestionGridLayout.Source.MOST_USED,
+            dockRanked = dockRanked,
+            usageRanked = allAppsCandidateRanked,
+            suggestionRows = suggestionRows,
+            columns = suggestionColumns,
+            dockRows = predictionEngine.getDockRowCount(dataModel),
+        ).flatten()
         val allAppsTargets = predictionEngine.compileAppTargets(
-            suggestionRanked,
+            arrangedSuggestions,
             suggestionColumns * suggestionRows,
             currentDismissedApps,
         )
