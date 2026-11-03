@@ -1,6 +1,5 @@
 package app.lawnchair.allapps
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.util.AttributeSet
 import android.view.Gravity
@@ -55,8 +54,7 @@ class FallbackSearchInputView(context: Context, attrs: AttributeSet?) : Extended
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
         if (layoutDirection == LAYOUT_DIRECTION_RTL) {
-            @SuppressLint("RtlHardcoded")
-            gravity = Gravity.RIGHT or Gravity.CENTER
+            gravity = Gravity.START or Gravity.CENTER
         }
     }
 }
