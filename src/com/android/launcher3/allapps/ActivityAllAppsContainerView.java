@@ -182,7 +182,7 @@ public class ActivityAllAppsContainerView<T extends Context & ActivityContext>
     protected AllAppsPagedView mViewPager;
     protected FloatingHeaderView mHeader;
     protected final List<AllAppsRow> mAdditionalHeaderRows = new ArrayList<>();
-    @Nullable protected View mSuggestionFooterView;
+    @Nullable protected View mSuggestionFooterViewHost;
     protected int mSuggestionFooterHeight;
     protected int mSuggestionFooterOuterMargin;
     protected View mBottomSheetBackground;
@@ -1468,7 +1468,7 @@ public class ActivityAllAppsContainerView<T extends Context & ActivityContext>
 
     /** Adds the standalone bottom-positioned suggestion component above the navigation inset. */
     protected final void attachSuggestionFooterView(View footer) {
-        mSuggestionFooterView = footer;
+        mSuggestionFooterViewHost = footer;
         RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         layoutParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
@@ -1506,14 +1506,14 @@ public class ActivityAllAppsContainerView<T extends Context & ActivityContext>
     private void applyAdapterSideAndBottomPaddings(DeviceProfile grid) {
         int bottomInset = getSuggestionFooterBottomInset();
         int bottomPadding = bottomInset + mSuggestionFooterHeight + mSuggestionFooterOuterMargin;
-        if (mSuggestionFooterView != null
-                && mSuggestionFooterView.getLayoutParams() instanceof RelativeLayout.LayoutParams) {
+        if (mSuggestionFooterViewHost != null
+                && mSuggestionFooterViewHost.getLayoutParams() instanceof RelativeLayout.LayoutParams) {
             RelativeLayout.LayoutParams layoutParams =
-                    (RelativeLayout.LayoutParams) mSuggestionFooterView.getLayoutParams();
+                    (RelativeLayout.LayoutParams) mSuggestionFooterViewHost.getLayoutParams();
             int footerBottomMargin = bottomInset + mSuggestionFooterOuterMargin;
             if (layoutParams.bottomMargin != footerBottomMargin) {
                 layoutParams.bottomMargin = footerBottomMargin;
-                mSuggestionFooterView.setLayoutParams(layoutParams);
+                mSuggestionFooterViewHost.setLayoutParams(layoutParams);
             }
         }
         mAH.forEach(adapterHolder -> {
