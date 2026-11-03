@@ -42,11 +42,11 @@ import java.util.zip.ZipEntry
 import java.util.zip.ZipFile
 import java.util.zip.ZipInputStream
 import java.util.zip.ZipOutputStream
-import org.json.JSONObject
 import kotlin.math.max
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
+import org.json.JSONObject
 
 class LawnchairBackup(
     private val context: Context,
@@ -793,25 +793,60 @@ class LawnchairBackup(
         }
 
         private suspend fun createSuggestionSettingsSnapshot(context: Context): ByteArray {
-            val preferences = PreferenceManager2.getInstance(context).preferencesDataStore.data.first()
+            val preferences =
+                PreferenceManager2.getInstance(context).preferencesDataStore.data.first()
             val json = JSONObject().apply {
                 put("version", 1)
-                put("show_suggested_apps_at_drawer_top",
+                put(
+                    "show_suggested_apps_at_drawer_top",
                     preferences[booleanPreferencesKey("show_suggested_apps_at_drawer_top")]
-                        ?: context.resources.getBoolean(R.bool.config_default_show_suggested_apps_at_drawer_top))
+                        ?: context.resources.getBoolean(
+                            R.bool.config_default_show_suggested_apps_at_drawer_top,
+                        ),
+                )
                 put("suggestion_rows", preferences[intPreferencesKey("suggestion_rows")] ?: 1)
-                put("suggestion_position", preferences[stringPreferencesKey("suggestion_position")] ?: "top")
-                put("suggestion_source", preferences[stringPreferencesKey("suggestion_source")] ?: "usage")
+                put(
+                    "suggestion_position",
+                    preferences[stringPreferencesKey("suggestion_position")] ?: "top",
+                )
+                put(
+                    "suggestion_source",
+                    preferences[stringPreferencesKey("suggestion_source")] ?: "usage",
+                )
                 put("suggestion_icon_scale", preferences[floatPreferencesKey("suggestion_icon_scale")] ?: 1f)
                 put("suggestion_label_scale", preferences[floatPreferencesKey("suggestion_label_scale")] ?: 1f)
-                putNullable("suggestion_label_color", preferences[stringPreferencesKey("suggestion_label_color")])
-                put("suggestion_labels_visible", preferences[booleanPreferencesKey("suggestion_labels_visible")] ?: true)
-                put("suggestion_background_enabled", preferences[booleanPreferencesKey("suggestion_background_enabled")] ?: true)
-                putNullable("suggestion_background_color", preferences[stringPreferencesKey("suggestion_background_color")])
-                put("suggestion_background_alpha", preferences[floatPreferencesKey("suggestion_background_alpha")] ?: 0.20f)
-                put("suggestion_corner_radius", preferences[floatPreferencesKey("suggestion_corner_radius")] ?: 16f)
-                put("suggestion_padding", preferences[floatPreferencesKey("suggestion_padding")] ?: 8f)
-                put("suggestion_margin", preferences[floatPreferencesKey("suggestion_margin")] ?: 4f)
+                putNullable(
+                    "suggestion_label_color",
+                    preferences[stringPreferencesKey("suggestion_label_color")],
+                )
+                put(
+                    "suggestion_labels_visible",
+                    preferences[booleanPreferencesKey("suggestion_labels_visible")] ?: true,
+                )
+                put(
+                    "suggestion_background_enabled",
+                    preferences[booleanPreferencesKey("suggestion_background_enabled")] ?: true,
+                )
+                putNullable(
+                    "suggestion_background_color",
+                    preferences[stringPreferencesKey("suggestion_background_color")],
+                )
+                put(
+                    "suggestion_background_alpha",
+                    preferences[floatPreferencesKey("suggestion_background_alpha")] ?: 0.20f,
+                )
+                put(
+                    "suggestion_corner_radius",
+                    preferences[floatPreferencesKey("suggestion_corner_radius")] ?: 16f,
+                )
+                put(
+                    "suggestion_padding",
+                    preferences[floatPreferencesKey("suggestion_padding")] ?: 8f,
+                )
+                put(
+                    "suggestion_margin",
+                    preferences[floatPreferencesKey("suggestion_margin")] ?: 4f,
+                )
             }
             return json.toString().toByteArray(Charsets.UTF_8)
         }
@@ -857,8 +892,10 @@ class LawnchairBackup(
                 preferences[booleanPreferencesKey("show_suggested_apps_at_drawer_top")] =
                     json.getBoolean("show_suggested_apps_at_drawer_top")
                 preferences[intPreferencesKey("suggestion_rows")] = json.getInt("suggestion_rows")
-                preferences[stringPreferencesKey("suggestion_position")] = json.getString("suggestion_position")
-                preferences[stringPreferencesKey("suggestion_source")] = json.getString("suggestion_source")
+                val positionKey = stringPreferencesKey("suggestion_position")
+                preferences[positionKey] = json.getString("suggestion_position")
+                val sourceKey = stringPreferencesKey("suggestion_source")
+                preferences[sourceKey] = json.getString("suggestion_source")
                 preferences[floatPreferencesKey("suggestion_icon_scale")] =
                     json.getDouble("suggestion_icon_scale").toFloat()
                 preferences[floatPreferencesKey("suggestion_label_scale")] =
