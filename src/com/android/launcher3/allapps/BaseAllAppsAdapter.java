@@ -70,6 +70,8 @@ public abstract class BaseAllAppsAdapter<T extends Context & ActivityContext> ex
     public static final int VIEW_TYPE_PRIVATE_SPACE_HEADER = 1 << 6;
     public static final int VIEW_TYPE_PRIVATE_SPACE_SYS_APPS_DIVIDER = 1 << 7;
     public static final int VIEW_TYPE_BOTTOM_VIEW_TO_SCROLL_TO = 1 << 8;
+    // The bottom-positioned app suggestions, shown as the last item of the main app list.
+    public static final int VIEW_TYPE_SUGGESTION_FOOTER = 1 << 9;
     public static final int NEXT_ID = 9;
 
     // LC-Feature: Folder support in All Apps, can be any ID
@@ -261,6 +263,12 @@ public abstract class BaseAllAppsAdapter<T extends Context & ActivityContext> ex
                         R.layout.private_space_header, parent, false));
             case VIEW_TYPE_BOTTOM_VIEW_TO_SCROLL_TO:
                 return new ViewHolder(new View(mActivityContext));
+            case VIEW_TYPE_SUGGESTION_FOOTER:
+                FrameLayout suggestionHost = new FrameLayout(mActivityContext);
+                suggestionHost.setLayoutParams(new RecyclerView.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT,
+                        ViewGroup.LayoutParams.WRAP_CONTENT));
+                return new ViewHolder(suggestionHost);
             case VIEW_TYPE_FOLDER:
                 // LC-Feature: Folder support in All Apps
                 FrameLayout fl = new FrameLayout(mActivityContext);
@@ -355,6 +363,9 @@ public abstract class BaseAllAppsAdapter<T extends Context & ActivityContext> ex
             case VIEW_TYPE_ALL_APPS_DIVIDER:
             case VIEW_TYPE_WORK_DISABLED_CARD:
                 // nothing to do
+                break;
+            case VIEW_TYPE_SUGGESTION_FOOTER:
+                mApps.attachSuggestionFooter((ViewGroup) holder.itemView);
                 break;
             case VIEW_TYPE_WORK_EDU_CARD:
                 ((WorkEduCard) holder.itemView).setPosition(position);

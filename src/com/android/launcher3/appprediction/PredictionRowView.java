@@ -214,6 +214,12 @@ public class PredictionRowView<T extends Context & ActivityContext>
         super.dispatchDraw(canvas);
     }
 
+    /** Independent outer spacing (dp setting converted to px) around this strip. */
+    public int getOuterMarginPx() {
+        return Math.round(PreferenceCacheExtensionsKt.firstCached(prefs2.getSuggestionMargin())
+                * getResources().getDisplayMetrics().density);
+    }
+
     /** Height of one suggestion row, scaled by the independent row-height setting. */
     private int getSingleRowHeight() {
         DeviceProfile deviceProfile = mActivityContext.getDeviceProfile();

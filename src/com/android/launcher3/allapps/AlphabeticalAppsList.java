@@ -21,6 +21,7 @@ import static android.multiuser.Flags.enableMovingContentIntoPrivateSpace;
 
 import static com.android.launcher3.Utilities.ATLEAST_BAKLAVA;
 import static com.android.launcher3.allapps.BaseAllAppsAdapter.VIEW_TYPE_BOTTOM_VIEW_TO_SCROLL_TO;
+import static com.android.launcher3.allapps.BaseAllAppsAdapter.VIEW_TYPE_SUGGESTION_FOOTER;
 import static com.android.launcher3.allapps.BaseAllAppsAdapter.VIEW_TYPE_MASK_PRIVATE_SPACE_HEADER;
 import static com.android.launcher3.allapps.SectionDecorationInfo.ROUND_BOTTOM_LEFT;
 import static com.android.launcher3.allapps.SectionDecorationInfo.ROUND_BOTTOM_RIGHT;
@@ -35,6 +36,10 @@ import android.text.SpannableString;
 import android.text.style.ImageSpan;
 import android.util.Log;
 
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.FrameLayout;
+
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 import androidx.recyclerview.widget.DiffUtil;
@@ -45,6 +50,7 @@ import com.android.launcher3.allapps.BaseAllAppsAdapter.AdapterItem;
 import com.android.launcher3.model.data.AppInfo;
 import com.android.launcher3.model.data.ItemInfo;
 import com.android.launcher3.util.LabelComparator;
+import com.android.launcher3.appprediction.PredictionRowView;
 import com.android.launcher3.views.ActivityContext;
 
 import java.io.PrintWriter;
@@ -68,6 +74,8 @@ public class AlphabeticalAppsList<T extends Context & ActivityContext> implement
 
     public static final String TAG = "AlphabeticalAppsList";
     public static final String PRIVATE_SPACE_PACKAGE = "com.android.privatespace";
+
+    @Nullable private View mSuggestionFooterView;
 
     private final WorkProfileManager mWorkProviderManager;
 
@@ -285,6 +293,38 @@ public class AlphabeticalAppsList<T extends Context & ActivityContext> implement
     }
 
     /**
+     * Sets the suggestion view shown as the last item of this list, or null to remove it.
+     * The view is owned by the caller; the adapter only hosts it while the item is bound.
+     */
+    public void setSuggestionFooter(@Nullable View footer) {
+        if (mSuggestionFooterView == footer) {
+            return;
+        }
+        mSuggestionFooterView = footer;
+        if (mSearchResults.isEmpty()) {
+            updateAdapterItems();
+        }
+    }
+
+    /** Moves the suggestion view into the given item host. */
+    void attachSuggestionFooter(ViewGroup host) {
+        View footer = mSuggestionFooterView;
+        if (footer == null || footer.getParent() == host) {
+            return;
+        }
+        if (footer.getParent() instanceof ViewGroup) {
+            ((ViewGroup) footer.getParent()).removeView(footer);
+        }
+        int margin = footer instanceof PredictionRowView
+                ? ((PredictionRowView<?>) footer).getOuterMarginPx() : 0;
+        FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        lp.topMargin = margin;
+        lp.bottomMargin = margin;
+        host.addView(footer, lp);
+    }
+
+    /**
      * Updates the set of filtered apps with the current filter. At this point, we expect
      * mCachedSectionNames to have been calculated for the set of all apps in mApps.
      */
@@ -328,6 +368,10 @@ public class AlphabeticalAppsList<T extends Context & ActivityContext> implement
                         mFastScrollerSections.get(mFastScrollerSections.size() - 1).sectionName,
                         position++));
                 Log.d(TAG, "Adding FastScrollSection duplicate to scroll to the bottom.");
+            }
+            if (mSuggestionFooterView != null && addApps && !mApps.isEmpty()) {
+                // Bottom-positioned suggestions scroll with the list and sit after the last app.
+                mAdapterItems.add(new AdapterItem(VIEW_TYPE_SUGGESTION_FOOTER));
             }
         }
         mAccessibilityResultsCount = (int) mAdapterItems.stream()

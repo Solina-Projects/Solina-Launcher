@@ -18,7 +18,6 @@ package com.android.launcher3.allapps;
 import android.content.Context;
 import android.util.AttributeSet;
 import android.view.WindowInsets;
-import android.widget.RelativeLayout;
 
 import app.lawnchair.preferences2.PreferenceCacheExtensionsKt;
 import app.lawnchair.preferences2.PreferenceManager2;
@@ -91,19 +90,12 @@ public class LauncherAllAppsContainerView extends ActivityAllAppsContainerView<L
         if (!isSuggestionPositionBottom()) {
             return;
         }
+        // Bottom-positioned suggestions are the last item of the main app list, so they scroll
+        // with the apps instead of staying fixed above the navigation bar.
         mSuggestionFooterView = new PredictionRowView<>((Launcher) getContext());
         mSuggestionFooterView.setup(null, FloatingHeaderRow.NO_ROWS, false);
-        attachSuggestionFooterView(mSuggestionFooterView);
-        RelativeLayout.LayoutParams layoutParams =
-                (RelativeLayout.LayoutParams) mSuggestionFooterView.getLayoutParams();
-        int margin = Math.round(PreferenceCacheExtensionsKt.firstCached(
-                PreferenceManager2.getInstance(getContext()).getSuggestionMargin())
-                * getResources().getDisplayMetrics().density);
-        layoutParams.topMargin = margin;
-        mSuggestionFooterView.setLayoutParams(layoutParams);
-        mSuggestionFooterView.setStandaloneHeightChangeListener(this::updateSuggestionFooterHeight);
         mSuggestionFooterView.setPredictedApps(mLatestSuggestedApps);
-        updateSuggestionFooterHeight();
+        mAH.get(AdapterHolder.MAIN).mAppsList.setSuggestionFooter(mSuggestionFooterView);
     }
 
     /** Returns the independent suggestion view for the active position, or null if not ready. */
@@ -119,23 +111,10 @@ public class LauncherAllAppsContainerView extends ActivityAllAppsContainerView<L
         if (isSuggestionPositionBottom()) {
             if (mSuggestionFooterView != null) {
                 mSuggestionFooterView.setPredictedApps(mLatestSuggestedApps);
-                updateSuggestionFooterHeight();
             }
         } else {
             getSuggestionRow().setPredictedApps(mLatestSuggestedApps);
         }
-    }
-
-    private void updateSuggestionFooterHeight() {
-        if (mSuggestionFooterView == null) {
-            return;
-        }
-        float density = getResources().getDisplayMetrics().density;
-        int rowHeight = mSuggestionFooterView.getExpectedHeight();
-        int margin = rowHeight == 0 ? 0 : Math.round(PreferenceCacheExtensionsKt.firstCached(
-                PreferenceManager2.getInstance(getContext()).getSuggestionMargin()) * density);
-        setSuggestionFooterOuterMargin(margin);
-        setSuggestionFooterHeight(rowHeight + margin);
     }
 
     @Override
