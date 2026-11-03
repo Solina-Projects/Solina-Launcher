@@ -119,8 +119,8 @@ class AllAppsSearchInput(context: Context, attrs: AttributeSet?) :
     private val prefs = PreferenceManager.getInstance(launcher)
     private val prefs2 = PreferenceManager2.getInstance(launcher)
 
-    private var initialPaddingLeft: Int = 0
-    private var initialPaddingRight: Int = 0
+    private var initialPaddingStart: Int = 0
+    private var initialPaddingEnd: Int = 0
     private var paddingAnimator: ValueAnimator? = null
     private var hideSearchBar = false
 
@@ -288,7 +288,7 @@ class AllAppsSearchInput(context: Context, attrs: AttributeSet?) :
 
                 setBackgroundVisibility(false, 0f)
                 animateHintVisibility(true)
-                animatePadding(initialPaddingLeft / 2, initialPaddingRight / 2)
+                animatePadding(initialPaddingStart / 2, initialPaddingEnd / 2)
             } else {
                 setBackgroundVisibility(true, 1f)
                 animateHintVisibility(false)
@@ -300,7 +300,7 @@ class AllAppsSearchInput(context: Context, attrs: AttributeSet?) :
                 }
 
                 if (input.text.isNullOrEmpty()) {
-                    animatePadding(initialPaddingLeft, initialPaddingRight)
+                    animatePadding(initialPaddingStart, initialPaddingEnd)
                 }
                 focusedResultTitle = ""
                 input.setHint("")
@@ -329,7 +329,7 @@ class AllAppsSearchInput(context: Context, attrs: AttributeSet?) :
 
                 val isEmpty = it.isNullOrEmpty()
                 if (isEmpty && !input.hasFocus()) {
-                    animatePadding(initialPaddingLeft, initialPaddingRight)
+                    animatePadding(initialPaddingStart, initialPaddingEnd)
                 }
                 queryEmpty = isEmpty
             },
@@ -346,13 +346,13 @@ class AllAppsSearchInput(context: Context, attrs: AttributeSet?) :
     private fun setupPadding() {
         launcher.deviceProfile.let { dp ->
             val padding = dp.getAllAppsIconStartMargin(context)
-            initialPaddingLeft = padding
-            initialPaddingRight = padding
+            initialPaddingStart = padding
+            initialPaddingEnd = padding
             // Keep the narrower padding of an active search (see the focus and text listeners)
             paddingAnimator?.cancel()
             val isSearchActive = ::input.isInitialized && (input.hasFocus() || !input.text.isNullOrEmpty())
             val currentPadding = if (isSearchActive) padding / 2 else padding
-            setPadding(currentPadding, paddingTop, currentPadding, paddingBottom)
+            setPaddingRelative(currentPadding, paddingTop, currentPadding, paddingBottom)
         }
     }
 
@@ -375,9 +375,9 @@ class AllAppsSearchInput(context: Context, attrs: AttributeSet?) :
             .start()
     }
 
-    private fun animatePadding(newPaddingLeft: Int, newPaddingRight: Int) {
-        val currentPaddingLeft = paddingLeft
-        val currentPaddingRight = paddingRight
+    private fun animatePadding(newPaddingStart: Int, newPaddingEnd: Int) {
+        val currentPaddingStart = paddingStart
+        val currentPaddingEnd = paddingEnd
 
         paddingAnimator?.cancel()
         paddingAnimator = ValueAnimator.ofFloat(0f, 1f).apply {
@@ -385,9 +385,9 @@ class AllAppsSearchInput(context: Context, attrs: AttributeSet?) :
             interpolator = FastOutSlowInInterpolator()
             addUpdateListener { animation ->
                 val fraction = animation.animatedFraction
-                val leftPadding = currentPaddingLeft + (newPaddingLeft - currentPaddingLeft) * fraction
-                val rightPadding = currentPaddingRight + (newPaddingRight - currentPaddingRight) * fraction
-                setPadding(leftPadding.toInt(), paddingTop, rightPadding.toInt(), paddingBottom)
+                val startPadding = currentPaddingStart + (newPaddingStart - currentPaddingStart) * fraction
+                val endPadding = currentPaddingEnd + (newPaddingEnd - currentPaddingEnd) * fraction
+                setPaddingRelative(startPadding.toInt(), paddingTop, endPadding.toInt(), paddingBottom)
             }
             start()
         }
