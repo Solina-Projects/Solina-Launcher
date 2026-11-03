@@ -18,14 +18,12 @@ package com.android.launcher3.allapps;
 import android.content.Context;
 import android.util.AttributeSet;
 import android.view.WindowInsets;
-import android.view.ViewGroup;
 import android.widget.RelativeLayout;
 
 import com.android.launcher3.Launcher;
 import com.android.launcher3.LauncherState;
 import com.android.launcher3.appprediction.PredictionRowView;
 import com.android.launcher3.allapps.FloatingHeaderRow;
-import com.android.launcher3.allapps.FloatingHeaderView;
 import com.android.launcher3.model.data.ItemInfo;
 import com.android.launcher3.Utilities;
 import com.android.launcher3.statemanager.StateManager;
@@ -111,9 +109,11 @@ public class LauncherAllAppsContainerView extends ActivityAllAppsContainerView<L
             return;
         }
         float density = getResources().getDisplayMetrics().density;
-        int margin = Math.round(PreferenceCacheExtensionsKt.firstCached(
+        int rowHeight = mSuggestionFooterView.getExpectedHeight();
+        int margin = rowHeight == 0 ? 0 : Math.round(PreferenceCacheExtensionsKt.firstCached(
                 PreferenceManager2.getInstance(getContext()).getSuggestionMargin()) * density);
-        setSuggestionFooterHeight(mSuggestionFooterView.getExpectedHeight() + margin);
+        setSuggestionFooterOuterMargin(margin);
+        setSuggestionFooterHeight(rowHeight + margin);
     }
 
     @Override
