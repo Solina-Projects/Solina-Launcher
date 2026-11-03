@@ -17,6 +17,7 @@ package com.android.launcher3.appprediction;
 
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 
 import com.android.launcher3.Launcher;
 import com.android.launcher3.allapps.FloatingHeaderRow;
@@ -45,6 +46,14 @@ public final class AppDrawerSuggestionRow implements AllAppsRow {
         if (mView == null) {
             Launcher launcher = (Launcher) parent.getContext();
             mView = new PredictionRowView<>(launcher);
+            float density = parent.getResources().getDisplayMetrics().density;
+            int margin = Math.round(app.lawnchair.preferences2.PreferenceCacheExtensionsKt.firstCached(
+                    app.lawnchair.preferences2.PreferenceManager2.getInstance(launcher)
+                            .getSuggestionMargin()) * density);
+            LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            layoutParams.setMargins(0, margin, 0, margin);
+            mView.setLayoutParams(layoutParams);
             mView.setup((FloatingHeaderView) parent, FloatingHeaderRow.NO_ROWS, false);
         }
         return mView;
@@ -52,7 +61,14 @@ public final class AppDrawerSuggestionRow implements AllAppsRow {
 
     @Override
     public int getExpectedHeight() {
-        return mView == null ? 0 : mView.getExpectedHeight();
+        if (mView == null) {
+            return 0;
+        }
+        float density = mView.getResources().getDisplayMetrics().density;
+        int margin = Math.round(app.lawnchair.preferences2.PreferenceCacheExtensionsKt.firstCached(
+                app.lawnchair.preferences2.PreferenceManager2.getInstance(mView.getContext())
+                        .getSuggestionMargin()) * density);
+        return mView.getExpectedHeight() + margin * 2;
     }
 
     @Override
