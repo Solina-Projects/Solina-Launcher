@@ -51,6 +51,7 @@ class IcuDateTextView @JvmOverloads constructor(
             val intentFilter = IntentFilter()
             intentFilter.addAction(Intent.ACTION_TIME_CHANGED)
             intentFilter.addAction(Intent.ACTION_TIMEZONE_CHANGED)
+            intentFilter.addAction(Intent.ACTION_LOCALE_CHANGED)
             broadcastReceiverFlow(context, intentFilter)
                 .onEach { onTimeChanged(it.action != Intent.ACTION_TIME_TICK) }
                 .launchIn(this)
