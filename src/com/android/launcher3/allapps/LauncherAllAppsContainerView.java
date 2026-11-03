@@ -50,9 +50,18 @@ public class LauncherAllAppsContainerView extends ActivityAllAppsContainerView<L
         super(context, attrs, defStyleAttr);
     }
 
-    private final AppDrawerSuggestionRow mSuggestionRow = new AppDrawerSuggestionRow();
+    // This view can be queried by the superclass constructor before subclass field
+    // initializers run. Keep the row lazily initialized and do not assign it at declaration.
+    private AppDrawerSuggestionRow mSuggestionRow;
     private final List<ItemInfo> mLatestSuggestedApps = new ArrayList<>();
     private PredictionRowView<Launcher> mSuggestionFooterView;
+
+    private AppDrawerSuggestionRow getSuggestionRow() {
+        if (mSuggestionRow == null) {
+            mSuggestionRow = new AppDrawerSuggestionRow();
+        }
+        return mSuggestionRow;
+    }
 
     private String getSuggestionPosition() {
         return PreferenceCacheExtensionsKt.firstCached(
@@ -65,7 +74,7 @@ public class LauncherAllAppsContainerView extends ActivityAllAppsContainerView<L
 
     @Override
     public List<com.android.systemui.plugins.AllAppsRow> getAdditionalHeaderRows() {
-        return isSuggestionPositionBottom() ? List.of() : List.of(mSuggestionRow);
+        return isSuggestionPositionBottom() ? List.of() : List.of(getSuggestionRow());
     }
 
     @Override
@@ -99,7 +108,7 @@ public class LauncherAllAppsContainerView extends ActivityAllAppsContainerView<L
                 updateSuggestionFooterHeight();
             }
         } else {
-            mSuggestionRow.setPredictedApps(mLatestSuggestedApps);
+            getSuggestionRow().setPredictedApps(mLatestSuggestedApps);
         }
     }
 
