@@ -52,6 +52,9 @@ object SuggestionGridLayout {
         }
 
         val dock = unique(dockRanked, capacity)
+        if (dock.isEmpty()) {
+            return unique(usageRanked, capacity).chunked(columns)
+        }
         val usage = unique(usageRanked, capacity - dock.size)
         val rows = MutableList(suggestionRows) { emptyList<T>() }
 
