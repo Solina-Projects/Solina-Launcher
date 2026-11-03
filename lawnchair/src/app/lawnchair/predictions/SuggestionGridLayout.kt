@@ -88,9 +88,11 @@ object SuggestionGridLayout {
 
         val fallback = usage.iterator()
         for (index in rows.indices.reversed()) {
-            if (rows[index].isEmpty() && fallback.hasNext()) {
-                rows[index] = buildList {
-                    while (size < columns && fallback.hasNext()) add(fallback.next())
+            if (rows[index].size < columns && fallback.hasNext()) {
+                rows[index] = rows[index] + buildList {
+                    while (rows[index].size + size < columns && fallback.hasNext()) {
+                        add(fallback.next())
+                    }
                 }
             }
         }
