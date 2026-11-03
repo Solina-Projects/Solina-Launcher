@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
@@ -22,7 +21,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import app.lawnchair.security.AppLockStore
 import app.lawnchair.ui.preferences.LocalIsExpandedScreen
-import app.lawnchair.ui.preferences.components.layout.PreferenceLayout
+import app.lawnchair.ui.preferences.components.layout.PreferenceLayoutLazyColumn
 import com.android.launcher3.R
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -53,47 +52,51 @@ fun AppLockPreferences(modifier: Modifier = Modifier) {
         }
     }
 
-    PreferenceLayout(
+    PreferenceLayoutLazyColumn(
         label = stringResource(R.string.app_lock_title),
         backArrowVisible = !LocalIsExpandedScreen.current,
         modifier = modifier,
     ) {
-        Text(
-            text = stringResource(R.string.app_lock_description),
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 12.dp),
-        )
-        Text(
-            text = stringResource(R.string.app_lock_apps_heading),
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 8.dp),
-        )
-        if (apps.isEmpty()) {
+        item {
             Text(
-                text = stringResource(R.string.app_lock_empty),
-                modifier = Modifier.padding(horizontal = 20.dp, vertical = 12.dp),
+                text = stringResource(R.string.app_lock_description),
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 12.dp),
             )
+        }
+        item {
+            Text(
+                text = stringResource(R.string.app_lock_apps_heading),
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 8.dp),
+            )
+        }
+        if (apps.isEmpty()) {
+            item {
+                Text(
+                    text = stringResource(R.string.app_lock_empty),
+                    modifier = Modifier.padding(horizontal = 20.dp, vertical = 12.dp),
+                )
+            }
         } else {
-            LazyColumn {
-                items(apps, key = { it.packageName }) { app ->
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 20.dp, vertical = 8.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(16.dp),
-                    ) {
-                        Text(text = app.label, modifier = Modifier.weight(1f))
-                        Switch(
-                            checked = app.packageName in lockedPackages,
-                            onCheckedChange = { checked ->
-                                AppLockStore.setLocked(context, app.packageName, checked)
-                                lockedPackages = if (checked) {
-                                    lockedPackages + app.packageName
-                                } else {
-                                    lockedPackages - app.packageName
-                                }
-                            },
-                        )
-                    }
+            items(apps, key = { it.packageName }) { app ->
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 20.dp, vertical = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(16.dp),
+                ) {
+                    Text(text = app.label, modifier = Modifier.weight(1f))
+                    Switch(
+                        checked = app.packageName in lockedPackages,
+                        onCheckedChange = { checked ->
+                            AppLockStore.setLocked(context, app.packageName, checked)
+                            lockedPackages = if (checked) {
+                                lockedPackages + app.packageName
+                            } else {
+                                lockedPackages - app.packageName
+                            }
+                        },
+                    )
                 }
             }
         }
