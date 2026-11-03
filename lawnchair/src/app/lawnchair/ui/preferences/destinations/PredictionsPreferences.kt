@@ -140,7 +140,11 @@ private fun SuggestionStripSettings(prefs2: PreferenceManager2) {
     val source = prefs2.suggestionSource.getAdapter()
     val iconScale = prefs2.suggestionIconScale.getAdapter()
     val labelScale = prefs2.suggestionLabelScale.getAdapter()
+    val labelsVisible = prefs2.suggestionLabelsVisible.getAdapter()
     val background = prefs2.suggestionBackgroundEnabled.getAdapter()
+    val backgroundAlpha = prefs2.suggestionBackgroundAlpha.getAdapter()
+    val padding = prefs2.suggestionPadding.getAdapter()
+    val margin = prefs2.suggestionMargin.getAdapter()
     val radius = prefs2.suggestionCornerRadius.getAdapter()
 
     PreferenceGroup(heading = "App suggestion strip") {
@@ -185,6 +189,10 @@ private fun SuggestionStripSettings(prefs2: PreferenceManager2) {
                 step = 0.1f,
                 showAsPercentage = true,
             )
+            SwitchPreference(
+                adapter = labelsVisible,
+                label = "Show app names",
+            )
             ColorPreference(preference = prefs2.suggestionLabelColor)
             SwitchPreference(
                 adapter = background,
@@ -193,6 +201,13 @@ private fun SuggestionStripSettings(prefs2: PreferenceManager2) {
             ExpandAndShrink(visible = background.state.value) {
                 ColorPreference(preference = prefs2.suggestionBackgroundColor)
                 SliderPreference(
+                    adapter = backgroundAlpha,
+                    label = "Background opacity",
+                    valueRange = 0f..1f,
+                    step = 0.05f,
+                    showAsPercentage = true,
+                )
+                SliderPreference(
                     adapter = radius,
                     label = "Suggestion corner radius",
                     valueRange = 0f..32f,
@@ -200,6 +215,20 @@ private fun SuggestionStripSettings(prefs2: PreferenceManager2) {
                     showUnit = "dp",
                 )
             }
+            SliderPreference(
+                adapter = padding,
+                label = "Suggestion inner spacing",
+                valueRange = 0f..24f,
+                step = 1f,
+                showUnit = "dp",
+            )
+            SliderPreference(
+                adapter = margin,
+                label = "Suggestion outer spacing",
+                valueRange = 0f..24f,
+                step = 1f,
+                showUnit = "dp",
+            )
         }
     }
 }
