@@ -35,6 +35,7 @@ import androidx.annotation.Nullable;
 
 import app.lawnchair.preferences2.PreferenceManager2;
 import app.lawnchair.theme.color.ColorOption;
+import app.lawnchair.theme.color.tokens.ColorTokens;
 import com.android.launcher3.BubbleTextView;
 import com.android.launcher3.DeviceProfile;
 import com.android.launcher3.DeviceProfile.OnDeviceProfileChangeListener;
@@ -118,7 +119,7 @@ public class PredictionRowView<T extends Context & ActivityContext>
             color = backgroundOption.getColorPreferenceEntry()
                     .getLightColor().invoke(getContext());
         } else {
-            color = Color.BLACK;
+            color = ColorTokens.AllAppsScrimColor.resolveColor(getContext());
         }
         float alpha = Math.max(0f, Math.min(1f, PreferenceCacheExtensionsKt.firstCached(
                 prefs2.getSuggestionBackgroundAlpha())));
@@ -198,10 +199,8 @@ public class PredictionRowView<T extends Context & ActivityContext>
         totalHeight += extraHeight;
         int rows = Math.max(1, Math.min(3,
                 PreferenceCacheExtensionsKt.firstCached(prefs2.getSuggestionRows())));
-        float margin = PreferenceCacheExtensionsKt.firstCached(prefs2.getSuggestionMargin());
-        int marginPx = Math.round(margin * getResources().getDisplayMetrics().density);
         return getVisibility() == GONE ? 0
-                : totalHeight * rows + getPaddingTop() + getPaddingBottom() + marginPx * 2;
+                : totalHeight * rows + getPaddingTop() + getPaddingBottom();
     }
 
     @Override
