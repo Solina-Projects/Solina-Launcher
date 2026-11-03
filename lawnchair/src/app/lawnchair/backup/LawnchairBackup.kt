@@ -117,6 +117,13 @@ class LawnchairBackup(
         val restoreLayout = contents.hasFlag(INCLUDE_LAYOUT_AND_SETTINGS)
         val restoreWallpaper = contents.hasFlag(INCLUDE_WALLPAPER)
         val restoreSuggestions = contents.hasFlag(INCLUDE_SUGGESTION_SETTINGS)
+        // A layout archive contains the entire DataStore file. Preserve the current suggestion
+        // section when the user did not explicitly select it, so layout restore remains selective.
+        val preservedSuggestionSettings = if (restoreLayout && !restoreSuggestions) {
+            createSuggestionSettingsSnapshot(context)
+        } else {
+            null
+        }
         val requiredEntries = buildSet {
             add(INFO_FILE_NAME)
             if (restoreLayout) add(LAUNCHER_DB_FILE_NAME)
@@ -285,10 +292,12 @@ class LawnchairBackup(
                 WallpaperManager.getInstance(context).setBitmap(requireNotNull(stagedWallpaper))
             }
 
-            if (restoreSuggestions && !restoreLayout) {
+            if (restoreSuggestions || preservedSuggestionSettings != null) {
+                // Apply the separately archived section after replacing the layout's DataStore.
+                // When suggestions were not selected, put back the pre-restore values instead.
                 restoreSuggestionSettings(
                     context,
-                    requireNotNull(stagedSuggestionSettings),
+                    stagedSuggestionSettings ?: requireNotNull(preservedSuggestionSettings),
                 )
             }
         } catch (throwable: Throwable) {
