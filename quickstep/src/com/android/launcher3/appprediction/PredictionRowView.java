@@ -280,11 +280,7 @@ public class PredictionRowView<T extends Context & ActivityContext>
                 updateVisibility();
             }
             if (mParent != null) {
-                if (mParent != null) {
-            mParent.onHeightUpdated();
-        } else {
-            requestLayout();
-        }
+                mParent.onHeightUpdated();
             } else {
                 requestLayout();
             }
@@ -360,7 +356,11 @@ public class PredictionRowView<T extends Context & ActivityContext>
             mPredictionsEnabled = predictionsEnabled;
             updateVisibility();
         }
-        mParent.onHeightUpdated();
+        if (mParent != null) {
+            mParent.onHeightUpdated();
+        } else {
+            requestLayout();
+        }
     }
 
     @Override
