@@ -11,6 +11,7 @@ import android.os.Process
 import android.os.UserHandle
 import android.util.Log
 import androidx.annotation.RequiresApi
+import app.lawnchair.preferences.PreferenceManager
 import app.lawnchair.preferences2.PreferenceManager2
 import app.lawnchair.preferences2.firstCached
 import com.android.launcher3.AppFilter
@@ -165,10 +166,7 @@ class LawnchairPredictionEngine(
     }
 
     /** Returns the configured dock row count used by the active DeviceProfile. */
-    fun getDockRowCount(): Int = PreferenceManager.getInstance(context)
-        .getHotseatRows()
-        .get()
-        .coerceIn(1, 3)
+    fun getDockRowCount(): Int = PreferenceManager.getInstance(context).hotseatRows.get().coerceIn(1, 3)
 
     /**
      * Returns the set of store keys for items currently occupying the hotseat.
