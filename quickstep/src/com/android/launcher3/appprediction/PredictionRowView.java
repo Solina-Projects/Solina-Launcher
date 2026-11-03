@@ -197,9 +197,8 @@ public class PredictionRowView<T extends Context & ActivityContext>
         int extraHeight = deviceProfile.inv.enableTwoLinesInAllApps
                 ? (textHeight + mTopRowExtraHeight) : mTopRowExtraHeight;
         totalHeight += extraHeight;
-        int rows = Math.max(1, Math.min(3,
-                PreferenceCacheExtensionsKt.firstCached(prefs2.getSuggestionRows())));
-        return getVisibility() == GONE ? 0
+        int rows = mPredictionRows.size();
+        return getVisibility() == GONE || rows == 0 ? 0
                 : totalHeight * rows + getPaddingTop() + getPaddingBottom();
     }
 
@@ -267,9 +266,30 @@ public class PredictionRowView<T extends Context & ActivityContext>
         if (mPredictionUiUpdatePaused) {
             return;
         }
-        int rows = Math.max(1, Math.min(3,
+        int configuredRows = Math.max(1, Math.min(3,
                 PreferenceCacheExtensionsKt.firstCached(prefs2.getSuggestionRows())));
         int columns = Math.max(1, mNumPredictedAppsPerRow);
+        int predictionCount = mPredictedApps.size();
+        int rows = Math.min(configuredRows, (predictionCount + columns - 1) / columns);
+        if (rows == 0) {
+            removeAllViews();
+            mPredictionRows.clear();
+            mPredictionIcons.clear();
+            if (mPredictionsEnabled) {
+                mPredictionsEnabled = false;
+                updateVisibility();
+            }
+            if (mParent != null) {
+                if (mParent != null) {
+            mParent.onHeightUpdated();
+        } else {
+            requestLayout();
+        }
+            } else {
+                requestLayout();
+            }
+            return;
+        }
         if (mPredictionRows.size() != rows || mPredictionIcons.size() != rows * columns) {
             removeAllViews();
             mPredictionRows.clear();
@@ -315,7 +335,6 @@ public class PredictionRowView<T extends Context & ActivityContext>
             }
         }
 
-        int predictionCount = mPredictedApps.size();
         for (int rowIndex = 0; rowIndex < rows; rowIndex++) {
             for (int column = 0; column < columns; column++) {
                 int iconIndex = rowIndex * columns + column;
