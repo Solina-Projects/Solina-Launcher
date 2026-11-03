@@ -51,18 +51,17 @@ object SuggestionGridLayout {
             return unique(usageRanked, capacity).chunked(columns)
         }
 
-        val dock = unique(dockRanked, capacity)
-        if (dock.isEmpty()) {
-            return unique(usageRanked, capacity).chunked(columns)
-        }
-        val usage = unique(usageRanked, capacity - dock.size)
         val rows = MutableList(suggestionRows) { emptyList<T>() }
 
         if (dockRows <= 1) {
             // A one-row dock owns the first suggestion row. Additional rows are
-            // completed from usage ranking, with dock entries excluded.
-            rows[0] = dock.take(columns)
-            val fallback = usage.iterator()
+            // completed from usage ranking, with only displayed dock entries excluded.
+            val dockRow = unique(dockRanked, columns)
+            if (dockRow.isEmpty()) {
+                return unique(usageRanked, capacity).chunked(columns)
+            }
+            rows[0] = dockRow
+            val fallback = unique(usageRanked, capacity - dockRow.size).iterator()
             for (rowIndex in 1 until suggestionRows) {
                 rows[rowIndex] = buildList {
                     while (size < columns && fallback.hasNext()) add(fallback.next())
@@ -70,6 +69,12 @@ object SuggestionGridLayout {
             }
             return rows.filter { it.isNotEmpty() }
         }
+
+        val dock = unique(dockRanked, capacity)
+        if (dock.isEmpty()) {
+            return unique(usageRanked, capacity).chunked(columns)
+        }
+        val usage = unique(usageRanked, capacity - dock.size)
 
         // Multi-row docks anchor content at the bottom. Fill each dock-backed row
         // bottom-up, then use usage ranking for any still-empty row.
