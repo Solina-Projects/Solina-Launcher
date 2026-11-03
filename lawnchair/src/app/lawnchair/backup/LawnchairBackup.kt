@@ -281,15 +281,15 @@ class LawnchairBackup(
                 LauncherPrefs.get(context).removeSync(LauncherPrefs.RESTORE_DEVICE)
             }
 
+            if (restoreWallpaper) {
+                WallpaperManager.getInstance(context).setBitmap(requireNotNull(stagedWallpaper))
+            }
+
             if (restoreSuggestions && !restoreLayout) {
                 restoreSuggestionSettings(
                     context,
                     requireNotNull(stagedSuggestionSettings),
                 )
-            }
-
-            if (restoreWallpaper) {
-                WallpaperManager.getInstance(context).setBitmap(requireNotNull(stagedWallpaper))
             }
         } catch (throwable: Throwable) {
             // Restore launcher databases before their WAL/journal sidecars. SHM is transient and
