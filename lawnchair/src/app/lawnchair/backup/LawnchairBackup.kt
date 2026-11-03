@@ -813,8 +813,14 @@ class LawnchairBackup(
                     "suggestion_source",
                     preferences[stringPreferencesKey("suggestion_source")] ?: "usage",
                 )
-                put("suggestion_icon_scale", preferences[floatPreferencesKey("suggestion_icon_scale")] ?: 1f)
-                put("suggestion_label_scale", preferences[floatPreferencesKey("suggestion_label_scale")] ?: 1f)
+                put(
+                    "suggestion_icon_scale",
+                    preferences[floatPreferencesKey("suggestion_icon_scale")] ?: 1f,
+                )
+                put(
+                    "suggestion_label_scale",
+                    preferences[floatPreferencesKey("suggestion_label_scale")] ?: 1f,
+                )
                 putNullable(
                     "suggestion_label_color",
                     preferences[stringPreferencesKey("suggestion_label_color")],
@@ -888,7 +894,8 @@ class LawnchairBackup(
         private suspend fun restoreSuggestionSettings(context: Context, payload: ByteArray) {
             validateSuggestionSettings(payload)
             val json = JSONObject(payload.toString(Charsets.UTF_8))
-            PreferenceManager2.getInstance(context).preferencesDataStore.edit { preferences ->
+            val preferencesDataStore = PreferenceManager2.getInstance(context).preferencesDataStore
+            preferencesDataStore.edit { preferences ->
                 preferences[booleanPreferencesKey("show_suggested_apps_at_drawer_top")] =
                     json.getBoolean("show_suggested_apps_at_drawer_top")
                 preferences[intPreferencesKey("suggestion_rows")] = json.getInt("suggestion_rows")
