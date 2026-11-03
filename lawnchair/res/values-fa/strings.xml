@@ -699,4 +699,107 @@
     <string name="all_apps_search_market_message">جست‌وجوی برنامه‌های بیشتر</string>
     <string name="all_apps_search_on_web_message">جست‌وجو در <xliff:g example="Startpage" id="web_search_provider">%1$s</xliff:g></string>
     <string name="error_no_market_or_browser_installed">هیچ فروشگاه برنامه یا مرورگری نصب نشده است</string>
+    <string name="quickstep_incompatible_description">دستگاه شما طوری پیکربندی شده است که ژست‌های سیستمی موسوم به Quickstep توسط %1$s ارائه شوند، اما این نسخه از %1$s با نسخه اندروید شما سازگار نیست. برای ادامه استفاده از دستگاه، به‌روزرسانی‌های %1$s را حذف کنید یا %1$s را به‌عنوان ارائه‌دهنده ژست سیستمی غیرفعال کنید.</string>
+    <string name="window_corner_radius_description">هنگام کشیدن انگشت به بالا برای بازکردن صفحه برنامه‌های اخیر، برنامه فعلی انگشت شما را دنبال می‌کند و به شکل یک کارت کوچک می‌شود. از این لغزنده برای تنظیم گردی گوشه‌های کارت در حالت تقریباً تمام‌صفحه استفاده کنید تا با گوشه‌های نمایشگر هماهنگ شود.</string>
+    <string name="all_apps_search_on_web_general">جست‌وجو در وب</string>
+    <string name="clear_history">پاک‌کردن تاریخچه جست‌وجو</string>
+    <string name="search_input_action_clear_results">پاک‌کردن کادر جست‌وجو</string>
+    <string name="pref_category_search">جست‌وجو</string>
+    <string name="show_app_search_bar">نمایش نوار جست‌وجو</string>
+    <string name="pref_search_auto_show_keyboard">نمایش خودکار صفحه‌کلید</string>
+    <string name="fuzzy_search_title">جست‌وجوی تقریبی</string>
+    <string name="fuzzy_search_desc">تطبیق تقریبی برای جست‌وجوی برنامه‌ها</string>
+    <string name="show_suggested_apps_at_drawer_top">نمایش برنامه‌های پیشنهادی در بالای کشو</string>
+    <string name="perform_wide_search_title">جست‌وجوی دستگاه</string>
+    <string name="perform_wide_search_description">جست‌وجو در مخاطبین، فایل‌ها و تنظیمات تلفن</string>
+    <string name="show_hidden_apps_in_search_results">نمایش برنامه‌های مخفی در نتایج جست‌وجو</string>
+    <string name="hidden_apps_show_name_typed">در صورت واردکردن نام کامل</string>
+    <string name="allapps_web_suggestion_provider_label">ارائه‌دهنده پیشنهادهای وب</string>
+    <string name="allapps_use_web_suggestion_icon_label">نمایش نماد ارائه‌دهنده پیشنهاد وب در نوار جست‌وجو</string>
+    <string name="allapps_match_qsb_style_label">هماهنگی با عملکردهای نوار جست‌وجوی داک</string>
+    <string name="allapps_match_qsb_style_description">با ضربه‌زدن روی نوار جست‌وجوی داک، نمای جست‌وجوی کشوی برنامه‌ها باز می‌شود</string>
+    <string name="app_search_algorithm">الگوریتم جست‌وجو</string>
+    <string name="search_algorithm_app_search">جست‌وجوی برنامه</string>
+    <string name="search_algorithm_global_search_on_device">جست‌وجوی سراسری (روی دستگاه)</string>
+    <string name="search_algorithm_global_search_via_asi">جست‌وجوی سراسری (از طریق ASI)</string>
+    <string name="custom_search_label">نام موتور جست‌وجو</string>
+    <string name="custom_search_url">نشانی موتور جست‌وجو</string>
+    <string name="custom_search_suggestions_url">نشانی پیشنهادهای جست‌وجو</string>
+    <string name="custom_search_input_hint">عبارت %s با عبارت جست‌وجو جایگزین می‌شود</string>
+    <string name="custom_search_suggestions_hint">عبارت %s با عبارت جست‌وجو جایگزین می‌شود. نتایج باید در قالب JSON OpenSearch باشند.</string>
+    <string name="custom_search_input_placeholder" translatable="false">https://example.com/search?q=%s</string>
+    <string name="show_search_result_types">نمایش در نتایج جست‌وجو</string>
+    <string name="search_pref_result_apps_and_shortcuts_title">برنامه‌ها و میان‌برها</string>
+    <string name="search_pref_result_shortcuts_title">میان‌برهای برنامه</string>
+    <string name="search_pref_result_people_title">افراد</string>
+    <string name="search_pref_result_tips_title">نکته‌های Pixel</string>
+    <string name="search_pref_result_settings_title">تنظیمات اندروید</string>
+    <string name="search_pref_result_files_title">فایل‌ها</string>
+    <string name="search_pref_result_visual_media_title">عکس‌ها و ویدیوها</string>
+    <string name="search_pref_result_audio_media_title">فایل‌های صوتی</string>
+    <string name="search_pref_result_all_files_title">همه فایل‌ها</string>
+    <string name="search_pref_result_web_title">پیشنهادهای وب</string>
+    <string name="search_pref_result_history_title">تاریخچه جست‌وجو</string>
+    <string name="all_apps_search_result_calculator">ماشین‌حساب</string>
+    <string name="search_empty_state_title">جست‌وجو را آغاز کنید</string>
+    <string name="search_empty_state_no_history_subtitle">برنامه‌ها، مخاطبین و موارد دیگر را پیدا کنید. جست‌وجوهای اخیر شما اینجا نمایش داده می‌شوند.</string>
+    <string name="search_empty_state_history_disabled_subtitle">برنامه‌ها، مخاطبین و موارد دیگر را پیدا کنید</string>
+    <string name="search_pref_files_search_on">جست‌وجو در</string>
+    <string name="search_pref_result_files_description">رسانه، فایل‌ها و موارد دیگر</string>
+    <string name="search_pref_result_contacts_description">مخاطبین و موارد دیگر</string>
+    <string name="search_pref_result_web_provider_description">از طریق <xliff:g id="web_search_provider">%1$s</xliff:g></string>
+    <string name="max_apps_result_count_title">حداکثر تعداد برنامه‌ها</string>
+    <string name="max_people_result_count_title">حداکثر تعداد افراد</string>
+    <string name="max_file_result_count_title">حداکثر تعداد فایل‌ها</string>
+    <string name="max_settings_entry_result_count_title">حداکثر تعداد تنظیمات</string>
+    <string name="max_recent_result_count_title">حداکثر موارد تاریخچه جست‌وجو</string>
+    <string name="max_suggestion_result_count_title">حداکثر تعداد پیشنهادها</string>
+    <string name="max_web_suggestion_delay">حداکثر تأخیر پیشنهاد وب</string>
+    <string name="missing_notification_access_label">دسترسی اعلان لازم است</string>
+    <string name="missing_notification_access_desc">برای نمایش نشان‌های اعلان، اعلان‌های برنامه <xliff:g id="name" example="My App">%1$s</xliff:g> را فعال کنید</string>
+    <string name="warn_contact_permission_title">مجوز مخاطبین لازم است</string>
+    <string name="warn_contact_permission_content">برای جست‌وجوی مخاطبین، مجوزهای مخاطبین و تلفن را به <xliff:g id="name" example="My App">%1$s</xliff:g> بدهید</string>
+    <string name="permissions_music_audio">دسترسی به موسیقی و صدا لازم است</string>
+    <string name="permissions_music_audio_description">برای جست‌وجوی موسیقی و سایر فایل‌های صوتی، <xliff:g id="name" example="My App">%1$s</xliff:g> به مجوز دسترسی به کتابخانه رسانه شما نیاز دارد</string>
+    <string name="permissions_photos_videos">دسترسی به عکس‌ها و ویدیوها لازم است</string>
+    <string name="permissions_photos_videos_description">برای جست‌وجوی عکس‌ها و ویدیوهای شما، <xliff:g id="name" example="My App">%1$s</xliff:g> به مجوز دسترسی به کتابخانه رسانه نیاز دارد</string>
+    <string name="permissions_photos_videos_full">به کل کتابخانه رسانه دسترسی داده شود؟</string>
+    <string name="permissions_photos_videos_full_description">برای جست‌وجوی همه عکس‌ها و ویدیوهای شما، <xliff:g id="name" example="My App">%1$s</xliff:g> به دسترسی کامل به کتابخانه رسانه نیاز دارد</string>
+    <string name="permissions_photos_videos_grant_full">دادن مجوز کامل رسانه</string>
+    <string name="permissions_photos_videos_manage_selected">مدیریت موارد انتخاب‌شده</string>
+    <string name="permissions_external_storage">دسترسی به حافظه خارجی لازم است</string>
+    <string name="permissions_external_storage_description">برای جست‌وجوی فایل‌های شما، <xliff:g id="name" example="My App">%1$s</xliff:g> به مجوز دسترسی به حافظه خارجی دستگاه نیاز دارد</string>
+    <string name="permissions_manage_storage">دسترسی مدیریت حافظه لازم است</string>
+    <string name="permissions_manage_storage_description">برای نمایش فایل‌ها در نتایج جست‌وجو، <xliff:g id="name" example="My App">%1$s</xliff:g> به مجوز مدیریت همه فایل‌های دستگاه نیاز دارد. این مجوز فقط برای فهرست‌کردن فایل‌ها استفاده می‌شود و محتوای فایل‌های شخصی شما خوانده یا تغییر داده نخواهد شد.</string>
+    <string name="permission_desc_wallpaper_base">برای نمایش پیش‌نمایش تصویر زمینه و گنجاندن آن در نسخه پشتیبان، <xliff:g id="name" example="My App">%1$s</xliff:g> به مجوز %2$s نیاز دارد. این محدودیت ناشی از محدودیت‌های سیستم برای دسترسی به داده‌های تصویر زمینه است.</string>
+    <string name="permission_desc_ending_read_all_files">برای خواندن همه فایل‌های دستگاه</string>
+    <string name="permission_desc_ending_manage_all_files">برای مدیریت همه فایل‌های دستگاه</string>
+    <string name="permission_desc_wallpaper_multiple">چند مجوز لازم است</string>
+    <string name="permission_desc_wallpaper_multiple_desc">برای نمایش پیش‌نمایش تصویر زمینه و گنجاندن آن در نسخه پشتیبان، <xliff:g id="name" example="My App">%1$s</xliff:g> به مجوزهای زیر نیاز دارد. این محدودیت ناشی از محدودیت‌های سیستم برای دسترسی به داده‌های تصویر زمینه است.</string>
+    <string name="permission_label_manage_all_files">مدیریت همه فایل‌های دستگاه</string>
+    <string name="permission_label_read_photos_videos">خواندن عکس‌ها و ویدیوها</string>
+    <string name="manage_storage_access_denied_title">امکان فعال‌کردن دسترسی مدیریت حافظه وجود ندارد</string>
+    <string name="manage_storage_access_denied_description">به‌دلیل خط‌مشی فروشگاه Play، <xliff:g id="name" example="My App">%1$s</xliff:g> نمی‌تواند در اینجا درخواست دسترسی کامل به حافظه کند. برای دسترسی به همه فایل‌ها، <xliff:g id="name" example="My App">%1$s</xliff:g> را از گیت‌هاب دریافت کنید. همچنین می‌توانید در تنظیمات، دسترسی به عکس‌ها، ویدیوها و فایل‌های صوتی را جداگانه بدهید.</string>
+    <string name="open_permission_settings">بازکردن تنظیمات</string>
+    <string name="grant_requested_permissions">دادن مجوزها</string>
+    <string name="permissions_needed">مجوزهای لازم</string>
+    <string name="grant_requested_permissions_tap">برای دادن مجوزها ضربه بزنید</string>
+    <string name="home_screen_all_views_removed_msg">صفحه اصلی پاک شد</string>
+    <string name="lawnchair_actions">عملکردها</string>
+    <string name="lawnchair_action_failed">اجرای عملکرد ناموفق بود</string>
+    <string name="please_wait">لطفاً صبر کنید…</string>
+    <string name="dock_label_size">اندازه متن برچسب داک</string>
+    <string name="dock_search_bar_vertical_position">موقعیت عمودی نوار جست‌وجو</string>
+    <string name="home_icon_label_color">رنگ برچسب آیکون صفحه اصلی</string>
+    <string name="drawer_icon_label_color">رنگ برچسب آیکون کشوی برنامه‌ها</string>
+    <string name="dock_icon_label_color">رنگ برچسب آیکون داک</string>
+    <string name="suggestion_label_color">رنگ برچسب پیشنهاد</string>
+    <string name="suggestion_background_color">رنگ پس‌زمینه پیشنهاد</string>
+    <string name="backup_restore_confirmation_title">نسخه پشتیبان بازیابی شود؟</string>
+    <string name="backup_restore_confirmation_layout_message">این کار چیدمان و تنظیمات فعلی لانچر را جایگزین می‌کند. پیش از ادامه، مطمئن شوید نسخه پشتیبان جدیدی دارید.</string>
+    <string name="backup_restore_confirmation_wallpaper_message">این کار تصویر زمینه فعلی شما را جایگزین می‌کند. ادامه می‌دهید؟</string>
+    <string name="backup_restore_confirmation_suggestions_message">این کار تنظیمات پیشنهادهای کشوی برنامه‌ها را بدون تغییر چیدمان یا تصویر زمینه جایگزین می‌کند. ادامه می‌دهید؟</string>
+    <string name="backup_restore_confirmation_suggestions_and_wallpaper_message">این کار تنظیمات پیشنهادهای کشوی برنامه‌ها و تصویر زمینه فعلی را بدون تغییر چیدمان جایگزین می‌کند. ادامه می‌دهید؟</string>
+    <string name="backup_restore_metadata">ایجادشده: %1$s · نسخه Lawnchair: %2$d</string>
+    <string name="backup_restore_cancel">لغو</string>
 </resources>
