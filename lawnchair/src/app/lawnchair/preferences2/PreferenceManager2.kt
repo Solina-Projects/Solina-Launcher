@@ -454,6 +454,30 @@ class PreferenceManager2 @Inject constructor(
         onSet = { reloadHelper.reloadGrid() },
     )
 
+    val suggestionLabelsVisible = preference(
+        key = booleanPreferencesKey(name = "suggestion_labels_visible"),
+        defaultValue = true,
+        onSet = { reloadHelper.reloadGrid() },
+    )
+
+    val suggestionBackgroundAlpha = preference(
+        key = floatPreferencesKey(name = "suggestion_background_alpha"),
+        defaultValue = 0.20f,
+        onSet = { reloadHelper.recreate() },
+    )
+
+    val suggestionPadding = preference(
+        key = floatPreferencesKey(name = "suggestion_padding"),
+        defaultValue = 8f,
+        onSet = { reloadHelper.recreate() },
+    )
+
+    val suggestionMargin = preference(
+        key = floatPreferencesKey(name = "suggestion_margin"),
+        defaultValue = 4f,
+        onSet = { reloadHelper.recreate() },
+    )
+
     val suggestionBackgroundEnabled = preference(
         key = booleanPreferencesKey(name = "suggestion_background_enabled"),
         defaultValue = true,
