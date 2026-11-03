@@ -51,4 +51,23 @@
     <string name="smart_category_productivity">کار و بهره‌وری</string>
     <string name="smart_category_shopping">خرید و امور مالی</string>
     <string name="smart_category_tools">ابزارها</string>
+
+    <!-- تنظیمات ردیف پیشنهاد برنامه‌ها -->
+    <string name="suggestion_strip_heading">ردیف پیشنهاد برنامه‌ها</string>
+    <string name="suggestion_strip_enabled">نمایش پیشنهاد برنامه‌ها</string>
+    <string name="suggestion_strip_position">جایگاه</string>
+    <string name="suggestion_strip_top">بالا</string>
+    <string name="suggestion_strip_bottom">پایین</string>
+    <string name="suggestion_strip_rows">تعداد ردیف پیشنهادها</string>
+    <string name="suggestion_strip_source">منبع پیشنهادها</string>
+    <string name="suggestion_strip_source_usage">برنامه‌های پراستفاده</string>
+    <string name="suggestion_strip_source_dock">برنامه‌های داک</string>
+    <string name="suggestion_strip_icon_size">اندازه آیکن پیشنهادها</string>
+    <string name="suggestion_strip_label_size">اندازه نوشته پیشنهادها</string>
+    <string name="suggestion_strip_show_labels">نمایش نام برنامه‌ها</string>
+    <string name="suggestion_strip_background">پس‌زمینه پیشنهادها</string>
+    <string name="suggestion_strip_background_opacity">شفافیت پس‌زمینه</string>
+    <string name="suggestion_strip_corner_radius">گردی گوشه‌های پیشنهادها</string>
+    <string name="suggestion_strip_inner_spacing">فاصله داخلی پیشنهادها</string>
+    <string name="suggestion_strip_outer_spacing">فاصله بیرونی پیشنهادها</string>
 </resources>

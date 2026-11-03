@@ -1144,4 +1144,23 @@
     <string name="smart_category_productivity">Productivity</string>
     <string name="smart_category_shopping">Shopping and finance</string>
     <string name="smart_category_tools">Tools</string>
+
+    <!-- App drawer suggestion strip settings -->
+    <string name="suggestion_strip_heading">App suggestion strip</string>
+    <string name="suggestion_strip_enabled">Show app suggestions</string>
+    <string name="suggestion_strip_position">Position</string>
+    <string name="suggestion_strip_top">Top</string>
+    <string name="suggestion_strip_bottom">Bottom</string>
+    <string name="suggestion_strip_rows">Suggestion rows</string>
+    <string name="suggestion_strip_source">Suggestion source</string>
+    <string name="suggestion_strip_source_usage">Most used apps</string>
+    <string name="suggestion_strip_source_dock">Dock apps</string>
+    <string name="suggestion_strip_icon_size">Suggestion icon size</string>
+    <string name="suggestion_strip_label_size">Suggestion label size</string>
+    <string name="suggestion_strip_show_labels">Show app names</string>
+    <string name="suggestion_strip_background">Suggestion background</string>
+    <string name="suggestion_strip_background_opacity">Background opacity</string>
+    <string name="suggestion_strip_corner_radius">Suggestion corner radius</string>
+    <string name="suggestion_strip_inner_spacing">Suggestion inner spacing</string>
+    <string name="suggestion_strip_outer_spacing">Suggestion outer spacing</string>
 </resources>

@@ -147,69 +147,69 @@ private fun SuggestionStripSettings(prefs2: PreferenceManager2) {
     val margin = prefs2.suggestionMargin.getAdapter()
     val radius = prefs2.suggestionCornerRadius.getAdapter()
 
-    PreferenceGroup(heading = "App suggestion strip") {
+    PreferenceGroup(heading = stringResource(R.string.suggestion_strip_heading)) {
         SwitchPreference(
             adapter = enabled,
-            label = "Show app suggestions",
+            label = stringResource(R.string.suggestion_strip_enabled),
         )
         ExpandAndShrink(visible = enabled.state.value) {
             ListPreference(
                 adapter = position,
-                label = "Position",
+                label = stringResource(R.string.suggestion_strip_position),
                 entries = listOf(
-                    ListPreferenceEntry(value = "top", label = { "Top" }),
-                    ListPreferenceEntry(value = "bottom", label = { "Bottom" }),
+                    ListPreferenceEntry(value = "top", label = { stringResource(R.string.suggestion_strip_top) }),
+                    ListPreferenceEntry(value = "bottom", label = { stringResource(R.string.suggestion_strip_bottom) }),
                 ),
             )
             SliderPreference(
                 adapter = rows,
-                label = "Suggestion rows",
+                label = stringResource(R.string.suggestion_strip_rows),
                 valueRange = 1..3,
                 step = 1,
             )
             ListPreference(
                 adapter = source,
-                label = "Suggestion source",
+                label = stringResource(R.string.suggestion_strip_source),
                 entries = listOf(
-                    ListPreferenceEntry(value = "usage", label = { "Most used apps" }),
-                    ListPreferenceEntry(value = "dock", label = { "Dock apps" }),
+                    ListPreferenceEntry(value = "usage", label = { stringResource(R.string.suggestion_strip_source_usage) }),
+                    ListPreferenceEntry(value = "dock", label = { stringResource(R.string.suggestion_strip_source_dock) }),
                 ),
             )
             SliderPreference(
                 adapter = iconScale,
-                label = "Suggestion icon size",
+                label = stringResource(R.string.suggestion_strip_icon_size),
                 valueRange = 0.5f..1.5f,
                 step = 0.1f,
                 showAsPercentage = true,
             )
             SliderPreference(
                 adapter = labelScale,
-                label = "Suggestion label size",
+                label = stringResource(R.string.suggestion_strip_label_size),
                 valueRange = 0.5f..1.5f,
                 step = 0.1f,
                 showAsPercentage = true,
             )
             SwitchPreference(
                 adapter = labelsVisible,
-                label = "Show app names",
+                label = stringResource(R.string.suggestion_strip_show_labels),
             )
             ColorPreference(preference = prefs2.suggestionLabelColor)
             SwitchPreference(
                 adapter = background,
-                label = "Suggestion background",
+                label = stringResource(R.string.suggestion_strip_background),
             )
             ExpandAndShrink(visible = background.state.value) {
                 ColorPreference(preference = prefs2.suggestionBackgroundColor)
                 SliderPreference(
                     adapter = backgroundAlpha,
-                    label = "Background opacity",
+                    label = stringResource(R.string.suggestion_strip_background_opacity),
                     valueRange = 0f..1f,
                     step = 0.05f,
                     showAsPercentage = true,
                 )
                 SliderPreference(
                     adapter = radius,
-                    label = "Suggestion corner radius",
+                    label = stringResource(R.string.suggestion_strip_corner_radius),
                     valueRange = 0f..32f,
                     step = 1f,
                     showUnit = "dp",
@@ -217,14 +217,14 @@ private fun SuggestionStripSettings(prefs2: PreferenceManager2) {
             }
             SliderPreference(
                 adapter = padding,
-                label = "Suggestion inner spacing",
+                label = stringResource(R.string.suggestion_strip_inner_spacing),
                 valueRange = 0f..24f,
                 step = 1f,
                 showUnit = "dp",
             )
             SliderPreference(
                 adapter = margin,
-                label = "Suggestion outer spacing",
+                label = stringResource(R.string.suggestion_strip_outer_spacing),
                 valueRange = 0f..24f,
                 step = 1f,
                 showUnit = "dp",
