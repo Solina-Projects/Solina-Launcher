@@ -802,4 +802,9 @@
     <string name="backup_restore_confirmation_suggestions_and_wallpaper_message">این کار تنظیمات پیشنهادهای کشوی برنامه‌ها و تصویر زمینه فعلی را بدون تغییر چیدمان جایگزین می‌کند. ادامه می‌دهید؟</string>
     <string name="backup_restore_metadata">ایجادشده: %1$s · نسخه Lawnchair: %2$d</string>
     <string name="backup_restore_cancel">لغو</string>
+    <string name="accessibility_service_description">برای اجرای برخی عملکردها هنگام استفاده از ژست‌ها، مانند قفل‌کردن تلفن، لانچر سولینا به دسترسی‌پذیری نیاز دارد.
+
+لانچر سولینا فعالیت‌های شما را زیر نظر نمی‌گیرد؛ بااین‌حال همه سرویس‌های دسترس‌پذیری به این مجوز نیاز دارند. لانچر سولینا تمام رویدادهای ارسالی سیستم را نادیده می‌گیرد.
+
+برای قفل‌کردن تلفن یا بازکردن صفحه برنامه‌های اخیر، لانچر سولینا از سرویس دسترس‌پذیری performGlobalAction استفاده می‌کند.</string>
 </resources>
