@@ -41,6 +41,12 @@ public final class AppDrawerSuggestionRow implements AllAppsRow {
     private final List<ItemInfo> mPendingItems = new ArrayList<>();
     private boolean mHasPendingUpdate;
 
+    /** Returns the suggestion view once the header has set it up, otherwise null. */
+    @androidx.annotation.Nullable
+    public PredictionRowView<Launcher> getView() {
+        return mView;
+    }
+
     @Override
     public View setup(ViewGroup parent) {
         if (mView == null) {

@@ -139,6 +139,7 @@ private fun AppPredictionsFeature(
 private fun SuggestionStripSettings(prefs2: PreferenceManager2) {
     val enabled = prefs2.showSuggestedAppsInDrawer.getAdapter()
     val rows = prefs2.suggestionRows.getAdapter()
+    val rowHeight = prefs2.suggestionRowHeightFactor.getAdapter()
     val position = prefs2.suggestionPosition.getAdapter()
     val source = prefs2.suggestionSource.getAdapter()
     val iconScale = prefs2.suggestionIconScale.getAdapter()
@@ -170,6 +171,13 @@ private fun SuggestionStripSettings(prefs2: PreferenceManager2) {
                     label = stringResource(R.string.suggestion_strip_rows),
                     valueRange = 1..3,
                     step = 1,
+                )
+                SliderPreference(
+                    adapter = rowHeight,
+                    label = stringResource(R.string.suggestion_strip_row_height),
+                    valueRange = 0.3f..1.5f,
+                    step = 0.1f,
+                    showAsPercentage = true,
                 )
                 ListPreference(
                     adapter = source,

@@ -862,6 +862,10 @@ class LawnchairBackup(
                     "suggestion_margin",
                     preferences[floatPreferencesKey("suggestion_margin")] ?: 4f,
                 )
+                put(
+                    "suggestion_row_height_factor",
+                    preferences[floatPreferencesKey("suggestion_row_height_factor")] ?: 1f,
+                )
             }
             return json.toString().toByteArray(Charsets.UTF_8)
         }
@@ -898,6 +902,10 @@ class LawnchairBackup(
             require(json.getDouble("suggestion_margin") in 0.0..24.0) {
                 "Invalid suggestion margin"
             }
+            // Optional so backups created before this setting existed remain restorable.
+            require(json.optDouble("suggestion_row_height_factor", 1.0) in 0.3..1.5) {
+                "Invalid suggestion row height"
+            }
         }
 
         private suspend fun restoreSuggestionSettings(context: Context, payload: ByteArray) {
@@ -928,6 +936,8 @@ class LawnchairBackup(
                     json.getDouble("suggestion_padding").toFloat()
                 preferences[floatPreferencesKey("suggestion_margin")] =
                     json.getDouble("suggestion_margin").toFloat()
+                preferences[floatPreferencesKey("suggestion_row_height_factor")] =
+                    json.optDouble("suggestion_row_height_factor", 1.0).toFloat()
 
                 val labelColorKey = stringPreferencesKey("suggestion_label_color")
                 if (json.isNull("suggestion_label_color")) {

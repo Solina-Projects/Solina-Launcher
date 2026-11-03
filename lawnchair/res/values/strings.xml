@@ -1152,6 +1152,7 @@
     <string name="suggestion_strip_top">Top</string>
     <string name="suggestion_strip_bottom">Bottom</string>
     <string name="suggestion_strip_rows">Suggestion rows</string>
+    <string name="suggestion_strip_row_height">Suggestion row height</string>
     <string name="suggestion_strip_source">Suggestion source</string>
     <string name="suggestion_strip_source_usage">Most used apps</string>
     <string name="suggestion_strip_source_dock">Dock apps</string>

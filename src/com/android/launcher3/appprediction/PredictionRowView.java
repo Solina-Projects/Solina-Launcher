@@ -40,7 +40,6 @@ import app.lawnchair.theme.color.tokens.ColorTokens;
 import com.android.launcher3.BubbleTextView;
 import com.android.launcher3.DeviceProfile;
 import com.android.launcher3.DeviceProfile.OnDeviceProfileChangeListener;
-import com.android.launcher3.Flags;
 import com.android.launcher3.R;
 import com.android.launcher3.Utilities;
 import com.android.launcher3.allapps.FloatingHeaderRow;
@@ -85,6 +84,23 @@ public class PredictionRowView<T extends Context & ActivityContext>
 
     private final PreferenceManager2 prefs2 = PreferenceManager2.getInstance(getContext());
     private Runnable mStandaloneHeightChangeListener;
+    // True for the legacy row inflated from floating_header_content.xml when the drawer hosts
+    // its own independent suggestion component; such a row must stay empty and take no space.
+    private boolean mHeaderRowDisabled = false;
+
+    /** Permanently hides this row so it never duplicates the independent suggestion strip. */
+    public void setHeaderRowDisabled(boolean disabled) {
+        mHeaderRowDisabled = disabled;
+        if (disabled) {
+            removeAllViews();
+            mPredictionRows.clear();
+            mPredictionIcons.clear();
+            mPredictedApps.clear();
+            mPredictionsEnabled = false;
+        }
+        updateVisibility();
+        notifyExpectedHeightChanged();
+    }
 
     /** Receives size changes when this row is hosted outside the floating header. */
     public void setStandaloneHeightChangeListener(@Nullable Runnable listener) {
@@ -175,7 +191,7 @@ public class PredictionRowView<T extends Context & ActivityContext>
     }
 
     private void updateVisibility() {
-        boolean enabled = mPredictionsEnabled && PreferenceCacheExtensionsKt.firstCached(prefs2.getShowSuggestedAppsInDrawer());
+        boolean enabled = !mHeaderRowDisabled && mPredictionsEnabled && PreferenceCacheExtensionsKt.firstCached(prefs2.getShowSuggestedAppsInDrawer());
         setVisibility(enabled ? VISIBLE : GONE);
         if (mActivityContext.getAppsView() != null) {
             if (enabled) {
@@ -198,8 +214,8 @@ public class PredictionRowView<T extends Context & ActivityContext>
         super.dispatchDraw(canvas);
     }
 
-    @Override
-    public int getExpectedHeight() {
+    /** Height of one suggestion row, scaled by the independent row-height setting. */
+    private int getSingleRowHeight() {
         DeviceProfile deviceProfile = mActivityContext.getDeviceProfile();
         int iconHeight = deviceProfile.getAllAppsProfile().getIconSizePx();
         int iconPadding = deviceProfile.getAllAppsProfile().getIconDrawablePaddingPx();
@@ -214,9 +230,16 @@ public class PredictionRowView<T extends Context & ActivityContext>
         int extraHeight = deviceProfile.inv.enableTwoLinesInAllApps
                 ? (textHeight + mTopRowExtraHeight) : mTopRowExtraHeight;
         totalHeight += extraHeight;
+        float heightFactor = PreferenceCacheExtensionsKt.firstCached(
+                prefs2.getSuggestionRowHeightFactor());
+        return Math.max(1, Math.round(totalHeight * heightFactor));
+    }
+
+    @Override
+    public int getExpectedHeight() {
         int rows = mPredictionRows.size();
-        return getVisibility() == GONE || rows == 0 ? 0
-                : totalHeight * rows + getPaddingTop() + getPaddingBottom();
+        return mHeaderRowDisabled || getVisibility() == GONE || rows == 0 ? 0
+                : getSingleRowHeight() * rows + getPaddingTop() + getPaddingBottom();
     }
 
     @Override
@@ -251,6 +274,9 @@ public class PredictionRowView<T extends Context & ActivityContext>
      * we can optimize by swapping them in place.
      */
     public void setPredictedApps(List<ItemInfo> items) {
+        if (mHeaderRowDisabled) {
+            return;
+        }
         applyPredictedApps(items);
     }
 
@@ -280,7 +306,7 @@ public class PredictionRowView<T extends Context & ActivityContext>
     }
 
     private void applyPredictionApps() {
-        if (mPredictionUiUpdatePaused) {
+        if (mPredictionUiUpdatePaused || mHeaderRowDisabled) {
             return;
         }
         int configuredRows = Math.max(1, Math.min(3,
@@ -308,7 +334,7 @@ public class PredictionRowView<T extends Context & ActivityContext>
                 LinearLayout row = new LinearLayout(getContext());
                 row.setOrientation(LinearLayout.HORIZONTAL);
                 addView(row, new LinearLayout.LayoutParams(
-                        ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+                        ViewGroup.LayoutParams.MATCH_PARENT, getSingleRowHeight()));
                 mPredictionRows.add(row);
                 for (int column = 0; column < columns; column++) {
                     BubbleTextView icon = (BubbleTextView) inflater.inflate(
@@ -330,12 +356,8 @@ public class PredictionRowView<T extends Context & ActivityContext>
                                 .getLightColor().invoke(getContext()));
                     }
                     LayoutParams lp = (LayoutParams) icon.getLayoutParams();
-                    if (Flags.enableFocusOutline()) {
-                        lp.height = ViewGroup.LayoutParams.MATCH_PARENT;
-                    } else {
-                        lp.height = mActivityContext.getDeviceProfile()
-                                .getAllAppsProfile().getCellHeightPx();
-                    }
+                    // The row owns the height (scaled by the row-height setting).
+                    lp.height = ViewGroup.LayoutParams.MATCH_PARENT;
                     lp.width = 0;
                     lp.weight = 1;
                     row.addView(icon, lp);
@@ -344,6 +366,14 @@ public class PredictionRowView<T extends Context & ActivityContext>
             }
         }
 
+        int rowHeight = getSingleRowHeight();
+        for (LinearLayout row : mPredictionRows) {
+            ViewGroup.LayoutParams rowParams = row.getLayoutParams();
+            if (rowParams != null && rowParams.height != rowHeight) {
+                rowParams.height = rowHeight;
+                row.setLayoutParams(rowParams);
+            }
+        }
         for (int rowIndex = 0; rowIndex < rows; rowIndex++) {
             for (int column = 0; column < columns; column++) {
                 int iconIndex = rowIndex * columns + column;

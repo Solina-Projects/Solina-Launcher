@@ -59,6 +59,7 @@
     <string name="suggestion_strip_top">بالا</string>
     <string name="suggestion_strip_bottom">پایین</string>
     <string name="suggestion_strip_rows">تعداد ردیف پیشنهادها</string>
+    <string name="suggestion_strip_row_height">ارتفاع ردیف‌های پیشنهاد</string>
     <string name="suggestion_strip_source">منبع پیشنهادها</string>
     <string name="suggestion_strip_source_usage">برنامه‌های پراستفاده</string>
     <string name="suggestion_strip_source_dock">برنامه‌های داک</string>

@@ -80,6 +80,14 @@ public class LauncherAllAppsContainerView extends ActivityAllAppsContainerView<L
     @Override
     protected void onFinishInflate() {
         super.onFinishInflate();
+        // floating_header_content.xml still inflates a legacy prediction row. The independent
+        // suggestion component below replaces it, so keep the legacy row empty to avoid a
+        // second, duplicated strip.
+        PredictionRowView<?> legacyRow = getFloatingHeaderView()
+                .findFixedRowByType(PredictionRowView.class);
+        if (legacyRow != null) {
+            legacyRow.setHeaderRowDisabled(true);
+        }
         if (!isSuggestionPositionBottom()) {
             return;
         }
@@ -96,6 +104,12 @@ public class LauncherAllAppsContainerView extends ActivityAllAppsContainerView<L
         mSuggestionFooterView.setStandaloneHeightChangeListener(this::updateSuggestionFooterHeight);
         mSuggestionFooterView.setPredictedApps(mLatestSuggestedApps);
         updateSuggestionFooterHeight();
+    }
+
+    /** Returns the independent suggestion view for the active position, or null if not ready. */
+    @androidx.annotation.Nullable
+    public PredictionRowView<Launcher> getSuggestionView() {
+        return isSuggestionPositionBottom() ? mSuggestionFooterView : getSuggestionRow().getView();
     }
 
     /** Updates the independent suggestion component with the latest model prediction items. */

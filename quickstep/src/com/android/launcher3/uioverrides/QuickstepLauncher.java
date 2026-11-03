@@ -128,6 +128,7 @@ import com.android.launcher3.Utilities;
 import com.android.launcher3.Workspace;
 import com.android.launcher3.accessibility.LauncherAccessibilityDelegate;
 import com.android.launcher3.allapps.AllAppsRecyclerView;
+import com.android.launcher3.allapps.LauncherAllAppsContainerView;
 import com.android.launcher3.anim.AnimatorPlaybackController;
 import com.android.launcher3.anim.PendingAnimation;
 import com.android.launcher3.apppairs.AppPairIcon;
@@ -458,9 +459,14 @@ public class QuickstepLauncher extends Launcher implements RecentsViewContainer,
     // LC-Note: Lawnchair Prediction
     @Nullable
     private PredictionRowView<?> getPredictionRowView() {
-        return getAppsView() == null
-                ? null
-                : getAppsView().getFloatingHeaderView().findFixedRowByType(PredictionRowView.class);
+        if (getAppsView() == null) {
+            return null;
+        }
+        if (getAppsView() instanceof LauncherAllAppsContainerView) {
+            // The drawer hosts its own independent suggestion component.
+            return ((LauncherAllAppsContainerView) getAppsView()).getSuggestionView();
+        }
+        return getAppsView().getFloatingHeaderView().findFixedRowByType(PredictionRowView.class);
     }
 
     // LC-Note: Lawnchair Prediction

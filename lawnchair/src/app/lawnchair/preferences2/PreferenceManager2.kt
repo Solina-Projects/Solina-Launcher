@@ -422,6 +422,12 @@ class PreferenceManager2 @Inject constructor(
         onSet = { reloadHelper.recreate() },
     )
 
+    val suggestionRowHeightFactor = preference(
+        key = floatPreferencesKey(name = "suggestion_row_height_factor"),
+        defaultValue = 1f,
+        onSet = { reloadHelper.recreate() },
+    )
+
     val suggestionPosition = preference(
         key = stringPreferencesKey(name = "suggestion_position"),
         defaultValue = "top",
