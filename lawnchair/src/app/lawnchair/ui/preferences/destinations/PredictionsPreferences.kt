@@ -205,6 +205,13 @@ private fun SuggestionStripSettings(prefs2: PreferenceManager2) {
                     adapter = labelsVisible,
                     label = stringResource(R.string.suggestion_strip_show_labels),
                 )
+                SliderPreference(
+                    adapter = prefs2.suggestionLabelVerticalOffset.getAdapter(),
+                    label = stringResource(R.string.suggestion_strip_label_vertical_offset),
+                    valueRange = -16f..16f,
+                    step = 1f,
+                    showUnit = "dp",
+                )
                 ColorPreference(preference = prefs2.suggestionLabelColor)
                 SwitchPreference(
                     adapter = background,

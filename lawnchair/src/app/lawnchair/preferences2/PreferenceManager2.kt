@@ -428,6 +428,12 @@ class PreferenceManager2 @Inject constructor(
         onSet = { reloadHelper.recreate() },
     )
 
+    val suggestionLabelVerticalOffset = preference(
+        key = floatPreferencesKey(name = "suggestion_label_vertical_offset"),
+        defaultValue = 0f,
+        onSet = { reloadHelper.recreate() },
+    )
+
     val suggestionPosition = preference(
         key = stringPreferencesKey(name = "suggestion_position"),
         defaultValue = "top",

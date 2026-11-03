@@ -866,6 +866,10 @@ class LawnchairBackup(
                     "suggestion_row_height_factor",
                     preferences[floatPreferencesKey("suggestion_row_height_factor")] ?: 1f,
                 )
+                put(
+                    "suggestion_label_vertical_offset",
+                    preferences[floatPreferencesKey("suggestion_label_vertical_offset")] ?: 0f,
+                )
             }
             return json.toString().toByteArray(Charsets.UTF_8)
         }
@@ -906,6 +910,9 @@ class LawnchairBackup(
             require(json.optDouble("suggestion_row_height_factor", 1.0) in 0.3..1.5) {
                 "Invalid suggestion row height"
             }
+            require(json.optDouble("suggestion_label_vertical_offset", 0.0) in -16.0..16.0) {
+                "Invalid suggestion label offset"
+            }
         }
 
         private suspend fun restoreSuggestionSettings(context: Context, payload: ByteArray) {
@@ -938,6 +945,8 @@ class LawnchairBackup(
                     json.getDouble("suggestion_margin").toFloat()
                 preferences[floatPreferencesKey("suggestion_row_height_factor")] =
                     json.optDouble("suggestion_row_height_factor", 1.0).toFloat()
+                preferences[floatPreferencesKey("suggestion_label_vertical_offset")] =
+                    json.optDouble("suggestion_label_vertical_offset", 0.0).toFloat()
 
                 val labelColorKey = stringPreferencesKey("suggestion_label_color")
                 if (json.isNull("suggestion_label_color")) {

@@ -21,7 +21,14 @@ import static android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.Path;
+import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
+import android.graphics.drawable.LayerDrawable;
+import android.view.Gravity;
+import android.util.TypedValue;
+import android.widget.TextView;
 import android.os.Build;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
@@ -32,6 +39,7 @@ import android.widget.LinearLayout;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.graphics.ColorUtils;
 
 import app.lawnchair.preferences2.PreferenceCacheExtensionsKt;
 import app.lawnchair.preferences2.PreferenceManager2;
@@ -87,12 +95,18 @@ public class PredictionRowView<T extends Context & ActivityContext>
     // True for the legacy row inflated from floating_header_content.xml when the drawer hosts
     // its own independent suggestion component; such a row must stay empty and take no space.
     private boolean mHeaderRowDisabled = false;
+    // The raised card holding the suggestion rows, and the marker that separates it from the
+    // regular app list (below the card at the top position, above the card at the bottom).
+    private final LinearLayout mCard;
+    private final SuggestionEndMarker mMarker;
+    private final int mMarkerHeight;
 
     /** Permanently hides this row so it never duplicates the independent suggestion strip. */
     public void setHeaderRowDisabled(boolean disabled) {
         mHeaderRowDisabled = disabled;
         if (disabled) {
-            removeAllViews();
+            mMarker.setVisibility(GONE);
+            mCard.removeAllViews();
             mPredictionRows.clear();
             mPredictionIcons.clear();
             mPredictedApps.clear();
@@ -133,6 +147,25 @@ public class PredictionRowView<T extends Context & ActivityContext>
                 R.dimen.all_apps_search_top_row_extra_height);
         mVerticalPadding = getResources().getDimensionPixelSize(
                 R.dimen.all_apps_predicted_icon_vertical_padding);
+        float density = getResources().getDisplayMetrics().density;
+        mMarkerHeight = Math.round(28 * density);
+        boolean atBottom = "bottom".equals(
+                PreferenceCacheExtensionsKt.firstCached(prefs2.getSuggestionPosition()));
+        mCard = new LinearLayout(context);
+        mCard.setOrientation(LinearLayout.VERTICAL);
+        mMarker = new SuggestionEndMarker(context, atBottom);
+        mMarker.setVisibility(GONE);
+        LinearLayout.LayoutParams cardParams = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        LinearLayout.LayoutParams markerParams = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, mMarkerHeight);
+        if (atBottom) {
+            addView(mMarker, markerParams);
+            addView(mCard, cardParams);
+        } else {
+            addView(mCard, cardParams);
+            addView(mMarker, markerParams);
+        }
         updateVisibility();
     }
 
@@ -140,29 +173,60 @@ public class PredictionRowView<T extends Context & ActivityContext>
         float density = getResources().getDisplayMetrics().density;
         int padding = Math.round(PreferenceCacheExtensionsKt.firstCached(
                 prefs2.getSuggestionPadding()) * density);
-        setPadding(padding, padding, padding, padding);
         if (!PreferenceCacheExtensionsKt.firstCached(prefs2.getSuggestionBackgroundEnabled())) {
-            setBackground(null);
+            mCard.setPadding(padding, padding, padding, padding);
+            mCard.setBackground(null);
             return;
         }
         ColorOption backgroundOption = PreferenceCacheExtensionsKt.firstCached(
                 prefs2.getSuggestionBackgroundColor());
-        int color = Color.TRANSPARENT;
+        int color;
         if (backgroundOption != null && backgroundOption.isSupported()) {
             color = backgroundOption.getColorPreferenceEntry()
                     .getLightColor().invoke(getContext());
         } else {
-            color = ColorTokens.AllAppsScrimColor.resolveColor(getContext());
+            // Default: an accent tint so the strip stands apart from the rest of the drawer.
+            color = ColorTokens.SearchResultSmallIcon.resolveColor(getContext());
         }
         float alpha = Math.max(0f, Math.min(1f, PreferenceCacheExtensionsKt.firstCached(
                 prefs2.getSuggestionBackgroundAlpha())));
-        color = Color.argb(Math.round(Color.alpha(color) * alpha),
-                Color.red(color), Color.green(color), Color.blue(color));
-        GradientDrawable drawable = new GradientDrawable();
-        drawable.setColor(color);
-        drawable.setCornerRadius(PreferenceCacheExtensionsKt.firstCached(
-                prefs2.getSuggestionCornerRadius()) * density);
-        setBackground(drawable);
+        int baseAlpha = Math.round(Color.alpha(color) * alpha);
+        float radius = PreferenceCacheExtensionsKt.firstCached(
+                prefs2.getSuggestionCornerRadius()) * density;
+        int thickness = Math.round(4 * density);
+        // The raised edge sits under the face, so reserve its height at the bottom.
+        mCard.setPadding(padding, padding, padding, padding + thickness);
+        mCard.setBackground(build3dBackground(color, baseAlpha, radius, thickness, density));
+    }
+
+    private static int withAlpha(int rgb, int alpha) {
+        return Color.argb(alpha, Color.red(rgb), Color.green(rgb), Color.blue(rgb));
+    }
+
+    /**
+     * A raised, three-dimensional card: a lit gradient face, a bright rim and a darker
+     * bottom edge that gives the strip visible thickness.
+     */
+    private static Drawable build3dBackground(int color, int alpha, float radius,
+            int thickness, float density) {
+        int opaque = withAlpha(color, 255);
+        int faceTop = withAlpha(ColorUtils.blendARGB(opaque, Color.WHITE, 0.25f), alpha);
+        int faceBottom = withAlpha(ColorUtils.blendARGB(opaque, Color.BLACK, 0.08f), alpha);
+        int edge = withAlpha(ColorUtils.blendARGB(opaque, Color.BLACK, 0.38f), alpha);
+        int rim = withAlpha(Color.WHITE, Math.round(alpha * 0.55f));
+
+        GradientDrawable edgeLayer = new GradientDrawable();
+        edgeLayer.setColor(edge);
+        edgeLayer.setCornerRadius(radius);
+
+        GradientDrawable face = new GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM,
+                new int[]{faceTop, faceBottom});
+        face.setCornerRadius(radius);
+        face.setStroke(Math.max(1, Math.round(density)), rim);
+
+        LayerDrawable layers = new LayerDrawable(new Drawable[]{edgeLayer, face});
+        layers.setLayerInset(1, 0, 0, 0, thickness);
+        return layers;
     }
 
     @Override
@@ -223,8 +287,15 @@ public class PredictionRowView<T extends Context & ActivityContext>
     /** Height of one suggestion row, scaled by the independent row-height setting. */
     private int getSingleRowHeight() {
         DeviceProfile deviceProfile = mActivityContext.getDeviceProfile();
-        int iconHeight = deviceProfile.getAllAppsProfile().getIconSizePx();
-        int iconPadding = deviceProfile.getAllAppsProfile().getIconDrawablePaddingPx();
+        // Scale the icon with its own setting so larger icons are never clipped by the row.
+        float iconScale = PreferenceCacheExtensionsKt.firstCached(
+                prefs2.getSuggestionIconScale());
+        int iconHeight = Math.round(
+                deviceProfile.getAllAppsProfile().getIconSizePx() * iconScale);
+        float labelOffsetDp = PreferenceCacheExtensionsKt.firstCached(
+                prefs2.getSuggestionLabelVerticalOffset());
+        int iconPadding = Math.max(0, deviceProfile.getAllAppsProfile().getIconDrawablePaddingPx()
+                + Math.round(labelOffsetDp * getResources().getDisplayMetrics().density));
         boolean labelsVisible = PreferenceCacheExtensionsKt.firstCached(
                 prefs2.getSuggestionLabelsVisible());
         float labelScale = PreferenceCacheExtensionsKt.firstCached(
@@ -245,7 +316,8 @@ public class PredictionRowView<T extends Context & ActivityContext>
     public int getExpectedHeight() {
         int rows = mPredictionRows.size();
         return mHeaderRowDisabled || getVisibility() == GONE || rows == 0 ? 0
-                : getSingleRowHeight() * rows + getPaddingTop() + getPaddingBottom();
+                : getSingleRowHeight() * rows + mCard.getPaddingTop() + mCard.getPaddingBottom()
+                        + mMarkerHeight;
     }
 
     @Override
@@ -297,7 +369,7 @@ public class PredictionRowView<T extends Context & ActivityContext>
     @Override
     public void onDeviceProfileChanged(DeviceProfile dp) {
         mNumPredictedAppsPerRow = dp.numShownAllAppsColumns;
-        removeAllViews();
+        mCard.removeAllViews();
         mPredictionRows.clear();
         mPredictionIcons.clear();
         applyPredictionApps();
@@ -321,7 +393,8 @@ public class PredictionRowView<T extends Context & ActivityContext>
         int predictionCount = mPredictedApps.size();
         int rows = Math.min(configuredRows, (predictionCount + columns - 1) / columns);
         if (rows == 0) {
-            removeAllViews();
+            mMarker.setVisibility(GONE);
+            mCard.removeAllViews();
             mPredictionRows.clear();
             mPredictionIcons.clear();
             if (mPredictionsEnabled) {
@@ -332,14 +405,14 @@ public class PredictionRowView<T extends Context & ActivityContext>
             return;
         }
         if (mPredictionRows.size() != rows || mPredictionIcons.size() != rows * columns) {
-            removeAllViews();
+            mCard.removeAllViews();
             mPredictionRows.clear();
             mPredictionIcons.clear();
             LayoutInflater inflater = mActivityContext.getAppsView().getLayoutInflater();
             for (int rowIndex = 0; rowIndex < rows; rowIndex++) {
                 LinearLayout row = new LinearLayout(getContext());
                 row.setOrientation(LinearLayout.HORIZONTAL);
-                addView(row, new LinearLayout.LayoutParams(
+                mCard.addView(row, new LinearLayout.LayoutParams(
                         ViewGroup.LayoutParams.MATCH_PARENT, getSingleRowHeight()));
                 mPredictionRows.add(row);
                 for (int column = 0; column < columns; column++) {
@@ -355,6 +428,8 @@ public class PredictionRowView<T extends Context & ActivityContext>
                             prefs2.getSuggestionLabelScale()));
                     icon.setTextVisibility(PreferenceCacheExtensionsKt.firstCached(
                             prefs2.getSuggestionLabelsVisible()));
+                    icon.setLabelVerticalOffsetDp(PreferenceCacheExtensionsKt.firstCached(
+                            prefs2.getSuggestionLabelVerticalOffset()));
                     ColorOption labelColor = PreferenceCacheExtensionsKt.firstCached(
                             prefs2.getSuggestionLabelColor());
                     if (labelColor != null && labelColor.isSupported()) {
@@ -400,6 +475,7 @@ public class PredictionRowView<T extends Context & ActivityContext>
             }
         }
 
+        mMarker.setVisibility(VISIBLE);
         boolean predictionsEnabled = predictionCount > 0;
         if (predictionsEnabled != mPredictionsEnabled) {
             mPredictionsEnabled = predictionsEnabled;
@@ -444,6 +520,83 @@ public class PredictionRowView<T extends Context & ActivityContext>
         writer.println(prefix + "\tmPredictedApps: " + mPredictedApps.size());
         for (WorkspaceItemInfo info : mPredictedApps) {
             writer.println(prefix + "\t\t" + info);
+        }
+    }
+
+    /** Marks the end of the suggestions and the start of the full app list. */
+    private static final class SuggestionEndMarker extends LinearLayout {
+
+        SuggestionEndMarker(Context context, boolean pointsUp) {
+            super(context);
+            setOrientation(HORIZONTAL);
+            setGravity(Gravity.CENTER_VERTICAL);
+            setImportantForAccessibility(IMPORTANT_FOR_ACCESSIBILITY_NO);
+            float density = context.getResources().getDisplayMetrics().density;
+            int gap = Math.round(8 * density);
+            int lineColor = context.getColor(R.color.materialColorOutlineVariant);
+            int textColor = context.getColor(R.color.materialColorOnSurface);
+
+            addView(newLine(context, lineColor, density));
+            TextView label = new TextView(context);
+            label.setText(R.string.all_apps_label);
+            label.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12);
+            label.setTextColor(textColor);
+            label.setAlpha(0.75f);
+            label.setSingleLine(true);
+            LinearLayout.LayoutParams labelParams = new LinearLayout.LayoutParams(
+                    ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            labelParams.setMarginStart(gap);
+            labelParams.setMarginEnd(Math.round(4 * density));
+            addView(label, labelParams);
+            LinearLayout.LayoutParams chevronParams = new LinearLayout.LayoutParams(
+                    Math.round(12 * density), Math.round(8 * density));
+            chevronParams.setMarginEnd(gap);
+            addView(new Chevron(context, textColor, pointsUp, density), chevronParams);
+            addView(newLine(context, lineColor, density));
+        }
+
+        private static View newLine(Context context, int color, float density) {
+            View line = new View(context);
+            line.setBackgroundColor(color);
+            line.setLayoutParams(new LinearLayout.LayoutParams(
+                    0, Math.max(1, Math.round(density)), 1f));
+            return line;
+        }
+    }
+
+    /** A small chevron pointing toward the app list. */
+    private static final class Chevron extends View {
+        private final Paint mPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        private final Path mPath = new Path();
+        private final boolean mPointsUp;
+
+        Chevron(Context context, int color, boolean pointsUp, float density) {
+            super(context);
+            mPointsUp = pointsUp;
+            mPaint.setColor(color);
+            mPaint.setAlpha(190);
+            mPaint.setStyle(Paint.Style.STROKE);
+            mPaint.setStrokeWidth(1.5f * density);
+            mPaint.setStrokeCap(Paint.Cap.ROUND);
+            mPaint.setStrokeJoin(Paint.Join.ROUND);
+        }
+
+        @Override
+        protected void onDraw(Canvas canvas) {
+            float inset = mPaint.getStrokeWidth();
+            float w = getWidth();
+            float h = getHeight();
+            mPath.reset();
+            if (mPointsUp) {
+                mPath.moveTo(inset, h - inset);
+                mPath.lineTo(w / 2f, inset);
+                mPath.lineTo(w - inset, h - inset);
+            } else {
+                mPath.moveTo(inset, inset);
+                mPath.lineTo(w / 2f, h - inset);
+                mPath.lineTo(w - inset, inset);
+            }
+            canvas.drawPath(mPath, mPaint);
         }
     }
 }
