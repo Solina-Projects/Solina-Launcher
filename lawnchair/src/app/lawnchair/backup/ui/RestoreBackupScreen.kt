@@ -228,6 +228,9 @@ fun ColumnScope.RestoreBackupOptions(
                     stringResource(
                         when {
                             isLayoutRestore -> R.string.backup_restore_confirmation_layout_message
+                            contents.hasFlag(LawnchairBackup.INCLUDE_SUGGESTION_SETTINGS)
+                                && contents.hasFlag(LawnchairBackup.INCLUDE_WALLPAPER) ->
+                                R.string.backup_restore_confirmation_suggestions_and_wallpaper_message
                             contents.hasFlag(LawnchairBackup.INCLUDE_SUGGESTION_SETTINGS) ->
                                 R.string.backup_restore_confirmation_suggestions_message
                             else -> R.string.backup_restore_confirmation_wallpaper_message
