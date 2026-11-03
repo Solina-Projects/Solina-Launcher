@@ -22,8 +22,8 @@
     android:layout_height="wrap_content"
     android:layout_gravity="center"
     android:orientation="vertical"
-    android:paddingLeft="@dimen/dynamic_grid_cell_padding_x"
-    android:paddingRight="@dimen/dynamic_grid_cell_padding_x"
+    android:paddingStart="@dimen/dynamic_grid_cell_padding_x"
+    android:paddingEnd="@dimen/dynamic_grid_cell_padding_x"
     android:focusable="true" >
     <com.android.launcher3.views.DoubleShadowBubbleTextView
         style="@style/BaseIcon.AllApps"
