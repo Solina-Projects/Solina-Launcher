@@ -167,8 +167,11 @@ class LawnchairAppPredictor(private val context: Context) : StatsLogCompatManage
         // consumes the active drawer column count and applies dock-row anchoring + de-duplication.
         val dockRanked = predictionEngine.getDockRanked(dataModel)
         val arrangedSuggestions = SuggestionGridLayout.arrange(
-            source = if (isDockSuggestionSource()) SuggestionGridLayout.Source.DOCK
-                else SuggestionGridLayout.Source.MOST_USED,
+            source = if (isDockSuggestionSource()) {
+                SuggestionGridLayout.Source.DOCK
+            } else {
+                SuggestionGridLayout.Source.MOST_USED
+            },
             dockRanked = dockRanked,
             usageRanked = allAppsCandidateRanked,
             suggestionRows = suggestionRows,
