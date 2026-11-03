@@ -132,7 +132,7 @@ class BcSmartspaceCard @JvmOverloads constructor(
 
     fun setTitle(title: CharSequence?, contentDescription: CharSequence?, hasIcon: Boolean) {
         val titleView = titleTextView ?: return
-        val isRTL = Locale.getDefault().layoutDirection == View.LAYOUT_DIRECTION_RTL
+        val isRTL = titleView.layoutDirection == View.LAYOUT_DIRECTION_RTL
         titleView.textAlignment = if (isRTL) TEXT_ALIGNMENT_TEXT_END else TEXT_ALIGNMENT_TEXT_START
         titleView.text = title
         titleView.setCompoundDrawablesRelative(
