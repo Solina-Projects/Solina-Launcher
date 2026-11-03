@@ -18,11 +18,22 @@ package com.android.launcher3.allapps;
 import android.content.Context;
 import android.util.AttributeSet;
 import android.view.WindowInsets;
+import android.view.ViewGroup;
+import android.widget.RelativeLayout;
 
 import com.android.launcher3.Launcher;
 import com.android.launcher3.LauncherState;
+import com.android.launcher3.appprediction.PredictionRowView;
+import com.android.launcher3.allapps.FloatingHeaderRow;
+import com.android.launcher3.allapps.FloatingHeaderView;
+import com.android.launcher3.model.data.ItemInfo;
 import com.android.launcher3.Utilities;
 import com.android.launcher3.statemanager.StateManager;
+import app.lawnchair.preferences2.PreferenceCacheExtensionsKt;
+import app.lawnchair.preferences2.PreferenceManager2;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * AllAppsContainerView with launcher specific callbacks
@@ -43,15 +54,66 @@ public class LauncherAllAppsContainerView extends ActivityAllAppsContainerView<L
 
     private final com.android.launcher3.appprediction.AppDrawerSuggestionRow mSuggestionRow =
             new com.android.launcher3.appprediction.AppDrawerSuggestionRow();
+    private final List<ItemInfo> mLatestSuggestedApps = new ArrayList<>();
+    private PredictionRowView<Launcher> mSuggestionFooterView;
+
+    private String getSuggestionPosition() {
+        return PreferenceCacheExtensionsKt.firstCached(
+                PreferenceManager2.getInstance(getContext()).getSuggestionPosition());
+    }
+
+    private boolean isSuggestionPositionBottom() {
+        return "bottom".equals(getSuggestionPosition());
+    }
 
     @Override
-    public java.util.List<com.android.systemui.plugins.AllAppsRow> getAdditionalHeaderRows() {
-        return java.util.List.of(mSuggestionRow);
+    public List<com.android.systemui.plugins.AllAppsRow> getAdditionalHeaderRows() {
+        return isSuggestionPositionBottom() ? List.of() : List.of(mSuggestionRow);
+    }
+
+    @Override
+    protected void onFinishInflate() {
+        super.onFinishInflate();
+        if (!isSuggestionPositionBottom()) {
+            return;
+        }
+        mSuggestionFooterView = new PredictionRowView<>((Launcher) getContext());
+        mSuggestionFooterView.setup(null, FloatingHeaderRow.NO_ROWS, false);
+        attachSuggestionFooterView(mSuggestionFooterView);
+        RelativeLayout.LayoutParams layoutParams =
+                (RelativeLayout.LayoutParams) mSuggestionFooterView.getLayoutParams();
+        int margin = Math.round(PreferenceCacheExtensionsKt.firstCached(
+                PreferenceManager2.getInstance(getContext()).getSuggestionMargin())
+                * getResources().getDisplayMetrics().density);
+        layoutParams.topMargin = margin;
+        mSuggestionFooterView.setLayoutParams(layoutParams);
+        mSuggestionFooterView.setStandaloneHeightChangeListener(this::updateSuggestionFooterHeight);
+        mSuggestionFooterView.setPredictedApps(mLatestSuggestedApps);
+        updateSuggestionFooterHeight();
     }
 
     /** Updates the independent suggestion component with the latest model prediction items. */
-    public void setSuggestedApps(java.util.List<com.android.launcher3.model.data.ItemInfo> items) {
-        mSuggestionRow.setPredictedApps(items);
+    public void setSuggestedApps(List<ItemInfo> items) {
+        mLatestSuggestedApps.clear();
+        mLatestSuggestedApps.addAll(items);
+        if (isSuggestionPositionBottom()) {
+            if (mSuggestionFooterView != null) {
+                mSuggestionFooterView.setPredictedApps(mLatestSuggestedApps);
+                updateSuggestionFooterHeight();
+            }
+        } else {
+            mSuggestionRow.setPredictedApps(mLatestSuggestedApps);
+        }
+    }
+
+    private void updateSuggestionFooterHeight() {
+        if (mSuggestionFooterView == null) {
+            return;
+        }
+        float density = getResources().getDisplayMetrics().density;
+        int margin = Math.round(PreferenceCacheExtensionsKt.firstCached(
+                PreferenceManager2.getInstance(getContext()).getSuggestionMargin()) * density);
+        setSuggestionFooterHeight(mSuggestionFooterView.getExpectedHeight() + margin);
     }
 
     @Override
