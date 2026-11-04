@@ -38,9 +38,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavGraphBuilder
-import androidx.navigation.compose.composable
 import app.lawnchair.backup.LawnchairBackup
 import app.lawnchair.ui.preferences.LocalIsExpandedScreen
 import app.lawnchair.ui.preferences.LocalNavController
@@ -52,7 +49,6 @@ import app.lawnchair.ui.preferences.components.controls.FlagSwitchPreference
 import app.lawnchair.ui.preferences.components.controls.SwitchPreference
 import app.lawnchair.ui.preferences.components.layout.PreferenceGroup
 import app.lawnchair.ui.preferences.components.layout.PreferenceLayout
-import app.lawnchair.ui.preferences.navigation.CreateBackup
 import app.lawnchair.util.BackHandler
 import app.lawnchair.util.FileAccessState
 import app.lawnchair.util.hasFlag
@@ -60,17 +56,11 @@ import app.lawnchair.util.removeFlag
 import com.android.launcher3.R
 import kotlinx.coroutines.launch
 
-fun NavGraphBuilder.createBackupGraph() {
-    composable<CreateBackup> {
-        CreateBackupScreen()
-    }
-}
-
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun CreateBackupScreen(
+    viewModel: CreateBackupViewModel,
     modifier: Modifier = Modifier,
-    viewModel: CreateBackupViewModel = viewModel(),
 ) {
     val contents by viewModel.backupContents.collectAsStateWithLifecycle()
     val screenshot by viewModel.screenshot.collectAsStateWithLifecycle()

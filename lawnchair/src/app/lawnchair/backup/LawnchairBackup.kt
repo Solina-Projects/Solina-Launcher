@@ -545,92 +545,92 @@ class LawnchairBackup(
      * headers cannot bypass size limits.
      */
     private suspend fun scanArchive(requiredEntries: Set<String>): Set<String> = withContext(Dispatchers.IO) {
-            val snapshot = requireNotNull(archiveSnapshot?.takeIf(File::isFile)) {
-                "Backup archive snapshot is unavailable"
-            }
-            validateCentralDirectory(snapshot)
-            val seen = mutableSetOf<String>()
-            var totalBytes = 0L
-            val buffer = ByteArray(DEFAULT_BUFFER_SIZE)
-            val streamEntryNames = mutableListOf<String>()
-            val streamEntrySizes = mutableMapOf<String, Long>()
-            ZipInputStream(FileInputStream(snapshot)).use { stream ->
+        val snapshot = requireNotNull(archiveSnapshot?.takeIf(File::isFile)) {
+            "Backup archive snapshot is unavailable"
+        }
+        validateCentralDirectory(snapshot)
+        val seen = mutableSetOf<String>()
+        var totalBytes = 0L
+        val buffer = ByteArray(DEFAULT_BUFFER_SIZE)
+        val streamEntryNames = mutableListOf<String>()
+        val streamEntrySizes = mutableMapOf<String, Long>()
+        ZipInputStream(FileInputStream(snapshot)).use { stream ->
+            while (true) {
+                val entry = stream.nextEntry ?: break
+                val name = entry.name
+                require(!entry.isDirectory && isAllowedEntry(name)) {
+                    "Invalid backup entry: $name"
+                }
+                require(seen.add(name)) { "Duplicate backup entry: $name" }
+                require(seen.size <= MAX_ENTRY_COUNT) { "Too many backup entries" }
+                var entryBytes = 0L
                 while (true) {
-                    val entry = stream.nextEntry ?: break
-                    val name = entry.name
-                    require(!entry.isDirectory && isAllowedEntry(name)) {
-                        "Invalid backup entry: $name"
-                    }
-                    require(seen.add(name)) { "Duplicate backup entry: $name" }
-                    require(seen.size <= MAX_ENTRY_COUNT) { "Too many backup entries" }
-                    var entryBytes = 0L
+                    val count = stream.read(buffer)
+                    if (count < 0) break
+                    entryBytes += count
+                    totalBytes += count
+                    require(
+                        entryBytes <= MAX_ENTRY_BYTES && totalBytes <= MAX_ARCHIVE_BYTES,
+                    ) { "Backup archive exceeds its declared or supported size" }
+                }
+                stream.closeEntry()
+                streamEntryNames.add(name)
+                streamEntrySizes[name] = entryBytes
+            }
+        }
+        totalBytes = 0L
+        seen.clear()
+        ZipFile(snapshot).use { zip ->
+            val entries = zip.entries()
+            while (entries.hasMoreElements()) {
+                val entry = entries.nextElement()
+                require(!entry.isDirectory && isAllowedEntry(entry.name)) {
+                    "Invalid backup entry: ${entry.name}"
+                }
+                require(seen.add(entry.name)) { "Duplicate backup entry: ${entry.name}" }
+                val declaredSize = entry.size
+                val compressedSize = entry.compressedSize
+                require(
+                    declaredSize in 0..MAX_ENTRY_BYTES &&
+                        compressedSize in 0..MAX_ARCHIVE_BYTES,
+                ) { "Backup entry size is invalid or unsupported: ${entry.name}" }
+                require(
+                    declaredSize == 0L && compressedSize == 0L ||
+                        compressedSize > 0L &&
+                        declaredSize <= compressedSize * MAX_COMPRESSION_RATIO,
+                ) { "Suspicious ZIP compression ratio: ${entry.name}" }
+                var entryBytes = 0L
+                zip.getInputStream(entry).use { stream ->
                     while (true) {
                         val count = stream.read(buffer)
                         if (count < 0) break
                         entryBytes += count
                         totalBytes += count
                         require(
-                            entryBytes <= MAX_ENTRY_BYTES && totalBytes <= MAX_ARCHIVE_BYTES,
+                            entryBytes <= MAX_ENTRY_BYTES &&
+                                totalBytes <= MAX_ARCHIVE_BYTES &&
+                                entryBytes <= declaredSize,
                         ) { "Backup archive exceeds its declared or supported size" }
                     }
-                    stream.closeEntry()
-                    streamEntryNames.add(name)
-                    streamEntrySizes[name] = entryBytes
                 }
-            }
-            totalBytes = 0L
-            seen.clear()
-            ZipFile(snapshot).use { zip ->
-                val entries = zip.entries()
-                while (entries.hasMoreElements()) {
-                    val entry = entries.nextElement()
-                    require(!entry.isDirectory && isAllowedEntry(entry.name)) {
-                        "Invalid backup entry: ${entry.name}"
-                    }
-                    require(seen.add(entry.name)) { "Duplicate backup entry: ${entry.name}" }
-                    val declaredSize = entry.size
-                    val compressedSize = entry.compressedSize
-                    require(
-                        declaredSize in 0..MAX_ENTRY_BYTES &&
-                            compressedSize in 0..MAX_ARCHIVE_BYTES,
-                    ) { "Backup entry size is invalid or unsupported: ${entry.name}" }
-                    require(
-                        declaredSize == 0L && compressedSize == 0L ||
-                            compressedSize > 0L &&
-                            declaredSize <= compressedSize * MAX_COMPRESSION_RATIO,
-                    ) { "Suspicious ZIP compression ratio: ${entry.name}" }
-                    var entryBytes = 0L
-                    zip.getInputStream(entry).use { stream ->
-                        while (true) {
-                            val count = stream.read(buffer)
-                            if (count < 0) break
-                            entryBytes += count
-                            totalBytes += count
-                            require(
-                                entryBytes <= MAX_ENTRY_BYTES &&
-                                    totalBytes <= MAX_ARCHIVE_BYTES &&
-                                    entryBytes <= declaredSize,
-                            ) { "Backup archive exceeds its declared or supported size" }
-                        }
-                    }
-                    require(entryBytes == declaredSize) {
-                        "ZIP entry size does not match its central-directory metadata: ${entry.name}"
-                    }
-                    require(seen.size <= MAX_ENTRY_COUNT) { "Too many backup entries" }
+                require(entryBytes == declaredSize) {
+                    "ZIP entry size does not match its central-directory metadata: ${entry.name}"
                 }
+                require(seen.size <= MAX_ENTRY_COUNT) { "Too many backup entries" }
             }
-            require(
-                streamEntryNames.size == seen.size &&
-                    streamEntryNames.toSet() == seen &&
-                    streamEntrySizes.all { (name, size) ->
-                        ZipFile(snapshot).use { zip -> zip.getEntry(name)?.size == size }
-                    },
-            ) { "ZIP local headers do not match central-directory metadata" }
-            require(seen.containsAll(requiredEntries)) {
-                "Backup is missing required entries: ${requiredEntries - seen}"
-            }
-            seen
         }
+        require(
+            streamEntryNames.size == seen.size &&
+                streamEntryNames.toSet() == seen &&
+                streamEntrySizes.all { (name, size) ->
+                    ZipFile(snapshot).use { zip -> zip.getEntry(name)?.size == size }
+                },
+        ) { "ZIP local headers do not match central-directory metadata" }
+        require(seen.containsAll(requiredEntries)) {
+            "Backup is missing required entries: ${requiredEntries - seen}"
+        }
+        seen
+    }
 
     /**
      * Bound central-directory parsing before ZipFile allocates entry metadata. ZIP permits a

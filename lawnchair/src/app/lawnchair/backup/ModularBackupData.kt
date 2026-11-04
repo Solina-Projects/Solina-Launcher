@@ -601,8 +601,10 @@ internal object ModularBackupData {
                 restoreIconOverrides(writableDb, root.getJSONArray("icon_overrides"))
                 roomMutated = true
             }
-            if ((selectedContents.hasFlag(LawnchairBackup.INCLUDE_WALLPAPER) ||
-                    selectedContents.hasFlag(LawnchairBackup.INCLUDE_LAYOUT_AND_SETTINGS)) &&
+            if ((
+                    selectedContents.hasFlag(LawnchairBackup.INCLUDE_WALLPAPER) ||
+                        selectedContents.hasFlag(LawnchairBackup.INCLUDE_LAYOUT_AND_SETTINGS)
+                    ) &&
                 root.has("wallpaper_history")
             ) {
                 restoreWallpaperHistory(writableDb, root.getJSONArray("wallpaper_history"))
