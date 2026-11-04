@@ -38,6 +38,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import app.lawnchair.preferences.PreferenceAdapter
 import app.lawnchair.preferences.getAdapter
+import app.lawnchair.preferences.preferenceManager
 import app.lawnchair.preferences2.preferenceManager2
 import app.lawnchair.smartspace.SmartspaceViewContainer
 import app.lawnchair.smartspace.model.LawnchairSmartspace
@@ -141,7 +142,68 @@ private fun LawnchairSmartspaceSettings(
                     }
                 }
         }
+        SmartspaceCardStylePreferences()
         SmartspaceDateAndTimePreferences()
+    }
+}
+
+@Composable
+fun SmartspaceCardStylePreferences(
+    modifier: Modifier = Modifier,
+) {
+    val prefs = preferenceManager()
+    val cardStyleAdapter = prefs.smartspaceCardStyle.getAdapter()
+    val cardAlphaAdapter = prefs.smartspaceCardAlpha.getAdapter()
+    val cardRadiusAdapter = prefs.smartspaceCardCornerRadius.getAdapter()
+    val datePillAdapter = prefs.smartspaceDatePillBadge.getAdapter()
+    val dateScaleAdapter = prefs.smartspaceDateTextSizeScale.getAdapter()
+
+    val styleEntries = listOf(
+        ListPreferenceEntry("transparent") { stringResource(R.string.smartspace_card_style_transparent) },
+        ListPreferenceEntry("glass_card") { stringResource(R.string.smartspace_card_style_glass_card) },
+        ListPreferenceEntry("tonal_capsule") { stringResource(R.string.smartspace_card_style_tonal_capsule) },
+        ListPreferenceEntry("elevated_card") { stringResource(R.string.smartspace_card_style_elevated_card) },
+    )
+
+    PreferenceGroup(
+        heading = stringResource(id = R.string.smartspace_card_style_heading),
+        modifier = modifier.padding(top = 8.dp),
+    ) {
+        ListPreference(
+            adapter = cardStyleAdapter,
+            entries = styleEntries,
+            label = stringResource(id = R.string.smartspace_card_style_label),
+        )
+        ExpandAndShrink(visible = cardStyleAdapter.state.value != "transparent") {
+            Column {
+                SliderPreference(
+                    label = stringResource(id = R.string.smartspace_card_alpha_label),
+                    adapter = cardAlphaAdapter,
+                    step = 5,
+                    valueRange = 20..100,
+                    showUnit = "%",
+                )
+                SliderPreference(
+                    label = stringResource(id = R.string.smartspace_card_corner_radius_label),
+                    adapter = cardRadiusAdapter,
+                    step = 2,
+                    valueRange = 8..36,
+                    showUnit = "dp",
+                )
+            }
+        }
+        SwitchPreference(
+            adapter = datePillAdapter,
+            label = stringResource(id = R.string.smartspace_date_pill_badge_label),
+            description = stringResource(id = R.string.smartspace_date_pill_badge_summary),
+        )
+        SliderPreference(
+            label = stringResource(id = R.string.smartspace_date_text_scale_label),
+            adapter = dateScaleAdapter,
+            step = 5,
+            valueRange = 85..135,
+            showUnit = "%",
+        )
     }
 }
 
@@ -248,6 +310,11 @@ fun SmartspaceDateAndTimePreferences(
         ExpandAndShrink(visible = supportCustomizationFormat && showTimeAdapter.state.value) {
             SmartspaceTimeFormatPreference()
         }
+        SwitchPreference(
+            adapter = preferenceManager2.smartspacePersianNumerals.getAdapter(),
+            label = stringResource(id = R.string.smartspace_persian_numerals_label),
+            description = stringResource(id = R.string.smartspace_persian_numerals_summary),
+        )
     }
 }
 

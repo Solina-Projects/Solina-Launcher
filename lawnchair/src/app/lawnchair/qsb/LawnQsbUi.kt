@@ -28,6 +28,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
@@ -62,7 +63,11 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import app.lawnchair.preferences.observeAsState
+import app.lawnchair.preferences.preferenceManager
 import app.lawnchair.preferences2.asState
 import app.lawnchair.preferences2.preferenceManager2
 import app.lawnchair.qsb.providers.Google
@@ -322,6 +327,9 @@ data class Qsb3dSettings(
     val enabled: Boolean,
     val depthDp: Float,
     val icons3d: Boolean,
+    val surfaceStyle: String,
+    val showHintText: Boolean,
+    val endIconPillBg: Boolean,
     @param:ColorInt val backgroundOverride: Int?,
     @param:ColorInt val iconOverride: Int?,
 )
@@ -329,17 +337,34 @@ data class Qsb3dSettings(
 @Composable
 fun rememberQsb3dSettings(): Qsb3dSettings {
     val context = LocalContext.current
+    val prefs = preferenceManager()
     val prefs2 = preferenceManager2()
     val enabled by prefs2.qsb3dEnabled.asState()
     val depth by prefs2.qsb3dDepth.asState()
     val icons3d by prefs2.qsbIcons3d.asState()
+    val surfaceStyle by prefs.qsbSurfaceStyle.observeAsState()
+    val showHintText by prefs.qsbShowHintText.observeAsState()
+    val endIconPillBg by prefs.qsbEndIconPillBg.observeAsState()
     val background by prefs2.qsbBackgroundColor.asState()
     val iconColor by prefs2.qsbIconColor.asState()
-    return remember(context, enabled, depth, icons3d, background, iconColor) {
+    return remember(
+        context,
+        enabled,
+        depth,
+        icons3d,
+        surfaceStyle,
+        showHintText,
+        endIconPillBg,
+        background,
+        iconColor,
+    ) {
         Qsb3dSettings(
             enabled = enabled,
             depthDp = depth,
             icons3d = icons3d,
+            surfaceStyle = surfaceStyle,
+            showHintText = showHintText,
+            endIconPillBg = endIconPillBg,
             backgroundOverride = background.resolveQsbColor(context),
             iconOverride = iconColor.resolveQsbColor(context),
         )
@@ -433,36 +458,77 @@ fun LawnQsbUi(
 
     val baseColor = ComposeColor(look.backgroundOverride ?: style.backgroundColor)
     val faceColor = baseColor.copy(alpha = style.backgroundAlpha)
-    val depth = if (look.enabled) look.depthDp.dp else 0.dp
+    val is3dBevel = look.enabled && look.surfaceStyle == "3d_bevel"
+    val depth = if (is3dBevel) look.depthDp.dp else 0.dp
     val depthPx = with(density) { depth.toPx() }
     val cornerPx = style.cornerRadiusPx
     val edgeColor = lerpColor(baseColor, ComposeColor.Black, 0.38f).copy(alpha = style.backgroundAlpha)
     val topLight = lerpColor(baseColor, ComposeColor.White, 0.28f).copy(alpha = style.backgroundAlpha)
     val bottomShade = lerpColor(baseColor, ComposeColor.Black, 0.08f).copy(alpha = style.backgroundAlpha)
     val iconTint = look.iconOverride?.let { ComposeColor(it) }
+    val primaryAccent = MaterialTheme.colorScheme.primary
+    val tertiaryAccent = MaterialTheme.colorScheme.tertiary
+    val secondaryAccent = MaterialTheme.colorScheme.secondary
+    val pillContainerColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.09f)
+    val hintTextColor = (iconTint ?: MaterialTheme.colorScheme.onSurfaceVariant).copy(alpha = 0.72f)
 
     val containerModifier = Modifier
         .fillMaxSize()
         .padding(bottom = depth)
         .clip(shape)
         .then(
-            if (look.enabled) {
-                Modifier
-                    .background(Brush.verticalGradient(listOf(topLight, faceColor, bottomShade)), shape)
-                    .drawWithContent {
-                        drawContent()
-                        // Glossy rim along the top of the raised face.
-                        drawRoundRect(
-                            brush = Brush.verticalGradient(
-                                0f to ComposeColor.White.copy(alpha = 0.55f),
-                                0.45f to ComposeColor.Transparent,
+            when {
+                look.surfaceStyle == "glass_capsule" -> {
+                    val glassTop = lerpColor(baseColor, ComposeColor.White, 0.34f).copy(alpha = (style.backgroundAlpha * 0.92f).coerceAtMost(1f))
+                    val glassBottom = lerpColor(baseColor, ComposeColor.Black, 0.06f).copy(alpha = (style.backgroundAlpha * 0.85f).coerceAtMost(1f))
+                    Modifier
+                        .background(Brush.verticalGradient(listOf(glassTop, faceColor, glassBottom)), shape)
+                        .drawWithContent {
+                            drawContent()
+                            drawRoundRect(
+                                brush = Brush.verticalGradient(
+                                    0f to ComposeColor.White.copy(alpha = 0.62f),
+                                    0.5f to ComposeColor.White.copy(alpha = 0.18f),
+                                    1f to ComposeColor.White.copy(alpha = 0.32f),
+                                ),
+                                cornerRadius = CornerRadius(cornerPx, cornerPx),
+                                style = Stroke(width = 1.5.dp.toPx()),
+                            )
+                        }
+                }
+
+                look.surfaceStyle == "neon_border" -> {
+                    Modifier
+                        .background(Brush.verticalGradient(listOf(topLight, faceColor)), shape)
+                        .border(
+                            width = 2.dp,
+                            brush = Brush.horizontalGradient(
+                                listOf(primaryAccent, tertiaryAccent, secondaryAccent),
                             ),
-                            cornerRadius = CornerRadius(cornerPx, cornerPx),
-                            style = Stroke(width = 1.5.dp.toPx()),
+                            shape = shape,
                         )
-                    }
-            } else {
-                Modifier.background(faceColor, shape)
+                }
+
+                look.surfaceStyle == "minimal_flat" || !look.enabled -> {
+                    Modifier.background(faceColor, shape)
+                }
+
+                else -> {
+                    Modifier
+                        .background(Brush.verticalGradient(listOf(topLight, faceColor, bottomShade)), shape)
+                        .drawWithContent {
+                            drawContent()
+                            // Glossy rim along the top of the raised face.
+                            drawRoundRect(
+                                brush = Brush.verticalGradient(
+                                    0f to ComposeColor.White.copy(alpha = 0.55f),
+                                    0.45f to ComposeColor.Transparent,
+                                ),
+                                cornerRadius = CornerRadius(cornerPx, cornerPx),
+                                style = Stroke(width = 1.5.dp.toPx()),
+                            )
+                        }
+                }
             },
         )
         .combinedClickable(
@@ -474,7 +540,7 @@ fun LawnQsbUi(
                 focusRingShape = shape,
             ),
         )
-        .addIf(style.strokeWidthPx > 0f) {
+        .addIf(style.strokeWidthPx > 0f && look.surfaceStyle != "neon_border") {
             border(strokeWidth, ComposeColor(style.strokeColor), shape)
         }
 
@@ -528,7 +594,21 @@ fun LawnQsbUi(
                 )
             }
 
-            Spacer(Modifier.weight(1f))
+            if (look.showHintText) {
+                Text(
+                    text = state.contentDescription,
+                    style = MaterialTheme.typography.bodyMedium,
+                    fontWeight = FontWeight.Medium,
+                    color = hintTextColor,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(horizontal = 4.dp),
+                )
+            } else {
+                Spacer(Modifier.weight(1f))
+            }
 
             val visibleIcons = state.endIcons.filter { it.visible }
             AnimatedContent(
@@ -539,7 +619,15 @@ fun LawnQsbUi(
                 label = "endIcons",
                 contentAlignment = Alignment.CenterEnd,
             ) { icons ->
-                Row(verticalAlignment = Alignment.CenterVertically) {
+                val pillShape = RoundedCornerShape(50)
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.addIf(look.endIconPillBg && icons.isNotEmpty()) {
+                        padding(end = 6.dp, top = 5.dp, bottom = 5.dp)
+                            .clip(pillShape)
+                            .background(pillContainerColor, pillShape)
+                    },
+                ) {
                     icons.forEachIndexed { index, icon ->
                         val isLast = index == icons.lastIndex
                         QsbIcon(
@@ -548,7 +636,7 @@ fun LawnQsbUi(
                             onClick = { actions.onEndIconClick(icon.id) },
                             tint = iconTint ?: ComposeColor.Unspecified,
                             icons3d = look.icons3d,
-                            modifier = Modifier.addIf(isLast) {
+                            modifier = Modifier.addIf(isLast && !look.endIconPillBg) {
                                 offset(x = (-6).dp)
                             },
                         )

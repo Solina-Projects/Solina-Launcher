@@ -89,6 +89,7 @@ internal object ModularBackupData {
         "status_bar_clock",
         "dark_status_bar",
         "show_top_shadow",
+        "pref_homePreferencesShowLivePreview",
     )
 
     private val DOCK_KEYS = setOf(
@@ -97,6 +98,10 @@ internal object ModularBackupData {
         "pref_hotseatRows",
         "pref_dockPages",
         "pref_hotseatBG",
+        "pref_hotseatBGStylePreset",
+        "pref_hotseatBGGlassBorder",
+        "pref_hotseatBGGlassBorderWidth",
+        "pref_hotseatBGGlossySheen",
         "pref_hotseatBGHRinsetLeft",
         "pref_hotseatBGVRinsetTop",
         "pref_hotseatBGHRinsetRight",
@@ -185,6 +190,9 @@ internal object ModularBackupData {
         "pref_searchResultStartPageSuggestion",
         "pref_searchResultSettingsEntry",
         "pref_searchResultRecentSuggestion",
+        "pref_qsbSurfaceStyle",
+        "pref_qsbShowHintText",
+        "pref_qsbEndIconPillBg",
         "qsb_3d_enabled",
         "qsb_3d_depth",
         "qsb_icons_3d",

@@ -282,12 +282,13 @@ fun PreferencesDashboard(
         backArrowVisible = false,
         actions = {
             val highlightColor = MaterialTheme.colorScheme.surfaceColorAtElevation(4.dp)
+            val highlightShape = MaterialTheme.shapes.large
             ClickableIcon(
                 imageVector = Icons.Rounded.Tune,
                 onClick = { showCustomizerPanel = !showCustomizerPanel },
                 modifier = Modifier.addIf(showCustomizerPanel) {
                     Modifier
-                        .clip(MaterialTheme.shapes.large)
+                        .clip(highlightShape)
                         .background(highlightColor)
                 },
             )

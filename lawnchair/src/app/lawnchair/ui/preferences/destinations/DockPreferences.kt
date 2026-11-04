@@ -17,11 +17,21 @@
 package app.lawnchair.ui.preferences.destinations
 
 import android.content.res.Configuration
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.key
 import androidx.compose.ui.Alignment
@@ -29,6 +39,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import app.lawnchair.preferences.PreferenceManager
 import app.lawnchair.preferences.getAdapter
@@ -121,50 +134,203 @@ fun DockPreferences(modifier: Modifier = Modifier) {
 
 @Composable
 fun HotseatBackgroundSettings(prefs: PreferenceManager, prefs2: PreferenceManager2) {
+    val presetAdapter = prefs.hotseatBGStylePreset.getAdapter()
+    val cornerRadiusAdapter = prefs2.hotseatBackgroundCornerRadius.getAdapter()
+    val alphaAdapter = prefs.hotseatBGAlpha.getAdapter()
+    val insetLeftAdapter = prefs.hotseatBGHorizontalInsetLeft.getAdapter()
+    val insetRightAdapter = prefs.hotseatBGHorizontalInsetRight.getAdapter()
+    val insetTopAdapter = prefs.hotseatBGVerticalInsetTop.getAdapter()
+    val insetBottomAdapter = prefs.hotseatBGVerticalInsetBottom.getAdapter()
+    val glossySheenAdapter = prefs.hotseatBGGlossySheen.getAdapter()
+    val glassBorderAdapter = prefs.hotseatBGGlassBorder.getAdapter()
+    val borderWidthAdapter = prefs.hotseatBGGlassBorderWidth.getAdapter()
+
     DividerColumn {
+        DockStylePresetBar(
+            selectedPreset = presetAdapter.state.value,
+            onSelectPreset = { presetId ->
+                presetAdapter.onChange(presetId)
+                when (presetId) {
+                    "floating_glass" -> {
+                        cornerRadiusAdapter.onChange(32f)
+                        alphaAdapter.onChange(75)
+                        insetLeftAdapter.onChange(25)
+                        insetRightAdapter.onChange(25)
+                        insetTopAdapter.onChange(10)
+                        insetBottomAdapter.onChange(10)
+                        glossySheenAdapter.onChange(true)
+                        glassBorderAdapter.onChange(true)
+                        borderWidthAdapter.onChange(2)
+                    }
+
+                    "modern_capsule" -> {
+                        cornerRadiusAdapter.onChange(42f)
+                        alphaAdapter.onChange(90)
+                        insetLeftAdapter.onChange(20)
+                        insetRightAdapter.onChange(20)
+                        insetTopAdapter.onChange(8)
+                        insetBottomAdapter.onChange(8)
+                        glossySheenAdapter.onChange(false)
+                        glassBorderAdapter.onChange(false)
+                    }
+
+                    "neon_card" -> {
+                        cornerRadiusAdapter.onChange(24f)
+                        alphaAdapter.onChange(85)
+                        insetLeftAdapter.onChange(15)
+                        insetRightAdapter.onChange(15)
+                        insetTopAdapter.onChange(5)
+                        insetBottomAdapter.onChange(5)
+                        glossySheenAdapter.onChange(true)
+                        glassBorderAdapter.onChange(true)
+                        borderWidthAdapter.onChange(3)
+                    }
+
+                    "full_width" -> {
+                        cornerRadiusAdapter.onChange(0f)
+                        alphaAdapter.onChange(85)
+                        insetLeftAdapter.onChange(0)
+                        insetRightAdapter.onChange(0)
+                        insetTopAdapter.onChange(0)
+                        insetBottomAdapter.onChange(0)
+                        glossySheenAdapter.onChange(false)
+                        glassBorderAdapter.onChange(false)
+                    }
+                }
+            },
+        )
+        SwitchPreference(
+            adapter = glossySheenAdapter,
+            label = stringResource(id = R.string.hotseat_bg_glossy_sheen),
+            description = stringResource(id = R.string.hotseat_bg_glossy_sheen_summary),
+        )
+        SwitchPreference(
+            adapter = glassBorderAdapter,
+            label = stringResource(id = R.string.hotseat_bg_glass_border),
+            description = stringResource(id = R.string.hotseat_bg_glass_border_summary),
+        )
+        ExpandAndShrink(visible = glassBorderAdapter.state.value) {
+            SliderPreference(
+                label = stringResource(id = R.string.hotseat_bg_glass_border_width),
+                adapter = borderWidthAdapter,
+                step = 1,
+                valueRange = 1..6,
+                showUnit = "dp",
+            )
+        }
         ColorPreference(preference = prefs2.hotseatBackgroundColor)
         SliderPreference(
             label = stringResource(id = R.string.hotseat_bg_corner_radius),
-            adapter = prefs2.hotseatBackgroundCornerRadius.getAdapter(),
+            adapter = cornerRadiusAdapter,
             step = 1f,
             valueRange = 0f..100f,
             showUnit = "dp",
         )
         SliderPreference(
             label = stringResource(id = R.string.hotseat_bg_alpha),
-            adapter = prefs.hotseatBGAlpha.getAdapter(),
+            adapter = alphaAdapter,
             step = 5,
             valueRange = 5..100,
             showUnit = "%",
         )
         SliderPreference(
             label = stringResource(id = R.string.hotseat_bg_horizontal_inset_left),
-            adapter = prefs.hotseatBGHorizontalInsetLeft.getAdapter(),
+            adapter = insetLeftAdapter,
             step = 5,
             valueRange = 0..100,
             showUnit = "px",
         )
         SliderPreference(
             label = stringResource(id = R.string.hotseat_bg_horizontal_inset_right),
-            adapter = prefs.hotseatBGHorizontalInsetRight.getAdapter(),
+            adapter = insetRightAdapter,
             step = 5,
             valueRange = 0..100,
             showUnit = "px",
         )
         SliderPreference(
             label = stringResource(id = R.string.hotseat_bg_vertical_inset_top),
-            adapter = prefs.hotseatBGVerticalInsetTop.getAdapter(),
+            adapter = insetTopAdapter,
             step = 5,
             valueRange = 0..100,
             showUnit = "px",
         )
         SliderPreference(
             label = stringResource(id = R.string.hotseat_bg_vertical_inset_bottom),
-            adapter = prefs.hotseatBGVerticalInsetBottom.getAdapter(),
+            adapter = insetBottomAdapter,
             step = 5,
             valueRange = 0..100,
             showUnit = "px",
         )
+    }
+}
+
+@Composable
+private fun DockStylePresetBar(
+    selectedPreset: String,
+    onSelectPreset: (String) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val presets = listOf(
+        "floating_glass" to stringResource(id = R.string.hotseat_preset_floating_glass),
+        "modern_capsule" to stringResource(id = R.string.hotseat_preset_modern_capsule),
+        "neon_card" to stringResource(id = R.string.hotseat_preset_neon_card),
+        "full_width" to stringResource(id = R.string.hotseat_preset_full_width),
+    )
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 12.dp),
+    ) {
+        Text(
+            text = stringResource(id = R.string.hotseat_style_presets_title),
+            style = MaterialTheme.typography.titleSmall,
+            fontWeight = FontWeight.SemiBold,
+            color = MaterialTheme.colorScheme.onSurface,
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            presets.forEach { (id, title) ->
+                val isSelected = selectedPreset == id
+                Surface(
+                    shape = RoundedCornerShape(14.dp),
+                    color = if (isSelected) {
+                        MaterialTheme.colorScheme.primaryContainer
+                    } else {
+                        MaterialTheme.colorScheme.surfaceContainerLow
+                    },
+                    border = BorderStroke(
+                        width = if (isSelected) 1.5.dp else 1.dp,
+                        color = if (isSelected) {
+                            MaterialTheme.colorScheme.primary
+                        } else {
+                            MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
+                        },
+                    ),
+                    modifier = Modifier
+                        .weight(1f)
+                        .clip(RoundedCornerShape(14.dp))
+                        .clickable { onSelectPreset(id) },
+                ) {
+                    Text(
+                        text = title,
+                        style = MaterialTheme.typography.labelSmall,
+                        fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
+                        color = if (isSelected) {
+                            MaterialTheme.colorScheme.onPrimaryContainer
+                        } else {
+                            MaterialTheme.colorScheme.onSurfaceVariant
+                        },
+                        textAlign = TextAlign.Center,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.padding(horizontal = 6.dp, vertical = 10.dp),
+                    )
+                }
+            }
+        }
     }
 }
 
@@ -282,6 +448,10 @@ fun ColumnScope.DockPreferencesPreview(modifier: Modifier = Modifier) {
             prefs2.hotseatBackgroundColor.getAdapter(),
             prefs2.hotseatBackgroundCornerRadius.getAdapter(),
             prefs.hotseatBGAlpha.getAdapter(),
+            prefs.hotseatBGStylePreset.getAdapter(),
+            prefs.hotseatBGGlossySheen.getAdapter(),
+            prefs.hotseatBGGlassBorder.getAdapter(),
+            prefs.hotseatBGGlassBorderWidth.getAdapter(),
         )
 
         PreferenceGroupHeading(
