@@ -796,6 +796,7 @@
     <string name="drawer_icon_label_color">رنگ برچسب آیکون کشوی برنامه‌ها</string>
     <string name="dock_icon_label_color">رنگ برچسب آیکون داک</string>
     <string name="suggestion_label_color">رنگ برچسب پیشنهاد</string>
+    <string name="suggestion_frequently_used">پیشنهادهای پرکاربرد</string>
     <string name="suggestion_background_color">رنگ پس‌زمینه پیشنهاد</string>
     <string name="backup_restore_confirmation_title">نسخه پشتیبان بازیابی شود؟</string>
     <string name="backup_restore_confirmation_layout_message">این کار چیدمان و تنظیمات فعلی لانچر را جایگزین می‌کند. پیش از ادامه، مطمئن شوید نسخه پشتیبان جدیدی دارید.</string>

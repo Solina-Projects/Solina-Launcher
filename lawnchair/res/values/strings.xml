@@ -1112,6 +1112,7 @@
     <string name="drawer_icon_label_color">App drawer icon label color</string>
     <string name="dock_icon_label_color">Dock icon label color</string>
     <string name="suggestion_label_color">Suggestion label color</string>
+    <string name="suggestion_frequently_used">Frequently used</string>
     <string name="suggestion_background_color">Suggestion background color</string>
     <string name="home_label_vertical_offset">Home screen label vertical position</string>
     <string name="drawer_label_vertical_offset">App drawer label vertical position</string>

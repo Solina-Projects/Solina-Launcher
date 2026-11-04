@@ -22,7 +22,10 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.LinearGradient;
 import android.graphics.Path;
+import android.graphics.RectF;
+import android.graphics.Shader;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.graphics.drawable.LayerDrawable;
@@ -98,14 +101,16 @@ public class PredictionRowView<T extends Context & ActivityContext>
     // The raised card holding the suggestion rows, and the marker that separates it from the
     // regular app list (below the card at the top position, above the card at the bottom).
     private final LinearLayout mCard;
-    private final SuggestionEndMarker mMarker;
-    private final int mMarkerHeight;
+    private final SectionDivider mHeader;
+    private final SectionDivider mMarker;
+    private final int mDividerHeight;
+    private final boolean mAtBottom;
 
     /** Permanently hides this row so it never duplicates the independent suggestion strip. */
     public void setHeaderRowDisabled(boolean disabled) {
         mHeaderRowDisabled = disabled;
         if (disabled) {
-            mMarker.setVisibility(GONE);
+            setDividersVisible(false);
             mCard.removeAllViews();
             mPredictionRows.clear();
             mPredictionIcons.clear();
@@ -114,6 +119,11 @@ public class PredictionRowView<T extends Context & ActivityContext>
         }
         updateVisibility();
         notifyExpectedHeightChanged();
+    }
+
+    private void setDividersVisible(boolean visible) {
+        mHeader.setVisibility(visible ? VISIBLE : GONE);
+        mMarker.setVisibility(visible && !mAtBottom ? VISIBLE : GONE);
     }
 
     /** Receives size changes when this row is hosted outside the floating header. */
@@ -148,24 +158,25 @@ public class PredictionRowView<T extends Context & ActivityContext>
         mVerticalPadding = getResources().getDimensionPixelSize(
                 R.dimen.all_apps_predicted_icon_vertical_padding);
         float density = getResources().getDisplayMetrics().density;
-        mMarkerHeight = Math.round(28 * density);
+        mDividerHeight = Math.round(30 * density);
         boolean atBottom = "bottom".equals(
                 PreferenceCacheExtensionsKt.firstCached(prefs2.getSuggestionPosition()));
+        mAtBottom = atBottom;
         mCard = new LinearLayout(context);
         mCard.setOrientation(LinearLayout.VERTICAL);
-        mMarker = new SuggestionEndMarker(context, atBottom);
+        mHeader = new SectionDivider(context,
+                context.getString(R.string.suggestion_frequently_used), SectionDivider.NO_ARROW);
+        mMarker = new SectionDivider(context,
+                context.getString(R.string.all_apps_label), SectionDivider.ARROW_DOWN);
+        mHeader.setVisibility(GONE);
         mMarker.setVisibility(GONE);
         LinearLayout.LayoutParams cardParams = new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        LinearLayout.LayoutParams markerParams = new LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT, mMarkerHeight);
-        if (atBottom) {
-            addView(mMarker, markerParams);
-            addView(mCard, cardParams);
-        } else {
-            addView(mCard, cardParams);
-            addView(mMarker, markerParams);
-        }
+        addView(mHeader, new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, mDividerHeight));
+        addView(mCard, cardParams);
+        addView(mMarker, new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, mDividerHeight));
         updateVisibility();
     }
 
@@ -286,7 +297,7 @@ public class PredictionRowView<T extends Context & ActivityContext>
 
     // The strip owns its sizing: nothing below reads the app drawer's icon, label or grid size
     // settings, so only the suggestion settings change how large the suggestions are.
-    private static final float BASE_ICON_DP = 56f;
+    private static final float BASE_ICON_DP = 70f;
     private static final float BASE_LABEL_SP = 12f;
     private static final float BASE_LABEL_GAP_DP = 4f;
 
@@ -342,7 +353,7 @@ public class PredictionRowView<T extends Context & ActivityContext>
         int rows = mPredictionRows.size();
         return mHeaderRowDisabled || getVisibility() == GONE || rows == 0 ? 0
                 : getSingleRowHeight() * rows + mCard.getPaddingTop() + mCard.getPaddingBottom()
-                        + mMarkerHeight;
+                        + mDividerHeight * (mAtBottom ? 1 : 2);
     }
 
     @Override
@@ -418,7 +429,7 @@ public class PredictionRowView<T extends Context & ActivityContext>
         int predictionCount = mPredictedApps.size();
         int rows = Math.min(configuredRows, (predictionCount + columns - 1) / columns);
         if (rows == 0) {
-            mMarker.setVisibility(GONE);
+            setDividersVisible(false);
             mCard.removeAllViews();
             mPredictionRows.clear();
             mPredictionIcons.clear();
@@ -495,7 +506,7 @@ public class PredictionRowView<T extends Context & ActivityContext>
             }
         }
 
-        mMarker.setVisibility(VISIBLE);
+        setDividersVisible(true);
         boolean predictionsEnabled = predictionCount > 0;
         if (predictionsEnabled != mPredictionsEnabled) {
             mPredictionsEnabled = predictionsEnabled;
@@ -543,79 +554,121 @@ public class PredictionRowView<T extends Context & ActivityContext>
         }
     }
 
-    /** Marks the end of the suggestions and the start of the full app list. */
-    private static final class SuggestionEndMarker extends LinearLayout {
+    /**
+     * One shared separator design used for every section break of the drawer: fading lines, a
+     * small diamond at each end and a rounded, tinted label pill (with an optional chevron).
+     */
+    private static final class SectionDivider extends View {
+        static final int NO_ARROW = 0;
+        static final int ARROW_DOWN = 1;
+        static final int ARROW_UP = 2;
 
-        SuggestionEndMarker(Context context, boolean pointsUp) {
-            super(context);
-            setOrientation(HORIZONTAL);
-            setGravity(Gravity.CENTER_VERTICAL);
-            setImportantForAccessibility(IMPORTANT_FOR_ACCESSIBILITY_NO);
-            float density = context.getResources().getDisplayMetrics().density;
-            int gap = Math.round(8 * density);
-            int lineColor = context.getColor(R.color.materialColorOutlineVariant);
-            int textColor = context.getColor(R.color.materialColorOnSurface);
-
-            addView(newLine(context, lineColor, density));
-            TextView label = new TextView(context);
-            label.setText(R.string.all_apps_label);
-            label.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12);
-            label.setTextColor(textColor);
-            label.setAlpha(0.75f);
-            label.setSingleLine(true);
-            LinearLayout.LayoutParams labelParams = new LinearLayout.LayoutParams(
-                    ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-            labelParams.setMarginStart(gap);
-            labelParams.setMarginEnd(Math.round(4 * density));
-            addView(label, labelParams);
-            LinearLayout.LayoutParams chevronParams = new LinearLayout.LayoutParams(
-                    Math.round(12 * density), Math.round(8 * density));
-            chevronParams.setMarginEnd(gap);
-            addView(new Chevron(context, textColor, pointsUp, density), chevronParams);
-            addView(newLine(context, lineColor, density));
-        }
-
-        private static View newLine(Context context, int color, float density) {
-            View line = new View(context);
-            line.setBackgroundColor(color);
-            line.setLayoutParams(new LinearLayout.LayoutParams(
-                    0, Math.max(1, Math.round(density)), 1f));
-            return line;
-        }
-    }
-
-    /** A small chevron pointing toward the app list. */
-    private static final class Chevron extends View {
         private final Paint mPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         private final Path mPath = new Path();
-        private final boolean mPointsUp;
+        private final RectF mRect = new RectF();
+        private final String mText;
+        private final int mArrow;
+        private final float mDensity;
+        private final int mAccent;
+        private final int mTextColor;
 
-        Chevron(Context context, int color, boolean pointsUp, float density) {
+        SectionDivider(Context context, String text, int arrow) {
             super(context);
-            mPointsUp = pointsUp;
-            mPaint.setColor(color);
-            mPaint.setAlpha(190);
-            mPaint.setStyle(Paint.Style.STROKE);
-            mPaint.setStrokeWidth(1.5f * density);
-            mPaint.setStrokeCap(Paint.Cap.ROUND);
-            mPaint.setStrokeJoin(Paint.Join.ROUND);
+            mText = text;
+            mArrow = arrow;
+            mDensity = context.getResources().getDisplayMetrics().density;
+            mAccent = context.getColor(R.color.materialColorPrimary);
+            mTextColor = context.getColor(R.color.materialColorOnSurface);
+            setImportantForAccessibility(IMPORTANT_FOR_ACCESSIBILITY_NO);
+            mPaint.setTextSize(12 * context.getResources().getDisplayMetrics().scaledDensity);
+            mPaint.setFakeBoldText(true);
         }
 
         @Override
         protected void onDraw(Canvas canvas) {
-            float inset = mPaint.getStrokeWidth();
             float w = getWidth();
             float h = getHeight();
-            mPath.reset();
-            if (mPointsUp) {
-                mPath.moveTo(inset, h - inset);
-                mPath.lineTo(w / 2f, inset);
-                mPath.lineTo(w - inset, h - inset);
-            } else {
-                mPath.moveTo(inset, inset);
-                mPath.lineTo(w / 2f, h - inset);
-                mPath.lineTo(w - inset, inset);
+            float cy = h / 2f;
+            float d = mDensity;
+            float textW = mPaint.measureText(mText);
+            float arrowW = mArrow == NO_ARROW ? 0 : 14 * d;
+            float padH = 14 * d;
+            float pillW = textW + arrowW + padH * 2;
+            float pillH = 22 * d;
+            float left = (w - pillW) / 2f;
+            float right = left + pillW;
+            float gap = 8 * d;
+            float margin = 16 * d;
+
+            // Fading lines on both sides of the pill.
+            mPaint.setStyle(Paint.Style.STROKE);
+            mPaint.setStrokeWidth(Math.max(1f, 1.5f * d));
+            mPaint.setStrokeCap(Paint.Cap.ROUND);
+            mPaint.setShader(new LinearGradient(margin, 0, left - gap, 0,
+                    Color.TRANSPARENT, mAccent, Shader.TileMode.CLAMP));
+            canvas.drawLine(margin + 10 * d, cy, left - gap, cy, mPaint);
+            mPaint.setShader(new LinearGradient(right + gap, 0, w - margin, 0,
+                    mAccent, Color.TRANSPARENT, Shader.TileMode.CLAMP));
+            canvas.drawLine(right + gap, cy, w - margin - 10 * d, cy, mPaint);
+            mPaint.setShader(null);
+
+            // Diamonds beside the pill.
+            mPaint.setStyle(Paint.Style.FILL);
+            mPaint.setColor(mAccent);
+            drawDiamond(canvas, left - gap, cy, 3 * d);
+            drawDiamond(canvas, right + gap, cy, 3 * d);
+
+            // Pill with a soft tint and a thin accent outline.
+            mRect.set(left, cy - pillH / 2f, right, cy + pillH / 2f);
+            mPaint.setColor(mAccent);
+            mPaint.setAlpha(36);
+            canvas.drawRoundRect(mRect, pillH / 2f, pillH / 2f, mPaint);
+            mPaint.setStyle(Paint.Style.STROKE);
+            mPaint.setStrokeWidth(d);
+            mPaint.setColor(mAccent);
+            mPaint.setAlpha(150);
+            canvas.drawRoundRect(mRect, pillH / 2f, pillH / 2f, mPaint);
+
+            // Label.
+            mPaint.setStyle(Paint.Style.FILL);
+            mPaint.setColor(mTextColor);
+            mPaint.setAlpha(230);
+            float textX = left + padH;
+            Paint.FontMetrics fm = mPaint.getFontMetrics();
+            canvas.drawText(mText, textX, cy - (fm.ascent + fm.descent) / 2f, mPaint);
+
+            // Chevron pointing toward the app list.
+            if (mArrow != NO_ARROW) {
+                float ax = textX + textW + 7 * d;
+                float s = 3.5f * d;
+                mPaint.setStyle(Paint.Style.STROKE);
+                mPaint.setStrokeWidth(1.6f * d);
+                mPaint.setStrokeCap(Paint.Cap.ROUND);
+                mPaint.setStrokeJoin(Paint.Join.ROUND);
+                mPaint.setColor(mAccent);
+                mPaint.setAlpha(255);
+                mPath.reset();
+                if (mArrow == ARROW_UP) {
+                    mPath.moveTo(ax - s, cy + s / 2f);
+                    mPath.lineTo(ax, cy - s / 2f);
+                    mPath.lineTo(ax + s, cy + s / 2f);
+                } else {
+                    mPath.moveTo(ax - s, cy - s / 2f);
+                    mPath.lineTo(ax, cy + s / 2f);
+                    mPath.lineTo(ax + s, cy - s / 2f);
+                }
+                canvas.drawPath(mPath, mPaint);
             }
+            mPaint.setAlpha(255);
+        }
+
+        private void drawDiamond(Canvas canvas, float cx, float cy, float r) {
+            mPath.reset();
+            mPath.moveTo(cx, cy - r);
+            mPath.lineTo(cx + r, cy);
+            mPath.lineTo(cx, cy + r);
+            mPath.lineTo(cx - r, cy);
+            mPath.close();
             canvas.drawPath(mPath, mPaint);
         }
     }
