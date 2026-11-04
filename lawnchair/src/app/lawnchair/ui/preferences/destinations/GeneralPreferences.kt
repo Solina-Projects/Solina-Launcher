@@ -98,6 +98,34 @@ fun GeneralPreferences(modifier: Modifier = Modifier) {
                 description = stringResource(id = R.string.home_screen_rotation_description),
             )
         }
+        PreferenceGroup(heading = stringResource(id = R.string.settings_ui_customization_heading)) {
+            SettingsLayoutPreference(adapter = prefs.settingsDashboardLayout.getAdapter())
+            SwitchPreference(
+                adapter = prefs.settingsShowQuickStatusHeader.getAdapter(),
+                label = stringResource(id = R.string.settings_show_status_header_label),
+                description = stringResource(id = R.string.settings_show_status_header_desc),
+            )
+            SwitchPreference(
+                adapter = prefs.settingsSearchBarEnabled.getAdapter(),
+                label = stringResource(id = R.string.settings_search_bar_label),
+                description = stringResource(id = R.string.settings_search_bar_desc),
+            )
+            SwitchPreference(
+                adapter = prefs.settingsColorfulIcons.getAdapter(),
+                label = stringResource(id = R.string.settings_colorful_icons_label),
+                description = stringResource(id = R.string.settings_colorful_icons_desc),
+            )
+            SwitchPreference(
+                adapter = prefs.settingsStepperSliders.getAdapter(),
+                label = stringResource(id = R.string.settings_stepper_sliders_label),
+                description = stringResource(id = R.string.settings_stepper_sliders_desc),
+            )
+            SwitchPreference(
+                adapter = prefs.homePreferencesShowLivePreview.getAdapter(),
+                label = stringResource(id = R.string.home_show_live_preview_label),
+                description = stringResource(id = R.string.home_show_live_preview_desc),
+            )
+        }
         PreferenceGroup(heading = stringResource(id = R.string.regional_settings)) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                 ClickablePreference(
@@ -279,4 +307,24 @@ private fun NotificationDotColorContrastWarnings(
             modifier = modifier,
         )
     }
+}
+
+@Composable
+private fun SettingsLayoutPreference(
+    adapter: PreferenceAdapter<String>,
+    modifier: Modifier = Modifier,
+) {
+    val entries = remember {
+        listOf(
+            ListPreferenceEntry("bento") { stringResource(id = R.string.settings_layout_bento) },
+            ListPreferenceEntry("grouped") { stringResource(id = R.string.settings_layout_grouped) },
+            ListPreferenceEntry("classic") { stringResource(id = R.string.settings_layout_classic) },
+        )
+    }
+    ListPreference(
+        adapter = adapter,
+        entries = entries,
+        label = stringResource(id = R.string.settings_dashboard_layout_label),
+        modifier = modifier,
+    )
 }

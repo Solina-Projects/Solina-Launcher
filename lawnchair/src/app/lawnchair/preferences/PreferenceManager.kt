@@ -203,6 +203,12 @@ class PreferenceManager @Inject constructor(
     )
 
     val forceIconMonochrome = BoolPref("pref_forceIconMonochrome", false)
+    val settingsDashboardLayout = StringPref("pref_settingsDashboardLayout", "bento")
+    val settingsShowQuickStatusHeader = BoolPref("pref_settingsShowQuickStatusHeader", true)
+    val settingsSearchBarEnabled = BoolPref("pref_settingsSearchBarEnabled", true)
+    val settingsColorfulIcons = BoolPref("pref_settingsColorfulIcons", true)
+    val settingsStepperSliders = BoolPref("pref_settingsStepperSliders", true)
+    val homePreferencesShowLivePreview = BoolPref("pref_homePreferencesShowLivePreview", true)
 
     override fun close() {
         TODO("Not yet implemented")

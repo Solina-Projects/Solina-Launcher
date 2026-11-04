@@ -17,15 +17,25 @@
 package app.lawnchair.ui.preferences.destinations
 
 import android.content.Context
+import android.content.res.Configuration
 import android.widget.Toast
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
 import app.lawnchair.LawnchairApp
 import app.lawnchair.data.iconoverride.IconOverrideRepository
 import app.lawnchair.nexuslauncher.OverlayCallbackImpl
@@ -34,18 +44,26 @@ import app.lawnchair.preferences.preferenceManager
 import app.lawnchair.preferences2.preferenceManager2
 import app.lawnchair.theme.color.ColorMode
 import app.lawnchair.ui.preferences.LocalIsExpandedScreen
+import app.lawnchair.ui.preferences.components.DummyLauncherBox
+import app.lawnchair.ui.preferences.components.DummyLauncherLayout
 import app.lawnchair.ui.preferences.components.FeedPreference
 import app.lawnchair.ui.preferences.components.GestureHandlerPreference
 import app.lawnchair.ui.preferences.components.HomeLayoutSettings
 import app.lawnchair.ui.preferences.components.NavigationActionPreference
 import app.lawnchair.ui.preferences.components.OverlayHandlerPreference
+import app.lawnchair.ui.preferences.components.WallpaperPreview
+import app.lawnchair.ui.preferences.components.WithWallpaper
+import app.lawnchair.ui.preferences.components.clipToPercentage
 import app.lawnchair.ui.preferences.components.colorpreference.ColorPreference
 import app.lawnchair.ui.preferences.components.controls.ClickablePreference
 import app.lawnchair.ui.preferences.components.controls.ListPreference
 import app.lawnchair.ui.preferences.components.controls.SliderPreference
 import app.lawnchair.ui.preferences.components.controls.SwitchPreference
+import app.lawnchair.ui.preferences.components.createPreviewIdp
+import app.lawnchair.ui.preferences.components.layout.DividerColumn
 import app.lawnchair.ui.preferences.components.layout.ExpandAndShrink
 import app.lawnchair.ui.preferences.components.layout.PreferenceGroup
+import app.lawnchair.ui.preferences.components.layout.PreferenceGroupHeading
 import app.lawnchair.ui.preferences.components.layout.PreferenceLayout
 import app.lawnchair.ui.preferences.navigation.HomeScreenGrid
 import app.lawnchair.util.collectAsStateBlocking
@@ -304,4 +322,59 @@ fun HomeScreenTextColorPreference(
         label = stringResource(id = R.string.home_screen_text_color),
         modifier = modifier,
     )
+}
+
+@Composable
+fun ColumnScope.HomeScreenPreferencesPreview(modifier: Modifier = Modifier) {
+    if (LocalConfiguration.current.orientation == Configuration.ORIENTATION_PORTRAIT) {
+        val prefs = preferenceManager()
+        val prefs2 = preferenceManager2()
+        val adapters = listOf(
+            prefs.workspaceColumns.getAdapter(),
+            prefs.workspaceRows.getAdapter(),
+            prefs2.homeIconSizeFactor.getAdapter(),
+            prefs2.showIconLabelsOnHomeScreen.getAdapter(),
+            prefs2.homeIconLabelSizeFactor.getAdapter(),
+            prefs2.homeIconLabelVerticalOffset.getAdapter(),
+            prefs2.homeIconLabelColor.getAdapter(),
+            prefs2.workspacePaddingHorizontalFactor.getAdapter(),
+            prefs2.workspacePaddingVerticalFactor.getAdapter(),
+            prefs2.workspaceTextColor.getAdapter(),
+            prefs2.showStatusBar.getAdapter(),
+            prefs2.darkStatusBar.getAdapter(),
+            prefs2.showTopShadow.getAdapter(),
+        )
+        PreferenceGroupHeading(
+            heading = stringResource(id = R.string.preview_label),
+        )
+        DividerColumn(
+            modifier = modifier.padding(horizontal = 16.dp),
+        ) {
+            WithWallpaper { wallpaper ->
+                DummyLauncherBox(
+                    modifier = Modifier
+                        .weight(1f)
+                        .align(Alignment.CenterHorizontally)
+                        .clip(MaterialTheme.shapes.large)
+                        .clipToPercentage(0.55f),
+                ) {
+                    WallpaperPreview(
+                        wallpaper = wallpaper,
+                        modifier = Modifier.fillMaxSize(),
+                    )
+                    key(adapters.map { it.state.value }.toTypedArray()) {
+                        DummyLauncherLayout(
+                            idp = createPreviewIdp {
+                                copy(
+                                    numColumns = prefs.workspaceColumns.get(),
+                                    numRows = prefs.workspaceRows.get(),
+                                )
+                            },
+                            modifier = Modifier.fillMaxSize(),
+                        )
+                    }
+                }
+            }
+        }
+    }
 }

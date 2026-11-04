@@ -16,11 +16,23 @@
 
 package app.lawnchair.ui.preferences.components.controls
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Add
+import androidx.compose.material.icons.rounded.Remove
+import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
@@ -36,12 +48,16 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
 import app.lawnchair.preferences.PreferenceAdapter
+import app.lawnchair.preferences.observeAsState
+import app.lawnchair.preferences.preferenceManager
 import app.lawnchair.preferences.rememberTransformAdapter
 import app.lawnchair.ui.preferences.components.layout.PreferenceTemplate
 import app.lawnchair.ui.theme.LawnchairTheme
@@ -64,6 +80,7 @@ fun SliderPreference(
     adapter: PreferenceAdapter<Int>,
     valueRange: ClosedRange<Int>,
     step: Int,
+    modifier: Modifier = Modifier,
     showAsPercentage: Boolean = false,
     showUnit: String = "",
     enabled: Boolean = true,
@@ -80,6 +97,7 @@ fun SliderPreference(
         adapter = transformedAdapter,
         valueRange = start..endInclusive,
         step = step.toFloat(),
+        modifier = modifier,
         showAsPercentage = showAsPercentage,
         showUnit = showUnit,
         enabled = enabled,
@@ -98,7 +116,6 @@ fun SliderPreference(
     enabled: Boolean = true,
 ) {
     var adapterValue by adapter
-
     SliderPreference(
         label = label,
         value = adapterValue,
@@ -129,6 +146,7 @@ private fun SliderPreference(
     var sliderValue by remember { mutableFloatStateOf(value) }
     var thresholdReached by remember { mutableStateOf<SliderThreshold?>(null) }
     val mMSDLPlayerWrapper = MSDLPlayerWrapper.INSTANCE.get(LocalContext.current)
+    val stepperEnabled by preferenceManager().settingsStepperSliders.observeAsState()
     val getAppropriateHaptic = if (step == 0f) {
         MSDLToken.DRAG_INDICATOR_CONTINUOUS
     } else {
@@ -139,6 +157,16 @@ private fun SliderPreference(
         sliderValue = value
         thresholdReached = null
         onDispose { }
+    }
+
+    val snappedValue = snapSliderValue(valueRange.start, sliderValue, step)
+    val formattedValue = if (showAsPercentage) {
+        stringResource(
+            id = R.string.n_percent,
+            (snappedValue * 100).roundToInt(),
+        ) + if (showUnit.isNotEmpty()) " $showUnit" else ""
+    } else {
+        snappedValue.roundToInt().toString() + if (showUnit.isNotEmpty()) " $showUnit" else ""
     }
 
     PreferenceTemplate(
@@ -156,20 +184,63 @@ private fun SliderPreference(
                 )
                 CompositionLocalProvider(
                     LocalContentColor provides MaterialTheme.colorScheme.onSurface,
-                    LocalTextStyle provides MaterialTheme.typography.bodyLarge,
+                    LocalTextStyle provides MaterialTheme.typography.bodyMedium,
                 ) {
-                    val value = snapSliderValue(valueRange.start, sliderValue, step)
-                    Text(
-                        text = if (showAsPercentage) {
-                            stringResource(
-                                id = R.string.n_percent,
-                                (value * 100).roundToInt(),
-                            ) + " $showUnit"
-                        } else {
-                            value.roundToInt().toString() + " $showUnit"
-                        },
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        if (stepperEnabled && step > 0f) {
+                            val canDecrement = enabled && snappedValue - step >= valueRange.start - 0.0001f
+                            SliderStepButton(
+                                icon = Icons.Rounded.Remove,
+                                enabled = canDecrement,
+                                onClick = {
+                                    val next = snapSliderValue(
+                                        valueRange.start,
+                                        (snappedValue - step).coerceIn(valueRange.start, valueRange.endInclusive),
+                                        step,
+                                    )
+                                    sliderValue = next
+                                    mMSDLPlayerWrapper.playToken(MSDLToken.TAP_LOW_EMPHASIS)
+                                    onValueChangeFinished(next)
+                                },
+                            )
+                            Spacer(modifier = Modifier.width(6.dp))
+                        }
+
+                        Box(
+                            contentAlignment = Alignment.Center,
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(8.dp))
+                                .background(MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.65f))
+                                .padding(horizontal = 8.dp, vertical = 3.dp),
+                        ) {
+                            Text(
+                                text = formattedValue,
+                                color = MaterialTheme.colorScheme.onSecondaryContainer,
+                                fontWeight = FontWeight.SemiBold,
+                            )
+                        }
+
+                        if (stepperEnabled && step > 0f) {
+                            Spacer(modifier = Modifier.width(6.dp))
+                            val canIncrement = enabled && snappedValue + step <= valueRange.endInclusive + 0.0001f
+                            SliderStepButton(
+                                icon = Icons.Rounded.Add,
+                                enabled = canIncrement,
+                                onClick = {
+                                    val next = snapSliderValue(
+                                        valueRange.start,
+                                        (snappedValue + step).coerceIn(valueRange.start, valueRange.endInclusive),
+                                        step,
+                                    )
+                                    sliderValue = next
+                                    mMSDLPlayerWrapper.playToken(MSDLToken.TAP_LOW_EMPHASIS)
+                                    onValueChangeFinished(next)
+                                },
+                            )
+                        }
+                    }
                 }
             }
         },
@@ -178,20 +249,20 @@ private fun SliderPreference(
             Slider(
                 value = sliderValue,
                 onValueChange = { newValue ->
+                    val previousStepped = snapSliderValue(valueRange.start, sliderValue, step)
+                    val newStepped = snapSliderValue(valueRange.start, newValue, step)
                     sliderValue = newValue
-                    val threshold = when {
-                        newValue <= valueRange.start -> SliderThreshold.START
-                        newValue >= valueRange.endInclusive -> SliderThreshold.END
-                        else -> null
-                    }
-                    if (threshold != null) {
-                        if (threshold != thresholdReached) {
-                            thresholdReached = threshold
-                            mMSDLPlayerWrapper.playToken(
-                                MSDLToken.DRAG_THRESHOLD_INDICATOR_LIMIT,
-                            )
-                        }
-                    } else {
+
+                    if (newStepped == valueRange.start && thresholdReached != SliderThreshold.START) {
+                        thresholdReached = SliderThreshold.START
+                        mMSDLPlayerWrapper.playToken(MSDLToken.SWIPE_THRESHOLD_INDICATOR)
+                    } else if (newStepped == valueRange.endInclusive && thresholdReached != SliderThreshold.END) {
+                        thresholdReached = SliderThreshold.END
+                        mMSDLPlayerWrapper.playToken(MSDLToken.SWIPE_THRESHOLD_INDICATOR)
+                    } else if (newStepped != previousStepped &&
+                        newStepped != valueRange.start &&
+                        newStepped != valueRange.endInclusive
+                    ) {
                         thresholdReached = null
                         val range = valueRange.endInclusive - valueRange.start
                         val scale = if (range == 0f) {
@@ -214,12 +285,46 @@ private fun SliderPreference(
                 valueRange = valueRange,
                 steps = getSteps(valueRange, step),
                 modifier = Modifier
-                    .padding(top = 2.dp, bottom = 8.dp)
+                    .padding(top = 4.dp, bottom = 8.dp)
                     .height(24.dp),
                 enabled = enabled,
             )
         },
     )
+}
+
+@Composable
+private fun SliderStepButton(
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    enabled: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val containerColor = if (enabled) {
+        MaterialTheme.colorScheme.surfaceVariant
+    } else {
+        MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.35f)
+    }
+    val contentColor = if (enabled) {
+        MaterialTheme.colorScheme.onSurfaceVariant
+    } else {
+        MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.35f)
+    }
+    Box(
+        contentAlignment = Alignment.Center,
+        modifier = modifier
+            .size(26.dp)
+            .clip(CircleShape)
+            .background(containerColor)
+            .clickable(enabled = enabled, onClick = onClick),
+    ) {
+        Icon(
+            imageVector = icon,
+            contentDescription = null,
+            tint = contentColor,
+            modifier = Modifier.size(16.dp),
+        )
+    }
 }
 
 fun getSteps(valueRange: ClosedFloatingPointRange<Float>, step: Float): Int {
