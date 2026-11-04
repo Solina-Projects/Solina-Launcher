@@ -198,6 +198,12 @@ public class FloatingHeaderView extends LinearLayout implements
         mPluginRows.put(allAppsRowPlugin, headerRow);
         recreateAllRowsArray();
         allAppsRowPlugin.setOnHeightUpdatedListener(this);
+        if (mCurrentRV != null) {
+            // The header is rebuilt (disconnect/reconnect) when its height changes. Apply the
+            // current scroll state to the new row so it does not stay hidden from an earlier
+            // scrolled-out state until the next scroll.
+            applyVerticalMove();
+        }
     }
 
     @Override

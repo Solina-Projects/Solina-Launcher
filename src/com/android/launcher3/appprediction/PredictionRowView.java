@@ -284,32 +284,72 @@ public class PredictionRowView<T extends Context & ActivityContext>
                 * getResources().getDisplayMetrics().density);
     }
 
-    /** Height of one suggestion row, scaled by the independent row-height setting. */
-    private int getSingleRowHeight() {
+    private static float positive(@Nullable Float value) {
+        return value != null && value > 0.01f ? value : 1f;
+    }
+
+    /**
+     * Icon size of the strip. It is derived from the drawer's base size with the drawer size
+     * setting removed, so changing the drawer icon size never changes the suggestions.
+     */
+    private int getSuggestionIconSizePx() {
         DeviceProfile deviceProfile = mActivityContext.getDeviceProfile();
-        // Scale the icon with its own setting so larger icons are never clipped by the row.
-        float iconScale = PreferenceCacheExtensionsKt.firstCached(
-                prefs2.getSuggestionIconScale());
-        int iconHeight = Math.round(
-                deviceProfile.getAllAppsProfile().getIconSizePx() * iconScale);
+        float drawerFactor = positive(PreferenceCacheExtensionsKt.firstCached(
+                prefs2.getDrawerIconSizeFactor()));
+        float scale = PreferenceCacheExtensionsKt.firstCached(prefs2.getSuggestionIconScale());
+        int size = Math.max(1, Math.round(
+                deviceProfile.getAllAppsProfile().getIconSizePx() / drawerFactor * scale));
+        int cellWidth = deviceProfile.getAllAppsProfile().getCellWidthPx();
+        return cellWidth > 0 ? Math.min(size, cellWidth) : size;
+    }
+
+    /** Label size of the strip, independent from the drawer label size setting. */
+    private float getSuggestionTextSizePx() {
+        DeviceProfile deviceProfile = mActivityContext.getDeviceProfile();
+        boolean drawerLabels = PreferenceCacheExtensionsKt.firstCached(
+                prefs2.getShowIconLabelsInDrawer());
+        float drawerFactor = positive(PreferenceCacheExtensionsKt.firstCached(
+                prefs2.getDrawerIconLabelSizeFactor()));
+        float profileText = deviceProfile.getAllAppsProfile().getIconTextSizePx();
+        float base = drawerLabels && profileText > 0
+                ? profileText / drawerFactor
+                : Utilities.pxFromSp(12, getResources().getDisplayMetrics());
+        return base * PreferenceCacheExtensionsKt.firstCached(prefs2.getSuggestionLabelScale());
+    }
+
+    private int getSuggestionDrawablePaddingPx() {
         float labelOffsetDp = PreferenceCacheExtensionsKt.firstCached(
                 prefs2.getSuggestionLabelVerticalOffset());
-        int iconPadding = Math.max(0, deviceProfile.getAllAppsProfile().getIconDrawablePaddingPx()
+        return Math.max(0, mActivityContext.getDeviceProfile().getAllAppsProfile()
+                .getIconDrawablePaddingPx()
                 + Math.round(labelOffsetDp * getResources().getDisplayMetrics().density));
-        boolean labelsVisible = PreferenceCacheExtensionsKt.firstCached(
-                prefs2.getSuggestionLabelsVisible());
-        float labelScale = PreferenceCacheExtensionsKt.firstCached(
-                prefs2.getSuggestionLabelScale());
-        int textHeight = labelsVisible ? Utilities.calculateTextHeight(
-                Math.round(deviceProfile.getAllAppsProfile().getIconTextSizePx() * labelScale)) : 0;
-        int totalHeight = iconHeight + iconPadding + textHeight + mVerticalPadding * 2;
-        // Keep the existing prediction-row spacing, multiplied by the configured row count.
-        int extraHeight = deviceProfile.inv.enableTwoLinesInAllApps
-                ? (textHeight + mTopRowExtraHeight) : mTopRowExtraHeight;
-        totalHeight += extraHeight;
+    }
+
+    private boolean areLabelsVisible() {
+        return PreferenceCacheExtensionsKt.firstCached(prefs2.getSuggestionLabelsVisible());
+    }
+
+    /** Height needed to draw an icon (and its label, when shown) without clipping. */
+    private int getContentHeight() {
+        int height = getSuggestionIconSizePx();
+        if (areLabelsVisible()) {
+            int lines = mActivityContext.getDeviceProfile().inv.enableTwoLinesInAllApps ? 2 : 1;
+            height += getSuggestionDrawablePaddingPx()
+                    + Utilities.calculateTextHeight(Math.round(getSuggestionTextSizePx())) * lines;
+        }
+        return height;
+    }
+
+    /**
+     * Height of one suggestion row, scaled by the row-height setting but never smaller than its
+     * content, so enlarging icons can no longer clip them.
+     */
+    private int getSingleRowHeight() {
+        int content = getContentHeight();
+        int comfortable = content + mVerticalPadding * 2 + mTopRowExtraHeight;
         float heightFactor = PreferenceCacheExtensionsKt.firstCached(
                 prefs2.getSuggestionRowHeightFactor());
-        return Math.max(1, Math.round(totalHeight * heightFactor));
+        return Math.max(content, Math.round(comfortable * heightFactor));
     }
 
     @Override
@@ -422,14 +462,9 @@ public class PredictionRowView<T extends Context & ActivityContext>
                     icon.setOnLongClickListener(mActivityContext.getAllAppsItemLongClickListener());
                     icon.setLongPressTimeoutFactor(1f);
                     icon.setOnFocusChangeListener(mFocusHelper);
-                    icon.setIconSizeFactor(PreferenceCacheExtensionsKt.firstCached(
-                            prefs2.getSuggestionIconScale()));
-                    icon.setTextSizeFactor(PreferenceCacheExtensionsKt.firstCached(
-                            prefs2.getSuggestionLabelScale()));
-                    icon.setTextVisibility(PreferenceCacheExtensionsKt.firstCached(
-                            prefs2.getSuggestionLabelsVisible()));
-                    icon.setLabelVerticalOffsetDp(PreferenceCacheExtensionsKt.firstCached(
-                            prefs2.getSuggestionLabelVerticalOffset()));
+                    icon.setIndependentSizing(getSuggestionIconSizePx(),
+                            getSuggestionTextSizePx(), areLabelsVisible(),
+                            getSuggestionDrawablePaddingPx());
                     ColorOption labelColor = PreferenceCacheExtensionsKt.firstCached(
                             prefs2.getSuggestionLabelColor());
                     if (labelColor != null && labelColor.isSupported()) {

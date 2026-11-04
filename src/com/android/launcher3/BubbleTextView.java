@@ -199,6 +199,8 @@ public class BubbleTextView extends TextView implements ItemInfoUpdateReceiver,
     private final int mBaseIconSize;
     private final float mBaseTextSize;
     private int mIconSize;
+    private boolean mIndependentSizing;
+    private boolean mLabelCollapsed;
 
     @ViewDebug.ExportedProperty(category = "launcher")
     private boolean mHideBadge = false;
@@ -675,6 +677,24 @@ public class BubbleTextView extends TextView implements ItemInfoUpdateReceiver,
         if (colorOption != null && colorOption.isSupported()) {
             setTextColor(colorOption.getColorPreferenceEntry().getLightColor().invoke(getContext()));
         }
+    }
+
+    /**
+     * Applies absolute icon/label sizing that does not follow the app drawer settings. Used by the
+     * app suggestion strip. When the label is hidden its space is released, so the icon is
+     * centered in the cell instead of being pushed up (and clipped) by an invisible label.
+     */
+    public void setIndependentSizing(int iconSizePx, float textSizePx, boolean labelVisible,
+            int drawablePaddingPx) {
+        mIndependentSizing = true;
+        mLabelCollapsed = !labelVisible;
+        mIconSize = Math.max(1, iconSizePx);
+        setTextSize(TypedValue.COMPLEX_UNIT_PX, Math.max(1f, textSizePx));
+        setCompoundDrawablePadding(labelVisible ? Math.max(0, drawablePaddingPx) : 0);
+        setTextAlpha(labelVisible ? 1 : 0);
+        applyCompoundDrawables(getIconOrTransparentColor());
+        requestLayout();
+        invalidate();
     }
 
     /**
@@ -1155,10 +1175,16 @@ public class BubbleTextView extends TextView implements ItemInfoUpdateReceiver,
         int height = MeasureSpec.getSize(heightMeasureSpec);
         if (mCenterVertically) {
             Paint.FontMetrics fm = getPaint().getFontMetrics();
-            int cellHeightPx = mIconSize + getCompoundDrawablePadding() +
-                    (int) Math.ceil(fm.bottom - fm.top) * getCellSpecMaxTextLineCount();
-            setPadding(getPaddingLeft(), (height - cellHeightPx) / 2, getPaddingRight(),
-                    getPaddingBottom());
+            int textHeightPx = mLabelCollapsed ? 0
+                    : (int) Math.ceil(fm.bottom - fm.top) * getCellSpecMaxTextLineCount();
+            int drawablePaddingPx = mLabelCollapsed ? 0 : getCompoundDrawablePadding();
+            int cellHeightPx = mIconSize + drawablePaddingPx + textHeightPx;
+            int topPadding = (height - cellHeightPx) / 2;
+            if (mIndependentSizing) {
+                // Never push the icon above the cell, which would clip it.
+                topPadding = Math.max(0, topPadding);
+            }
+            setPadding(getPaddingLeft(), topPadding, getPaddingRight(), getPaddingBottom());
         }
         if (shouldDrawAppContrastTile()) {
             int mAppTitleHorizontalPadding = getResources().getDimensionPixelSize(

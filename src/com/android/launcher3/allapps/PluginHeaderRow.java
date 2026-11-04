@@ -57,6 +57,11 @@ public class PluginHeaderRow implements FloatingHeaderRow {
 
     @Override
     public void setVerticalScroll(int scroll, boolean isScrolledOut) {
+        if (mView instanceof FloatingHeaderRow row) {
+            // The app suggestion strip handles its own alpha/visibility and keeps GONE intact.
+            row.setVerticalScroll(scroll, isScrolledOut);
+            return;
+        }
         mView.setVisibility(isScrolledOut ? INVISIBLE : VISIBLE);
         if (!isScrolledOut) {
             mView.setTranslationY(scroll);
