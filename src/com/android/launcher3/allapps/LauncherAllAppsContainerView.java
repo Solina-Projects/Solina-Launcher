@@ -24,7 +24,6 @@ import app.lawnchair.preferences2.PreferenceManager2;
 import com.android.launcher3.Launcher;
 import com.android.launcher3.LauncherState;
 import com.android.launcher3.Utilities;
-import com.android.launcher3.appprediction.AppDrawerSuggestionRow;
 import com.android.launcher3.appprediction.PredictionRowView;
 import com.android.launcher3.model.data.ItemInfo;
 import com.android.launcher3.statemanager.StateManager;
@@ -49,18 +48,9 @@ public class LauncherAllAppsContainerView extends ActivityAllAppsContainerView<L
         super(context, attrs, defStyleAttr);
     }
 
-    // This view can be queried by the superclass constructor before subclass field
-    // initializers run. Keep the row lazily initialized and do not assign it at declaration.
-    private AppDrawerSuggestionRow mSuggestionRow;
     private final List<ItemInfo> mLatestSuggestedApps = new ArrayList<>();
-    private PredictionRowView<Launcher> mSuggestionFooterView;
-
-    private AppDrawerSuggestionRow getSuggestionRow() {
-        if (mSuggestionRow == null) {
-            mSuggestionRow = new AppDrawerSuggestionRow();
-        }
-        return mSuggestionRow;
-    }
+    // The suggestion strip is an item of the main app list (first or last, by setting).
+    private PredictionRowView<Launcher> mSuggestionView;
 
     private String getSuggestionPosition() {
         return PreferenceCacheExtensionsKt.firstCached(
@@ -69,11 +59,6 @@ public class LauncherAllAppsContainerView extends ActivityAllAppsContainerView<L
 
     private boolean isSuggestionPositionBottom() {
         return "bottom".equals(getSuggestionPosition());
-    }
-
-    @Override
-    public List<com.android.systemui.plugins.AllAppsRow> getAdditionalHeaderRows() {
-        return isSuggestionPositionBottom() ? List.of() : List.of(getSuggestionRow());
     }
 
     @Override
@@ -87,33 +72,27 @@ public class LauncherAllAppsContainerView extends ActivityAllAppsContainerView<L
         if (legacyRow != null) {
             legacyRow.setHeaderRowDisabled(true);
         }
-        if (!isSuggestionPositionBottom()) {
-            return;
-        }
-        // Bottom-positioned suggestions are the last item of the main app list, so they scroll
-        // with the apps instead of staying fixed above the navigation bar.
-        mSuggestionFooterView = new PredictionRowView<>((Launcher) getContext());
-        mSuggestionFooterView.setup(null, FloatingHeaderRow.NO_ROWS, false);
-        mSuggestionFooterView.setPredictedApps(mLatestSuggestedApps);
-        mAH.get(AdapterHolder.MAIN).mAppsList.setSuggestionFooter(mSuggestionFooterView);
+        // The strip is an item of the main app list: it scrolls with the apps, stays where it
+        // is while idle and is never hidden by the header's collapse behaviour.
+        mSuggestionView = new PredictionRowView<>((Launcher) getContext());
+        mSuggestionView.setup(null, FloatingHeaderRow.NO_ROWS, false);
+        mSuggestionView.setPredictedApps(mLatestSuggestedApps);
+        mAH.get(AdapterHolder.MAIN).mAppsList.setSuggestionComponent(
+                mSuggestionView, !isSuggestionPositionBottom());
     }
 
-    /** Returns the independent suggestion view for the active position, or null if not ready. */
+    /** Returns the independent suggestion view, or null if not ready. */
     @androidx.annotation.Nullable
     public PredictionRowView<Launcher> getSuggestionView() {
-        return isSuggestionPositionBottom() ? mSuggestionFooterView : getSuggestionRow().getView();
+        return mSuggestionView;
     }
 
     /** Updates the independent suggestion component with the latest model prediction items. */
     public void setSuggestedApps(List<ItemInfo> items) {
         mLatestSuggestedApps.clear();
         mLatestSuggestedApps.addAll(items);
-        if (isSuggestionPositionBottom()) {
-            if (mSuggestionFooterView != null) {
-                mSuggestionFooterView.setPredictedApps(mLatestSuggestedApps);
-            }
-        } else {
-            getSuggestionRow().setPredictedApps(mLatestSuggestedApps);
+        if (mSuggestionView != null) {
+            mSuggestionView.setPredictedApps(mLatestSuggestedApps);
         }
     }
 

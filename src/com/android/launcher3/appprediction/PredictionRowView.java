@@ -284,45 +284,31 @@ public class PredictionRowView<T extends Context & ActivityContext>
                 * getResources().getDisplayMetrics().density);
     }
 
-    private static float positive(@Nullable Float value) {
-        return value != null && value > 0.01f ? value : 1f;
-    }
+    // The strip owns its sizing: nothing below reads the app drawer's icon, label or grid size
+    // settings, so only the suggestion settings change how large the suggestions are.
+    private static final float BASE_ICON_DP = 56f;
+    private static final float BASE_LABEL_SP = 12f;
+    private static final float BASE_LABEL_GAP_DP = 4f;
 
-    /**
-     * Icon size of the strip. It is derived from the drawer's base size with the drawer size
-     * setting removed, so changing the drawer icon size never changes the suggestions.
-     */
     private int getSuggestionIconSizePx() {
-        DeviceProfile deviceProfile = mActivityContext.getDeviceProfile();
-        float drawerFactor = positive(PreferenceCacheExtensionsKt.firstCached(
-                prefs2.getDrawerIconSizeFactor()));
         float scale = PreferenceCacheExtensionsKt.firstCached(prefs2.getSuggestionIconScale());
-        int size = Math.max(1, Math.round(
-                deviceProfile.getAllAppsProfile().getIconSizePx() / drawerFactor * scale));
-        int cellWidth = deviceProfile.getAllAppsProfile().getCellWidthPx();
+        int size = Math.max(1, Math.round(BASE_ICON_DP
+                * getResources().getDisplayMetrics().density * scale));
+        // An icon can never be drawn wider than its column without being clipped.
+        int cellWidth = mActivityContext.getDeviceProfile().getAllAppsProfile().getCellWidthPx();
         return cellWidth > 0 ? Math.min(size, cellWidth) : size;
     }
 
-    /** Label size of the strip, independent from the drawer label size setting. */
     private float getSuggestionTextSizePx() {
-        DeviceProfile deviceProfile = mActivityContext.getDeviceProfile();
-        boolean drawerLabels = PreferenceCacheExtensionsKt.firstCached(
-                prefs2.getShowIconLabelsInDrawer());
-        float drawerFactor = positive(PreferenceCacheExtensionsKt.firstCached(
-                prefs2.getDrawerIconLabelSizeFactor()));
-        float profileText = deviceProfile.getAllAppsProfile().getIconTextSizePx();
-        float base = drawerLabels && profileText > 0
-                ? profileText / drawerFactor
-                : Utilities.pxFromSp(12, getResources().getDisplayMetrics());
-        return base * PreferenceCacheExtensionsKt.firstCached(prefs2.getSuggestionLabelScale());
+        return Utilities.pxFromSp(BASE_LABEL_SP, getResources().getDisplayMetrics())
+                * PreferenceCacheExtensionsKt.firstCached(prefs2.getSuggestionLabelScale());
     }
 
     private int getSuggestionDrawablePaddingPx() {
+        float density = getResources().getDisplayMetrics().density;
         float labelOffsetDp = PreferenceCacheExtensionsKt.firstCached(
                 prefs2.getSuggestionLabelVerticalOffset());
-        return Math.max(0, mActivityContext.getDeviceProfile().getAllAppsProfile()
-                .getIconDrawablePaddingPx()
-                + Math.round(labelOffsetDp * getResources().getDisplayMetrics().density));
+        return Math.max(0, Math.round((BASE_LABEL_GAP_DP + labelOffsetDp) * density));
     }
 
     private boolean areLabelsVisible() {
@@ -333,9 +319,8 @@ public class PredictionRowView<T extends Context & ActivityContext>
     private int getContentHeight() {
         int height = getSuggestionIconSizePx();
         if (areLabelsVisible()) {
-            int lines = mActivityContext.getDeviceProfile().inv.enableTwoLinesInAllApps ? 2 : 1;
             height += getSuggestionDrawablePaddingPx()
-                    + Utilities.calculateTextHeight(Math.round(getSuggestionTextSizePx())) * lines;
+                    + Utilities.calculateTextHeight(Math.round(getSuggestionTextSizePx()));
         }
         return height;
     }

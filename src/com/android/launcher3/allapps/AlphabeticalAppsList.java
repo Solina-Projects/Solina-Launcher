@@ -76,6 +76,7 @@ public class AlphabeticalAppsList<T extends Context & ActivityContext> implement
     public static final String PRIVATE_SPACE_PACKAGE = "com.android.privatespace";
 
     @Nullable private View mSuggestionFooterView;
+    private boolean mSuggestionAtTop;
 
     private final WorkProfileManager mWorkProviderManager;
 
@@ -296,11 +297,12 @@ public class AlphabeticalAppsList<T extends Context & ActivityContext> implement
      * Sets the suggestion view shown as the last item of this list, or null to remove it.
      * The view is owned by the caller; the adapter only hosts it while the item is bound.
      */
-    public void setSuggestionFooter(@Nullable View footer) {
-        if (mSuggestionFooterView == footer) {
+    public void setSuggestionComponent(@Nullable View footer, boolean atTop) {
+        if (mSuggestionFooterView == footer && mSuggestionAtTop == atTop) {
             return;
         }
         mSuggestionFooterView = footer;
+        mSuggestionAtTop = atTop;
         if (mSearchResults.isEmpty()) {
             updateAdapterItems();
         }
@@ -347,8 +349,16 @@ public class AlphabeticalAppsList<T extends Context & ActivityContext> implement
                 position += mWorkProviderManager.addWorkItems(mAdapterItems);
                 addApps = mWorkProviderManager.shouldShowWorkApps();
             }
+            boolean showSuggestions = mSuggestionFooterView != null && addApps
+                    && mWorkProviderManager == null && !mApps.isEmpty();
+            if (showSuggestions && mSuggestionAtTop) {
+                // Top-positioned suggestions are the first item of the list, so they scroll with
+                // the apps exactly like any other row instead of floating in the header.
+                mAdapterItems.add(new AdapterItem(VIEW_TYPE_SUGGESTION_FOOTER));
+                position++;
+            }
             if (addApps) {
-                if (/* education card was added */ position == 1) {
+                if (/* education card was added */ mWorkProviderManager != null && position == 1) {
                     // Add work educard section with "info icon" at 0th position.
                     mFastScrollerSections.add(new FastScrollSectionInfo(
                             mActivityContext.getResources().getString(
@@ -369,7 +379,7 @@ public class AlphabeticalAppsList<T extends Context & ActivityContext> implement
                         position++));
                 Log.d(TAG, "Adding FastScrollSection duplicate to scroll to the bottom.");
             }
-            if (mSuggestionFooterView != null && addApps && !mApps.isEmpty()) {
+            if (showSuggestions && !mSuggestionAtTop) {
                 // Bottom-positioned suggestions scroll with the list and sit after the last app.
                 mAdapterItems.add(new AdapterItem(VIEW_TYPE_SUGGESTION_FOOTER));
             }
