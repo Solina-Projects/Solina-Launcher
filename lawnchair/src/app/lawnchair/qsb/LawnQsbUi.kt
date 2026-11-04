@@ -32,6 +32,27 @@ import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.BlendMode
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.CompositingStrategy
+import androidx.compose.ui.graphics.Paint as ComposePaint
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
+import androidx.compose.ui.graphics.drawscope.translate
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.graphics.lerp as lerpColor
+import app.lawnchair.preferences2.asState
+import app.lawnchair.preferences2.preferenceManager2
+import app.lawnchair.theme.color.ColorOption
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -295,6 +316,75 @@ fun rememberAllAppsQsbState(
     }
 }
 
+
+/** User-chosen look shared by the dock and app drawer search bars. */
+@Immutable
+data class Qsb3dSettings(
+    val enabled: Boolean,
+    val depthDp: Float,
+    val icons3d: Boolean,
+    @param:ColorInt val backgroundOverride: Int?,
+    @param:ColorInt val iconOverride: Int?,
+)
+
+@Composable
+fun rememberQsb3dSettings(): Qsb3dSettings {
+    val context = LocalContext.current
+    val prefs2 = preferenceManager2()
+    val enabled by prefs2.qsb3dEnabled.asState()
+    val depth by prefs2.qsb3dDepth.asState()
+    val icons3d by prefs2.qsbIcons3d.asState()
+    val background by prefs2.qsbBackgroundColor.asState()
+    val iconColor by prefs2.qsbIconColor.asState()
+    return remember(context, enabled, depth, icons3d, background, iconColor) {
+        Qsb3dSettings(
+            enabled = enabled,
+            depthDp = depth,
+            icons3d = icons3d,
+            backgroundOverride = background.resolveQsbColor(context),
+            iconOverride = iconColor.resolveQsbColor(context),
+        )
+    }
+}
+
+private fun ColorOption.resolveQsbColor(context: Context): Int? =
+    if (this == ColorOption.Default) null else colorPreferenceEntry.lightColor.invoke(context)
+
+private fun Modifier.qsbIcon3d(enabled: Boolean): Modifier {
+    if (!enabled) return this
+    return this
+        .graphicsLayer { compositingStrategy = CompositingStrategy.Offscreen }
+        .drawWithContent {
+            val bounds = Rect(0f, 0f, size.width, size.height)
+            val shift = size.minDimension * 0.06f
+            // Soft drop shadow: the icon's own silhouette in translucent black.
+            drawIntoCanvas { canvas ->
+                canvas.saveLayer(
+                    bounds,
+                    ComposePaint().apply {
+                        colorFilter = ColorFilter.tint(ComposeColor.Black.copy(alpha = 0.35f))
+                    },
+                )
+            }
+            translate(left = shift * 0.5f, top = shift * 1.5f) {
+                this@drawWithContent.drawContent()
+            }
+            drawIntoCanvas { it.restore() }
+            // The icon itself, lit from the top and shaded at the bottom.
+            drawIntoCanvas { it.saveLayer(bounds, ComposePaint()) }
+            drawContent()
+            drawRect(
+                brush = Brush.verticalGradient(
+                    0f to ComposeColor.White.copy(alpha = 0.45f),
+                    0.5f to ComposeColor.Transparent,
+                    1f to ComposeColor.Black.copy(alpha = 0.30f),
+                ),
+                blendMode = BlendMode.SrcAtop,
+            )
+            drawIntoCanvas { it.restore() }
+        }
+}
+
 /**
  * Calculates the corner radius for the Hotseat Quick Search Bar (QSB) based on a scaling factor.
  */
@@ -337,16 +427,46 @@ fun LawnQsbUi(
     modifier: Modifier = Modifier,
 ) {
     val density = LocalDensity.current
+    val look = rememberQsb3dSettings()
 
     val cornerRadius = with(density) { style.cornerRadiusPx.toDp() }
     val strokeWidth = with(density) { style.strokeWidthPx.toDp() }
     val shape = RoundedCornerShape(cornerRadius)
 
-    val containerModifier = modifier
-        .fillMaxWidth()
-        .semantics { contentDescription = state.contentDescription }
+    val baseColor = ComposeColor(look.backgroundOverride ?: style.backgroundColor)
+    val faceColor = baseColor.copy(alpha = style.backgroundAlpha)
+    val depth = if (look.enabled) look.depthDp.dp else 0.dp
+    val depthPx = with(density) { depth.toPx() }
+    val cornerPx = style.cornerRadiusPx
+    val edgeColor = lerpColor(baseColor, ComposeColor.Black, 0.38f).copy(alpha = style.backgroundAlpha)
+    val topLight = lerpColor(baseColor, ComposeColor.White, 0.28f).copy(alpha = style.backgroundAlpha)
+    val bottomShade = lerpColor(baseColor, ComposeColor.Black, 0.08f).copy(alpha = style.backgroundAlpha)
+    val iconTint = look.iconOverride?.let { ComposeColor(it) }
+
+    val containerModifier = Modifier
+        .fillMaxSize()
+        .padding(bottom = depth)
         .clip(shape)
-        .background(ComposeColor(style.backgroundColor).copy(alpha = style.backgroundAlpha), shape)
+        .then(
+            if (look.enabled) {
+                Modifier
+                    .background(Brush.verticalGradient(listOf(topLight, faceColor, bottomShade)), shape)
+                    .drawWithContent {
+                        drawContent()
+                        // Glossy rim along the top of the raised face.
+                        drawRoundRect(
+                            brush = Brush.verticalGradient(
+                                0f to ComposeColor.White.copy(alpha = 0.55f),
+                                0.45f to ComposeColor.Transparent,
+                            ),
+                            cornerRadius = CornerRadius(cornerPx, cornerPx),
+                            style = Stroke(width = 1.5.dp.toPx()),
+                        )
+                    }
+            } else {
+                Modifier.background(faceColor, shape)
+            },
+        )
         .combinedClickable(
             onClick = actions.onQsbClick,
             onLongClick = actions.onQsbLongClick,
@@ -360,61 +480,81 @@ fun LawnQsbUi(
             border(strokeWidth, ComposeColor(style.strokeColor), shape)
         }
 
-    Row(
-        modifier = containerModifier,
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Box(
-            modifier = Modifier
-                .requiredWidth(dimensionResource(R.dimen.qsb_icon_width))
-                .fillMaxHeight()
-                .then(
-                    if (actions.onStartIconClick != null) {
-                        Modifier
-                            .clip(shape)
-                            .qsbClickable(
-                                onClick = actions.onStartIconClick,
-                                shape = shape,
-                            )
-                    } else {
-                        Modifier
-                    },
-                ),
-            contentAlignment = Alignment.Center,
-        ) {
-            Image(
-                painter = rememberThemedIconPainter(
-                    resId = state.startIcon.resId,
-                    themed = state.startIcon.themed,
-                    method = state.startIcon.method,
-                ),
-                contentDescription = state.startIcon.contentDescription,
-                modifier = Modifier.size(24.dp),
-            )
-        }
-
-        Spacer(Modifier.weight(1f))
-
-        val visibleIcons = state.endIcons.filter { it.visible }
-        AnimatedContent(
-            targetState = visibleIcons,
-            transitionSpec = {
-                fadeIn() togetherWith fadeOut() using SizeTransform(clip = false)
-            },
-            label = "endIcons",
-            contentAlignment = Alignment.CenterEnd,
-        ) { icons ->
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                icons.forEachIndexed { index, icon ->
-                    val isLast = index == icons.lastIndex
-                    QsbIcon(
-                        icon = icon,
-                        shape = shape,
-                        onClick = { actions.onEndIconClick(icon.id) },
-                        modifier = Modifier.addIf(isLast) {
-                            offset(x = (-6).dp)
-                        },
+    Box(
+        modifier = modifier
+            .fillMaxWidth()
+            .semantics { contentDescription = state.contentDescription }
+            .addIf(depthPx > 0f) {
+                drawBehind {
+                    // The solid side of the bar, visible below the raised face.
+                    drawRoundRect(
+                        color = edgeColor,
+                        topLeft = Offset(0f, depthPx),
+                        size = Size(size.width, size.height - depthPx),
+                        cornerRadius = CornerRadius(cornerPx, cornerPx),
                     )
+                }
+            },
+    ) {
+        Row(
+            modifier = containerModifier,
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Box(
+                modifier = Modifier
+                    .requiredWidth(dimensionResource(R.dimen.qsb_icon_width))
+                    .fillMaxHeight()
+                    .then(
+                        if (actions.onStartIconClick != null) {
+                            Modifier
+                                .clip(shape)
+                                .qsbClickable(
+                                    onClick = actions.onStartIconClick,
+                                    shape = shape,
+                                )
+                        } else {
+                            Modifier
+                        },
+                    ),
+                contentAlignment = Alignment.Center,
+            ) {
+                Image(
+                    painter = rememberThemedIconPainter(
+                        resId = state.startIcon.resId,
+                        themed = state.startIcon.themed,
+                        method = state.startIcon.method,
+                    ),
+                    contentDescription = state.startIcon.contentDescription,
+                    colorFilter = iconTint?.let { ColorFilter.tint(it) },
+                    modifier = Modifier.size(24.dp).qsbIcon3d(look.icons3d),
+                )
+            }
+
+            Spacer(Modifier.weight(1f))
+
+            val visibleIcons = state.endIcons.filter { it.visible }
+            AnimatedContent(
+                targetState = visibleIcons,
+                transitionSpec = {
+                    fadeIn() togetherWith fadeOut() using SizeTransform(clip = false)
+                },
+                label = "endIcons",
+                contentAlignment = Alignment.CenterEnd,
+            ) { icons ->
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    icons.forEachIndexed { index, icon ->
+                        val isLast = index == icons.lastIndex
+                        QsbIcon(
+                            icon = icon,
+                            shape = shape,
+                            onClick = { actions.onEndIconClick(icon.id) },
+                            tint = iconTint ?: ComposeColor.Unspecified,
+                            icons3d = look.icons3d,
+                            modifier = Modifier.addIf(isLast) {
+                                offset(x = (-6).dp)
+                            },
+                        )
+                    }
                 }
             }
         }
@@ -435,6 +575,8 @@ fun QsbIcon(
     shape: Shape,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
+    tint: ComposeColor = ComposeColor.Unspecified,
+    icons3d: Boolean = false,
 ) {
     Box(
         modifier = modifier
@@ -455,8 +597,8 @@ fun QsbIcon(
                 method = icon.method,
             ),
             contentDescription = icon.contentDescription,
-            tint = ComposeColor.Unspecified,
-            modifier = Modifier.fillMaxSize(),
+            tint = tint,
+            modifier = Modifier.fillMaxSize().qsbIcon3d(icons3d),
         )
     }
 }

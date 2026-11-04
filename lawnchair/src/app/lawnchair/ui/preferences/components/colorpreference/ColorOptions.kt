@@ -3,6 +3,11 @@ package app.lawnchair.ui.preferences.components.colorpreference
 import app.lawnchair.theme.color.ColorOption
 
 val staticColors: List<ColorPreferenceEntry<ColorOption>> = sequenceOf(
+    // Google brand colors
+    ColorOption.CustomColor(0xFF4285F4),
+    ColorOption.CustomColor(0xFFEA4335),
+    ColorOption.CustomColor(0xFFFBBC05),
+    ColorOption.CustomColor(0xFF34A853),
     ColorOption.CustomColor(0xFFF32020),
     ColorOption.CustomColor(0xFFF20D69),
     ColorOption.CustomColor(0xFF7452FF),

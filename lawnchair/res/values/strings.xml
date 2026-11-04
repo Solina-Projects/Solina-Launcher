@@ -1166,4 +1166,10 @@
     <string name="suggestion_strip_corner_radius">Suggestion corner radius</string>
     <string name="suggestion_strip_inner_spacing">Suggestion inner spacing</string>
     <string name="suggestion_strip_outer_spacing">Suggestion outer spacing</string>
+    <string name="qsb_style_heading">Search bar look</string>
+    <string name="qsb_3d_enabled">3D search bar</string>
+    <string name="qsb_3d_depth">3D depth</string>
+    <string name="qsb_icons_3d">3D icons</string>
+    <string name="qsb_background_color_label">Search bar color</string>
+    <string name="qsb_icon_color_label">Search bar icon color</string>
 </resources>

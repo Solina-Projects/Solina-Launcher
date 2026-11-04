@@ -107,6 +107,7 @@ fun DockSearchPreference(
                                 ),
                             )
                         }
+                        QsbLookPreferences()
                         PreferenceGroup(
                             heading = stringResource(R.string.style),
                         ) {

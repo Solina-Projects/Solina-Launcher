@@ -643,6 +643,36 @@ class PreferenceManager2 @Inject constructor(
     )
 
     // Vertical offset in dp for the dock search bar; refresh the launcher grid when changed.
+    // Shared look of the dock and app drawer search bars.
+    val qsb3dEnabled = preference(
+        key = booleanPreferencesKey(name = "qsb_3d_enabled"),
+        defaultValue = true,
+    )
+
+    val qsb3dDepth = preference(
+        key = floatPreferencesKey(name = "qsb_3d_depth"),
+        defaultValue = 4f,
+    )
+
+    val qsbIcons3d = preference(
+        key = booleanPreferencesKey(name = "qsb_icons_3d"),
+        defaultValue = true,
+    )
+
+    val qsbBackgroundColor = preference(
+        key = stringPreferencesKey(name = "qsb_background_color"),
+        parse = ColorOption::fromString,
+        save = ColorOption::toString,
+        defaultValue = ColorOption.Default,
+    )
+
+    val qsbIconColor = preference(
+        key = stringPreferencesKey(name = "qsb_icon_color"),
+        parse = ColorOption::fromString,
+        save = ColorOption::toString,
+        defaultValue = ColorOption.Default,
+    )
+
     val hotseatQsbVerticalOffset = preference(
         key = floatPreferencesKey(name = "hotseat_qsb_vertical_offset"),
         defaultValue = 0.0f,

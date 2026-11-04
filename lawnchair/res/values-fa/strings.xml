@@ -810,4 +810,10 @@
 لانچر سولینا فعالیت‌های شما را زیر نظر نمی‌گیرد؛ بااین‌حال همه سرویس‌های دسترس‌پذیری به این مجوز نیاز دارند. لانچر سولینا تمام رویدادهای ارسالی سیستم را نادیده می‌گیرد.
 
 برای قفل‌کردن تلفن یا بازکردن صفحه برنامه‌های اخیر، لانچر سولینا از سرویس دسترس‌پذیری performGlobalAction استفاده می‌کند.</string>
+    <string name="qsb_style_heading">ظاهر نوار جستجو</string>
+    <string name="qsb_3d_enabled">نوار جستجوی سه‌بعدی</string>
+    <string name="qsb_3d_depth">عمق حالت سه‌بعدی</string>
+    <string name="qsb_icons_3d">آیکن‌های سه‌بعدی</string>
+    <string name="qsb_background_color_label">رنگ نوار جستجو</string>
+    <string name="qsb_icon_color_label">رنگ آیکن‌های نوار جستجو</string>
 </resources>

@@ -64,6 +64,8 @@ fun DrawerSearchPreference(
             )
         }
 
+        QsbLookPreferences()
+
         val searchAlgorithm = preferenceManager2().searchAlgorithm.getAdapter().state.value
         val navController = LocalNavController.current
         PreferenceGroup(heading = stringResource(id = R.string.show_search_result_types)) {
