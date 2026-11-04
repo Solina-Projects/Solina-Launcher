@@ -16,14 +16,18 @@
 
 package app.lawnchair.backup
 
+import android.database.sqlite.SQLiteDatabase
 import android.graphics.Bitmap
 import android.net.Uri
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.floatPreferencesKey
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import app.lawnchair.preferences.PreferenceManager
 import app.lawnchair.preferences2.PreferenceManager2
+import app.lawnchair.security.AppLockStore
 import com.android.launcher3.util.SandboxApplication
 import java.io.File
 import java.io.FileOutputStream
@@ -481,4 +485,191 @@ class LawnchairBackupSelectiveRestoreTest {
         }
     }
 
+
+    @Test
+    fun dockOnlyRestoreUpdatesDockSettingsWithoutChangingHomeScreenGrid() = runBlocking {
+        val prefManager = PreferenceManager.getInstance(context)
+        val prefManager2 = PreferenceManager2.getInstance(context)
+        val backupFile = File(context.cacheDir, "dock_only_selective.lawnchairbackup")
+        try {
+            prefManager.workspaceColumns.set(6)
+            prefManager.workspaceRows.set(7)
+            prefManager.hotseatColumns.set(5)
+            prefManager.hotseatRows.set(2)
+            prefManager.dockPages.set(2)
+            prefManager2.preferencesDataStore.edit { prefs ->
+                prefs[floatPreferencesKey("home_icon_size_factor")] = 1.25f
+                prefs[floatPreferencesKey("hotseat_icon_size_factor")] = 0.85f
+            }
+
+            val snapshotBytes = ModularBackupData.exportSnapshot(
+                context,
+                LawnchairBackup.INCLUDE_LAYOUT_AND_SETTINGS or LawnchairBackup.INCLUDE_DOCK,
+            )
+
+            // Mutate current state before restoring only the Dock section.
+            prefManager.workspaceColumns.set(4)
+            prefManager.workspaceRows.set(5)
+            prefManager.hotseatColumns.set(4)
+            prefManager.hotseatRows.set(1)
+            prefManager.dockPages.set(1)
+            prefManager2.preferencesDataStore.edit { prefs ->
+                prefs[floatPreferencesKey("home_icon_size_factor")] = 1.0f
+                prefs[floatPreferencesKey("hotseat_icon_size_factor")] = 1.0f
+            }
+
+            val info = app.lawnchair.LawnchairProto.BackupInfo.newBuilder()
+                .setBackupVersion(1)
+                .setContents(
+                    LawnchairBackup.INCLUDE_LAYOUT_AND_SETTINGS or LawnchairBackup.INCLUDE_DOCK,
+                )
+                .setPreviewWidth(1)
+                .setPreviewHeight(1)
+                .build()
+
+            ZipOutputStream(FileOutputStream(backupFile)).use { zip ->
+                zip.putNextEntry(ZipEntry(LawnchairBackup.INFO_FILE_NAME))
+                info.writeTo(zip)
+                zip.closeEntry()
+                zip.putNextEntry(ZipEntry(LawnchairBackup.MODULAR_SETTINGS_FILE_NAME))
+                zip.write(snapshotBytes)
+                zip.closeEntry()
+            }
+
+            val backup = LawnchairBackup(context, Uri.fromFile(backupFile))
+            backup.readInfoAndPreview()
+            backup.restore(LawnchairBackup.INCLUDE_DOCK)
+
+            assertEquals(4, prefManager.workspaceColumns.get())
+            assertEquals(5, prefManager.workspaceRows.get())
+            assertEquals(5, prefManager.hotseatColumns.get())
+            assertEquals(2, prefManager.hotseatRows.get())
+            assertEquals(2, prefManager.dockPages.get())
+            val restoredPrefs2 = prefManager2.preferencesDataStore.data.first()
+            assertEquals(1.0f, restoredPrefs2[floatPreferencesKey("home_icon_size_factor")])
+            assertEquals(0.85f, restoredPrefs2[floatPreferencesKey("hotseat_icon_size_factor")])
+        } finally {
+            backupFile.delete()
+        }
+    }
+
+    @Test
+    fun fullModularRestoreRestoresGridColorsQsbAndAppLockWithoutCacheOverwrite() = runBlocking {
+        val prefManager = PreferenceManager.getInstance(context)
+        val prefManager2 = PreferenceManager2.getInstance(context)
+        try {
+            prefManager.workspaceColumns.set(5)
+            prefManager.workspaceRows.set(7)
+            prefManager.hotseatColumns.set(5)
+            prefManager.hotseatRows.set(3)
+            prefManager.launcherTheme.set("dark")
+            prefManager2.preferencesDataStore.edit { prefs ->
+                prefs[intPreferencesKey("drawer_columns")] = 5
+                prefs[booleanPreferencesKey("qsb_3d_enabled")] = true
+                prefs[floatPreferencesKey("qsb_3d_depth")] = 8f
+                prefs[stringPreferencesKey("accent_color")] = "custom_accent"
+            }
+            AppLockStore.replaceLockedPackages(context, setOf("com.example.locked"))
+
+            val exported = ModularBackupData.exportSnapshot(
+                context,
+                LawnchairBackup.ALL_CONTENTS_MASK,
+            )
+
+            // Reset to different values before restoring.
+            prefManager.workspaceColumns.set(4)
+            prefManager.workspaceRows.set(4)
+            prefManager.hotseatColumns.set(4)
+            prefManager.hotseatRows.set(1)
+            prefManager.launcherTheme.set("light")
+            prefManager2.preferencesDataStore.edit { prefs ->
+                prefs[intPreferencesKey("drawer_columns")] = 4
+                prefs[booleanPreferencesKey("qsb_3d_enabled")] = false
+                prefs[floatPreferencesKey("qsb_3d_depth")] = 2f
+                prefs[stringPreferencesKey("accent_color")] = "default"
+            }
+            AppLockStore.replaceLockedPackages(context, emptySet())
+
+            ModularBackupData.restoreSnapshot(
+                context = context,
+                bytes = exported,
+                selectedContents = LawnchairBackup.ALL_CONTENTS_MASK,
+            )
+
+            assertEquals(5, prefManager.workspaceColumns.get())
+            assertEquals(7, prefManager.workspaceRows.get())
+            assertEquals(5, prefManager.hotseatColumns.get())
+            assertEquals(3, prefManager.hotseatRows.get())
+            assertEquals("dark", prefManager.launcherTheme.get())
+            val restoredPrefs2 = prefManager2.getCachedPreferences()
+            assertEquals(5, restoredPrefs2[intPreferencesKey("drawer_columns")])
+            assertEquals(true, restoredPrefs2[booleanPreferencesKey("qsb_3d_enabled")])
+            assertEquals(8f, restoredPrefs2[floatPreferencesKey("qsb_3d_depth")])
+            assertEquals("custom_accent", restoredPrefs2[stringPreferencesKey("accent_color")])
+            assertEquals(setOf("com.example.locked"), AppLockStore.lockedPackages(context))
+        } finally {
+            AppLockStore.replaceLockedPackages(context, emptySet())
+        }
+    }
+
+    @Test
+    fun selectiveDatabaseContainerFilterAndMergeSeparatesHomeScreenAndDock() {
+        val backupDbFile = File(context.cacheDir, "test_backup_containers.db")
+        val preservedDbFile = File(context.cacheDir, "test_preserved_containers.db")
+        try {
+            SQLiteDatabase.openOrCreateDatabase(backupDbFile, null).use { db ->
+                db.execSQL(
+                    "CREATE TABLE favorites (_id INTEGER PRIMARY KEY, title TEXT, container INTEGER, itemType INTEGER)",
+                )
+                db.execSQL("INSERT INTO favorites VALUES (1, 'BackupHomeApp', -100, 0)")
+                db.execSQL("INSERT INTO favorites VALUES (2, 'BackupDockFolder', -101, 2)")
+                db.execSQL("INSERT INTO favorites VALUES (3, 'BackupDockFolderChild', 2, 0)")
+            }
+            SQLiteDatabase.openOrCreateDatabase(preservedDbFile, null).use { db ->
+                db.execSQL(
+                    "CREATE TABLE favorites (_id INTEGER PRIMARY KEY, title TEXT, container INTEGER, itemType INTEGER)",
+                )
+                db.execSQL("INSERT INTO favorites VALUES (1, 'CurrentHomeFolder', -100, 2)")
+                db.execSQL("INSERT INTO favorites VALUES (2, 'CurrentHomeFolderChild', 1, 0)")
+                db.execSQL("INSERT INTO favorites VALUES (3, 'CurrentDockApp', -101, 0)")
+            }
+
+            ModularBackupData.filterLauncherDatabaseContainers(
+                databaseFile = backupDbFile,
+                keepHomeScreen = false,
+                keepDock = true,
+            )
+            ModularBackupData.mergePreservedLauncherContainers(
+                targetDbFile = backupDbFile,
+                preservedDbFile = preservedDbFile,
+                copyHomeScreenFromPreserved = true,
+                copyDockFromPreserved = false,
+            )
+
+            SQLiteDatabase.openDatabase(
+                backupDbFile.absolutePath,
+                null,
+                SQLiteDatabase.OPEN_READONLY,
+            ).use { db ->
+                val titles = mutableListOf<String>()
+                db.rawQuery("SELECT title FROM favorites ORDER BY _id ASC", null).use { cursor ->
+                    while (cursor.moveToNext()) {
+                        titles.add(cursor.getString(0))
+                    }
+                }
+                assertEquals(
+                    listOf(
+                        "BackupDockFolder",
+                        "BackupDockFolderChild",
+                        "CurrentHomeFolder",
+                        "CurrentHomeFolderChild",
+                    ),
+                    titles,
+                )
+            }
+        } finally {
+            backupDbFile.delete()
+            preservedDbFile.delete()
+        }
+    }
 }

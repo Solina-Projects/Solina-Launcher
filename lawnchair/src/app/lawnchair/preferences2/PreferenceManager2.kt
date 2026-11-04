@@ -119,6 +119,10 @@ class PreferenceManager2 @Inject constructor(
 
     fun getCachedPreferences(): Preferences = cachedPreferences
 
+    suspend fun reloadFromDataStore() {
+        cachedPreferences = preferencesDataStore.data.first()
+    }
+
     /**
      * Runs [block] on the main thread once the cache has every value written so far. A preference's
      * onSet runs right after its DataStore write, but the cache is updated by its own collector,

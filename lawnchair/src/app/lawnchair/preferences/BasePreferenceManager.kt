@@ -65,13 +65,21 @@ sealed class BasePreferenceManager(private val context: Context) : SharedPrefere
         }
     }
 
+    @Volatile
+    var suppressListeners = false
+
+    fun reloadFromStorage() {
+        prefsMap.values.forEach { it.invalidate() }
+    }
+
     override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences?, key: String?) {
         val pref = prefsMap[key] ?: return
+        pref.invalidate()
+        if (suppressListeners) return
         val changedSet = changedPrefs
         if (changedSet != null) {
             changedSet.add(pref)
         } else {
-            pref.invalidate()
             pref.onSharedPreferenceChange()
         }
     }
@@ -97,7 +105,7 @@ sealed class BasePreferenceManager(private val context: Context) : SharedPrefere
         protected var loaded = false
         private val listeners = CopyOnWriteArraySet<PreferenceChangeListener>()
 
-        fun invalidate() {
+        open fun invalidate() {
             loaded = false
         }
 
@@ -340,12 +348,25 @@ sealed class BasePreferenceManager(private val context: Context) : SharedPrefere
         private val valueMap = mutableMapOf<K, V>()
 
         init {
-            val obj = JSONObject(sp.getString(key, "{}")!!)
-            obj.keys().forEach {
-                valueMap[unflattenKey(it)] = unflattenValue(obj.getString(it))
-            }
+            reloadMapFromSp()
             @Suppress("LeakingThis")
             prefsMap[key] = this
+        }
+
+        private fun reloadMapFromSp() {
+            valueMap.clear()
+            val raw = sp.getString(key, "{}") ?: "{}"
+            runCatching {
+                val obj = JSONObject(raw)
+                obj.keys().forEach {
+                    valueMap[unflattenKey(it)] = unflattenValue(obj.getString(it))
+                }
+            }
+        }
+
+        override fun invalidate() {
+            super.invalidate()
+            reloadMapFromSp()
         }
 
         override fun get() = HashMap(valueMap)

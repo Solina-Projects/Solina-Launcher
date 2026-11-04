@@ -14,6 +14,13 @@ object AppLockStore {
 
     fun isLocked(context: Context, packageName: String): Boolean = packageName in lockedPackages(context)
 
+    fun replaceLockedPackages(context: Context, packages: Set<String>) {
+        val prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+        check(prefs.edit().putStringSet(KEY_LOCKED_PACKAGES, packages.toSet()).commit()) {
+            "Unable to commit app lock preferences"
+        }
+    }
+
     fun setLocked(context: Context, packageName: String, locked: Boolean) {
         val prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
         val packages = prefs.getStringSet(KEY_LOCKED_PACKAGES, emptySet()).orEmpty().toMutableSet()

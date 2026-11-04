@@ -626,9 +626,17 @@
     -->
     <string name="create_backup">Create backup</string>
     <string name="what_to_backup">What to back up</string>
-    <string name="backup_content_layout_and_settings">Layout and settings</string>
-    <string name="backup_content_wallpaper">Wallpaper</string>
+    <string name="backup_select_all_sections">Select all sections</string>
+    <string name="backup_content_layout_and_settings">Home screen &amp; grid</string>
+    <string name="backup_content_dock">Dock (items, rows &amp; style)</string>
+    <string name="backup_content_app_drawer">App drawer (grid &amp; hidden apps)</string>
     <string name="backup_content_suggestion_settings">App drawer suggestions</string>
+    <string name="backup_content_search">Search bar &amp; search engine</string>
+    <string name="backup_content_folders">Folders &amp; drawer categories</string>
+    <string name="backup_content_theme_and_fonts">Theme, colors &amp; custom fonts</string>
+    <string name="backup_content_icons">Icons, icon pack &amp; custom app names</string>
+    <string name="backup_content_gestures_and_extras">Gestures, Smartspace &amp; app lock</string>
+    <string name="backup_content_wallpaper">Wallpaper &amp; wallpaper gallery</string>
     <string name="backup_create_success">Backup created</string>
     <string name="backup_create_error">Failed to create backup</string>
     <string name="restore_backup">Restore backup</string>

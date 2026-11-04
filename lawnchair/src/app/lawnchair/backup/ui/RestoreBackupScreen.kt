@@ -13,12 +13,14 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -49,6 +51,7 @@ import app.lawnchair.ui.preferences.LocalIsExpandedScreen
 import app.lawnchair.ui.preferences.LocalNavController
 import app.lawnchair.ui.preferences.components.DummyLauncherBox
 import app.lawnchair.ui.preferences.components.controls.FlagSwitchPreference
+import app.lawnchair.ui.preferences.components.controls.SwitchPreference
 import app.lawnchair.ui.preferences.components.layout.PreferenceGroup
 import app.lawnchair.ui.preferences.components.layout.PreferenceLayout
 import app.lawnchair.ui.preferences.navigation.RestoreBackup
@@ -91,20 +94,19 @@ fun RestoreBackupScreen(
         label = stringResource(id = R.string.restore_backup),
         modifier = modifier,
         backArrowVisible = !LocalIsExpandedScreen.current,
-        scrollState = if (isPortrait) null else scrollState,
+        scrollState = scrollState,
     ) {
         when (uiState) {
             is RestoreBackupUiState.Success -> RestoreBackupOptions(isPortrait, uiState.backup)
-
             is RestoreBackupUiState.Loading -> {
                 Box(modifier = Modifier.fillMaxSize()) {
                     CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
                 }
             }
-
             is RestoreBackupUiState.Error -> {
                 val context = LocalContext.current
-                val backDispatcher = LocalOnBackPressedDispatcherOwner.current?.onBackPressedDispatcher
+                val backDispatcher =
+                    LocalOnBackPressedDispatcherOwner.current?.onBackPressedDispatcher
                 DisposableEffect(null) {
                     Toast.makeText(context, R.string.invalid_backup_file, Toast.LENGTH_SHORT).show()
                     backDispatcher?.onBackPressed()
@@ -115,6 +117,7 @@ fun RestoreBackupScreen(
     }
 }
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun ColumnScope.RestoreBackupOptions(
     isPortrait: Boolean,
@@ -122,7 +125,7 @@ fun ColumnScope.RestoreBackupOptions(
     modifier: Modifier = Modifier,
     viewModel: RestoreBackupViewModel = viewModel(),
 ) {
-    val backupContents = backup.info.contents
+    val availableContents = backup.availableContents()
     val contents by viewModel.backupContents.collectAsStateWithLifecycle()
 
     val context = LocalContext.current
@@ -140,9 +143,7 @@ fun ColumnScope.RestoreBackupOptions(
             try {
                 backup.restore(contents)
                 Toast.makeText(context, R.string.backup_restore_success, Toast.LENGTH_SHORT).show()
-                if (contents.hasFlag(LawnchairBackup.INCLUDE_LAYOUT_AND_SETTINGS) ||
-                    contents.hasFlag(LawnchairBackup.INCLUDE_SUGGESTION_SETTINGS)
-                ) {
+                if ((contents and LawnchairBackup.NON_WALLPAPER_CONTENTS) != 0) {
                     restartLauncher(context)
                 }
             } catch (t: Throwable) {
@@ -157,7 +158,7 @@ fun ColumnScope.RestoreBackupOptions(
         DummyLauncherBox(
             modifier = Modifier
                 .padding(top = 8.dp)
-                .weight(1f)
+                .height(220.dp)
                 .align(Alignment.CenterHorizontally)
                 .clip(MaterialTheme.shapes.large),
             darkText = backup.info.previewDarkText,
@@ -172,7 +173,7 @@ fun ColumnScope.RestoreBackupOptions(
                 )
             }
             val screenshot = backup.screenshot
-            if (contents.hasFlag(LawnchairBackup.INCLUDE_LAYOUT_AND_SETTINGS) && screenshot != null) {
+            if ((contents and LawnchairBackup.NON_WALLPAPER_CONTENTS) != 0 && screenshot != null) {
                 Image(
                     bitmap = screenshot.asImageBitmap(),
                     contentDescription = null,
@@ -182,6 +183,9 @@ fun ColumnScope.RestoreBackupOptions(
             }
         }
     }
+
+    val allAvailableSelected =
+        availableContents != 0 && (contents and availableContents) == availableContents
 
     PreferenceGroup(
         modifier = modifier,
@@ -193,33 +197,33 @@ fun ColumnScope.RestoreBackupOptions(
                 DateFormat.getDateTimeInstance().format(Date(backup.info.createdAt.seconds * 1000L)),
                 backup.info.lawnchairVersion,
             ),
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
-        FlagSwitchPreference(
-            flags = contents,
-            setFlags = viewModel::setBackupContents,
-            mask = LawnchairBackup.INCLUDE_LAYOUT_AND_SETTINGS,
-            label = stringResource(id = R.string.backup_content_layout_and_settings),
-            enabled = backupContents.hasFlag(LawnchairBackup.INCLUDE_LAYOUT_AND_SETTINGS),
+        SwitchPreference(
+            checked = allAvailableSelected,
+            onCheckedChange = { selectAll ->
+                viewModel.setBackupContents(if (selectAll) availableContents else 0)
+            },
+            label = stringResource(id = R.string.backup_select_all_sections),
+            enabled = availableContents != 0,
         )
-        FlagSwitchPreference(
-            flags = contents,
-            setFlags = viewModel::setBackupContents,
-            mask = LawnchairBackup.INCLUDE_WALLPAPER,
-            label = stringResource(id = R.string.backup_content_wallpaper),
-            enabled = backupContents.hasFlag(LawnchairBackup.INCLUDE_WALLPAPER),
-        )
-        FlagSwitchPreference(
-            flags = contents,
-            setFlags = viewModel::setBackupContents,
-            mask = LawnchairBackup.INCLUDE_SUGGESTION_SETTINGS,
-            label = stringResource(id = R.string.backup_content_suggestion_settings),
-            enabled = backupContents.hasFlag(LawnchairBackup.INCLUDE_SUGGESTION_SETTINGS),
-        )
+        LawnchairBackup.contentOptions.forEach { (mask, labelResId) ->
+            FlagSwitchPreference(
+                flags = contents,
+                setFlags = viewModel::setBackupContents,
+                mask = mask,
+                label = stringResource(id = labelResId),
+                enabled = availableContents.hasFlag(mask),
+            )
+        }
     }
+
     if (showRestoreConfirmation) {
-        val isLayoutRestore = contents.hasFlag(LawnchairBackup.INCLUDE_LAYOUT_AND_SETTINGS)
+        val isLayoutRestore =
+            contents.hasFlag(LawnchairBackup.INCLUDE_LAYOUT_AND_SETTINGS) ||
+                contents.hasFlag(LawnchairBackup.INCLUDE_DOCK)
         AlertDialog(
             onDismissRequest = { if (!restoringBackup) showRestoreConfirmation = false },
             title = { Text(stringResource(R.string.backup_restore_confirmation_title)) },
@@ -229,14 +233,17 @@ fun ColumnScope.RestoreBackupOptions(
                         when {
                             isLayoutRestore -> R.string.backup_restore_confirmation_layout_message
 
+                            contents == LawnchairBackup.INCLUDE_WALLPAPER ->
+                                R.string.backup_restore_confirmation_wallpaper_message
+
+                            contents == LawnchairBackup.INCLUDE_SUGGESTION_SETTINGS ->
+                                R.string.backup_restore_confirmation_suggestions_message
+
                             contents.hasFlag(LawnchairBackup.INCLUDE_SUGGESTION_SETTINGS) &&
                                 contents.hasFlag(LawnchairBackup.INCLUDE_WALLPAPER) ->
                                 R.string.backup_restore_confirmation_suggestions_and_wallpaper_message
 
-                            contents.hasFlag(LawnchairBackup.INCLUDE_SUGGESTION_SETTINGS) ->
-                                R.string.backup_restore_confirmation_suggestions_message
-
-                            else -> R.string.backup_restore_confirmation_wallpaper_message
+                            else -> R.string.backup_restore_confirmation_layout_message
                         },
                     ),
                 )
@@ -266,7 +273,7 @@ fun ColumnScope.RestoreBackupOptions(
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(top = 8.dp)
+            .padding(top = 8.dp, bottom = 16.dp)
             .padding(horizontal = 16.dp),
     ) {
         Button(
@@ -277,7 +284,11 @@ fun ColumnScope.RestoreBackupOptions(
             enabled = contents != 0 && !restoringBackup,
             shapes = ButtonDefaults.shapes(),
         ) {
-            Text(text = stringResource(id = if (restoringBackup) R.string.please_wait else R.string.action_restore))
+            Text(
+                text = stringResource(
+                    id = if (restoringBackup) R.string.please_wait else R.string.action_restore,
+                ),
+            )
         }
     }
 }
@@ -285,15 +296,13 @@ fun ColumnScope.RestoreBackupOptions(
 @Composable
 fun restoreBackupOpener(): () -> Unit {
     val navController = LocalNavController.current
-
-    val request = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) {
-        if (it.resultCode != Activity.RESULT_OK) return@rememberLauncherForActivityResult
-        val uri = it.data?.data ?: return@rememberLauncherForActivityResult
-
-        val base64Uri = Base64.getEncoder().encodeToString(uri.toString().toByteArray())
-        navController.navigate(RestoreBackup(base64Uri))
-    }
-
+    val request =
+        rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+            if (it.resultCode != Activity.RESULT_OK) return@rememberLauncherForActivityResult
+            val uri = it.data?.data ?: return@rememberLauncherForActivityResult
+            val base64Uri = Base64.getEncoder().encodeToString(uri.toString().toByteArray())
+            navController.navigate(RestoreBackup(base64Uri))
+        }
     return {
         Intent(Intent.ACTION_OPEN_DOCUMENT)
             .addCategory(Intent.CATEGORY_OPENABLE)

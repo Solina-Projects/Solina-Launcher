@@ -68,7 +68,7 @@ class RestoreBackupViewModel(
             val backup = LawnchairBackup(getApplication(), backupUri)
             try {
                 backup.readInfoAndPreview()
-                setBackupContents(backup.info.contents)
+                setBackupContents(backup.availableContents())
                 viewModelState.update { it.copy(backup = backup) }
             } catch (t: Throwable) {
                 backup.close()

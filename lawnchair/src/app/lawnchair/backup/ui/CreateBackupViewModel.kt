@@ -26,6 +26,7 @@ class CreateBackupViewModel(
     application: Application,
     private val savedStateHandle: SavedStateHandle,
 ) : AndroidViewModel(application) {
+
     val screenshot = MutableStateFlow(Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888))
     val screenshotDone = MutableStateFlow(false)
 
@@ -39,9 +40,7 @@ class CreateBackupViewModel(
 
     val backupContents = savedStateHandle.getStateFlow(
         "contents",
-        LawnchairBackup.INCLUDE_LAYOUT_AND_SETTINGS or
-            LawnchairBackup.INCLUDE_WALLPAPER or
-            LawnchairBackup.INCLUDE_SUGGESTION_SETTINGS,
+        LawnchairBackup.ALL_CONTENTS_MASK,
     )
 
     init {
@@ -54,7 +53,6 @@ class CreateBackupViewModel(
     private suspend fun captureScreenshot(): Bitmap? {
         return suspendCancellableCoroutine { continuation ->
             val app = getApplication<Application>()
-
             val config = Configuration(app.resources.configuration).apply {
                 orientation = Configuration.ORIENTATION_PORTRAIT
                 val width = screenWidthDp
@@ -63,7 +61,6 @@ class CreateBackupViewModel(
                 screenHeightDp = max(width, height)
             }
             val context = app.createConfigurationContext(config)
-
             val idp = LauncherAppState.getIDP(context)
             val themedContext = ContextThemeWrapper(context, R.style.Theme_Lawnchair)
             val previewView = LauncherPreviewView(

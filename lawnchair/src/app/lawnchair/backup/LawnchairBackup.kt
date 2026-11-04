@@ -15,6 +15,8 @@ import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import app.lawnchair.LawnchairProto.BackupInfo
 import app.lawnchair.data.AppDatabase
+import app.lawnchair.font.FontCache
+import app.lawnchair.preferences.PreferenceManager
 import app.lawnchair.preferences2.PreferenceManager2
 import app.lawnchair.util.hasFlag
 import app.lawnchair.util.scaleDownTo
@@ -22,6 +24,7 @@ import app.lawnchair.util.scaleDownToDisplaySize
 import app.lawnchair.wallpaper.WallpaperColorsCompat
 import app.lawnchair.wallpaper.WallpaperManagerCompat
 import com.android.launcher3.BuildConfig
+import com.android.launcher3.InvariantDeviceProfile
 import com.android.launcher3.LauncherAppState
 import com.android.launcher3.LauncherFiles
 import com.android.launcher3.LauncherPrefs
@@ -56,6 +59,7 @@ class LawnchairBackup(
     var screenshot: Bitmap? = null
     var wallpaper: Bitmap? = null
     private var archiveSnapshot: File? = null
+    private var archiveEntryNames: Set<String> = emptySet()
 
     /** Releases preview bitmaps and the private archive snapshot when the backup is no longer used. */
     fun close() {
@@ -65,6 +69,31 @@ class LawnchairBackup(
         wallpaper = null
         archiveSnapshot?.delete()
         archiveSnapshot = null
+        archiveEntryNames = emptySet()
+    }
+
+    /**
+     * Returns the bitmask of restorable sections available in this archive.
+     * Legacy archives that stored all preferences under [INCLUDE_LAYOUT_AND_SETTINGS] expose the
+     * granular section switches when the underlying preference files are present in the archive.
+     */
+    fun availableContents(): Int {
+        if (!::info.isInitialized) return 0
+        val raw = info.contents
+        val hasGranularBits = (raw and GRANULAR_MODULE_FLAGS) != 0
+        val hasLegacyPreferencePayload =
+            MODULAR_SETTINGS_FILE_NAME in archiveEntryNames ||
+                PREFS_FILE_NAME in archiveEntryNames ||
+                PREFS_DATASTORE_FILE_NAME in archiveEntryNames
+        return if (
+            raw.hasFlag(INCLUDE_LAYOUT_AND_SETTINGS) &&
+            !hasGranularBits &&
+            hasLegacyPreferencePayload
+        ) {
+            raw or GRANULAR_MODULE_FLAGS or INCLUDE_SUGGESTION_SETTINGS
+        } else {
+            raw
+        }
     }
 
     suspend fun readInfoAndPreview() {
@@ -72,7 +101,7 @@ class LawnchairBackup(
         var tmpScreenshot: Bitmap? = null
         var tmpWallpaper: Bitmap? = null
         try {
-            scanArchive(setOf(INFO_FILE_NAME))
+            archiveEntryNames = scanArchive(setOf(INFO_FILE_NAME))
             readZip(
                 mapOf(
                     INFO_FILE_NAME to { info = BackupInfo.newBuilder().mergeFrom(it).build() },
@@ -94,6 +123,7 @@ class LawnchairBackup(
         } catch (throwable: Throwable) {
             archiveSnapshot?.delete()
             archiveSnapshot = null
+            archiveEntryNames = emptySet()
             tmpScreenshot?.recycle()
             tmpWallpaper?.recycle()
             throw throwable
@@ -101,48 +131,64 @@ class LawnchairBackup(
     }
 
     /**
-     * Restores only the selected sections. In particular, a wallpaper-only restore must never
-     * touch launcher databases, preferences, or grid state.
+     * Restores only the selected sections. Each launcher section can be restored independently or
+     * together with any combination of other sections.
      */
     suspend fun restore(selectedContents: Int) {
         require(::info.isInitialized) { "Backup metadata has not been read" }
         validateInfo(info)
-
-        val contents = selectedContents and info.contents
+        val contents = selectedContents and availableContents()
         if (contents == 0) {
             close()
             return
         }
 
-        val restoreLayout = contents.hasFlag(INCLUDE_LAYOUT_AND_SETTINGS)
+        val hasModularSettings = MODULAR_SETTINGS_FILE_NAME in archiveEntryNames
+        val hasLegacyPrefsFiles =
+            PREFS_FILE_NAME in archiveEntryNames ||
+                PREFS_DATASTORE_FILE_NAME in archiveEntryNames ||
+                PREFS_DB_FILE_NAME in archiveEntryNames
+
+        val restoreHomeScreen = contents.hasFlag(INCLUDE_LAYOUT_AND_SETTINGS)
+        val restoreDock = contents.hasFlag(INCLUDE_DOCK)
+        val restoreLauncherDb =
+            restoreHomeScreen || (restoreDock && LAUNCHER_DB_FILE_NAME in archiveEntryNames)
         val restoreWallpaper = contents.hasFlag(INCLUDE_WALLPAPER)
         val restoreSuggestions = contents.hasFlag(INCLUDE_SUGGESTION_SETTINGS)
-        // A layout archive contains the entire DataStore file. Preserve the current suggestion
-        // section when the user did not explicitly select it, so layout restore remains selective.
-        val preservedSuggestionSettings = if (restoreLayout && !restoreSuggestions) {
-            createSuggestionSettingsSnapshot(context)
-        } else {
-            null
-        }
+        val restoreFonts = contents.hasFlag(INCLUDE_THEME_AND_FONTS)
+        val restoreAnyModularSection = (contents and NON_WALLPAPER_CONTENTS) != 0
+
         val requiredEntries = buildSet {
             add(INFO_FILE_NAME)
-            if (restoreLayout) add(LAUNCHER_DB_FILE_NAME)
+            if (restoreHomeScreen || (restoreDock && !hasModularSettings)) {
+                add(LAUNCHER_DB_FILE_NAME)
+            }
             if (restoreWallpaper) add(WALLPAPER_FILE_NAME)
-            if (restoreSuggestions) add(SUGGESTION_SETTINGS_FILE_NAME)
+            if (restoreSuggestions && !hasModularSettings && !hasLegacyPrefsFiles) {
+                add(SUGGESTION_SETTINGS_FILE_NAME)
+            }
+            if (hasModularSettings && restoreAnyModularSection) {
+                add(MODULAR_SETTINGS_FILE_NAME)
+            }
         }
         requireNotNull(archiveSnapshot?.takeIf(File::isFile)) {
             "Backup archive snapshot is unavailable; read backup metadata again"
         }
-
         val stagingDir = File(context.cacheDir, "lawnchair_restore_${System.nanoTime()}")
         val stagedFiles = mutableMapOf<File, File>()
+        val stagedCustomFonts = mutableMapOf<File, File>()
+        val stagedLegacyFiles = mutableMapOf<String, File>()
         val rollbackFiles = mutableMapOf<File, File?>()
         val modifiedTargets = mutableSetOf<File>()
         var databaseRollbackSnapshotsReady = false
+        var preRestoreModularSnapshot: ByteArray? = null
+
+        val activeLauncherDbBeforeRestore = launcherDbFile(context, forRestore = false)
         val sqliteRollbackDatabases =
-            if (restoreLayout) {
+            if (restoreLauncherDb || restoreAnyModularSection || restoreWallpaper) {
                 (
                     LauncherFiles.GRID_DB_FILES.map(context::getDatabasePath) +
+                        activeLauncherDbBeforeRestore +
                         context.getDatabasePath(PREFS_DB_FILE_NAME)
                     ).distinct()
             } else {
@@ -156,90 +202,140 @@ class LawnchairBackup(
                 File(database.path + "-shm"),
             )
         }.distinct()
+
         var stagedWallpaper: Bitmap? = null
         var stagedSuggestionSettings: ByteArray? = null
+        var stagedModularSettings: ByteArray? = null
 
         try {
-            // Keep validation inside the cleanup scope: a malformed archive must not leave its
-            // private snapshot or preview bitmaps behind when validation fails.
-            scanArchive(requiredEntries)
+            archiveEntryNames = scanArchive(requiredEntries)
             require(stagingDir.mkdirs()) { "Unable to create restore staging directory" }
 
-            if (restoreLayout) {
-                val restoreTargets = getFiles(context, forRestore = true)
-                val handlers = mutableMapOf<String, suspend (InputStream) -> Unit>()
-                restoreTargets.forEach { (entryName, target) ->
-                    handlers[entryName] = { input: InputStream ->
-                        val staged = File(stagingDir, "files/${entryName.replace('/', '_')}")
-                        staged.parentFile?.mkdirs()
-                        staged.outputStream().use { output -> input.copyTo(output) }
-                        stagedFiles[target] = staged
-                    }
-                }
+            val handlers = mutableMapOf<String, suspend (InputStream) -> Unit>()
 
-                // Restore wallpaper-library images alongside their Room metadata so restored
-                // wallpaper records never point at files that were omitted from the archive.
-                val snapshot = requireNotNull(archiveSnapshot)
-                val wallpaperEntries = withContext(Dispatchers.IO) {
-                    ZipFile(snapshot).use { zip ->
-                        val entries = zip.entries()
-                        buildList {
-                            while (entries.hasMoreElements()) {
-                                val name = entries.nextElement().name
-                                if (isWallpaperLibraryEntry(name)) add(name)
-                            }
+            if (restoreLauncherDb) {
+                val restoredDbTarget = launcherDbFile(context, forRestore = true)
+                handlers[LAUNCHER_DB_FILE_NAME] = { input ->
+                    val staged = File(stagingDir, "files/$LAUNCHER_DB_FILE_NAME")
+                    staged.parentFile?.mkdirs()
+                    staged.outputStream().use { output -> input.copyTo(output) }
+                    stagedFiles[restoredDbTarget] = staged
+                }
+            }
+
+            if (hasModularSettings && (restoreAnyModularSection || restoreWallpaper)) {
+                handlers[MODULAR_SETTINGS_FILE_NAME] = { input ->
+                    val payload = input.readBytes()
+                    ModularBackupData.validateSnapshot(payload)
+                    stagedModularSettings = payload
+                }
+            } else if (!hasModularSettings && hasLegacyPrefsFiles && restoreAnyModularSection) {
+                listOf(PREFS_FILE_NAME, PREFS_DB_FILE_NAME, PREFS_DATASTORE_FILE_NAME).forEach { entryName ->
+                    if (entryName in archiveEntryNames) {
+                        handlers[entryName] = { input ->
+                            val staged = File(stagingDir, "legacy/${entryName.replace('/', '_')}")
+                            staged.parentFile?.mkdirs()
+                            staged.outputStream().use { output -> input.copyTo(output) }
+                            stagedLegacyFiles[entryName] = staged
                         }
                     }
                 }
-                wallpaperEntries.forEach { entryName ->
+            }
+
+            if (restoreFonts) {
+                val fontsDir = FontCache.TTFFont.getFontsDir(context)
+                archiveEntryNames.filter(::isCustomFontEntry).forEach { entryName ->
+                    val fileName = entryName.removePrefix(CUSTOM_FONT_ENTRY_PREFIX)
+                    val target = File(fontsDir, fileName)
+                    handlers[entryName] = { input ->
+                        val staged = File(stagingDir, "fonts/$fileName")
+                        staged.parentFile?.mkdirs()
+                        staged.outputStream().use { output -> input.copyTo(output) }
+                        require(FontCache.TTFFont.createTypeface(staged) != null) {
+                            "Invalid custom font file in backup: $fileName"
+                        }
+                        stagedCustomFonts[target] = staged
+                    }
+                }
+            }
+
+            if (restoreWallpaper || restoreHomeScreen) {
+                val wallpaperDir = File(context.filesDir, "wallpapers")
+                archiveEntryNames.filter(::isWallpaperLibraryEntry).forEach { entryName ->
                     val fileName = entryName.removePrefix(WALLPAPER_LIBRARY_ENTRY_PREFIX)
-                    val target = File(File(context.filesDir, "wallpapers"), fileName)
-                    handlers[entryName] = { input: InputStream ->
+                    val target = File(wallpaperDir, fileName)
+                    handlers[entryName] = { input ->
                         val staged = File(stagingDir, "files/wallpaper_$fileName")
                         staged.parentFile?.mkdirs()
                         staged.outputStream().use { output -> input.copyTo(output) }
                         stagedFiles[target] = staged
                     }
                 }
+            }
+
+            if (restoreSuggestions && SUGGESTION_SETTINGS_FILE_NAME in archiveEntryNames) {
+                handlers[SUGGESTION_SETTINGS_FILE_NAME] = { input ->
+                    val payload = input.readBytes()
+                    require(payload.size <= MAX_SUGGESTION_SETTINGS_BYTES) {
+                        "Suggestion settings payload is too large"
+                    }
+                    validateSuggestionSettings(payload)
+                    stagedSuggestionSettings = payload
+                }
+            }
+
+            if (restoreWallpaper) {
+                handlers[WALLPAPER_FILE_NAME] = { input ->
+                    stagedWallpaper = decodeBoundedBitmap(input)
+                        ?: throw IllegalArgumentException("Invalid wallpaper image")
+                }
+            }
+
+            if (handlers.isNotEmpty()) {
                 readZip(handlers)
+            }
+
+            if (restoreLauncherDb) {
                 val stagedDatabase = stagedFiles.entries
                     .firstOrNull { it.key.name == RESTORED_DB_FILE_NAME }
                     ?.value ?: throw IllegalArgumentException("Backup does not contain a launcher database")
                 validateLauncherDatabase(stagedDatabase)
             }
 
-            if (restoreSuggestions) {
-                readZip(
-                    mapOf(
-                        SUGGESTION_SETTINGS_FILE_NAME to { input ->
-                            val payload = input.readBytes()
-                            require(payload.size <= MAX_SUGGESTION_SETTINGS_BYTES) {
-                                "Suggestion settings payload is too large"
-                            }
-                            validateSuggestionSettings(payload)
-                            stagedSuggestionSettings = payload
-                        },
-                    ),
-                )
-            }
-
             if (restoreWallpaper) {
-                readZip(
-                    mapOf(
-                        WALLPAPER_FILE_NAME to { input ->
-                            stagedWallpaper = decodeBoundedBitmap(input)
-                                ?: throw IllegalArgumentException("Invalid wallpaper image")
-                        },
-                    ),
-                )
                 require(stagedWallpaper != null) { "Backup does not contain a valid wallpaper" }
             }
 
-            // Checkpoint live grid databases before taking rollback snapshots so committed WAL
-            // pages are represented by the main database file.
+            if (stagedModularSettings == null && stagedLegacyFiles.isNotEmpty()) {
+                stagedModularSettings = ModularBackupData.createSnapshotFromLegacyFiles(
+                    stagedSharedPrefsXml = stagedLegacyFiles[PREFS_FILE_NAME],
+                    stagedDataStoreFile = stagedLegacyFiles[PREFS_DATASTORE_FILE_NAME],
+                    stagedRoomDbFile = stagedLegacyFiles[PREFS_DB_FILE_NAME],
+                    contents = contents,
+                )
+                ModularBackupData.validateSnapshot(requireNotNull(stagedModularSettings))
+            }
+
+            if (stagedModularSettings != null) {
+                preRestoreModularSnapshot = ModularBackupData.exportSnapshot(context, ALL_CONTENTS_MASK)
+            }
+
+            var preRestoreActiveDbSnapshot: File? = null
             withContext(Dispatchers.IO) {
-                if (restoreLayout) checkpointLauncherDatabases(sqliteRollbackDatabases)
-                val rollbackTargets = (stagedFiles.keys + databaseRollbackTargets).distinct()
+                if (sqliteRollbackDatabases.isNotEmpty()) {
+                    checkpointLauncherDatabases(sqliteRollbackDatabases)
+                }
+                if (restoreLauncherDb &&
+                    activeLauncherDbBeforeRestore.isFile &&
+                    activeLauncherDbBeforeRestore.length() > 0L
+                ) {
+                    val snapshot = File(stagingDir, "pre_restore_active_launcher.db")
+                    activeLauncherDbBeforeRestore.copyTo(snapshot, overwrite = true)
+                    preRestoreActiveDbSnapshot = snapshot
+                }
+
+                val rollbackTargets =
+                    (stagedFiles.keys + stagedCustomFonts.keys + databaseRollbackTargets).distinct()
                 rollbackTargets.forEachIndexed { index, target ->
                     if (target.exists() && !target.name.endsWith("-shm")) {
                         val rollback = File(stagingDir, "rollback/$index")
@@ -247,62 +343,116 @@ class LawnchairBackup(
                         target.copyTo(rollback, overwrite = true)
                         rollbackFiles[target] = rollback
                     } else {
-                        // A null snapshot records that the file did not exist before restore.
-                        // SQLite shared-memory files are transient and are always regenerated.
                         rollbackFiles[target] = null
                     }
                 }
                 databaseRollbackSnapshotsReady = true
 
-                if (restoreLayout) {
-                    stagedFiles.forEach { (target, staged) ->
-                        target.parentFile?.mkdirs()
-                        if (target.name == PREFS_DB_FILE_NAME) {
-                            // The preferences SQLite file is replaced as part of a layout restore;
-                            // stale sidecars must not be replayed against the restored database.
-                            listOf("-wal", "-shm", "-journal").forEach { suffix ->
-                                val sidecar = File(target.path + suffix)
-                                modifiedTargets.add(sidecar)
-                                sidecar.delete()
-                            }
-                        }
-                        modifiedTargets.add(target)
-                        staged.copyTo(target, overwrite = true)
-                    }
+                stagedCustomFonts.forEach { (target, staged) ->
+                    target.parentFile?.mkdirs()
+                    modifiedTargets.add(target)
+                    staged.copyTo(target, overwrite = true)
+                }
+
+                stagedFiles.forEach { (target, staged) ->
+                    target.parentFile?.mkdirs()
+                    modifiedTargets.add(target)
+                    staged.copyTo(target, overwrite = true)
                 }
             }
 
-            if (restoreLayout) {
-                // Preferences are restored from the archive, so the grid state must be applied
-                // afterwards or the restored preferences could overwrite it.
-                DeviceGridState(info.gridState).writeToPrefs(context, true)
-                val restoreController = ModelDbController(context, true)
-                val restoreSucceeded = try {
-                    RestoreDbTask.performRestore(context, restoreController)
+            stagedModularSettings?.let { payload ->
+                ModularBackupData.restoreSnapshot(
+                    context = context,
+                    bytes = payload,
+                    selectedContents = contents,
+                    backupInfo = info,
+                )
+            }
+
+            if (restoreSuggestions && stagedSuggestionSettings != null) {
+                restoreSuggestionSettings(context, requireNotNull(stagedSuggestionSettings))
+                PreferenceManager2.getInstance(context).reloadFromDataStore()
+            }
+
+            if (restoreLauncherDb) {
+                val prefManager = PreferenceManager.getInstance(context)
+                prefManager.suppressListeners = true
+                try {
+                    prefManager.reloadFromStorage()
+                    PreferenceManager2.getInstance(context).reloadFromDataStore()
+                    val idp = InvariantDeviceProfile.INSTANCE.get(context)
+                    idp.reset(context)
+                    val targetDbName = idp.dbFile
+                    val targetDbFile = context.getDatabasePath(targetDbName)
+                    listOf("", "-wal", "-journal", "-shm").forEach { suffix ->
+                        val file = File(targetDbFile.path + suffix)
+                        if (file !in rollbackFiles && !suffix.endsWith("-shm")) {
+                            if (file.exists()) {
+                                val rollback = File(
+                                    stagingDir,
+                                    "rollback/target_${file.name}",
+                                )
+                                rollback.parentFile?.mkdirs()
+                                file.copyTo(rollback, overwrite = true)
+                                rollbackFiles[file] = rollback
+                            } else {
+                                rollbackFiles[file] = null
+                            }
+                        }
+                        modifiedTargets.add(file)
+                    }
+
+                    val restoredDbTarget = launcherDbFile(context, forRestore = true)
+                    withContext(Dispatchers.IO) {
+                        ModularBackupData.filterLauncherDatabaseContainers(
+                            databaseFile = restoredDbTarget,
+                            keepHomeScreen = restoreHomeScreen,
+                            keepDock = restoreDock,
+                        )
+                    }
+
+                    DeviceGridState(idp).writeToPrefs(context, true)
+                    LauncherPrefs.get(context).putSync(LauncherPrefs.DB_FILE.to(targetDbName))
+
+                    val restoreController = ModelDbController(context, true)
+                    val restoreSucceeded = try {
+                        RestoreDbTask.performRestore(context, restoreController)
+                    } finally {
+                        restoreController.close()
+                    }
+                    check(restoreSucceeded) { "Launcher database restore failed" }
+
+                    if ((restoreHomeScreen xor restoreDock) && preRestoreActiveDbSnapshot != null) {
+                        withContext(Dispatchers.IO) {
+                            ModularBackupData.mergePreservedLauncherContainers(
+                                targetDbFile = targetDbFile,
+                                preservedDbFile = requireNotNull(preRestoreActiveDbSnapshot),
+                                copyHomeScreenFromPreserved = !restoreHomeScreen,
+                                copyDockFromPreserved = !restoreDock,
+                            )
+                            checkpointLauncherDatabases(listOf(targetDbFile))
+                        }
+                    } else {
+                        withContext(Dispatchers.IO) {
+                            checkpointLauncherDatabases(listOf(targetDbFile))
+                        }
+                    }
+
+                    LauncherPrefs.get(context).removeSync(LauncherPrefs.RESTORE_DEVICE)
+                    prefManager.reloadFromStorage()
                 } finally {
-                    restoreController.close()
+                    prefManager.suppressListeners = false
                 }
-                check(restoreSucceeded) { "Launcher database restore failed" }
-                // The explicit restore above also handles widget-ID remapping while the pending
-                // flag is present. Clear it only after the database restore has succeeded.
-                LauncherPrefs.get(context).removeSync(LauncherPrefs.RESTORE_DEVICE)
+            } else if (restoreHomeScreen || restoreDock) {
+                val idp = InvariantDeviceProfile.INSTANCE.get(context)
+                idp.reset(context)
             }
 
             if (restoreWallpaper) {
                 WallpaperManager.getInstance(context).setBitmap(requireNotNull(stagedWallpaper))
             }
-
-            if (restoreSuggestions || preservedSuggestionSettings != null) {
-                // Apply the separately archived section after replacing the layout's DataStore.
-                // When suggestions were not selected, put back the pre-restore values instead.
-                restoreSuggestionSettings(
-                    context,
-                    stagedSuggestionSettings ?: requireNotNull(preservedSuggestionSettings),
-                )
-            }
         } catch (throwable: Throwable) {
-            // Restore launcher databases before their WAL/journal sidecars. SHM is transient and
-            // must be regenerated by SQLite rather than copied from an earlier connection.
             if (databaseRollbackSnapshotsReady) {
                 modifiedTargets.addAll(databaseRollbackTargets)
             }
@@ -324,6 +474,11 @@ class LawnchairBackup(
                         }.exceptionOrNull()?.let(::add)
                     }
                 }
+            }
+            preRestoreModularSnapshot?.let { snapshot ->
+                runCatching {
+                    ModularBackupData.restoreSnapshot(context, snapshot, ALL_CONTENTS_MASK)
+                }.exceptionOrNull()?.let(throwable::addSuppressed)
             }
             rollbackFailures.forEach(throwable::addSuppressed)
             throw throwable
@@ -365,22 +520,19 @@ class LawnchairBackup(
     }
 
     private suspend fun readZip(handlers: Map<String, suspend (InputStream) -> Unit>) {
+        val snapshot = requireNotNull(archiveSnapshot?.takeIf(File::isFile)) {
+            "Backup archive snapshot is unavailable"
+        }
         withContext(Dispatchers.IO) {
-            val snapshot = requireNotNull(archiveSnapshot?.takeIf(File::isFile)) {
-                "Backup archive snapshot is unavailable"
-            }
-            FileInputStream(snapshot).use { input ->
-                ZipInputStream(input).use { zip ->
-                    val seen = mutableSetOf<String>()
-                    while (true) {
-                        val entry = zip.nextEntry ?: break
-                        require(!entry.isDirectory && isAllowedEntry(entry.name)) {
-                            "Unsupported backup entry: ${entry.name}"
-                        }
-                        require(seen.add(entry.name)) { "Duplicate backup entry: ${entry.name}" }
-                        handlers[entry.name]?.invoke(zip)
+            ZipInputStream(FileInputStream(snapshot)).use { zip ->
+                var entry: ZipEntry? = null
+                while (zip.nextEntry?.also { entry = it } != null) {
+                    val currentEntry = entry ?: continue
+                    val handler = handlers[currentEntry.name] ?: continue
+                    try {
+                        handler(zip)
+                    } finally {
                         zip.closeEntry()
-                        require(seen.size <= MAX_ENTRY_COUNT) { "Too many backup entries" }
                     }
                 }
             }
@@ -388,66 +540,97 @@ class LawnchairBackup(
     }
 
     /**
-     * Performs a bounded, complete pass before any restore target is modified. Reading every
-     * entry also forces ZIP CRC validation and detects truncated/corrupt archives.
+     * Validates archive structure, entry names, and uncompressed sizes before extracting any
+     * entry. Central-directory metadata is cross-checked with a full stream read so spoofed
+     * headers cannot bypass size limits.
      */
-    private suspend fun scanArchive(requiredEntries: Set<String>) = withContext(Dispatchers.IO) {
-        val snapshot = requireNotNull(archiveSnapshot?.takeIf(File::isFile)) {
-            "Backup archive snapshot is unavailable"
-        }
-        validateCentralDirectory(snapshot)
-        val seen = mutableSetOf<String>()
-        var totalBytes = 0L
-        ZipFile(snapshot).use { zip ->
-            val entries = zip.entries()
+    private suspend fun scanArchive(requiredEntries: Set<String>): Set<String> = withContext(Dispatchers.IO) {
+            val snapshot = requireNotNull(archiveSnapshot?.takeIf(File::isFile)) {
+                "Backup archive snapshot is unavailable"
+            }
+            validateCentralDirectory(snapshot)
+            val seen = mutableSetOf<String>()
+            var totalBytes = 0L
             val buffer = ByteArray(DEFAULT_BUFFER_SIZE)
-            while (entries.hasMoreElements()) {
-                val entry = entries.nextElement()
-                require(!entry.isDirectory && isAllowedEntry(entry.name)) {
-                    "Unsupported backup entry: ${entry.name}"
-                }
-                require(seen.add(entry.name)) { "Duplicate backup entry: ${entry.name}" }
-                val declaredSize = entry.size
-                val compressedSize = entry.compressedSize
-                require(declaredSize >= 0L && compressedSize >= 0L) {
-                    "Backup entry has unknown ZIP size metadata: ${entry.name}"
-                }
-                require(declaredSize <= MAX_ENTRY_BYTES) {
-                    "Backup entry exceeds the supported size: ${entry.name}"
-                }
-                require(
-                    entry.method == ZipEntry.STORED || entry.method == ZipEntry.DEFLATED,
-                ) { "Unsupported ZIP compression method: ${entry.method}" }
-                require(
-                    declaredSize == 0L && compressedSize == 0L ||
-                        compressedSize > 0L &&
-                        declaredSize <= compressedSize * MAX_COMPRESSION_RATIO,
-                ) { "Suspicious ZIP compression ratio: ${entry.name}" }
-
-                var entryBytes = 0L
-                zip.getInputStream(entry).use { stream ->
+            val streamEntryNames = mutableListOf<String>()
+            val streamEntrySizes = mutableMapOf<String, Long>()
+            ZipInputStream(FileInputStream(snapshot)).use { stream ->
+                while (true) {
+                    val entry = stream.nextEntry ?: break
+                    val name = entry.name
+                    require(!entry.isDirectory && isAllowedEntry(name)) {
+                        "Invalid backup entry: $name"
+                    }
+                    require(seen.add(name)) { "Duplicate backup entry: $name" }
+                    require(seen.size <= MAX_ENTRY_COUNT) { "Too many backup entries" }
+                    var entryBytes = 0L
                     while (true) {
                         val count = stream.read(buffer)
                         if (count < 0) break
                         entryBytes += count
                         totalBytes += count
                         require(
-                            entryBytes <= MAX_ENTRY_BYTES &&
-                                totalBytes <= MAX_ARCHIVE_BYTES &&
-                                entryBytes <= declaredSize,
+                            entryBytes <= MAX_ENTRY_BYTES && totalBytes <= MAX_ARCHIVE_BYTES,
                         ) { "Backup archive exceeds its declared or supported size" }
                     }
+                    stream.closeEntry()
+                    streamEntryNames.add(name)
+                    streamEntrySizes[name] = entryBytes
                 }
-                require(entryBytes == declaredSize) {
-                    "ZIP entry size does not match its central-directory metadata: ${entry.name}"
-                }
-                require(seen.size <= MAX_ENTRY_COUNT) { "Too many backup entries" }
             }
+            totalBytes = 0L
+            seen.clear()
+            ZipFile(snapshot).use { zip ->
+                val entries = zip.entries()
+                while (entries.hasMoreElements()) {
+                    val entry = entries.nextElement()
+                    require(!entry.isDirectory && isAllowedEntry(entry.name)) {
+                        "Invalid backup entry: ${entry.name}"
+                    }
+                    require(seen.add(entry.name)) { "Duplicate backup entry: ${entry.name}" }
+                    val declaredSize = entry.size
+                    val compressedSize = entry.compressedSize
+                    require(
+                        declaredSize in 0..MAX_ENTRY_BYTES &&
+                            compressedSize in 0..MAX_ARCHIVE_BYTES,
+                    ) { "Backup entry size is invalid or unsupported: ${entry.name}" }
+                    require(
+                        declaredSize == 0L && compressedSize == 0L ||
+                            compressedSize > 0L &&
+                            declaredSize <= compressedSize * MAX_COMPRESSION_RATIO,
+                    ) { "Suspicious ZIP compression ratio: ${entry.name}" }
+                    var entryBytes = 0L
+                    zip.getInputStream(entry).use { stream ->
+                        while (true) {
+                            val count = stream.read(buffer)
+                            if (count < 0) break
+                            entryBytes += count
+                            totalBytes += count
+                            require(
+                                entryBytes <= MAX_ENTRY_BYTES &&
+                                    totalBytes <= MAX_ARCHIVE_BYTES &&
+                                    entryBytes <= declaredSize,
+                            ) { "Backup archive exceeds its declared or supported size" }
+                        }
+                    }
+                    require(entryBytes == declaredSize) {
+                        "ZIP entry size does not match its central-directory metadata: ${entry.name}"
+                    }
+                    require(seen.size <= MAX_ENTRY_COUNT) { "Too many backup entries" }
+                }
+            }
+            require(
+                streamEntryNames.size == seen.size &&
+                    streamEntryNames.toSet() == seen &&
+                    streamEntrySizes.all { (name, size) ->
+                        ZipFile(snapshot).use { zip -> zip.getEntry(name)?.size == size }
+                    },
+            ) { "ZIP local headers do not match central-directory metadata" }
+            require(seen.containsAll(requiredEntries)) {
+                "Backup is missing required entries: ${requiredEntries - seen}"
+            }
+            seen
         }
-        require(seen.containsAll(requiredEntries)) {
-            "Backup is missing required entries: ${requiredEntries - seen}"
-        }
-    }
 
     /**
      * Bound central-directory parsing before ZipFile allocates entry metadata. ZIP permits a
@@ -480,6 +663,7 @@ class LawnchairBackup(
             val totalEntries = readUInt16LittleEndian(tail, eocdOffset + 10)
             val centralDirectorySize = readUInt32LittleEndian(tail, eocdOffset + 12)
             val centralDirectoryOffset = readUInt32LittleEndian(tail, eocdOffset + 16)
+
             require(diskNumber == 0 && centralDirectoryDisk == 0 && entriesOnDisk == totalEntries) {
                 "Multi-disk ZIP archives are not supported"
             }
@@ -528,7 +712,6 @@ class LawnchairBackup(
             }
             encoded.write(buffer, 0, count)
         }
-
         val bytes = encoded.toByteArray()
         val bounds = BitmapFactory.Options().apply { inJustDecodeBounds = true }
         BitmapFactory.decodeByteArray(bytes, 0, bytes.size, bounds)
@@ -538,7 +721,6 @@ class LawnchairBackup(
         require(bounds.outWidth <= MAX_IMAGE_DIMENSION && bounds.outHeight <= MAX_IMAGE_DIMENSION) {
             "Backup image dimensions exceed the supported limit"
         }
-
         var sampleSize = 1
         while (
             bounds.outWidth / sampleSize.toLong() * (bounds.outHeight / sampleSize.toLong()) >
@@ -554,43 +736,24 @@ class LawnchairBackup(
         )
     }
 
-    private fun checkpointLauncherDatabases(databaseFiles: List<File>) {
-        databaseFiles.forEach { databaseFile ->
-            if (!databaseFile.isFile || databaseFile.length() == 0L) return@forEach
-            val database = SQLiteDatabase.openDatabase(
-                databaseFile.absolutePath,
-                null,
-                SQLiteDatabase.OPEN_READWRITE,
-            )
-            database.use { db ->
-                db.rawQuery("PRAGMA wal_checkpoint(FULL)", null).use { cursor ->
-                    check(cursor.moveToFirst() && cursor.columnCount >= 3) {
-                        "Unable to verify checkpoint for database ${databaseFile.name}"
-                    }
-                    val busy = cursor.getInt(0)
-                    val walFrames = cursor.getInt(1)
-                    val checkpointedFrames = cursor.getInt(2)
-                    check(busy == 0 && (walFrames < 0 || checkpointedFrames >= walFrames)) {
-                        "Incomplete WAL checkpoint for database ${databaseFile.name} " +
-                            "(busy=$busy, walFrames=$walFrames, checkpointed=$checkpointedFrames)"
-                    }
-                }
-            }
-        }
-    }
-
     private fun validateLauncherDatabase(file: File) {
-        val database = SQLiteDatabase.openDatabase(file.absolutePath, null, SQLiteDatabase.OPEN_READONLY)
+        val database = SQLiteDatabase.openDatabase(
+            file.absolutePath,
+            null,
+            SQLiteDatabase.OPEN_READONLY,
+        )
         database.use { db ->
             db.rawQuery("PRAGMA quick_check", null).use { cursor ->
                 require(cursor.moveToFirst() && cursor.getString(0) == "ok") {
                     "Launcher database failed integrity validation"
                 }
             }
-            db.rawQuery("SELECT 1 FROM sqlite_master WHERE type='table' AND name='favorites'", null)
-                .use { cursor ->
-                    require(cursor.moveToFirst()) { "Launcher database has no favorites table" }
-                }
+            db.rawQuery(
+                "SELECT 1 FROM sqlite_master WHERE type='table' AND name='favorites'",
+                null,
+            ).use { cursor ->
+                require(cursor.moveToFirst()) { "Launcher database has no favorites table" }
+            }
         }
     }
 
@@ -598,7 +761,8 @@ class LawnchairBackup(
         require(backupInfo.backupVersion == BACKUP_VERSION) {
             "Unsupported backup version: ${backupInfo.backupVersion}"
         }
-        require(backupInfo.contents != 0 && (backupInfo.contents and KNOWN_CONTENTS.inv()) == 0) {
+        val contents = backupInfo.contents
+        require(contents != 0 && (contents and KNOWN_CONTENTS.inv()) == 0) {
             "Invalid backup contents"
         }
         require(backupInfo.previewWidth >= 0 && backupInfo.previewHeight >= 0) {
@@ -613,15 +777,22 @@ class LawnchairBackup(
             WALLPAPER_FILE_NAME,
             LAUNCHER_DB_FILE_NAME,
             SUGGESTION_SETTINGS_FILE_NAME,
+            MODULAR_SETTINGS_FILE_NAME,
             PREFS_FILE_NAME,
             PREFS_DB_FILE_NAME,
             PREFS_DATASTORE_FILE_NAME,
-        ) || isWallpaperLibraryEntry(name)
+        ) || isWallpaperLibraryEntry(name) || isCustomFontEntry(name)
         ) && !name.contains("..") && !name.startsWith("/")
 
     private fun isWallpaperLibraryEntry(name: String): Boolean {
         if (!name.startsWith(WALLPAPER_LIBRARY_ENTRY_PREFIX)) return false
         val fileName = name.removePrefix(WALLPAPER_LIBRARY_ENTRY_PREFIX)
+        return fileName.isNotBlank() && File(fileName).name == fileName && !fileName.contains("..")
+    }
+
+    private fun isCustomFontEntry(name: String): Boolean {
+        if (!name.startsWith(CUSTOM_FONT_ENTRY_PREFIX)) return false
+        val fileName = name.removePrefix(CUSTOM_FONT_ENTRY_PREFIX)
         return fileName.isNotBlank() && File(fileName).name == fileName && !fileName.contains("..")
     }
 
@@ -642,8 +813,8 @@ class LawnchairBackup(
         private const val ZIP32_SENTINEL = 0xffffffffL
         private const val MAX_ENTRY_BYTES = 256L * 1024 * 1024
         private const val MAX_ARCHIVE_BYTES = 512L * 1024 * 1024
-        private const val KNOWN_CONTENTS = (1 shl 0) or (1 shl 1) or (1 shl 2)
         private const val MAX_SUGGESTION_SETTINGS_BYTES = 64 * 1024
+
         private const val PREFS_FILE_NAME = "${LauncherFiles.SHARED_PREFERENCES_KEY}.xml"
         private const val PREFS_DB_FILE_NAME = "preferences"
         private const val PREFS_DATASTORE_FILE_NAME = "preferences.preferences_pb"
@@ -652,25 +823,58 @@ class LawnchairBackup(
         const val WALLPAPER_FILE_NAME = "wallpaper.png"
         const val SCREENSHOT_FILE_NAME = "screenshot.png"
         const val SUGGESTION_SETTINGS_FILE_NAME = "suggestion-settings.json"
+        const val MODULAR_SETTINGS_FILE_NAME = "modular-settings.json"
         private const val WALLPAPER_LIBRARY_ENTRY_PREFIX = "wallpapers/"
+        private const val CUSTOM_FONT_ENTRY_PREFIX = "custom_fonts/"
         const val LAUNCHER_DB_FILE_NAME = "launcher.db"
         const val RESTORED_DB_FILE_NAME = "restored.db"
 
         const val INCLUDE_LAYOUT_AND_SETTINGS = 1 shl 0
         const val INCLUDE_WALLPAPER = 1 shl 1
         const val INCLUDE_SUGGESTION_SETTINGS = 1 shl 2
+        const val INCLUDE_DOCK = 1 shl 3
+        const val INCLUDE_APP_DRAWER = 1 shl 4
+        const val INCLUDE_SEARCH = 1 shl 5
+        const val INCLUDE_FOLDERS = 1 shl 6
+        const val INCLUDE_THEME_AND_FONTS = 1 shl 7
+        const val INCLUDE_ICONS = 1 shl 8
+        const val INCLUDE_GESTURES_AND_EXTRAS = 1 shl 9
+
+        private const val GRANULAR_MODULE_FLAGS =
+            INCLUDE_DOCK or
+                INCLUDE_APP_DRAWER or
+                INCLUDE_SEARCH or
+                INCLUDE_FOLDERS or
+                INCLUDE_THEME_AND_FONTS or
+                INCLUDE_ICONS or
+                INCLUDE_GESTURES_AND_EXTRAS
+
+        const val NON_WALLPAPER_CONTENTS =
+            INCLUDE_LAYOUT_AND_SETTINGS or
+                INCLUDE_SUGGESTION_SETTINGS or
+                GRANULAR_MODULE_FLAGS
+
+        const val ALL_CONTENTS_MASK = NON_WALLPAPER_CONTENTS or INCLUDE_WALLPAPER
+        private const val KNOWN_CONTENTS = ALL_CONTENTS_MASK
 
         const val MIME_TYPE = "application/zip"
         val EXTRA_MIME_TYPES = arrayOf(MIME_TYPE, "application/x-zip", "application/octet-stream")
 
         val contentOptions = listOf(
             INCLUDE_LAYOUT_AND_SETTINGS to R.string.backup_content_layout_and_settings,
-            INCLUDE_WALLPAPER to R.string.backup_content_wallpaper,
+            INCLUDE_DOCK to R.string.backup_content_dock,
+            INCLUDE_APP_DRAWER to R.string.backup_content_app_drawer,
             INCLUDE_SUGGESTION_SETTINGS to R.string.backup_content_suggestion_settings,
+            INCLUDE_SEARCH to R.string.backup_content_search,
+            INCLUDE_FOLDERS to R.string.backup_content_folders,
+            INCLUDE_THEME_AND_FONTS to R.string.backup_content_theme_and_fonts,
+            INCLUDE_ICONS to R.string.backup_content_icons,
+            INCLUDE_GESTURES_AND_EXTRAS to R.string.backup_content_gestures_and_extras,
+            INCLUDE_WALLPAPER to R.string.backup_content_wallpaper,
         )
 
         fun generateBackupFileName(): String {
-            val fileName = "Lawnchair_Backup ${SimpleDateFormat.getDateTimeInstance().format(Date())}"
+            val fileName = "Solina_Backup_${SimpleDateFormat.getDateTimeInstance().format(Date())}"
             return "$fileName.lawnchairbackup"
         }
 
@@ -683,16 +887,48 @@ class LawnchairBackup(
             )
         }
 
+        private fun checkpointLauncherDatabases(databaseFiles: List<File>) {
+            databaseFiles.forEach { databaseFile ->
+                if (!databaseFile.isFile || databaseFile.length() == 0L) return@forEach
+                val database = SQLiteDatabase.openDatabase(
+                    databaseFile.absolutePath,
+                    null,
+                    SQLiteDatabase.OPEN_READWRITE,
+                )
+                database.use { db ->
+                    db.rawQuery("PRAGMA wal_checkpoint(FULL)", null).use { cursor ->
+                        check(cursor.moveToFirst() && cursor.columnCount >= 3) {
+                            "Unable to verify checkpoint for database ${databaseFile.name}"
+                        }
+                        val busy = cursor.getInt(0)
+                        val walFrames = cursor.getInt(1)
+                        val checkpointedFrames = cursor.getInt(2)
+                        check(busy == 0 && (walFrames < 0 || checkpointedFrames >= walFrames)) {
+                            "Incomplete WAL checkpoint for database ${databaseFile.name} " +
+                                "(busy=$busy, walFrames=$walFrames, checkpointed=$checkpointedFrames)"
+                        }
+                    }
+                }
+            }
+        }
+
         @SuppressLint("MissingPermission")
-        suspend fun create(context: Context, contents: Int, screenshotBitmap: Bitmap, fileUri: Uri) {
+        suspend fun create(
+            context: Context,
+            contents: Int,
+            screenshotBitmap: Bitmap,
+            fileUri: Uri,
+        ) {
             require(contents != 0 && (contents and KNOWN_CONTENTS.inv()) == 0) {
                 "Invalid backup contents"
             }
             val idp = LauncherAppState.getIDP(context)
             val createdAt = Timestamp.newBuilder().setSeconds(System.currentTimeMillis() / 1000)
-            val colorHints = WallpaperManagerCompat.INSTANCE.get(context).wallpaperColors?.colorHints ?: 0
+            val colorHints =
+                WallpaperManagerCompat.INSTANCE.get(context).wallpaperColors?.colorHints ?: 0
             val wallpaperSupportsDarkText =
                 (colorHints and WallpaperColorsCompat.HINT_SUPPORTS_DARK_TEXT) != 0
+
             val info = BackupInfo.newBuilder()
                 .setLawnchairVersion(BuildConfig.VERSION_CODE)
                 .setBackupVersion(BACKUP_VERSION)
@@ -704,86 +940,160 @@ class LawnchairBackup(
                 .setPreviewDarkText(wallpaperSupportsDarkText)
                 .build()
 
-            if (contents.hasFlag(INCLUDE_LAYOUT_AND_SETTINGS)) {
-                // Room stores wallpaper history metadata separately from the image files.
-                // Checkpoint first so all committed metadata is included consistently.
+            val includeHomeScreen = contents.hasFlag(INCLUDE_LAYOUT_AND_SETTINGS)
+            val includeDock = contents.hasFlag(INCLUDE_DOCK)
+            val includeLauncherDb = includeHomeScreen || includeDock
+            val includeAnyNonWallpaper = (contents and NON_WALLPAPER_CONTENTS) != 0
+
+            if (includeAnyNonWallpaper || contents.hasFlag(INCLUDE_WALLPAPER)) {
                 AppDatabase.INSTANCE.get(context).checkpoint()
             }
 
-            val wallpaperLibraryFiles = if (contents.hasFlag(INCLUDE_LAYOUT_AND_SETTINGS)) {
-                File(context.filesDir, "wallpapers").listFiles()
-                    ?.filter { it.isFile && File(it.name).name == it.name && !it.name.contains("..") }
+            val wallpaperLibraryFiles =
+                if (contents.hasFlag(INCLUDE_WALLPAPER) || includeHomeScreen) {
+                    File(context.filesDir, "wallpapers").listFiles()
+                        ?.filter {
+                            it.isFile && File(it.name).name == it.name && !it.name.contains("..")
+                        }
+                        ?: emptyList()
+                } else {
+                    emptyList()
+                }
+
+            val customFontFiles = if (contents.hasFlag(INCLUDE_THEME_AND_FONTS)) {
+                FontCache.TTFFont.getFontsDir(context).listFiles()
+                    ?.filter {
+                        it.isFile && File(it.name).name == it.name && !it.name.contains("..")
+                    }
                     ?: emptyList()
             } else {
                 emptyList()
             }
 
-            val sourceFiles = if (contents.hasFlag(INCLUDE_LAYOUT_AND_SETTINGS)) {
-                getFiles(context, forRestore = false).also { files ->
-                    val launcherDatabase = files[LAUNCHER_DB_FILE_NAME]
-                    require(launcherDatabase?.isFile == true) {
-                        "Launcher database is not available for backup"
-                    }
-                    val existingFiles = files.values.filter { it.isFile }
-                    require(existingFiles.all { it.length() <= MAX_ENTRY_BYTES }) {
-                        "A backup source file exceeds the supported size"
-                    }
-                    require((existingFiles + wallpaperLibraryFiles).all { it.length() <= MAX_ENTRY_BYTES }) {
-                        "A backup source file exceeds the supported size"
-                    }
-                    require((existingFiles + wallpaperLibraryFiles).sumOf { it.length() } <= MAX_ARCHIVE_BYTES) {
-                        "Backup sources exceed the supported size"
-                    }
+            val modularSettingsSnapshot =
+                if (includeAnyNonWallpaper || contents.hasFlag(INCLUDE_WALLPAPER)) {
+                    ModularBackupData.exportSnapshot(context, contents)
+                } else {
+                    null
                 }
-            } else {
-                emptyMap()
-            }
+
             val suggestionSettingsSnapshot = if (contents.hasFlag(INCLUDE_SUGGESTION_SETTINGS)) {
                 createSuggestionSettingsSnapshot(context)
             } else {
                 null
             }
+
             val wallpaperBitmap = if (contents.hasFlag(INCLUDE_WALLPAPER)) {
-                WallpaperManager.getInstance(context).drawable?.toBitmap()
-                    ?: throw IllegalStateException("Wallpaper could not be read")
+                val wallpaperManager = WallpaperManager.getInstance(context)
+                wallpaperManager.drawable?.toBitmap()
+                    ?: throw IllegalStateException("Unable to read current wallpaper")
             } else {
                 null
             }
+
+            val tempFilteredDb = if (includeLauncherDb) {
+                File(context.cacheDir, "backup_launcher_${System.nanoTime()}.db")
+            } else {
+                null
+            }
+
             try {
-                val pfd = context.contentResolver.openFileDescriptor(fileUri, "w")
-                    ?: throw IllegalArgumentException("Unable to create backup file")
                 withContext(Dispatchers.IO) {
+                    if (includeLauncherDb) {
+                        val activeDb = launcherDbFile(context, forRestore = false)
+                        require(activeDb.isFile && activeDb.length() > 0L) {
+                            "Launcher database is not available for backup"
+                        }
+                        checkpointLauncherDatabases(listOf(activeDb))
+                        val tempDb = requireNotNull(tempFilteredDb)
+                        activeDb.copyTo(tempDb, overwrite = true)
+                        ModularBackupData.filterLauncherDatabaseContainers(
+                            databaseFile = tempDb,
+                            keepHomeScreen = includeHomeScreen,
+                            keepDock = includeDock,
+                        )
+                        checkpointLauncherDatabases(listOf(tempDb))
+                    }
+
+                    val legacySourceFiles = if (includeHomeScreen) {
+                        getFiles(context, forRestore = false).filterKeys {
+                            it != LAUNCHER_DB_FILE_NAME
+                        }
+                    } else {
+                        emptyMap()
+                    }
+
+                    val allFilesToVerify = buildList {
+                        tempFilteredDb?.let(::add)
+                        addAll(legacySourceFiles.values.filter(File::isFile))
+                        addAll(wallpaperLibraryFiles)
+                        addAll(customFontFiles)
+                    }
+                    require(allFilesToVerify.all { it.length() <= MAX_ENTRY_BYTES }) {
+                        "A backup source file exceeds the supported size"
+                    }
+                    require(allFilesToVerify.sumOf { it.length() } <= MAX_ARCHIVE_BYTES) {
+                        "Backup sources exceed the supported size"
+                    }
+
+                    val pfd = context.contentResolver.openFileDescriptor(fileUri, "wt")
+                        ?: throw IllegalStateException("Unable to open backup destination")
                     pfd.use {
-                        ZipOutputStream(FileOutputStream(pfd.fileDescriptor).buffered()).use { out ->
-                            out.putNextEntry(ZipEntry(INFO_FILE_NAME))
-                            info.writeTo(out)
-                            out.closeEntry()
-
-                            if (contents.hasFlag(INCLUDE_WALLPAPER)) {
-                                out.putNextEntry(ZipEntry(WALLPAPER_FILE_NAME))
-                                require(requireNotNull(wallpaperBitmap).compress(Bitmap.CompressFormat.PNG, 100, out)) {
-                                    "Unable to encode wallpaper"
-                                }
-                                out.closeEntry()
-                            }
-                            suggestionSettingsSnapshot?.let { payload ->
-                                out.putNextEntry(ZipEntry(SUGGESTION_SETTINGS_FILE_NAME))
-                                out.write(payload)
-                                out.closeEntry()
-                            }
-                            if (contents.hasFlag(INCLUDE_LAYOUT_AND_SETTINGS)) {
-                                out.putNextEntry(ZipEntry(SCREENSHOT_FILE_NAME))
-                                require(screenshotBitmap.compress(Bitmap.CompressFormat.PNG, 85, out)) {
-                                    "Unable to encode backup preview"
-                                }
+                        FileOutputStream(pfd.fileDescriptor).use { fileOut ->
+                            ZipOutputStream(fileOut.buffered()).use { out ->
+                                out.putNextEntry(ZipEntry(INFO_FILE_NAME))
+                                info.writeTo(out)
                                 out.closeEntry()
 
-                                sourceFiles.forEach { (entryName, file) ->
+                                if (contents.hasFlag(INCLUDE_WALLPAPER)) {
+                                    out.putNextEntry(ZipEntry(WALLPAPER_FILE_NAME))
+                                    require(
+                                        requireNotNull(wallpaperBitmap).compress(
+                                            Bitmap.CompressFormat.PNG,
+                                            100,
+                                            out,
+                                        ),
+                                    ) { "Unable to encode wallpaper" }
+                                    out.closeEntry()
+                                }
+
+                                modularSettingsSnapshot?.let { payload ->
+                                    out.putNextEntry(ZipEntry(MODULAR_SETTINGS_FILE_NAME))
+                                    out.write(payload)
+                                    out.closeEntry()
+                                }
+
+                                suggestionSettingsSnapshot?.let { payload ->
+                                    out.putNextEntry(ZipEntry(SUGGESTION_SETTINGS_FILE_NAME))
+                                    out.write(payload)
+                                    out.closeEntry()
+                                }
+
+                                if (includeAnyNonWallpaper) {
+                                    out.putNextEntry(ZipEntry(SCREENSHOT_FILE_NAME))
+                                    require(
+                                        screenshotBitmap.compress(
+                                            Bitmap.CompressFormat.PNG,
+                                            85,
+                                            out,
+                                        ),
+                                    ) { "Unable to encode backup preview" }
+                                    out.closeEntry()
+                                }
+
+                                tempFilteredDb?.let { dbFile ->
+                                    out.putNextEntry(ZipEntry(LAUNCHER_DB_FILE_NAME))
+                                    dbFile.inputStream().use { input -> input.copyTo(out) }
+                                    out.closeEntry()
+                                }
+
+                                legacySourceFiles.forEach { (entryName, file) ->
                                     if (!file.isFile) return@forEach
                                     out.putNextEntry(ZipEntry(entryName))
                                     file.inputStream().use { input -> input.copyTo(out) }
                                     out.closeEntry()
                                 }
+
                                 wallpaperLibraryFiles.forEach { wallpaperFile ->
                                     out.putNextEntry(
                                         ZipEntry(WALLPAPER_LIBRARY_ENTRY_PREFIX + wallpaperFile.name),
@@ -791,29 +1101,39 @@ class LawnchairBackup(
                                     wallpaperFile.inputStream().use { input -> input.copyTo(out) }
                                     out.closeEntry()
                                 }
+
+                                customFontFiles.forEach { fontFile ->
+                                    out.putNextEntry(
+                                        ZipEntry(CUSTOM_FONT_ENTRY_PREFIX + fontFile.name),
+                                    )
+                                    fontFile.inputStream().use { input -> input.copyTo(out) }
+                                    out.closeEntry()
+                                }
+
+                                out.finish()
                             }
+                            fileOut.fd.sync()
                         }
                     }
                 }
             } finally {
-                // This bitmap is created here; the screenshot bitmap remains caller-owned.
+                tempFilteredDb?.delete()
                 wallpaperBitmap?.recycle()
             }
         }
 
         private suspend fun createSuggestionSettingsSnapshot(context: Context): ByteArray {
-            val preferences =
-                PreferenceManager2.getInstance(context).preferencesDataStore.data.first()
+            val preferences = PreferenceManager2.getInstance(context).preferencesDataStore.data.first()
             val json = JSONObject().apply {
                 put("version", 1)
                 put(
                     "show_suggested_apps_at_drawer_top",
-                    preferences[booleanPreferencesKey("show_suggested_apps_at_drawer_top")]
-                        ?: context.resources.getBoolean(
-                            R.bool.config_default_show_suggested_apps_at_drawer_top,
-                        ),
+                    preferences[booleanPreferencesKey("show_suggested_apps_at_drawer_top")] ?: true,
                 )
-                put("suggestion_rows", preferences[intPreferencesKey("suggestion_rows")] ?: 1)
+                put(
+                    "suggestion_rows",
+                    preferences[intPreferencesKey("suggestion_rows")] ?: 1,
+                )
                 put(
                     "suggestion_position",
                     preferences[stringPreferencesKey("suggestion_position")] ?: "top",
@@ -906,7 +1226,6 @@ class LawnchairBackup(
             require(json.getDouble("suggestion_margin") in 0.0..24.0) {
                 "Invalid suggestion margin"
             }
-            // Optional so backups created before this setting existed remain restorable.
             require(json.optDouble("suggestion_row_height_factor", 1.0) in 0.3..1.5) {
                 "Invalid suggestion row height"
             }
@@ -954,6 +1273,7 @@ class LawnchairBackup(
                 } else {
                     preferences[labelColorKey] = json.getString("suggestion_label_color")
                 }
+
                 val backgroundColorKey = stringPreferencesKey("suggestion_background_color")
                 if (json.isNull("suggestion_background_color")) {
                     preferences.remove(backgroundColorKey)
@@ -964,7 +1284,8 @@ class LawnchairBackup(
         }
 
         private fun launcherDbFile(context: Context, forRestore: Boolean): File {
-            val dbName = if (forRestore) RESTORED_DB_FILE_NAME else LauncherAppState.getIDP(context).dbFile
+            val dbName =
+                if (forRestore) RESTORED_DB_FILE_NAME else LauncherAppState.getIDP(context).dbFile
             return context.getDatabasePath(dbName)
         }
 

@@ -13,10 +13,12 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -36,6 +38,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavGraphBuilder
+import androidx.navigation.compose.composable
 import app.lawnchair.backup.LawnchairBackup
 import app.lawnchair.ui.preferences.LocalIsExpandedScreen
 import app.lawnchair.ui.preferences.LocalNavController
@@ -44,8 +49,10 @@ import app.lawnchair.ui.preferences.components.WallpaperAccessPermissionDialog
 import app.lawnchair.ui.preferences.components.WallpaperPreview
 import app.lawnchair.ui.preferences.components.WithWallpaper
 import app.lawnchair.ui.preferences.components.controls.FlagSwitchPreference
+import app.lawnchair.ui.preferences.components.controls.SwitchPreference
 import app.lawnchair.ui.preferences.components.layout.PreferenceGroup
 import app.lawnchair.ui.preferences.components.layout.PreferenceLayout
+import app.lawnchair.ui.preferences.navigation.CreateBackup
 import app.lawnchair.util.BackHandler
 import app.lawnchair.util.FileAccessState
 import app.lawnchair.util.hasFlag
@@ -53,10 +60,17 @@ import app.lawnchair.util.removeFlag
 import com.android.launcher3.R
 import kotlinx.coroutines.launch
 
+fun NavGraphBuilder.createBackupGraph() {
+    composable<CreateBackup> {
+        CreateBackupScreen()
+    }
+}
+
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun CreateBackupScreen(
-    viewModel: CreateBackupViewModel,
     modifier: Modifier = Modifier,
+    viewModel: CreateBackupViewModel = viewModel(),
 ) {
     val contents by viewModel.backupContents.collectAsStateWithLifecycle()
     val screenshot by viewModel.screenshot.collectAsStateWithLifecycle()
@@ -64,13 +78,11 @@ fun CreateBackupScreen(
 
     val isPortrait = LocalConfiguration.current.orientation == Configuration.ORIENTATION_PORTRAIT
     val scrollState = rememberScrollState()
-
     val context = LocalContext.current
     val hasLiveWallpaper = remember { WallpaperManager.getInstance(context).wallpaperInfo != null }
     val allFilesAccessState by viewModel.allFilesAccessState.collectAsStateWithLifecycle()
     val wallpaperAccessState by viewModel.wallpaperAccessState.collectAsStateWithLifecycle()
     val hasWallpaperPermission = wallpaperAccessState == FileAccessState.Full
-
     var showPermissionDialog by remember { mutableStateOf(false) }
 
     val scope = rememberCoroutineScope()
@@ -107,21 +119,27 @@ fun CreateBackupScreen(
         request.launch(intent)
     }
 
+    val selectableMask = if (hasLiveWallpaper || !hasWallpaperPermission) {
+        LawnchairBackup.NON_WALLPAPER_CONTENTS
+    } else {
+        LawnchairBackup.ALL_CONTENTS_MASK
+    }
+    val allSelected = (contents and selectableMask) == selectableMask
+
     PreferenceLayout(
         label = stringResource(id = R.string.create_backup),
         modifier = modifier,
         isExpandedScreen = true,
         backArrowVisible = !LocalIsExpandedScreen.current,
-        scrollState = if (isPortrait) null else scrollState,
+        scrollState = scrollState,
     ) {
         DisposableEffect(contents, hasLiveWallpaper, hasWallpaperPermission) {
-            val canBackupWallpaper = hasLiveWallpaper || !hasWallpaperPermission
-            if (contents.hasFlag(LawnchairBackup.INCLUDE_WALLPAPER) && canBackupWallpaper) {
+            val cannotBackupWallpaper = hasLiveWallpaper || !hasWallpaperPermission
+            if (contents.hasFlag(LawnchairBackup.INCLUDE_WALLPAPER) && cannotBackupWallpaper) {
                 viewModel.setBackupContents(contents.removeFlag(LawnchairBackup.INCLUDE_WALLPAPER))
             }
             onDispose { }
         }
-
         if (isPortrait) {
             WithWallpaper(
                 displayWallpaperButton = false,
@@ -129,7 +147,7 @@ fun CreateBackupScreen(
                 DummyLauncherBox(
                     modifier = Modifier
                         .padding(top = 8.dp)
-                        .weight(1f)
+                        .height(220.dp)
                         .align(Alignment.CenterHorizontally)
                         .clip(MaterialTheme.shapes.large),
                 ) {
@@ -139,7 +157,7 @@ fun CreateBackupScreen(
                             modifier = Modifier.fillMaxSize(),
                         )
                     }
-                    if (contents.hasFlag(LawnchairBackup.INCLUDE_LAYOUT_AND_SETTINGS)) {
+                    if ((contents and LawnchairBackup.NON_WALLPAPER_CONTENTS) != 0) {
                         Image(
                             bitmap = screenshot.asImageBitmap(),
                             contentDescription = null,
@@ -150,38 +168,37 @@ fun CreateBackupScreen(
                 }
             }
         }
-
         PreferenceGroup(heading = stringResource(id = R.string.what_to_backup)) {
-            FlagSwitchPreference(
-                flags = contents,
-                setFlags = viewModel::setBackupContents,
-                mask = LawnchairBackup.INCLUDE_LAYOUT_AND_SETTINGS,
-                label = stringResource(id = R.string.backup_content_layout_and_settings),
-            )
-            FlagSwitchPreference(
-                flags = contents,
-                setFlags = {
-                    if (it.hasFlag(LawnchairBackup.INCLUDE_WALLPAPER) && !hasWallpaperPermission) {
-                        showPermissionDialog = true
-                    } else {
-                        viewModel.setBackupContents(it)
-                    }
+            SwitchPreference(
+                checked = allSelected,
+                onCheckedChange = { selectAll ->
+                    viewModel.setBackupContents(if (selectAll) selectableMask else 0)
                 },
-                mask = LawnchairBackup.INCLUDE_WALLPAPER,
-                label = stringResource(id = R.string.backup_content_wallpaper),
-                enabled = !hasLiveWallpaper,
+                label = stringResource(id = R.string.backup_select_all_sections),
             )
-            FlagSwitchPreference(
-                flags = contents,
-                setFlags = viewModel::setBackupContents,
-                mask = LawnchairBackup.INCLUDE_SUGGESTION_SETTINGS,
-                label = stringResource(id = R.string.backup_content_suggestion_settings),
-            )
+            LawnchairBackup.contentOptions.forEach { (mask, labelResId) ->
+                FlagSwitchPreference(
+                    flags = contents,
+                    setFlags = { updated ->
+                        if (mask == LawnchairBackup.INCLUDE_WALLPAPER &&
+                            updated.hasFlag(LawnchairBackup.INCLUDE_WALLPAPER) &&
+                            !hasWallpaperPermission
+                        ) {
+                            showPermissionDialog = true
+                        } else {
+                            viewModel.setBackupContents(updated)
+                        }
+                    },
+                    mask = mask,
+                    label = stringResource(id = labelResId),
+                    enabled = mask != LawnchairBackup.INCLUDE_WALLPAPER || !hasLiveWallpaper,
+                )
+            }
         }
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(top = 8.dp)
+                .padding(top = 8.dp, bottom = 16.dp)
                 .padding(horizontal = 16.dp),
         ) {
             Button(
@@ -192,7 +209,11 @@ fun CreateBackupScreen(
                 enabled = contents != 0 && screenshotDone && !creatingBackup,
                 shapes = ButtonDefaults.shapes(),
             ) {
-                Text(text = stringResource(id = if (creatingBackup) R.string.please_wait else R.string.action_create))
+                Text(
+                    text = stringResource(
+                        id = if (creatingBackup) R.string.please_wait else R.string.action_create,
+                    ),
+                )
             }
         }
 
