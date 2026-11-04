@@ -2,6 +2,7 @@ package app.lawnchair.ui.preferences.components.search
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import app.lawnchair.preferences.getAdapter
 import app.lawnchair.preferences2.preferenceManager2
@@ -17,11 +18,16 @@ import com.android.launcher3.R
  * apply to both the dock and the app drawer search bar.
  */
 @Composable
-fun QsbLookPreferences() {
+fun QsbLookPreferences(
+    modifier: Modifier = Modifier,
+) {
     val prefs2 = preferenceManager2()
     val enabledAdapter = prefs2.qsb3dEnabled.getAdapter()
 
-    PreferenceGroup(heading = stringResource(R.string.qsb_style_heading)) {
+    PreferenceGroup(
+        heading = stringResource(R.string.qsb_style_heading),
+        modifier = modifier,
+    ) {
         SwitchPreference(
             adapter = enabledAdapter,
             label = stringResource(R.string.qsb_3d_enabled),
