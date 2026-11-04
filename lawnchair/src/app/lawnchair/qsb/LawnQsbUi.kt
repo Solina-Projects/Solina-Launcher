@@ -316,7 +316,6 @@ fun rememberAllAppsQsbState(
     }
 }
 
-
 /** User-chosen look shared by the dock and app drawer search bars. */
 @Immutable
 data class Qsb3dSettings(
@@ -347,8 +346,7 @@ fun rememberQsb3dSettings(): Qsb3dSettings {
     }
 }
 
-private fun ColorOption.resolveQsbColor(context: Context): Int? =
-    if (this == ColorOption.Default) null else colorPreferenceEntry.lightColor.invoke(context)
+private fun ColorOption.resolveQsbColor(context: Context): Int? = if (this == ColorOption.Default) null else colorPreferenceEntry.lightColor.invoke(context)
 
 private fun Modifier.qsbIcon3d(enabled: Boolean): Modifier {
     if (!enabled) return this
