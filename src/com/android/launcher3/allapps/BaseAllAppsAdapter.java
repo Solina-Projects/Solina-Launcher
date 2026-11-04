@@ -40,7 +40,9 @@ import android.widget.TextView;
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.RecyclerView;
 
+import app.lawnchair.allapps.AllAppsCardStyler;
 import com.android.launcher3.BubbleTextView;
+import java.util.Objects;
 import com.android.launcher3.R;
 import com.android.launcher3.allapps.search.SearchAdapterProvider;
 import com.android.launcher3.folder.FolderIcon;
@@ -76,9 +78,12 @@ public abstract class BaseAllAppsAdapter<T extends Context & ActivityContext> ex
 
     // LC-Feature: Folder support in All Apps, can be any ID
     public static final int VIEW_TYPE_FOLDER = 1 << 10;
+    public static final int VIEW_TYPE_CATEGORY_BAR = 1 << 11;
+    public static final int VIEW_TYPE_CATEGORY_HEADER = 1 << 12;
 
     // Common view type masks
-    public static final int VIEW_TYPE_MASK_DIVIDER = VIEW_TYPE_ALL_APPS_DIVIDER;
+    public static final int VIEW_TYPE_MASK_DIVIDER = VIEW_TYPE_ALL_APPS_DIVIDER
+            | VIEW_TYPE_CATEGORY_BAR | VIEW_TYPE_CATEGORY_HEADER;
     public static final int VIEW_TYPE_MASK_ICON = VIEW_TYPE_FOLDER | VIEW_TYPE_ICON;
 
     public static final int VIEW_TYPE_MASK_PRIVATE_SPACE_HEADER =
@@ -123,6 +128,22 @@ public abstract class BaseAllAppsAdapter<T extends Context & ActivityContext> ex
 
         // LC-Feature: Folder support in All Apps
         public FolderInfo folderInfo = new FolderInfo();
+        public CharSequence categoryTitle = null;
+        public int categoryCount = 0;
+        public View customHeaderView = null;
+
+        public static AdapterItem asCategoryBar(View barView) {
+            AdapterItem item = new AdapterItem(VIEW_TYPE_CATEGORY_BAR);
+            item.customHeaderView = barView;
+            return item;
+        }
+
+        public static AdapterItem asCategoryHeader(CharSequence title, int count) {
+            AdapterItem item = new AdapterItem(VIEW_TYPE_CATEGORY_HEADER);
+            item.categoryTitle = title;
+            item.categoryCount = count;
+            return item;
+        }
 
         /**
          * Factory method for AppIcon AdapterItem
@@ -162,6 +183,13 @@ public abstract class BaseAllAppsAdapter<T extends Context & ActivityContext> ex
          * as well. Returning true will prevent redrawing of thee item.
          */
         public boolean isContentSame(AdapterItem other) {
+            if (viewType == VIEW_TYPE_CATEGORY_HEADER) {
+                return Objects.equals(categoryTitle, other.categoryTitle)
+                        && categoryCount == other.categoryCount;
+            }
+            if (viewType == VIEW_TYPE_CATEGORY_BAR) {
+                return false;
+            }
             return itemInfo == null && other.itemInfo == null;
         }
 
@@ -276,6 +304,14 @@ public abstract class BaseAllAppsAdapter<T extends Context & ActivityContext> ex
                         ViewGroup.LayoutParams.MATCH_PARENT,
                         mActivityContext.getDeviceProfile().getAllAppsProfile().getCellHeightPx()));
                 return new ViewHolder(fl);
+            case VIEW_TYPE_CATEGORY_BAR:
+                FrameLayout barHost = new FrameLayout(mActivityContext);
+                barHost.setLayoutParams(new RecyclerView.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT,
+                        ViewGroup.LayoutParams.WRAP_CONTENT));
+                return new ViewHolder(barHost);
+            case VIEW_TYPE_CATEGORY_HEADER:
+                return new ViewHolder(AllAppsCardStyler.createCategoryHeaderView(mActivityContext));
             default:
                 if (mAdapterProvider.isViewSupported(viewType)) {
                     return mAdapterProvider.onCreateViewHolder(mLayoutInflater, parent, viewType);
@@ -302,6 +338,7 @@ public abstract class BaseAllAppsAdapter<T extends Context & ActivityContext> ex
                 icon.setSkipUserBadge(skipUserBadge);
                 icon.applyFromApplicationInfo(adapterItem.itemInfo);
                 icon.setOnFocusChangeListener(mIconFocusListener);
+                AllAppsCardStyler.styleAppIconView(icon, mActivityContext);
                 if (privateProfileManager != null) {
                     // Set the alpha of the private space icon to 0 upon expanding the header so the
                     // alpha can animate -> 1. This should only be in effect when doing a
@@ -375,11 +412,24 @@ public abstract class BaseAllAppsAdapter<T extends Context & ActivityContext> ex
                 FolderInfo folderInfo = mApps.getAdapterItems().get(position).folderInfo;
                 ViewGroup container = (ViewGroup) holder.itemView;
                 container.removeAllViews();
+                AllAppsCardStyler.styleFolderContainer(container, mActivityContext);
                 // LC-Note: Implement long-press support for folder type for purposes like showing popup
                 FolderIcon folderIcon = FolderIcon.inflateFolderAndIcon(
                         R.layout.all_apps_folder_icon, mActivityContext, container, folderInfo);
                 folderIcon.setOnLongClickListener(mOnIconLongClickListener);
                 container.addView(folderIcon);
+                break;
+            case VIEW_TYPE_CATEGORY_BAR:
+                AdapterItem barItem = mApps.getAdapterItems().get(position);
+                AllAppsCardStyler.attachCategoryBar((ViewGroup) holder.itemView, barItem.customHeaderView);
+                break;
+            case VIEW_TYPE_CATEGORY_HEADER:
+                AdapterItem headerItem = mApps.getAdapterItems().get(position);
+                AllAppsCardStyler.bindCategoryHeaderView(
+                        holder.itemView,
+                        headerItem.categoryTitle,
+                        headerItem.categoryCount,
+                        mActivityContext);
                 break;
             default:
                 if (mAdapterProvider.isViewSupported(holder.getItemViewType())) {

@@ -312,8 +312,8 @@ fun SmartspaceDateAndTimePreferences(
         }
         SwitchPreference(
             adapter = preferenceManager2.smartspacePersianNumerals.getAdapter(),
-            label = stringResource(id = R.string.smartspace_persian_numerals_label),
-            description = stringResource(id = R.string.smartspace_persian_numerals_summary),
+            label = stringResource(id = R.string.persian_numerals_label),
+            description = stringResource(id = R.string.persian_numerals_description),
         )
     }
 }

@@ -30,6 +30,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -43,6 +44,8 @@ import app.lawnchair.ui.preferences.LocalIsExpandedScreen
 import app.lawnchair.ui.preferences.components.AppDrawerHapticFeedbackPreference
 import app.lawnchair.ui.preferences.components.NavigationActionPreference
 import app.lawnchair.ui.preferences.components.colorpreference.ColorPreference
+import app.lawnchair.ui.preferences.components.controls.ListPreference
+import app.lawnchair.ui.preferences.components.controls.ListPreferenceEntry
 import app.lawnchair.ui.preferences.components.controls.SliderPreference
 import app.lawnchair.ui.preferences.components.controls.SwitchPreference
 import app.lawnchair.ui.preferences.components.controls.SwitchPreferenceWithPreview
@@ -67,7 +70,33 @@ fun AppDrawerPreferences(
     val prefs2 = preferenceManager2()
     val context = LocalContext.current
     val resources = context.resources
+
     val isFoldable = InvariantDeviceProfile.deviceType == InvariantDeviceProfile.TYPE_MULTI_DISPLAY
+
+    val caddyDisplayModeEntries = remember {
+        listOf(
+            ListPreferenceEntry("folders") { stringResource(R.string.drawer_caddy_mode_folders) },
+            ListPreferenceEntry("expanded_sections") { stringResource(R.string.drawer_caddy_mode_sections) },
+        )
+    }
+
+    val categoryBarStyleEntries = remember {
+        listOf(
+            ListPreferenceEntry("floating_glass") { stringResource(R.string.drawer_cat_bar_style_glass) },
+            ListPreferenceEntry("tonal_segmented") { stringResource(R.string.drawer_cat_bar_style_segmented) },
+            ListPreferenceEntry("neon_chips") { stringResource(R.string.drawer_cat_bar_style_neon) },
+            ListPreferenceEntry("classic_tabs") { stringResource(R.string.drawer_cat_bar_style_classic) },
+        )
+    }
+
+    val cardStyleEntries = remember {
+        listOf(
+            ListPreferenceEntry("none") { stringResource(R.string.drawer_card_style_none) },
+            ListPreferenceEntry("tonal_pod") { stringResource(R.string.drawer_card_style_tonal) },
+            ListPreferenceEntry("glass_card") { stringResource(R.string.drawer_card_style_glass) },
+            ListPreferenceEntry("elevated_3d") { stringResource(R.string.drawer_card_style_3d) },
+        )
+    }
 
     PreferenceLayout(
         label = stringResource(id = R.string.app_drawer_label),
@@ -80,7 +109,60 @@ fun AppDrawerPreferences(
             ExpandAndShrink(visible = drawerListAdapter.state.value) {
                 AppDrawerFolderPreferenceItem()
             }
+            ExpandAndShrink(visible = !drawerListAdapter.state.value) {
+                PreferenceGroup {
+                    ListPreference(
+                        adapter = prefs.drawerCaddyDisplayMode.getAdapter(),
+                        entries = caddyDisplayModeEntries,
+                        label = stringResource(R.string.drawer_caddy_display_mode_label),
+                    )
+                }
+            }
         }
+
+        val showCategoryBarAdapter = prefs.drawerShowCategoryBar.getAdapter()
+        val cardStyleAdapter = prefs.drawerCaddyCardStyle.getAdapter()
+        PreferenceGroup(heading = stringResource(id = R.string.drawer_caddy_and_cards_heading)) {
+            SwitchPreference(
+                adapter = showCategoryBarAdapter,
+                label = stringResource(id = R.string.drawer_show_category_bar_label),
+                description = stringResource(id = R.string.drawer_show_category_bar_summary),
+            )
+            ExpandAndShrink(visible = showCategoryBarAdapter.state.value) {
+                ListPreference(
+                    adapter = prefs.drawerCategoryBarStyle.getAdapter(),
+                    entries = categoryBarStyleEntries,
+                    label = stringResource(id = R.string.drawer_category_bar_style_label),
+                )
+            }
+            SwitchPreference(
+                adapter = prefs.drawerCaddyShowCounts.getAdapter(),
+                label = stringResource(id = R.string.drawer_caddy_show_counts_label),
+                description = stringResource(id = R.string.drawer_caddy_show_counts_summary),
+            )
+            ListPreference(
+                adapter = cardStyleAdapter,
+                entries = cardStyleEntries,
+                label = stringResource(id = R.string.drawer_caddy_card_style_label),
+            )
+            ExpandAndShrink(visible = cardStyleAdapter.state.value != "none") {
+                Column {
+                    SliderPreference(
+                        label = stringResource(id = R.string.drawer_caddy_card_radius_label),
+                        adapter = prefs.drawerCaddyCardRadius.getAdapter(),
+                        step = 2,
+                        valueRange = 8..32,
+                        showUnit = "dp",
+                    )
+                    SwitchPreference(
+                        adapter = prefs.drawerApplyCardToApps.getAdapter(),
+                        label = stringResource(id = R.string.drawer_apply_card_to_apps_label),
+                        description = stringResource(id = R.string.drawer_apply_card_to_apps_summary),
+                    )
+                }
+            }
+        }
+
         val hiddenApps = prefs2.hiddenApps.getAdapter().state.value
         PreferenceGroup(heading = stringResource(id = R.string.general_label)) {
             NavigationActionPreference(
@@ -95,6 +177,7 @@ fun AppDrawerPreferences(
             )
             AppDrawerHapticFeedbackPreference()
         }
+
         PreferenceGroup(heading = stringResource(R.string.style)) {
             ColorPreference(preference = prefs2.appDrawerBackgroundColor)
             SliderPreference(

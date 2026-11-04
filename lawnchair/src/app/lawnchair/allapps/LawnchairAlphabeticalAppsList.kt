@@ -12,6 +12,7 @@ import app.lawnchair.preferences.PreferenceManager
 import app.lawnchair.preferences2.PreferenceManager2
 import app.lawnchair.util.categorizeAppsWithSystemAndGoogle
 import com.android.launcher3.InvariantDeviceProfile.OnIDPChangeListener
+import com.android.launcher3.R
 import com.android.launcher3.allapps.AllAppsStore
 import com.android.launcher3.allapps.AlphabeticalAppsList
 import com.android.launcher3.allapps.BaseAllAppsAdapter.AdapterItem
@@ -49,6 +50,9 @@ class LawnchairAlphabeticalAppsList<T>(
 
     // Component keys are stable across AppInfo instances and avoid duplicate folder membership.
     private val folderedAppKeys = mutableSetOf<String>()
+
+    private val categoryBar by lazy { AllAppsCategoryBar(context) }
+    private var selectedCategoryId: String = AllAppsCategoryBar.CATEGORY_ALL
 
     init {
         context.launcher.deviceProfile.inv.addOnChangeListener(this)
@@ -104,6 +108,8 @@ class LawnchairAlphabeticalAppsList<T>(
     override fun addAppsWithSections(appList: List<AppInfo?>?, startPosition: Int): Int {
         if (appList.isNullOrEmpty()) return startPosition
         val drawerListDefault = prefs.drawerList.get()
+        val showCategoryBar = prefs.drawerShowCategoryBar.get()
+        val caddyDisplayMode = prefs.drawerCaddyDisplayMode.get()
         folderedAppKeys.clear()
         var position = startPosition
 
@@ -111,62 +117,149 @@ class LawnchairAlphabeticalAppsList<T>(
         // to the personal profile and must never leak across profile boundaries.
         if (isWorkOrPrivateSpace(appList)) return super.addAppsWithSections(appList, position)
 
-        if (!drawerListDefault) {
-            val validApps = appList.filterNotNull()
-            val categorizedApps = categorizeAppsWithSystemAndGoogle(validApps, context)
+        val validApps = appList.filterNotNull()
+        val categorizedApps = categorizeAppsWithSystemAndGoogle(validApps, context)
 
-            categorizedApps.forEach { (category, apps) ->
-                if (apps.size == 1) {
-                    mAdapterItems.add(AdapterItem.asApp(apps.first()))
-                } else if (apps.size > 1) {
-                    val folderInfo = FolderInfo().apply {
-                        title = category
-                        apps.forEach { add(it) }
-                    }
-                    mAdapterItems.add(AdapterItem.asFolder(folderInfo))
+        // Resolve custom/smart folders if any exist
+        val resolvedFolderEntries = mutableListOf<Pair<FolderEntry, List<AppInfo>>>()
+        val assignedFolderAppKeys = mutableSetOf<String>()
+        folderList.forEach { folderEntry ->
+            if (folderEntry.hide) return@forEach
+            val resolvedApps = folderEntry.itemComponentKeys
+                .asSequence()
+                .filterNot { it in hiddenApps || it in assignedFolderAppKeys }
+                .distinct()
+                .mapNotNull { keyString ->
+                    val componentKey = ComponentKey.fromString(keyString)
+                        ?: return@mapNotNull null
+                    appsStore.getApp(componentKey) as? AppInfo
                 }
-                position++
+                .distinctBy { it.toComponentKey().toString() }
+                .toList()
+            if (resolvedApps.size > 1) {
+                resolvedFolderEntries.add(folderEntry to resolvedApps)
+                resolvedApps.forEach { app ->
+                    val key = app.toComponentKey().toString()
+                    assignedFolderAppKeys.add(key)
+                    if (prefs.folderApps.get()) folderedAppKeys.add(key)
+                }
+            }
+        }
+
+        val categoryLookup = linkedMapOf<String, Pair<String, List<AppInfo>>>()
+        val chips = mutableListOf<DrawerCategoryChip>()
+        chips.add(
+            DrawerCategoryChip(
+                id = AllAppsCategoryBar.CATEGORY_ALL,
+                title = context.getString(R.string.all_apps_category_all),
+                count = validApps.size,
+            ),
+        )
+
+        if (drawerListDefault && resolvedFolderEntries.isNotEmpty()) {
+            resolvedFolderEntries.forEach { (entry, apps) ->
+                val chipId = "folder:${entry.id}"
+                val displayTitle = AllAppsCardStyler.localizeCategoryTitle(context, entry.title)
+                categoryLookup[chipId] = displayTitle to apps
+                chips.add(
+                    DrawerCategoryChip(
+                        id = chipId,
+                        title = displayTitle,
+                        count = apps.size,
+                    ),
+                )
             }
         } else {
-            // When the same app is saved in multiple folders, the first visible folder in the
-            // stable rank/title/id order owns it. This prevents duplicate drawer entries.
-            val assignedFolderAppKeys = mutableSetOf<String>()
-            folderList.forEach { folderEntry ->
-                // A hidden folder is not rendered; its apps remain available in the normal list.
-                if (folderEntry.hide) return@forEach
-
-                val resolvedApps = folderEntry.itemComponentKeys
-                    .asSequence()
-                    .filterNot { it in hiddenApps || it in assignedFolderAppKeys }
-                    .distinct()
-                    .mapNotNull { keyString ->
-                        val componentKey = ComponentKey.fromString(keyString)
-                            ?: return@mapNotNull null
-                        appsStore.getApp(componentKey) as? AppInfo
-                    }
-                    .distinctBy { it.toComponentKey().toString() }
-                    .toList()
-
-                // Empty and singleton folders are not useful as folders. Their apps fall through
-                // to the regular app list instead of disappearing.
-                if (resolvedApps.size > 1) {
-                    val folderInfo = FolderInfo().apply {
-                        id = folderEntry.id
-                        title = folderEntry.title
-                        resolvedApps.forEach { add(it) }
-                    }
-                    mAdapterItems.add(AdapterItem.asFolder(folderInfo))
-                    position++
-
-                    resolvedApps.forEach { app ->
-                        val key = app.toComponentKey().toString()
-                        assignedFolderAppKeys.add(key)
-                        if (prefs.folderApps.get()) folderedAppKeys.add(key)
-                    }
+            categorizedApps.forEach { (category, apps) ->
+                if (apps.isNotEmpty()) {
+                    val chipId = "cat:$category"
+                    val displayTitle = AllAppsCardStyler.localizeCategoryTitle(context, category)
+                    categoryLookup[chipId] = displayTitle to apps
+                    chips.add(
+                        DrawerCategoryChip(
+                            id = chipId,
+                            title = displayTitle,
+                            count = apps.size,
+                        ),
+                    )
                 }
             }
+        }
 
-            val remainingApps = appList.filterNotNull().filterNot { app ->
+        if (selectedCategoryId != AllAppsCategoryBar.CATEGORY_ALL &&
+            selectedCategoryId !in categoryLookup
+        ) {
+            selectedCategoryId = AllAppsCategoryBar.CATEGORY_ALL
+        }
+
+        if (showCategoryBar && chips.size > 1) {
+            categoryBar.bindCategories(
+                chips = chips,
+                selectedId = selectedCategoryId,
+                onSelect = { newCategoryId ->
+                    if (selectedCategoryId != newCategoryId) {
+                        selectedCategoryId = newCategoryId
+                        updateAdapterItems()
+                    }
+                },
+            )
+            mAdapterItems.add(AdapterItem.asCategoryBar(categoryBar))
+            position++
+        }
+
+        val filteredSelection = if (showCategoryBar && selectedCategoryId != AllAppsCategoryBar.CATEGORY_ALL) {
+            categoryLookup[selectedCategoryId]
+        } else {
+            null
+        }
+
+        if (filteredSelection != null) {
+            val (sectionTitle, sectionApps) = filteredSelection
+            mAdapterItems.add(AdapterItem.asCategoryHeader(sectionTitle, sectionApps.size))
+            position++
+            return super.addAppsWithSections(sectionApps, position)
+        }
+
+        if (!drawerListDefault) {
+            if (caddyDisplayMode == "expanded_sections") {
+                categorizedApps.forEach { (category, apps) ->
+                    if (apps.isNotEmpty()) {
+                        val displayTitle = AllAppsCardStyler.localizeCategoryTitle(context, category)
+                        mAdapterItems.add(AdapterItem.asCategoryHeader(displayTitle, apps.size))
+                        position++
+                        apps.forEach { app ->
+                            mAdapterItems.add(AdapterItem.asApp(app))
+                            position++
+                        }
+                    }
+                }
+            } else {
+                categorizedApps.forEach { (category, apps) ->
+                    val displayTitle = AllAppsCardStyler.localizeCategoryTitle(context, category)
+                    if (apps.size == 1) {
+                        mAdapterItems.add(AdapterItem.asApp(apps.first()))
+                    } else if (apps.size > 1) {
+                        val folderInfo = FolderInfo().apply {
+                            title = displayTitle
+                            apps.forEach { add(it) }
+                        }
+                        mAdapterItems.add(AdapterItem.asFolder(folderInfo))
+                    }
+                    position++
+                }
+            }
+        } else {
+            resolvedFolderEntries.forEach { (folderEntry, resolvedApps) ->
+                val folderInfo = FolderInfo().apply {
+                    id = folderEntry.id
+                    title = AllAppsCardStyler.localizeCategoryTitle(context, folderEntry.title)
+                    resolvedApps.forEach { add(it) }
+                }
+                mAdapterItems.add(AdapterItem.asFolder(folderInfo))
+                position++
+            }
+
+            val remainingApps = validApps.filterNot { app ->
                 prefs.folderApps.get() && app.toComponentKey().toString() in folderedAppKeys
             }
             position = super.addAppsWithSections(remainingApps, position)

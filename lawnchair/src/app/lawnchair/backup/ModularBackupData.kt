@@ -148,6 +148,13 @@ internal object ModularBackupData {
         "work_profile_tab_container_background",
         "hidden_apps",
         "hidden_apps_in_search",
+        "pref_drawerShowCategoryBar",
+        "pref_drawerCategoryBarStyle",
+        "pref_drawerCaddyShowCounts",
+        "pref_drawerCaddyDisplayMode",
+        "pref_drawerCaddyCardStyle",
+        "pref_drawerCaddyCardRadius",
+        "pref_drawerApplyCardToApps",
     )
 
     private val SUGGESTION_KEYS = setOf(

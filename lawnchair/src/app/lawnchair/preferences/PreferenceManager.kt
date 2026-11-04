@@ -221,6 +221,13 @@ class PreferenceManager @Inject constructor(
     val smartspaceCardCornerRadius = IntPref("pref_smartspaceCardCornerRadius", 22, recreate)
     val smartspaceDatePillBadge = BoolPref("pref_smartspaceDatePillBadge", false, recreate)
     val smartspaceDateTextSizeScale = IntPref("pref_smartspaceDateTextSizeScale", 100, recreate)
+    val drawerShowCategoryBar = BoolPref("pref_drawerShowCategoryBar", true, recreate)
+    val drawerCategoryBarStyle = StringPref("pref_drawerCategoryBarStyle", "floating_glass", recreate)
+    val drawerCaddyShowCounts = BoolPref("pref_drawerCaddyShowCounts", true, recreate)
+    val drawerCaddyDisplayMode = StringPref("pref_drawerCaddyDisplayMode", "folders", recreate)
+    val drawerCaddyCardStyle = StringPref("pref_drawerCaddyCardStyle", "tonal_pod", recreate)
+    val drawerCaddyCardRadius = IntPref("pref_drawerCaddyCardRadius", 20, recreate)
+    val drawerApplyCardToApps = BoolPref("pref_drawerApplyCardToApps", false, recreate)
 
     override fun close() {
         TODO("Not yet implemented")
