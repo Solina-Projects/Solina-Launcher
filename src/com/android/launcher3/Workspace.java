@@ -1654,6 +1654,107 @@ public class Workspace<T extends View & PageIndicator> extends PagedView<T>
         }
     }
 
+    private void resetPageTransitionTransform(ShortcutAndWidgetContainer sw) {
+        sw.setRotation(0f);
+        sw.setRotationX(0f);
+        sw.setRotationY(0f);
+        sw.setScaleX(1f);
+        sw.setScaleY(1f);
+        sw.setTranslationX(0f);
+        sw.setTranslationY(0f);
+    }
+
+    private void applyPageTransitionEffect(CellLayout child, float scrollProgress) {
+        ShortcutAndWidgetContainer sw = child.getShortcutsAndWidgets();
+        if (sw == null) {
+            return;
+        }
+        String effect = mPreferenceManger.getWorkspacePageTransition().get();
+        if ("slide".equals(effect)
+                || workspaceInModalState()
+                || mIsSwitchingState
+                || mDragController.isDragging()
+                || Math.abs(scrollProgress) < 0.001f
+                || Math.abs(scrollProgress) >= 1.0f) {
+            resetPageTransitionTransform(sw);
+            if (!mWorkspaceFadeInAdjacentScreens
+                    && !workspaceInModalState()
+                    && !mIsSwitchingState
+                    && !mDragController.isDragging()) {
+                sw.setAlpha(1f);
+            }
+            return;
+        }
+
+        float intensity = Utilities.boundToRange(
+                mPreferenceManger.getWorkspaceTransitionIntensity().get(), 0.4f, 1.6f);
+        float p = Utilities.boundToRange(scrollProgress, -1f, 1f);
+        float absP = Math.abs(p);
+        float w = Math.max(1f, sw.getMeasuredWidth());
+        float h = Math.max(1f, sw.getMeasuredHeight());
+        float density = getResources().getDisplayMetrics().density;
+        sw.setCameraDistance(density * 6500f);
+
+        resetPageTransitionTransform(sw);
+
+        switch (effect) {
+            case "cube":
+                sw.setPivotX(p < 0f ? 0f : w);
+                sw.setPivotY(h * 0.5f);
+                sw.setRotationY(-46f * p * intensity);
+                if (!mWorkspaceFadeInAdjacentScreens) {
+                    sw.setAlpha(Utilities.boundToRange(1f - 0.28f * absP, 0.25f, 1f));
+                }
+                break;
+            case "depth_stack":
+                sw.setPivotX(w * 0.5f);
+                sw.setPivotY(h * 0.5f);
+                if (p < 0f) {
+                    sw.setTranslationX(-p * w * 0.52f * intensity);
+                    float scale = Utilities.boundToRange(1f - 0.24f * absP * intensity, 0.65f, 1f);
+                    sw.setScaleX(scale);
+                    sw.setScaleY(scale);
+                    if (!mWorkspaceFadeInAdjacentScreens) {
+                        sw.setAlpha(Utilities.boundToRange(1f - 0.65f * absP, 0.15f, 1f));
+                    }
+                } else if (!mWorkspaceFadeInAdjacentScreens) {
+                    sw.setAlpha(1f);
+                }
+                break;
+            case "carousel":
+                sw.setPivotX(w * 0.5f);
+                sw.setPivotY(h * 0.5f);
+                float cScale = Utilities.boundToRange(1f - 0.22f * absP * intensity, 0.68f, 1f);
+                sw.setScaleX(cScale);
+                sw.setScaleY(cScale);
+                sw.setRotationY(-26f * p * intensity);
+                sw.setTranslationY(absP * 18f * density * intensity);
+                if (!mWorkspaceFadeInAdjacentScreens) {
+                    sw.setAlpha(Utilities.boundToRange(1f - 0.35f * absP, 0.25f, 1f));
+                }
+                break;
+            case "accordion":
+                sw.setPivotX(p < 0f ? 0f : w);
+                sw.setPivotY(h * 0.5f);
+                sw.setScaleX(Utilities.boundToRange(1f - 0.82f * absP * intensity, 0.15f, 1f));
+                if (!mWorkspaceFadeInAdjacentScreens) {
+                    sw.setAlpha(Utilities.boundToRange(1f - 0.30f * absP, 0.25f, 1f));
+                }
+                break;
+            case "windmill":
+                sw.setPivotX(w * 0.5f);
+                sw.setPivotY(h * 1.15f);
+                sw.setRotation(-18f * p * intensity);
+                sw.setTranslationY(absP * 22f * density * intensity);
+                if (!mWorkspaceFadeInAdjacentScreens) {
+                    sw.setAlpha(Utilities.boundToRange(1f - 0.30f * absP, 0.25f, 1f));
+                }
+                break;
+            default:
+                break;
+        }
+    }
+
     private void updatePageScrollValues() {
         int screenCenter = getScrollX() + getMeasuredWidth() / 2;
         for (int i = 0; i < getChildCount(); i++) {
@@ -1661,6 +1762,7 @@ public class Workspace<T extends View & PageIndicator> extends PagedView<T>
             if (child != null) {
                 float scrollProgress = getScrollProgress(screenCenter, child, i);
                 child.setScrollProgress(scrollProgress);
+                applyPageTransitionEffect(child, scrollProgress);
             }
         }
     }

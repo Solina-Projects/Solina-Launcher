@@ -145,12 +145,37 @@ fun HomeScreenPreferences(
                 FeedPreference()
             }
         }
+        val pageTransitionEntries = remember {
+            listOf(
+                app.lawnchair.ui.preferences.components.controls.ListPreferenceEntry("slide") { stringResource(R.string.workspace_transition_slide) },
+                app.lawnchair.ui.preferences.components.controls.ListPreferenceEntry("cube") { stringResource(R.string.workspace_transition_cube) },
+                app.lawnchair.ui.preferences.components.controls.ListPreferenceEntry("depth_stack") { stringResource(R.string.workspace_transition_depth) },
+                app.lawnchair.ui.preferences.components.controls.ListPreferenceEntry("carousel") { stringResource(R.string.workspace_transition_carousel) },
+                app.lawnchair.ui.preferences.components.controls.ListPreferenceEntry("accordion") { stringResource(R.string.workspace_transition_accordion) },
+                app.lawnchair.ui.preferences.components.controls.ListPreferenceEntry("windmill") { stringResource(R.string.workspace_transition_windmill) },
+            )
+        }
+        val pageTransitionAdapter = prefs.workspacePageTransition.getAdapter()
         PreferenceGroup(heading = stringResource(R.string.style)) {
             HomeScreenTextColorPreference()
             OverlayHandlerPreference(
                 adapter = prefs2.closingAppOverlay.getAdapter(),
                 label = stringResource(id = R.string.app_closing_animation),
             )
+            app.lawnchair.ui.preferences.components.controls.ListPreference(
+                adapter = pageTransitionAdapter,
+                entries = pageTransitionEntries,
+                label = stringResource(id = R.string.workspace_page_transition_label),
+            )
+            ExpandAndShrink(visible = pageTransitionAdapter.state.value != "slide") {
+                SliderPreference(
+                    label = stringResource(id = R.string.workspace_transition_intensity_label),
+                    adapter = prefs.workspaceTransitionIntensity.getAdapter(),
+                    step = 0.1f,
+                    valueRange = 0.5f..1.5f,
+                    showAsPercentage = true,
+                )
+            }
         }
         PreferenceGroup(heading = stringResource(id = R.string.wallpaper)) {
             SwitchPreference(

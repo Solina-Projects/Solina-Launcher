@@ -725,9 +725,10 @@ public class DeviceProfile {
         // Lawnchair: extra user-configurable app drawer top padding. The factor is additive
         // and slider-ranged 100%-200% (default 100%), so subtract 1f to keep 100% as no change.
         allAppsPadding.top += Math.round(iconSizePx * (drawerPaddingTopFactor - 1f));
+        PreferenceManager prefMgr = PreferenceManager.getInstance(context);
         float animSpeedFactor = Utilities.boundToRange(
-                preferenceManager.getDrawerAnimationSpeedFactor().get(), 0.6f, 1.6f);
-        String drawerAnimStyle = preferenceManager.getDrawerOpenAnimationStyle().get();
+                prefMgr.getDrawerAnimationSpeedFactor().get(), 0.6f, 1.6f);
+        String drawerAnimStyle = prefMgr.getDrawerOpenAnimationStyle().get();
         boolean isHotseatOn = PreferenceCacheExtensionsKt.firstCached(preferenceManager2.isHotseatEnabled());
         boolean isSuggestionsOn = PreferenceCacheExtensionsKt.firstCached(
                 preferenceManager2.getShowSuggestedAppsInDrawer());

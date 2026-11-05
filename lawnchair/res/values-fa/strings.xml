@@ -968,4 +968,12 @@ Solina Launcher فعالیت‌های شما را زیر نظر نمی‌گیر�
     <string name="search_card_alpha_label">شفافیت کارت‌های نتایج جستجو</string>
     <string name="search_result_animate_in_label">انیمیشن ورود نرم نتایج جستجو</string>
     <string name="search_result_animate_in_summary">نمایش کارت‌ها و ردیف‌های نتایج جستجو با انیمیشن لغزش و مقیاس نرم هنگام تایپ</string>
+    <string name="workspace_page_transition_label">افکت حرکت بین صفحات خانه</string>
+    <string name="workspace_transition_intensity_label">شدت افکت حرکت صفحات خانه</string>
+    <string name="workspace_transition_slide">لغزش کلاسیک (پیش‌فرض)</string>
+    <string name="workspace_transition_cube">مکعب سه‌بعدی (3D Cube)</string>
+    <string name="workspace_transition_depth">پشته عمق‌دار (Depth Stack)</string>
+    <string name="workspace_transition_carousel">چرخ‌وفلک سه‌بعدی (Carousel)</string>
+    <string name="workspace_transition_accordion">تاشدن آکاردئونی (Accordion)</string>
+    <string name="workspace_transition_windmill">چرخش بادبزنی (Windmill)</string>
 </resources>

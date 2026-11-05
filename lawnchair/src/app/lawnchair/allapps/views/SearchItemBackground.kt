@@ -57,6 +57,9 @@ class SearchItemBackground(
 
     private val accentColor = ColorTokens.ColorAccent.resolveColor(context)
 
+    val cornerRadii: FloatArray
+        get() = computeCornerRadii()
+
     private fun computeCornerRadii(): FloatArray {
         val customGroupRadius = prefs.searchCardCornerRadius.get().toFloat().dpToPx(resources)
         val searchResultRadius = resources.getDimensionPixelSize(R.dimen.search_result_radius).toFloat()

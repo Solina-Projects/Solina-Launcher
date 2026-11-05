@@ -241,6 +241,8 @@ class PreferenceManager @Inject constructor(
     val searchCardCornerRadius = IntPref("pref_searchCardCornerRadius", 22, recreate)
     val searchCardAlpha = IntPref("pref_searchCardAlpha", 88, recreate)
     val searchResultAnimateIn = BoolPref("pref_searchResultAnimateIn", true, recreate)
+    val workspacePageTransition = StringPref("pref_workspacePageTransition", "slide", recreate)
+    val workspaceTransitionIntensity = FloatPref("pref_workspaceTransitionIntensity", 1.0f, recreate)
     val folderSurfaceStyle = StringPref("pref_folderSurfaceStyle", "glass_card", recreate)
     val folderCornerRadiusDp = IntPref("pref_folderCornerRadiusDp", 28, recreate)
     val popupSurfaceStyle = StringPref("pref_popupSurfaceStyle", "glass_card", recreate)
