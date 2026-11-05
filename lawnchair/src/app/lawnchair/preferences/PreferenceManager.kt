@@ -19,6 +19,7 @@ package app.lawnchair.preferences
 import android.content.Context
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
+import app.lawnchair.LawnchairApp
 import app.lawnchair.SolinaLauncher
 import app.lawnchair.font.FontCache
 import app.lawnchair.util.getApkVersionComparison
@@ -234,7 +235,10 @@ class PreferenceManager @Inject constructor(
     val drawerDockRiseFactor = FloatPref("pref_drawerDockRiseFactor", 0.56f, recreate)
     val drawerCascadeStaggerFactor = FloatPref("pref_drawerCascadeStaggerFactor", 1.0f, recreate)
     val drawerIconScaleBloom = BoolPref("pref_drawerIconScaleBloom", true, recreate)
-    val forceEnableRecents = BoolPref("pref_forceEnableRecents", false, recreate)
+    val forceEnableRecents = BoolPref("pref_forceEnableRecents", false) {
+        LawnchairApp.instance.refreshRecentsState()
+        recreate()
+    }
     val recentsActionBarStyle = StringPref("pref_recentsActionBarStyle", "floating_glass", recreate)
     val recentsActionBarRadius = IntPref("pref_recentsActionBarRadius", 24, recreate)
     val searchCardStyle = StringPref("pref_searchCardStyle", "glass_card", recreate)
