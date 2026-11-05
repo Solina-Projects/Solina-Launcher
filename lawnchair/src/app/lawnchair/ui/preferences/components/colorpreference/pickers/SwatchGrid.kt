@@ -47,6 +47,7 @@ fun <T> SwatchGrid(
     contentModifier: Modifier = Modifier,
 ) {
     val mMSDLPlayerWrapper = MSDLPlayerWrapper.INSTANCE.get(LocalContext.current)
+    if (entries.isEmpty()) return
     val columnCount = SwatchGridDefaults.COLUMN_COUNT
     val rowCount = (entries.size - 1) / columnCount + 1
     val gutter = SwatchGridDefaults.GutterSize
@@ -62,26 +63,27 @@ fun <T> SwatchGrid(
         ) {
             for (rowNo in 1..rowCount) {
                 val firstIndex = (rowNo - 1) * columnCount
-                val lastIndex = firstIndex + columnCount - 1
-                val indices = firstIndex..lastIndex
 
                 Row {
-                    entries.slice(indices).forEachIndexed { index, colorOption ->
+                    for (colIndex in 0 until columnCount) {
+                        val colorOption = entries.getOrNull(firstIndex + colIndex)
                         Box(
                             modifier = Modifier.weight(1f),
                             contentAlignment = Alignment.Center,
                         ) {
-                            ColorSwatch(
-                                entry = colorOption,
-                                onClick = {
-                                    mMSDLPlayerWrapper.playToken(MSDLToken.TAP_LOW_EMPHASIS)
-                                    onSwatchClick(colorOption.value)
-                                },
-                                modifier = Modifier.widthIn(0.dp, SwatchGridDefaults.SwatchMaxWidth),
-                                selected = isSwatchSelected(colorOption.value),
-                            )
+                            if (colorOption != null) {
+                                ColorSwatch(
+                                    entry = colorOption,
+                                    onClick = {
+                                        mMSDLPlayerWrapper.playToken(MSDLToken.TAP_LOW_EMPHASIS)
+                                        onSwatchClick(colorOption.value)
+                                    },
+                                    modifier = Modifier.widthIn(0.dp, SwatchGridDefaults.SwatchMaxWidth),
+                                    selected = isSwatchSelected(colorOption.value),
+                                )
+                            }
                         }
-                        if (index != columnCount - 1) {
+                        if (colIndex != columnCount - 1) {
                             Spacer(modifier = Modifier.width(gutter))
                         }
                     }

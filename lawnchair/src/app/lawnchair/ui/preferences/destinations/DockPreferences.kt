@@ -466,7 +466,13 @@ fun ColumnScope.DockPreferencesPreview(modifier: Modifier = Modifier) {
                         .weight(1f)
                         .align(Alignment.CenterHorizontally)
                         .clip(MaterialTheme.shapes.large)
-                        .clipToBottomPercentage(if (hotseatRows.getAdapter().state.value >= 2) .4f else .3f),
+                        .clipToBottomPercentage(
+                            when (hotseatRows.getAdapter().state.value) {
+                                3 -> 0.48f
+                                2 -> 0.4f
+                                else -> 0.3f
+                            },
+                        ),
                 ) {
                     WallpaperPreview(
                         wallpaper = wallpaper,

@@ -230,6 +230,7 @@ public class Hotseat extends FrameLayout implements Insettable {
     private void setUpBackground() {
         if (!preferenceManager.getHotseatBG().get()) {
             setBackground(null);
+            restoreHotseatLayoutPadding();
             return;
         }
 
@@ -271,8 +272,22 @@ public class Hotseat extends FrameLayout implements Insettable {
             background.setStroke(strokeWidthPx, borderColor);
         }
         InsetDrawable bg = new InsetDrawable(background,
-                insetHorizontalLeft, insetVerticalTop, insetHorizontalRight, insetVerticalBottom);
+                insetHorizontalLeft, insetVerticalTop, insetHorizontalRight, insetVerticalBottom) {
+            @Override
+            public boolean getPadding(Rect padding) {
+                // Do not let InsetDrawable overwrite Hotseat's layout padding (which reserves QSB space).
+                return false;
+            }
+        };
         setBackground(bg);
+        restoreHotseatLayoutPadding();
+    }
+
+    private void restoreHotseatLayoutPadding() {
+        if (mActivity != null && mActivity.getDeviceProfile() != null) {
+            Rect padding = mActivity.getDeviceProfile().getHotseatLayoutPadding(getContext());
+            setPadding(padding.left, padding.top, padding.right, padding.bottom);
+        }
     }
 
     /** Provides translation X for hotseat icons for the channel. */

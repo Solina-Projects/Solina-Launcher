@@ -942,12 +942,17 @@ public class DeviceProfile {
                     + hotseatBarBottomSpacePx
                     + extraRowsHeight + rowSpaceAdjustmentPx + verticalPadding * 2;
         } else {
-            hotseatBarSizePx = hotseatIconSizePx
+            int legacyBarSizePx = hotseatIconSizePx
                     + hotseatQsbSpace
                     + getHotseatProfile().getQsbVisualHeight()
                     + hotseatBarBottomSpacePx
                     + space
                     + extraRowsHeight + rowSpaceAdjustmentPx + verticalPadding * 2;
+            int minRequiredBarSizePx = getHotseatIconsTotalHeightPx()
+                    + (isQsbEnable ? hotseatQsbSpace + getHotseatProfile().getQsbVisualHeight() : 0)
+                    + hotseatBarBottomSpacePx
+                    + verticalPadding * 2;
+            hotseatBarSizePx = Math.max(legacyBarSizePx, minRequiredBarSizePx);
         }
         var isHotseatEnabled = PreferenceCacheExtensionsKt.firstCached(preferenceManager2.isHotseatEnabled());
         if (!isHotseatEnabled) {
@@ -1924,7 +1929,7 @@ public class DeviceProfile {
             hotseatBarPadding.set(
                     remainingSpaceOnSide + mInsets.left + workspacePadding.left
                             + cellLayoutPaddingPx.left,
-                    hotseatBarSizePx - hotseatBarBottomPadding - hotseatCellHeightPx * numHotseatRows,
+                    Math.max(0, hotseatBarSizePx - hotseatBarBottomPadding - getHotseatIconsTotalHeightPx()),
                     remainingSpaceOnSide + mInsets.right + workspacePadding.right
                             + cellLayoutPaddingPx.right,
                     hotseatBarBottomPadding
@@ -1938,7 +1943,7 @@ public class DeviceProfile {
             // Keep the hotseat icons in the lower section so the QSB can sit above them.
             int hotseatBarBottomPadding = getHotseatBarBottomPadding();
             int hotseatBarTopPadding =
-                    hotseatBarSizePx - hotseatBarBottomPadding - hotseatCellHeightPx * numHotseatRows;
+                    Math.max(0, hotseatBarSizePx - hotseatBarBottomPadding - getHotseatIconsTotalHeightPx());
 
             int hotseatWidth = getHotseatRequiredWidth();
             int startSpacing;
@@ -2062,11 +2067,24 @@ public class DeviceProfile {
     /**
      * Returns the number of pixels the hotseat is translated from the bottom of the screen.
      */
+    private int getHotseatIconsTotalHeightPx() {
+        float rowSpaceFactor = PreferenceCacheExtensionsKt.firstCached(
+                preferenceManager2.getHotseatRowSpaceFactor());
+        int verticalPadding = Math.round(PreferenceCacheExtensionsKt.firstCached(
+                preferenceManager2.getHotseatVerticalPaddingDp()) * mMetrics.density);
+        int dockRowSpacingPx = Math.round(hotseatBorderSpace * rowSpaceFactor);
+        return hotseatCellHeightPx * numHotseatRows
+                + Math.max(0, numHotseatRows - 1) * (dockRowSpacingPx + verticalPadding);
+    }
+
     private int getHotseatBarBottomPadding() {
         if (isQsbOnTop() || isQsbInline) { // LC-Note: isQsbOnTop
             return hotseatBarBottomSpacePx - (Math.abs(hotseatCellHeightPx - iconSizePx) / 2);
         } else {
-            return hotseatBarSizePx - hotseatCellHeightPx * numHotseatRows;
+            int minQsbBottomSpace = getHotseatProfile().getQsbVisualHeight() > 0
+                    ? getHotseatProfile().getQsbVisualHeight() + hotseatQsbSpace + hotseatBarBottomSpacePx
+                    : hotseatBarBottomSpacePx;
+            return Math.max(minQsbBottomSpace, hotseatBarSizePx - getHotseatIconsTotalHeightPx());
         }
     }
 
