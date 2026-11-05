@@ -98,6 +98,15 @@ fun AppDrawerPreferences(
         )
     }
 
+    val openAnimStyleEntries = remember {
+        listOf(
+            ListPreferenceEntry("dock_morph") { stringResource(R.string.drawer_anim_style_dock_morph) },
+            ListPreferenceEntry("cascade_wave") { stringResource(R.string.drawer_anim_style_cascade_wave) },
+            ListPreferenceEntry("instant_snap") { stringResource(R.string.drawer_anim_style_instant_snap) },
+            ListPreferenceEntry("classic") { stringResource(R.string.drawer_anim_style_classic) },
+        )
+    }
+
     PreferenceLayout(
         label = stringResource(id = R.string.app_drawer_label),
         backArrowVisible = !LocalIsExpandedScreen.current,
@@ -160,6 +169,29 @@ fun AppDrawerPreferences(
                         description = stringResource(id = R.string.drawer_apply_card_to_apps_summary),
                     )
                 }
+            }
+        }
+
+        val openAnimStyleAdapter = prefs.drawerOpenAnimationStyle.getAdapter()
+        PreferenceGroup(heading = stringResource(id = R.string.drawer_open_animation_heading)) {
+            ListPreference(
+                adapter = openAnimStyleAdapter,
+                entries = openAnimStyleEntries,
+                label = stringResource(id = R.string.drawer_open_animation_style_label),
+            )
+            SliderPreference(
+                label = stringResource(id = R.string.drawer_animation_speed_label),
+                adapter = prefs.drawerAnimationSpeedFactor.getAdapter(),
+                step = 0.05f,
+                valueRange = 0.7f..1.5f,
+                showAsPercentage = true,
+            )
+            ExpandAndShrink(visible = openAnimStyleAdapter.state.value != "classic") {
+                SwitchPreference(
+                    adapter = prefs.drawerOpenSpringBounce.getAdapter(),
+                    label = stringResource(id = R.string.drawer_open_spring_bounce_label),
+                    description = stringResource(id = R.string.drawer_open_spring_bounce_summary),
+                )
             }
         }
 

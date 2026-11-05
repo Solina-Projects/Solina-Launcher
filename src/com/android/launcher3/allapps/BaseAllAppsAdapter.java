@@ -323,6 +323,10 @@ public abstract class BaseAllAppsAdapter<T extends Context & ActivityContext> ex
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
         holder.itemView.setVisibility(View.VISIBLE);
+        holder.itemView.setAlpha(1f);
+        holder.itemView.setTranslationY(0f);
+        holder.itemView.setScaleX(1f);
+        holder.itemView.setScaleY(1f);
         switch (holder.getItemViewType()) {
             case VIEW_TYPE_ICON: {
                 AdapterItem adapterItem = mApps.getAdapterItems().get(position);

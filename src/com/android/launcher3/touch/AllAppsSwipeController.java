@@ -220,6 +220,11 @@ public class AllAppsSwipeController extends AbstractStateChangeTouchController {
                 config.animFlags |= StateAnimationConfig.SKIP_DEPTH_CONTROLLER;
             }
         } else {
+            boolean isHotseatEnabled = app.lawnchair.preferences2.PreferenceCacheExtensionsKt.firstCached(
+                    app.lawnchair.preferences2.PreferenceManager2.getInstance(launcher).isHotseatEnabled());
+            String animStyle = app.lawnchair.preferences.PreferenceManager.getInstance(launcher)
+                    .getDrawerOpenAnimationStyle().get();
+            boolean useDockMorph = isHotseatEnabled && !"classic".equals(animStyle);
             if (config.isUserControlled()) {
                 config.setInterpolator(ANIM_DEPTH, Interpolators.reverse(BLUR_MANUAL));
                 config.setInterpolator(ANIM_WORKSPACE_FADE,
@@ -227,14 +232,22 @@ public class AllAppsSwipeController extends AbstractStateChangeTouchController {
                 config.setInterpolator(ANIM_WORKSPACE_SCALE,
                         Interpolators.reverse(WORKSPACE_SCALE_MANUAL));
                 config.setInterpolator(ANIM_HOTSEAT_FADE,
-                        Interpolators.reverse(HOTSEAT_FADE_MANUAL));
+                        useDockMorph
+                                ? Interpolators.clampToProgress(LINEAR, 0.52f, 0.92f)
+                                : Interpolators.reverse(HOTSEAT_FADE_MANUAL));
                 config.setInterpolator(ANIM_HOTSEAT_SCALE,
-                        Interpolators.reverse(HOTSEAT_SCALE_MANUAL));
+                        useDockMorph
+                                ? Interpolators.clampToProgress(EMPHASIZED_DECELERATE, 0.45f, 1f)
+                                : Interpolators.reverse(HOTSEAT_SCALE_MANUAL));
                 config.setInterpolator(ANIM_HOTSEAT_TRANSLATE,
-                        Interpolators.reverse(HOTSEAT_TRANSLATE_MANUAL));
+                        useDockMorph
+                                ? Interpolators.clampToProgress(EMPHASIZED_DECELERATE, 0.40f, 1f)
+                                : Interpolators.reverse(HOTSEAT_TRANSLATE_MANUAL));
                 config.setInterpolator(ANIM_SCRIM_FADE, Interpolators.reverse(SCRIM_FADE_MANUAL));
                 config.setInterpolator(ANIM_ALL_APPS_FADE,
-                        Interpolators.reverse(ALL_APPS_FADE_MANUAL));
+                        useDockMorph
+                                ? Interpolators.clampToProgress(LINEAR, 0.15f, 0.85f)
+                                : Interpolators.reverse(ALL_APPS_FADE_MANUAL));
                 config.setInterpolator(ANIM_VERTICAL_PROGRESS,
                         Interpolators.reverse(ALL_APPS_VERTICAL_PROGRESS_MANUAL));
             } else {
@@ -242,6 +255,14 @@ public class AllAppsSwipeController extends AbstractStateChangeTouchController {
                         Interpolators.reverse(ALL_APPS_SCRIM_RESPONDER));
                 config.setInterpolator(ANIM_ALL_APPS_FADE, ALL_APPS_CLAMPING_RESPONDER);
                 config.setInterpolator(ANIM_WORKSPACE_FADE, INSTANT);
+                if (useDockMorph) {
+                    config.setInterpolator(ANIM_HOTSEAT_FADE,
+                            Interpolators.clampToProgress(LINEAR, 0.35f, 0.85f));
+                    config.setInterpolator(ANIM_HOTSEAT_TRANSLATE,
+                            Interpolators.clampToProgress(EMPHASIZED_DECELERATE, 0.25f, 1f));
+                    config.setInterpolator(ANIM_HOTSEAT_SCALE,
+                            Interpolators.clampToProgress(EMPHASIZED_DECELERATE, 0.25f, 1f));
+                }
                 config.setInterpolator(ANIM_VERTICAL_PROGRESS, EMPHASIZED_ACCELERATE);
             }
         }
@@ -268,28 +289,66 @@ public class AllAppsSwipeController extends AbstractStateChangeTouchController {
                 config.animFlags |= StateAnimationConfig.SKIP_DEPTH_CONTROLLER;
             }
         } else {
+            app.lawnchair.preferences2.PreferenceManager2 prefs2 =
+                    app.lawnchair.preferences2.PreferenceManager2.getInstance(launcher);
+            boolean isHotseatEnabled = app.lawnchair.preferences2.PreferenceCacheExtensionsKt
+                    .firstCached(prefs2.isHotseatEnabled());
+            boolean hasSuggestions = app.lawnchair.preferences2.PreferenceCacheExtensionsKt
+                    .firstCached(prefs2.getShowSuggestedAppsInDrawer());
+            String animStyle = app.lawnchair.preferences.PreferenceManager.getInstance(launcher)
+                    .getDrawerOpenAnimationStyle().get();
+            boolean useDockMorph = isHotseatEnabled && !"classic".equals(animStyle);
+            boolean isDirectFast = !hasSuggestions || "instant_snap".equals(animStyle);
+
             config.setInterpolator(ANIM_DEPTH,
                     config.isUserControlled() ? BLUR_MANUAL : BLUR_ATOMIC);
             config.setInterpolator(ANIM_WORKSPACE_FADE,
                     config.isUserControlled() ? WORKSPACE_FADE_MANUAL : WORKSPACE_FADE_ATOMIC);
             config.setInterpolator(ANIM_WORKSPACE_SCALE,
                     config.isUserControlled() ? WORKSPACE_SCALE_MANUAL : WORKSPACE_SCALE_ATOMIC);
-            config.setInterpolator(ANIM_HOTSEAT_FADE,
-                    config.isUserControlled() ? HOTSEAT_FADE_MANUAL : HOTSEAT_FADE_ATOMIC);
-            config.setInterpolator(ANIM_HOTSEAT_SCALE,
-                    config.isUserControlled() ? HOTSEAT_SCALE_MANUAL : HOTSEAT_SCALE_ATOMIC);
-            config.setInterpolator(ANIM_HOTSEAT_TRANSLATE,
-                    config.isUserControlled()
-                            ? HOTSEAT_TRANSLATE_MANUAL
-                            : HOTSEAT_TRANSLATE_ATOMIC);
-            config.setInterpolator(ANIM_SCRIM_FADE,
-                    config.isUserControlled() ? SCRIM_FADE_MANUAL : SCRIM_FADE_ATOMIC);
-            config.setInterpolator(ANIM_ALL_APPS_FADE,
-                    config.isUserControlled() ? ALL_APPS_FADE_MANUAL : ALL_APPS_FADE_ATOMIC);
-            config.setInterpolator(ANIM_VERTICAL_PROGRESS,
-                    config.isUserControlled()
-                            ? ALL_APPS_VERTICAL_PROGRESS_MANUAL
-                            : ALL_APPS_VERTICAL_PROGRESS_ATOMIC);
+
+            if (useDockMorph) {
+                float hotseatEnd = isDirectFast ? 0.34f : 0.48f;
+                config.setInterpolator(ANIM_HOTSEAT_TRANSLATE,
+                        Interpolators.clampToProgress(
+                                config.isUserControlled() ? LINEAR : EMPHASIZED_DECELERATE,
+                                0f, hotseatEnd));
+                config.setInterpolator(ANIM_HOTSEAT_SCALE,
+                        Interpolators.clampToProgress(LINEAR, 0f, hotseatEnd));
+                config.setInterpolator(ANIM_HOTSEAT_FADE,
+                        Interpolators.clampToProgress(LINEAR, 0.10f, hotseatEnd));
+                config.setInterpolator(ANIM_SCRIM_FADE,
+                        Interpolators.clampToProgress(LINEAR, 0.02f, isDirectFast ? 0.32f : 0.42f));
+                config.setInterpolator(ANIM_ALL_APPS_FADE,
+                        Interpolators.clampToProgress(
+                                config.isUserControlled() ? LINEAR : EMPHASIZED_DECELERATE,
+                                isDirectFast ? 0.01f : 0.05f,
+                                isDirectFast ? 0.36f : 0.56f));
+                config.setInterpolator(ANIM_VERTICAL_PROGRESS,
+                        config.isUserControlled()
+                                ? ALL_APPS_VERTICAL_PROGRESS_MANUAL
+                                : (isDirectFast
+                                        ? EMPHASIZED_DECELERATE
+                                        : Interpolators.clampToProgress(
+                                                EMPHASIZED_DECELERATE, 0.04f, 1f)));
+            } else {
+                config.setInterpolator(ANIM_HOTSEAT_FADE,
+                        config.isUserControlled() ? HOTSEAT_FADE_MANUAL : HOTSEAT_FADE_ATOMIC);
+                config.setInterpolator(ANIM_HOTSEAT_SCALE,
+                        config.isUserControlled() ? HOTSEAT_SCALE_MANUAL : HOTSEAT_SCALE_ATOMIC);
+                config.setInterpolator(ANIM_HOTSEAT_TRANSLATE,
+                        config.isUserControlled()
+                                ? HOTSEAT_TRANSLATE_MANUAL
+                                : HOTSEAT_TRANSLATE_ATOMIC);
+                config.setInterpolator(ANIM_SCRIM_FADE,
+                        config.isUserControlled() ? SCRIM_FADE_MANUAL : SCRIM_FADE_ATOMIC);
+                config.setInterpolator(ANIM_ALL_APPS_FADE,
+                        config.isUserControlled() ? ALL_APPS_FADE_MANUAL : ALL_APPS_FADE_ATOMIC);
+                config.setInterpolator(ANIM_VERTICAL_PROGRESS,
+                        config.isUserControlled()
+                                ? ALL_APPS_VERTICAL_PROGRESS_MANUAL
+                                : ALL_APPS_VERTICAL_PROGRESS_ATOMIC);
+            }
         }
     }
 

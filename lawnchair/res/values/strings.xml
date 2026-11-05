@@ -1293,4 +1293,13 @@
     <string name="app_lock_filter_locked">Locked</string>
     <string name="developer_credit_subtitle">Developer: Solina • t.me/N2Solina</string>
     <string name="solina_telegram_channel">Telegram (@N2Solina)</string>
+    <string name="drawer_open_animation_heading">Opening Animation &amp; Dock Morph</string>
+    <string name="drawer_open_animation_style_label">Opening Animation Style (Dock Enabled)</string>
+    <string name="drawer_anim_style_dock_morph">Dock to Suggestions Morph</string>
+    <string name="drawer_anim_style_cascade_wave">Cascade Wave Morph</string>
+    <string name="drawer_anim_style_instant_snap">Fast Direct Morph</string>
+    <string name="drawer_anim_style_classic">Classic Slide</string>
+    <string name="drawer_animation_speed_label">Opening &amp; Closing Speed</string>
+    <string name="drawer_open_spring_bounce_label">Dynamic Spring Overshoot</string>
+    <string name="drawer_open_spring_bounce_summary">Add a subtle elastic bounce as the Dock morphs into Suggestions and App Drawer rows</string>
 </resources>

@@ -937,4 +937,13 @@ Solina Launcher فعالیت‌های شما را زیر نظر نمی‌گیر�
     <string name="app_lock_filter_locked">قفل‌شده‌ها</string>
     <string name="developer_credit_subtitle">توسعه‌دهنده: Solina • t.me/N2Solina</string>
     <string name="solina_telegram_channel">تلگرام توسعه‌دهنده (t.me/N2Solina)</string>
+    <string name="drawer_open_animation_heading">انیمیشن باز شدن کشو و تغییر شکل داک</string>
+    <string name="drawer_open_animation_style_label">سبک انیمیشن باز شدن (هنگام فعال بودن داک)</string>
+    <string name="drawer_anim_style_dock_morph">تغییر شکل داک به پیشنهادها و برنامه‌ها</string>
+    <string name="drawer_anim_style_cascade_wave">موج آبشاری پلکانی</string>
+    <string name="drawer_anim_style_instant_snap">تغییر شکل مستقیم و فوق‌سریع</string>
+    <string name="drawer_anim_style_classic">کلاسیک (پیش‌فرض)</string>
+    <string name="drawer_animation_speed_label">سرعت باز و بسته شدن کشوی برنامه‌ها</string>
+    <string name="drawer_open_spring_bounce_label">جهش فنری نرم (Spring Bounce)</string>
+    <string name="drawer_open_spring_bounce_summary">افکت فنری ظریف هنگام تبدیل داک به ردیف پیشنهادها و چیدمان برنامه‌ها</string>
 </resources>

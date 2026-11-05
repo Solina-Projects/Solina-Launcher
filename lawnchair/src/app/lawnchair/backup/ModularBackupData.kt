@@ -158,6 +158,9 @@ internal object ModularBackupData {
         "pref_drawerCaddyCardStyle",
         "pref_drawerCaddyCardRadius",
         "pref_drawerApplyCardToApps",
+        "pref_drawerOpenAnimationStyle",
+        "pref_drawerAnimationSpeedFactor",
+        "pref_drawerOpenSpringBounce",
     )
 
     private val SUGGESTION_KEYS = setOf(

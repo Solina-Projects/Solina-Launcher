@@ -16,6 +16,7 @@
 package com.android.launcher3.allapps;
 
 import static com.android.app.animation.Interpolators.DECELERATE_1_7;
+import static com.android.app.animation.Interpolators.EMPHASIZED_DECELERATE;
 import static com.android.app.animation.Interpolators.LINEAR;
 import static com.android.launcher3.LauncherAnimUtils.SCALE_PROPERTY;
 import static com.android.launcher3.LauncherAnimUtils.VIEW_TRANSLATE_Y;
@@ -66,8 +67,11 @@ import com.android.launcher3.views.ScrimView;
 
 import com.google.android.msdl.data.model.MSDLToken;
 
+import app.lawnchair.preferences.PreferenceManager;
 import app.lawnchair.preferences2.PreferenceManager2;
 import app.lawnchair.preferences2.PreferenceCacheExtensionsKt;
+import com.android.launcher3.Utilities;
+import com.android.launcher3.appprediction.PredictionRowView;
 
 /**
  * Handles AllApps view transition.
@@ -240,6 +244,7 @@ public class AllAppsTransitionController
         // Allow apps panel to shift the full screen if coming from another app.
         float shiftRange = fromBackground ? mLauncher.getDeviceProfile().getDeviceProperties().getHeightPx() : mShiftRange;
         getAppsViewProgressTranslationY().setValue(mProgress * shiftRange);
+        applyDockToDrawerStageMorph(1f - progress);
         mLauncher.onAllAppsTransition(1 - progress);
 
         boolean hasScrim = progress < NAV_BAR_COLOR_FORCE_UPDATE_THRESHOLD
@@ -251,6 +256,171 @@ public class AllAppsTransitionController
     public float getProgress() {
         return mProgress;
     }
+
+    private void resetStageMorphViews(
+            @Nullable FloatingHeaderView header,
+            @Nullable AllAppsRecyclerView rv,
+            @Nullable PredictionRowView<?> suggestionView) {
+        if (header != null) {
+            header.setAlpha(1f);
+            header.setTranslationY(0f);
+            header.setScaleX(1f);
+            header.setScaleY(1f);
+        }
+        if (suggestionView != null) {
+            suggestionView.setAlpha(1f);
+            suggestionView.setTranslationY(0f);
+            suggestionView.setScaleX(1f);
+            suggestionView.setScaleY(1f);
+            if (suggestionView.getParent() instanceof View && suggestionView.getParent() != rv) {
+                View host = (View) suggestionView.getParent();
+                host.setAlpha(1f);
+                host.setTranslationY(0f);
+                host.setScaleX(1f);
+                host.setScaleY(1f);
+            }
+        }
+        if (rv != null) {
+            int count = rv.getChildCount();
+            for (int i = 0; i < count; i++) {
+                View child = rv.getChildAt(i);
+                child.setAlpha(1f);
+                child.setTranslationY(0f);
+                child.setScaleX(1f);
+                child.setScaleY(1f);
+            }
+        }
+    }
+
+    /**
+     * Orchestrates the Dock-to-Drawer morph animation when the Dock (Hotseat) is enabled:
+     * - When Dock is disabled (or "classic" style is chosen), keeps the original transition untouched.
+     * - When Dock is enabled and Suggested Apps are active, Stage 1 morphs the rising Dock into
+     *   the Suggested Apps row first, and Stage 2 cascades the remaining App Drawer icons/rows.
+     * - When Dock is enabled and Suggested Apps are disabled (or "instant_snap" style is chosen),
+     *   morphs the rising Dock directly and rapidly into the App Drawer with zero delay.
+     */
+    private void applyDockToDrawerStageMorph(float openProgress) {
+        if (mAppsView == null) {
+            return;
+        }
+        FloatingHeaderView header = mAppsView.getFloatingHeaderView();
+        AllAppsRecyclerView rv = mAppsView.getActiveRecyclerView();
+        PredictionRowView<?> suggestionView = (mAppsView instanceof LauncherAllAppsContainerView)
+                ? ((LauncherAllAppsContainerView) mAppsView).getSuggestionView()
+                : null;
+
+        if (openProgress <= 0.001f || openProgress >= 0.999f || mShouldShowAllAppsOnSheet) {
+            resetStageMorphViews(header, rv, suggestionView);
+            return;
+        }
+
+        PreferenceManager2 prefs2 = PreferenceManager2.getInstance(mLauncher);
+        boolean isHotseatEnabled = PreferenceCacheExtensionsKt.firstCached(
+                prefs2.isHotseatEnabled(), prefs2);
+        PreferenceManager prefs = PreferenceManager.getInstance(mLauncher);
+        String animStyle = prefs.getDrawerOpenAnimationStyle().get();
+
+        if (!isHotseatEnabled || "classic".equals(animStyle)) {
+            resetStageMorphViews(header, rv, suggestionView);
+            return;
+        }
+
+        boolean showSuggestionsPref = PreferenceCacheExtensionsKt.firstCached(
+                prefs2.getShowSuggestedAppsInDrawer(), prefs2);
+        boolean hasActiveSuggestions = showSuggestionsPref
+                && suggestionView != null
+                && suggestionView.getVisibility() == View.VISIBLE
+                && suggestionView.getExpectedHeight() > 0;
+        boolean springBounce = prefs.getDrawerOpenSpringBounce().get();
+        float dpDensity = mLauncher.getResources().getDisplayMetrics().density;
+
+        if (hasActiveSuggestions && !"instant_snap".equals(animStyle)) {
+            View suggestionHost = (suggestionView.getParent() instanceof View
+                    && suggestionView.getParent() != rv)
+                    ? (View) suggestionView.getParent()
+                    : suggestionView;
+
+            // Stage 1: Rising Dock morphs into Suggested Apps row first
+            float stage1 = Utilities.boundToRange((openProgress - 0.04f) / 0.42f, 0f, 1f);
+            float stage1Ease = EMPHASIZED_DECELERATE.getInterpolation(stage1);
+            float spring1 = springBounce
+                    ? (float) (Math.sin(stage1 * Math.PI) * (-5f * dpDensity) * (1f - stage1))
+                    : 0f;
+            suggestionHost.setAlpha(Utilities.boundToRange(stage1 * 1.4f, 0f, 1f));
+            suggestionHost.setTranslationY((46f * dpDensity) * (1f - stage1Ease) + spring1);
+            float s1Scale = 0.88f + 0.12f * stage1Ease;
+            suggestionHost.setScaleX(s1Scale);
+            suggestionHost.setScaleY(s1Scale);
+
+            if (header != null) {
+                header.setAlpha(Utilities.boundToRange(stage1 * 1.35f, 0f, 1f));
+                header.setTranslationY((28f * dpDensity) * (1f - stage1Ease));
+            }
+
+            // Stage 2: Remaining App Drawer items cascade in after Suggested Apps
+            if (rv != null) {
+                int count = rv.getChildCount();
+                int rvHeight = Math.max(1, rv.getHeight());
+                float staggerSpan = "cascade_wave".equals(animStyle) ? 0.22f : 0.14f;
+                float baseStart = "cascade_wave".equals(animStyle) ? 0.28f : 0.24f;
+                float durationSpan = "cascade_wave".equals(animStyle) ? 0.48f : 0.50f;
+                float slideDp = "cascade_wave".equals(animStyle) ? 68f : 48f;
+                float minScale = "cascade_wave".equals(animStyle) ? 0.88f : 0.92f;
+
+                for (int i = 0; i < count; i++) {
+                    View child = rv.getChildAt(i);
+                    if (child == suggestionHost || child == suggestionView) {
+                        continue;
+                    }
+                    float rowFactor = Utilities.boundToRange(
+                            (float) child.getTop() / (float) rvHeight, 0f, 1f);
+                    float startAt = baseStart + rowFactor * staggerSpan;
+                    float cProg = Utilities.boundToRange(
+                            (openProgress - startAt) / durationSpan, 0f, 1f);
+                    float cEase = EMPHASIZED_DECELERATE.getInterpolation(cProg);
+                    float cSpring = springBounce
+                            ? (float) (Math.sin(cProg * Math.PI) * (-5f * dpDensity) * (1f - cProg))
+                            : 0f;
+                    child.setAlpha(Utilities.boundToRange(cProg * 1.35f, 0f, 1f));
+                    child.setTranslationY((slideDp * dpDensity) * (1f - cEase) + cSpring);
+                    float cScale = minScale + (1f - minScale) * cEase;
+                    child.setScaleX(cScale);
+                    child.setScaleY(cScale);
+                }
+            }
+        } else {
+            // Fast direct Dock-to-Drawer morph when Suggestions are off (or Instant Snap style)
+            float directProg = Utilities.boundToRange(openProgress / 0.44f, 0f, 1f);
+            float directEase = EMPHASIZED_DECELERATE.getInterpolation(directProg);
+            if (header != null) {
+                header.setAlpha(directEase);
+                header.setTranslationY((18f * dpDensity) * (1f - directEase));
+            }
+            if (rv != null) {
+                int count = rv.getChildCount();
+                int rvHeight = Math.max(1, rv.getHeight());
+                float stagger = "instant_snap".equals(animStyle) ? 0.05f : 0.10f;
+                for (int i = 0; i < count; i++) {
+                    View child = rv.getChildAt(i);
+                    float rowFactor = Utilities.boundToRange(
+                            (float) child.getTop() / (float) rvHeight, 0f, 1f);
+                    float cProg = Utilities.boundToRange(
+                            (openProgress - rowFactor * stagger) / 0.42f, 0f, 1f);
+                    float cEase = EMPHASIZED_DECELERATE.getInterpolation(cProg);
+                    float cSpring = springBounce
+                            ? (float) (Math.sin(cProg * Math.PI) * (-4f * dpDensity) * (1f - cProg))
+                            : 0f;
+                    child.setAlpha(Utilities.boundToRange(cProg * 1.45f, 0f, 1f));
+                    child.setTranslationY((32f * dpDensity) * (1f - cEase) + cSpring);
+                    float cScale = 0.92f + 0.08f * cEase;
+                    child.setScaleX(cScale);
+                    child.setScaleY(cScale);
+                }
+            }
+        }
+    }
+
 
     private MultiProperty getAppsViewProgressTranslationY() {
         return mAppsViewTranslationY.get(INDEX_APPS_VIEW_PROGRESS);

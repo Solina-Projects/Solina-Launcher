@@ -125,6 +125,20 @@ public class AllAppsState extends LauncherState {
         if (launcher.getDeviceProfile().shouldShowAllAppsOnSheet()) {
             return getWorkspaceScaleAndTranslation(launcher);
         } else {
+            boolean isHotseatEnabled = app.lawnchair.preferences2.PreferenceCacheExtensionsKt.firstCached(
+                    app.lawnchair.preferences2.PreferenceManager2.getInstance(launcher).isHotseatEnabled());
+            String animStyle = app.lawnchair.preferences.PreferenceManager.getInstance(launcher)
+                    .getDrawerOpenAnimationStyle().get();
+            if (isHotseatEnabled && !"classic".equals(animStyle)) {
+                float shiftRange = Math.max(
+                        launcher.getDeviceProfile().allAppsShiftRange,
+                        launcher.getDeviceProfile().getDeviceProperties().getHeightPx() * 0.65f);
+                float riseTranslationY = -shiftRange * 0.56f;
+                return new ScaleAndTranslation(
+                        0.94f,
+                        NO_OFFSET,
+                        riseTranslationY);
+            }
             ScaleAndTranslation overviewScaleAndTranslation = LauncherState.OVERVIEW
                     .getWorkspaceScaleAndTranslation(launcher);
             return new ScaleAndTranslation(
