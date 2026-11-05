@@ -29,6 +29,9 @@ import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Build
 import androidx.compose.material.icons.rounded.Close
+import androidx.compose.material.icons.rounded.DarkMode
+import androidx.compose.material.icons.rounded.ExpandMore
+import androidx.compose.material.icons.rounded.LightMode
 import androidx.compose.material.icons.rounded.Refresh
 import androidx.compose.material.icons.rounded.Science
 import androidx.compose.material.icons.rounded.Search
@@ -138,6 +141,8 @@ fun PreferencesDashboard(
     val showQuickStatusHeader by prefs.settingsShowQuickStatusHeader.observeAsState()
     val showSearchBar by prefs.settingsSearchBarEnabled.observeAsState()
     val colorfulIcons by prefs.settingsColorfulIcons.observeAsState()
+    val launcherTheme by prefs.launcherTheme.observeAsState()
+    val launcherThemeAdapter = prefs.launcherTheme.getAdapter()
     val deckLayout = prefs2.deckLayout.getAdapter()
     val isSmartspaceEnabled = prefs2.enableSmartspace.firstCached()
 
@@ -283,13 +288,31 @@ fun PreferencesDashboard(
         actions = {
             val highlightColor = MaterialTheme.colorScheme.surfaceColorAtElevation(4.dp)
             val highlightShape = MaterialTheme.shapes.large
+            Row(
+                modifier = Modifier
+                    .clip(RoundedCornerShape(24.dp))
+                    .background(if (showCustomizerPanel) highlightColor else Color.Transparent)
+                    .clickable { showCustomizerPanel = !showCustomizerPanel }
+                    .padding(horizontal = 12.dp, vertical = 8.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(4.dp),
+            ) {
+                Text(
+                    text = "تنظیمات بیشتر",
+                    style = MaterialTheme.typography.labelLarge,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    maxLines = 1,
+                )
+                Icon(
+                    imageVector = Icons.Rounded.ExpandMore,
+                    contentDescription = "تنظیمات بیشتر",
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
             ClickableIcon(
-                imageVector = Icons.Rounded.Tune,
-                onClick = { showCustomizerPanel = !showCustomizerPanel },
-                modifier = Modifier.addIf(showCustomizerPanel) {
-                    Modifier
-                        .clip(highlightShape)
-                        .background(highlightColor)
+                imageVector = if (launcherTheme == "dark") Icons.Rounded.LightMode else Icons.Rounded.DarkMode,
+                onClick = {
+                    launcherThemeAdapter.onChange(if (launcherTheme == "dark") "light" else "dark")
                 },
             )
             PreferencesOverflowMenu(currentRoute = currentRoute, onNavigate = onNavigate)
