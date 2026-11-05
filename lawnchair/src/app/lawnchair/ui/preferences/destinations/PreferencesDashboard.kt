@@ -37,6 +37,7 @@ import androidx.compose.material.icons.rounded.Science
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material.icons.rounded.TipsAndUpdates
 import androidx.compose.material.icons.rounded.Tune
+import androidx.compose.material.icons.rounded.Tune
 import androidx.compose.material3.DropdownMenuGroup
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
@@ -286,28 +287,6 @@ fun PreferencesDashboard(
         verticalArrangement = Arrangement.Top,
         backArrowVisible = false,
         actions = {
-            val highlightColor = MaterialTheme.colorScheme.surfaceColorAtElevation(4.dp)
-            Row(
-                modifier = Modifier
-                    .clip(RoundedCornerShape(24.dp))
-                    .background(if (showCustomizerPanel) highlightColor else Color.Transparent)
-                    .clickable { showCustomizerPanel = !showCustomizerPanel }
-                    .padding(horizontal = 12.dp, vertical = 8.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(4.dp),
-            ) {
-                Text(
-                    text = "تنظیمات بیشتر",
-                    style = MaterialTheme.typography.labelLarge,
-                    color = MaterialTheme.colorScheme.onSurface,
-                    maxLines = 1,
-                )
-                Icon(
-                    imageVector = Icons.Rounded.ExpandMore,
-                    contentDescription = "تنظیمات بیشتر",
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-            }
             ClickableIcon(
                 imageVector = if (launcherTheme == "dark") {
                     Icons.Rounded.LightMode
@@ -322,6 +301,12 @@ fun PreferencesDashboard(
         },
     ) {
         AnnouncementPreference()
+
+        DashboardQuickSettingsButton(
+            expanded = showCustomizerPanel,
+            onClick = { showCustomizerPanel = !showCustomizerPanel },
+        )
+        Spacer(modifier = Modifier.height(10.dp))
 
         if (BuildConfig.APPLICATION_ID.contains("nightly") || BuildConfig.DEBUG) {
             PreferencesDebugWarning()
@@ -569,6 +554,63 @@ private fun QuickStatusChip(
                 color = MaterialTheme.colorScheme.onSurface,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
+            )
+        }
+    }
+}
+
+@Composable
+private fun DashboardQuickSettingsButton(
+    expanded: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Surface(
+        onClick = onClick,
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp)
+            .height(56.dp),
+        shape = CircleShape,
+        color = MaterialTheme.colorScheme.surfaceContainerHighest,
+        border = androidx.compose.foundation.BorderStroke(
+            1.dp,
+            MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.45f),
+        ),
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(36.dp)
+                    .clip(CircleShape)
+                    .background(MaterialTheme.colorScheme.primaryContainer),
+                contentAlignment = Alignment.Center,
+            ) {
+                Icon(
+                    imageVector = Icons.Rounded.Tune,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onPrimaryContainer,
+                    modifier = Modifier.size(20.dp),
+                )
+            }
+            Text(
+                text = stringResource(R.string.settings_quick_access),
+                style = MaterialTheme.typography.labelLarge,
+                fontWeight = FontWeight.SemiBold,
+                color = MaterialTheme.colorScheme.onSurface,
+                modifier = Modifier.weight(1f),
+                maxLines = 1,
+            )
+            Icon(
+                imageVector = Icons.Rounded.ExpandMore,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
             )
         }
     }
