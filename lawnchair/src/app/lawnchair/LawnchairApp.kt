@@ -74,7 +74,7 @@ class LawnchairApp : LauncherApplication() {
     override fun onCreate() {
         super.onCreate()
         instance = this
-        QuickStepContract.sRecentsDisabled = !recentsEnabled
+        refreshRecentsState()
         Flowerpot.Manager.getInstance(this)
         registerActivityLifecycleCallbacks(activityHandler)
     }
@@ -102,6 +102,11 @@ class LawnchairApp : LauncherApplication() {
             Settings.Secure.putString(contentResolver, "icon_blacklist", newBlacklist)
         } catch (_: Exception) {
         }
+    }
+
+    /** Keep the framework's recents gate synchronized with the force-enable preference. */
+    fun refreshRecentsState() {
+        QuickStepContract.sRecentsDisabled = !recentsEnabled
     }
 
     fun restart(recreateLauncher: Boolean = true) {
