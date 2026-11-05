@@ -159,7 +159,7 @@ fun About(
                     text = if (prefs.hideVersionInfo.get()) {
                         prefs.pseudonymVersion.get() + " (pseudonym)"
                     } else {
-                        "1.0.0Dev"
+                        BuildConfig.VERSION_DISPLAY_NAME
                     },
                     style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
