@@ -228,6 +228,13 @@ class PreferenceManager @Inject constructor(
     val drawerCaddyCardStyle = StringPref("pref_drawerCaddyCardStyle", "tonal_pod", recreate)
     val drawerCaddyCardRadius = IntPref("pref_drawerCaddyCardRadius", 20, recreate)
     val drawerApplyCardToApps = BoolPref("pref_drawerApplyCardToApps", false, recreate)
+    val folderSurfaceStyle = StringPref("pref_folderSurfaceStyle", "glass_card", recreate)
+    val folderCornerRadiusDp = IntPref("pref_folderCornerRadiusDp", 28, recreate)
+    val popupSurfaceStyle = StringPref("pref_popupSurfaceStyle", "glass_card", recreate)
+    val popupCornerRadiusDp = IntPref("pref_popupCornerRadiusDp", 24, recreate)
+    val popupBgOpacity = IntPref("pref_popupBgOpacity", 92, recreate)
+    val appLockScreenStyle = StringPref("pref_appLockScreenStyle", "glass_modern")
+    val appLockAutoBiometric = BoolPref("pref_appLockAutoBiometric", false)
 
     override fun close() {
         TODO("Not yet implemented")

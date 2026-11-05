@@ -144,6 +144,7 @@ import app.lawnchair.theme.color.ColorOption;
 import app.lawnchair.theme.color.tokens.ColorTokens;
 import app.lawnchair.theme.drawable.DrawableTokens;
 import app.lawnchair.util.EditTextExtensions;
+import app.lawnchair.util.FolderPopupStyleHelper;
 import app.lawnchair.util.LawnchairUtilsKt;
 
 /**
@@ -342,6 +343,7 @@ public class Folder extends AbstractFloatingView implements ClipPathView, DragSo
         mBackground.setColor(LawnchairUtilsKt.resolveFolderBackgroundColor(getContext()));
         var alpha = LawnchairUtilsKt.getFolderBackgroundAlpha(getContext());
         mBackground.setAlpha(alpha);
+        FolderPopupStyleHelper.applyOpenFolderBackground(getContext(), mBackground);
 
         mContent = findViewById(R.id.folder_content);
         mContent.setPadding(paddingLeftRight, dp.folderContentPaddingTop, paddingLeftRight, 0);

@@ -58,6 +58,7 @@ import com.android.launcher3.views.BaseDragLayer;
 
 import app.lawnchair.theme.color.tokens.ColorTokens;
 import app.lawnchair.theme.drawable.DrawableTokens;
+import app.lawnchair.util.FolderPopupStyleHelper;
 
 /**
  * A container for shortcuts to deep links and notifications associated with an app.
@@ -136,7 +137,7 @@ public abstract class ArrowPopup<T extends Context & ActivityContext>
     public ArrowPopup(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         mInflater = LayoutInflater.from(context);
-        mOutlineRadius = Themes.getDialogCornerRadius(context);
+        mOutlineRadius = FolderPopupStyleHelper.resolvePopupOutlineRadius(context, Themes.getDialogCornerRadius(context));
         mActivityContext = ActivityContext.lookupContext(context);
         mIsRtl = Utilities.isRtl(getResources());
 
@@ -312,8 +313,10 @@ public abstract class ArrowPopup<T extends Context & ActivityContext>
         Drawable bg = view.getBackground();
         if (bg instanceof GradientDrawable) {
             GradientDrawable gd = (GradientDrawable) bg.mutate();
-            int oldColor = ((GradientDrawable) bg).getColor().getDefaultColor();
+            int oldColor = ((GradientDrawable) bg).getColor() != null
+                    ? ((GradientDrawable) bg).getColor().getDefaultColor() : color;
             animatorSetOut.play(ObjectAnimator.ofArgb(gd, "color", oldColor, color));
+            FolderPopupStyleHelper.applyPopupItemDrawable(getContext(), gd, color);
         } else if (bg instanceof ColorDrawable) {
             ColorDrawable cd = (ColorDrawable) bg.mutate();
             int oldColor = ((ColorDrawable) bg).getColor();

@@ -1,6 +1,7 @@
 package app.lawnchair.ui.preferences.destinations
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
@@ -27,11 +28,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import app.lawnchair.preferences.getAdapter
+import app.lawnchair.preferences.preferenceManager
 import app.lawnchair.preferences2.preferenceManager2
 import app.lawnchair.ui.popup.LauncherOptionPopupItem
 import app.lawnchair.ui.popup.LauncherOptionsPopup
@@ -40,6 +43,10 @@ import app.lawnchair.ui.popup.toOptionOrderString
 import app.lawnchair.ui.preferences.LocalIsExpandedScreen
 import app.lawnchair.ui.preferences.LocalNavController
 import app.lawnchair.ui.preferences.components.controls.ClickablePreference
+import app.lawnchair.ui.preferences.components.controls.ListPreference
+import app.lawnchair.ui.preferences.components.controls.ListPreferenceEntry
+import app.lawnchair.ui.preferences.components.controls.SliderPreference
+import app.lawnchair.ui.preferences.components.layout.PreferenceGroup
 import app.lawnchair.ui.preferences.components.layout.PreferenceGroupHeading
 import app.lawnchair.ui.preferences.components.layout.PreferenceLayout
 import app.lawnchair.ui.preferences.components.reorderable.ReorderableDragHandle
@@ -67,12 +74,25 @@ fun LauncherPopupPreferenceItem(
 fun LauncherPopupPreference(
     modifier: Modifier = Modifier,
 ) {
+    val prefs = preferenceManager()
     val prefs2 = preferenceManager2()
     val optionsPref = prefs2.launcherPopupOrder.getAdapter()
+    val popupStyleAdapter = prefs.popupSurfaceStyle.getAdapter()
+    val popupRadiusAdapter = prefs.popupCornerRadiusDp.getAdapter()
+    val popupOpacityAdapter = prefs.popupBgOpacity.getAdapter()
 
     val isHomeScreenLocked = prefs2.lockHomeScreen.getAdapter().state.value
 
     var optionsList = optionsPref.state.value.toLauncherOptions()
+
+    val popupStyleEntries = remember {
+        listOf(
+            ListPreferenceEntry("glass_card") { stringResource(R.string.popup_style_glass_card) },
+            ListPreferenceEntry("elevated_3d") { stringResource(R.string.popup_style_elevated_3d) },
+            ListPreferenceEntry("neon_border") { stringResource(R.string.popup_style_neon_border) },
+            ListPreferenceEntry("classic") { stringResource(R.string.popup_style_classic) },
+        )
+    }
 
     PreferenceLayout(
         label = stringResource(R.string.popup_menu),
@@ -82,7 +102,34 @@ fun LauncherPopupPreference(
     ) {
         Column {
             PreferenceGroupHeading(stringResource(R.string.preview_label))
-            LauncherPopupPreview(optionsList)
+            LauncherPopupPreview(
+                optionsList = optionsList,
+                surfaceStyle = popupStyleAdapter.state.value,
+                cornerRadiusDp = popupRadiusAdapter.state.value,
+                opacityPct = popupOpacityAdapter.state.value,
+            )
+        }
+
+        PreferenceGroup(heading = stringResource(R.string.style)) {
+            ListPreference(
+                adapter = popupStyleAdapter,
+                entries = popupStyleEntries,
+                label = stringResource(R.string.popup_surface_style_label),
+            )
+            SliderPreference(
+                label = stringResource(R.string.popup_corner_radius_label),
+                adapter = popupRadiusAdapter,
+                step = 2,
+                valueRange = 12..36,
+                showUnit = "dp",
+            )
+            SliderPreference(
+                label = stringResource(R.string.popup_bg_opacity_label),
+                adapter = popupOpacityAdapter,
+                step = 2,
+                valueRange = 50..100,
+                showUnit = "%",
+            )
         }
 
         ReorderablePreferenceGroup(
@@ -127,8 +174,13 @@ fun LauncherPopupPreference(
 }
 
 @Composable
-private fun LauncherPopupPreview(optionsList: List<LauncherOptionPopupItem>) {
-    key(optionsList) {
+private fun LauncherPopupPreview(
+    optionsList: List<LauncherOptionPopupItem>,
+    surfaceStyle: String,
+    cornerRadiusDp: Int,
+    opacityPct: Int,
+) {
+    key(optionsList, surfaceStyle, cornerRadiusDp, opacityPct) {
         Surface(
             modifier = Modifier
                 .padding(horizontal = 16.dp)
@@ -137,6 +189,16 @@ private fun LauncherPopupPreview(optionsList: List<LauncherOptionPopupItem>) {
             color = if (isSelectedThemeDark) MaterialTheme.colorScheme.surfaceContainer else MaterialTheme.colorScheme.surfaceDim,
         ) {
             val enabledItems = optionsList.filter { it.isEnabled }
+            val outerCorner = CornerSize(cornerRadiusDp.coerceIn(12, 36).dp)
+            val defaultCorner = CornerSize(6.dp)
+            val borderStroke = when (surfaceStyle) {
+                "glass_card" -> BorderStroke(1.dp, Color.White.copy(alpha = 0.35f))
+                "elevated_3d" -> BorderStroke(1.2.dp, MaterialTheme.colorScheme.outlineVariant)
+                "neon_border" -> BorderStroke(1.5.dp, MaterialTheme.colorScheme.primary)
+                else -> null
+            }
+            val itemAlpha = (opacityPct.coerceIn(50, 100) / 100f)
+
             Column(
                 modifier = Modifier.padding(horizontal = 32.dp, vertical = 16.dp),
             ) {
@@ -148,15 +210,12 @@ private fun LauncherPopupPreview(optionsList: List<LauncherOptionPopupItem>) {
                     val isFirst = enabledItems.indexOf(it) == 0
                     val isLast = enabledItems.indexOf(it) == enabledItems.lastIndex
 
-                    val clipRadius = MaterialTheme.shapes.large
-                    val defaultCorner = CornerSize(10)
-
                     val shape = when {
                         isSingleItem -> CircleShape
 
                         isFirst -> RoundedCornerShape(
-                            clipRadius.topStart,
-                            clipRadius.topEnd,
+                            outerCorner,
+                            outerCorner,
                             defaultCorner,
                             defaultCorner,
                         )
@@ -164,8 +223,8 @@ private fun LauncherPopupPreview(optionsList: List<LauncherOptionPopupItem>) {
                         isLast -> RoundedCornerShape(
                             defaultCorner,
                             defaultCorner,
-                            clipRadius.bottomStart,
-                            clipRadius.bottomEnd,
+                            outerCorner,
+                            outerCorner,
                         )
 
                         else -> RoundedCornerShape(defaultCorner)
@@ -176,7 +235,8 @@ private fun LauncherPopupPreview(optionsList: List<LauncherOptionPopupItem>) {
                     ) {
                         Surface(
                             shape = shape,
-                            color = MaterialTheme.colorScheme.surfaceBright,
+                            color = MaterialTheme.colorScheme.surfaceBright.copy(alpha = itemAlpha),
+                            border = borderStroke,
                             modifier = Modifier
                                 .widthIn(max = 240.dp),
                         ) {

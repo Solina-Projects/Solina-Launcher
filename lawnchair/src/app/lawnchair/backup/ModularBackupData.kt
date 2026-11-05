@@ -90,6 +90,9 @@ internal object ModularBackupData {
         "dark_status_bar",
         "show_top_shadow",
         "pref_homePreferencesShowLivePreview",
+        "pref_popupSurfaceStyle",
+        "pref_popupCornerRadiusDp",
+        "pref_popupBgOpacity",
     )
 
     private val DOCK_KEYS = setOf(
@@ -239,6 +242,8 @@ internal object ModularBackupData {
         "folder_bg_opacity",
         "show_icon_labels_on_home_screen_folder",
         "home_icon_label_folder_size_factor",
+        "pref_folderSurfaceStyle",
+        "pref_folderCornerRadiusDp",
     )
 
     private val THEME_AND_FONTS_KEYS = setOf(
@@ -371,6 +376,9 @@ internal object ModularBackupData {
         if (selectedContents.hasFlag(LawnchairBackup.INCLUDE_GESTURES_AND_EXTRAS)) {
             val lockedPackages = JSONArray(AppLockStore.lockedPackages(context).sorted())
             root.put("app_lock_packages", lockedPackages)
+            AppLockStore.getPinHash(context)?.let { pinHash ->
+                root.put("app_lock_pin_hash", pinHash)
+            }
         }
 
         val roomDb = AppDatabase.INSTANCE.get(context).openHelper.writableDatabase
@@ -599,6 +607,9 @@ internal object ModularBackupData {
                     }
                 }
                 AppLockStore.replaceLockedPackages(context, packages)
+                if (root.has("app_lock_pin_hash")) {
+                    AppLockStore.setPinHash(context, root.optString("app_lock_pin_hash").takeIf { it.isNotEmpty() })
+                }
             }
 
             val appDb = AppDatabase.INSTANCE.get(context)

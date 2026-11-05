@@ -17,6 +17,7 @@
 package app.lawnchair.ui.preferences.destinations
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -26,6 +27,8 @@ import app.lawnchair.preferences2.preferenceManager2
 import app.lawnchair.ui.preferences.LocalIsExpandedScreen
 import app.lawnchair.ui.preferences.components.NavigationActionPreference
 import app.lawnchair.ui.preferences.components.colorpreference.ColorPreference
+import app.lawnchair.ui.preferences.components.controls.ListPreference
+import app.lawnchair.ui.preferences.components.controls.ListPreferenceEntry
 import app.lawnchair.ui.preferences.components.controls.SliderPreference
 import app.lawnchair.ui.preferences.components.controls.SwitchPreference
 import app.lawnchair.ui.preferences.components.layout.ExpandAndShrink
@@ -51,6 +54,14 @@ fun FolderPreferences(
             .firstOrNull { it.value == folderIconShapeAdapter.state.value }
             ?.label?.invoke()
             ?: stringResource(id = R.string.custom)
+        val folderStyleEntries = remember {
+            listOf(
+                ListPreferenceEntry("glass_card") { stringResource(R.string.folder_style_glass_card) },
+                ListPreferenceEntry("elevated_3d") { stringResource(R.string.folder_style_elevated_3d) },
+                ListPreferenceEntry("neon_border") { stringResource(R.string.folder_style_neon_border) },
+                ListPreferenceEntry("classic") { stringResource(R.string.folder_style_classic) },
+            )
+        }
         PreferenceGroup(heading = stringResource(id = R.string.general_label)) {
             NavigationActionPreference(
                 label = stringResource(id = R.string.folder_shape_label),
@@ -59,6 +70,18 @@ fun FolderPreferences(
                 endWidget = {
                     IconShapePreview(iconShape = folderIconShapeAdapter.state.value)
                 },
+            )
+            ListPreference(
+                adapter = prefs.folderSurfaceStyle.getAdapter(),
+                entries = folderStyleEntries,
+                label = stringResource(id = R.string.folder_surface_style_label),
+            )
+            SliderPreference(
+                label = stringResource(id = R.string.folder_corner_radius_label),
+                adapter = prefs.folderCornerRadiusDp.getAdapter(),
+                step = 2,
+                valueRange = 12..44,
+                showUnit = "dp",
             )
             ColorPreference(preference = prefs2.folderColor)
             SliderPreference(

@@ -21,7 +21,6 @@ import app.lawnchair.preferences2.PreferenceManager2
 import app.lawnchair.preferences2.firstCached
 import app.lawnchair.theme.color.tokens.AllAppsTabColors
 import app.lawnchair.theme.color.tokens.ColorTokens
-import app.lawnchair.util.PersianCalendarUtils
 import com.android.launcher3.R
 import java.util.Locale
 
@@ -154,7 +153,7 @@ class AllAppsCategoryBar(context: Context) : HorizontalScrollView(context) {
             if (showCounts && chip.count > 0) {
                 val rawCount = chip.count.toString()
                 val formattedCount = if (usePersianDigits) {
-                    PersianCalendarUtils.toPersianDigits(rawCount)
+                    AllAppsCardStyler.toPersianDigits(rawCount)
                 } else {
                     rawCount
                 }
@@ -421,7 +420,7 @@ object AllAppsCardStyler {
             countView?.visibility = View.VISIBLE
             val rawCount = count.toString()
             countView?.text = if (usePersianDigits) {
-                PersianCalendarUtils.toPersianDigits(rawCount)
+                AllAppsCardStyler.toPersianDigits(rawCount)
             } else {
                 rawCount
             }
@@ -585,6 +584,19 @@ object AllAppsCardStyler {
 
             else -> null
         }
+    }
+
+    @JvmStatic
+    fun toPersianDigits(input: String): String {
+        val out = StringBuilder(input.length)
+        for (ch in input) {
+            if (ch in '0'..'9') {
+                out.append(('۰'.code + (ch.code - '0'.code)).toChar())
+            } else {
+                out.append(ch)
+            }
+        }
+        return out.toString()
     }
 
     @JvmStatic
