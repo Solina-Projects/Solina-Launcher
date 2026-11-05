@@ -566,11 +566,12 @@ private fun DashboardQuickSettingsButton(
     modifier: Modifier = Modifier,
 ) {
     Surface(
-        onClick = onClick,
         modifier = modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp)
-            .height(56.dp),
+            .height(56.dp)
+            .clip(CircleShape)
+            .clickable(onClick = onClick),
         shape = CircleShape,
         color = MaterialTheme.colorScheme.surfaceContainerHighest,
         border = androidx.compose.foundation.BorderStroke(
