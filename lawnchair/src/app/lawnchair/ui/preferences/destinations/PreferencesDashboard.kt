@@ -241,7 +241,7 @@ fun PreferencesDashboard(
             isSelected = currentRoute is Quickstep,
             accentColor = Color(0xFF5C6BC0),
             group = DashboardSectionGroup.SMART_SEARCH,
-            visible = LawnchairApp.isRecentsEnabled || BuildConfig.DEBUG,
+            visible = LawnchairApp.isQuickstepBuild || LawnchairApp.isRecentsEnabled || BuildConfig.DEBUG,
         ),
         DashboardCategoryItem(
             label = stringResource(R.string.backup_and_restore_label),

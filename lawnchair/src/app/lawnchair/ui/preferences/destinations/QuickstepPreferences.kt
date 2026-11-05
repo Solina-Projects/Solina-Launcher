@@ -1,5 +1,6 @@
 package app.lawnchair.ui.preferences.destinations
 
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
@@ -17,6 +18,8 @@ import app.lawnchair.preferences.preferenceManager
 import app.lawnchair.preferences2.preferenceManager2
 import app.lawnchair.ui.preferences.components.QuickActionsPreferences
 import app.lawnchair.ui.preferences.components.RecentsQuickAction
+import app.lawnchair.ui.preferences.components.controls.ListPreference
+import app.lawnchair.ui.preferences.components.controls.ListPreferenceEntry
 import app.lawnchair.ui.preferences.components.controls.SliderPreference
 import app.lawnchair.ui.preferences.components.controls.SwitchPreference
 import app.lawnchair.ui.preferences.components.controls.WarningPreference
@@ -24,7 +27,6 @@ import app.lawnchair.ui.preferences.components.layout.ExpandAndShrink
 import app.lawnchair.ui.preferences.components.layout.PreferenceGroup
 import app.lawnchair.ui.preferences.components.layout.PreferenceLayout
 import app.lawnchair.ui.theme.LawnchairTheme
-import app.lawnchair.ui.util.preview.PreferenceGroupPreviewContainer
 import app.lawnchair.ui.util.preview.PreviewLawnchair
 import app.lawnchair.util.isOnePlusStock
 import com.android.launcher3.R
@@ -39,6 +41,14 @@ fun QuickstepPreferences(
     val context = LocalContext.current
     val lensAvailable = remember {
         context.packageManager.getLaunchIntentForPackage("com.google.ar.lens") != null
+    }
+
+    val actionBarStyleEntries = remember {
+        listOf(
+            ListPreferenceEntry("floating_glass") { stringResource(R.string.recents_bar_style_glass) },
+            ListPreferenceEntry("tonal_pill") { stringResource(R.string.recents_bar_style_tonal) },
+            ListPreferenceEntry("classic") { stringResource(R.string.recents_bar_style_classic) },
+        )
     }
 
     val recentActionsPreferences: List<RecentsQuickAction> = listOfNotNull(
@@ -74,8 +84,22 @@ fun QuickstepPreferences(
         label = stringResource(id = R.string.quickstep_label),
         modifier = modifier,
     ) {
-        if (!LawnchairApp.isRecentsEnabled) QuickSwitchIgnoredWarning()
+        if (!LawnchairApp.isRecentsEnabled) {
+            QuickSwitchIgnoredWarning()
+        }
+
+        if (LawnchairApp.isQuickstepBuild) {
+            PreferenceGroup(heading = stringResource(id = R.string.recents_integration_heading)) {
+                SwitchPreference(
+                    adapter = prefs.forceEnableRecents.getAdapter(),
+                    label = stringResource(id = R.string.recents_force_enable_label),
+                    description = stringResource(id = R.string.recents_force_enable_summary),
+                )
+            }
+        }
+
         val recentsTranslucentBackground by prefs.recentsTranslucentBackground.observeAsState()
+        val actionBarStyleAdapter = prefs.recentsActionBarStyle.getAdapter()
         PreferenceGroup(heading = stringResource(id = R.string.general_label)) {
             SwitchPreference(
                 adapter = prefs.recentsTranslucentBackground.getAdapter(),
@@ -89,6 +113,22 @@ fun QuickstepPreferences(
                     valueRange = 0f..0.95f,
                     showAsPercentage = true,
                 )
+            }
+            ListPreference(
+                adapter = actionBarStyleAdapter,
+                entries = actionBarStyleEntries,
+                label = stringResource(id = R.string.recents_action_bar_style_label),
+            )
+            ExpandAndShrink(visible = actionBarStyleAdapter.state.value != "classic") {
+                Column {
+                    SliderPreference(
+                        label = stringResource(id = R.string.recents_action_bar_radius_label),
+                        adapter = prefs.recentsActionBarRadius.getAdapter(),
+                        step = 2,
+                        valueRange = 12..32,
+                        showUnit = "dp",
+                    )
+                }
             }
         }
 

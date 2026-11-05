@@ -1,17 +1,24 @@
 package app.lawnchair.overview
 
 import android.content.Context
+import android.graphics.Color
+import android.graphics.drawable.GradientDrawable
 import android.util.AttributeSet
+import android.util.TypedValue
 import android.view.View
 import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.Space
+import androidx.core.graphics.ColorUtils
 import androidx.core.view.ViewCompat
 import androidx.core.view.isVisible
 import app.lawnchair.preferences.PreferenceManager
+import app.lawnchair.theme.color.tokens.ColorTokens
+import app.lawnchair.util.RecentHelper
 import app.lawnchair.util.isOnePlusStock
 import com.android.launcher3.R
 import com.android.quickstep.views.OverviewActionsView
+import kotlin.math.roundToInt
 
 class LawnchairOverviewActionsView @JvmOverloads constructor(
     context: Context,
@@ -26,6 +33,7 @@ class LawnchairOverviewActionsView @JvmOverloads constructor(
     private lateinit var lensAction: Button
     private lateinit var clearAllAction: Button
     private lateinit var lockedAction: Button
+    private var clearAllListener: OnClickListener? = null
 
     override fun onFinishInflate() {
         super.onFinishInflate()
@@ -39,6 +47,15 @@ class LawnchairOverviewActionsView @JvmOverloads constructor(
 
         shareAction.setOnClickListener { mCallbacks?.onShare() }
         lensAction.setOnClickListener { mCallbacks?.onLens() }
+        lockedAction.setOnClickListener { mCallbacks?.onToggleLock() }
+        clearAllAction.setOnClickListener { view ->
+            val listener = clearAllListener
+            if (listener != null) {
+                listener.onClick(view)
+            } else {
+                RecentHelper.clearAllTaskStacks(context)
+            }
+        }
 
         prefs.recentsActionClearAll.subscribeChanges(this, ::updateVisibilities)
         prefs.recentsActionLens.subscribeChanges(this, ::updateVisibilities)
@@ -46,13 +63,71 @@ class LawnchairOverviewActionsView @JvmOverloads constructor(
         prefs.recentsActionShare.subscribeChanges(this, ::updateVisibilities)
         prefs.recentsActionLocked.subscribeChanges(this, ::updateVisibilities)
         prefs.recentActionOrder.subscribeChanges(this, ::updateVisibilities)
+        prefs.recentsActionBarStyle.subscribeChanges(this, ::applyActionBarStyle)
+        prefs.recentsActionBarRadius.subscribeChanges(this, ::applyActionBarStyle)
 
         updateVisibilities()
+        applyActionBarStyle()
+    }
+
+    private fun dpToPx(dp: Float): Float = TypedValue.applyDimension(
+        TypedValue.COMPLEX_UNIT_DIP,
+        dp,
+        resources.displayMetrics,
+    )
+
+    private fun applyActionBarStyle() {
+        if (!::container.isInitialized) return
+        val style = prefs.recentsActionBarStyle.get()
+        if (style == "classic") {
+            container.background = null
+            container.setPadding(0, 0, 0, 0)
+            return
+        }
+        val radiusPx = dpToPx(prefs.recentsActionBarRadius.get().toFloat())
+        val surfaceColor = ColorTokens.Surface.resolveColor(context)
+        val accentColor = ColorTokens.ColorAccent.resolveColor(context)
+        val bg = GradientDrawable().apply {
+            cornerRadius = radiusPx
+            when (style) {
+                "tonal_pill" -> {
+                    val fill = ColorUtils.blendARGB(surfaceColor, accentColor, 0.22f)
+                    setColor(ColorUtils.setAlphaComponent(fill, 228))
+                    setStroke(
+                        dpToPx(1.2f).roundToInt().coerceAtLeast(1),
+                        ColorUtils.setAlphaComponent(accentColor, 140),
+                    )
+                }
+
+                else -> {
+                    val topColor = ColorUtils.setAlphaComponent(
+                        ColorUtils.blendARGB(surfaceColor, Color.WHITE, 0.16f),
+                        220,
+                    )
+                    val bottomColor = ColorUtils.setAlphaComponent(
+                        ColorUtils.blendARGB(surfaceColor, Color.BLACK, 0.12f),
+                        205,
+                    )
+                    orientation = GradientDrawable.Orientation.TOP_BOTTOM
+                    colors = intArrayOf(topColor, bottomColor)
+                    setStroke(
+                        dpToPx(1.2f).roundToInt().coerceAtLeast(1),
+                        ColorUtils.setAlphaComponent(
+                            ColorUtils.blendARGB(surfaceColor, Color.WHITE, 0.42f),
+                            165,
+                        ),
+                    )
+                }
+            }
+        }
+        val hPad = dpToPx(8f).roundToInt()
+        val vPad = dpToPx(2f).roundToInt()
+        container.background = bg
+        container.setPadding(hPad, vPad, hPad, vPad)
     }
 
     private fun updateVisibilities() {
-        val order = prefs.recentActionOrder.get().split(",").map { it.toInt() }
-
+        val order = prefs.recentActionOrder.get().split(",").mapNotNull { it.trim().toIntOrNull() }
         val buttonMap = mutableMapOf<Int, View>()
         if (prefs.recentsActionScreenshot.get() && !isOnePlusStock) {
             buttonMap[0] = screenshotAction
@@ -93,6 +168,6 @@ class LawnchairOverviewActionsView @JvmOverloads constructor(
     }
 
     override fun setClearAllClickListener(clearAllClickListener: OnClickListener?) {
-        clearAllAction.setOnClickListener(clearAllClickListener)
+        this.clearAllListener = clearAllClickListener
     }
 }

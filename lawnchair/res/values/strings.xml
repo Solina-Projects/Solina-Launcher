@@ -1302,4 +1302,26 @@
     <string name="drawer_animation_speed_label">Opening &amp; Closing Speed</string>
     <string name="drawer_open_spring_bounce_label">Dynamic Spring Overshoot</string>
     <string name="drawer_open_spring_bounce_summary">Add a subtle elastic bounce as the Dock morphs into Suggestions and App Drawer rows</string>
+    <string name="drawer_dock_rise_factor_label">Dock Rise Height on Swipe</string>
+    <string name="drawer_cascade_stagger_label">Row Cascade Wave Intensity</string>
+    <string name="drawer_icon_scale_bloom_label">Icon Scale Bloom Effect</string>
+    <string name="drawer_icon_scale_bloom_summary">Smoothly scale-bloom Suggested Apps and Drawer icons as they emerge from the Dock</string>
+    <string name="recents_integration_heading">Quickstep &amp; Recents Integration</string>
+    <string name="recents_force_enable_label">Force Enable Quickstep Features</string>
+    <string name="recents_force_enable_summary">Keep Quickstep and Recents customization active on custom ROMs and root setups</string>
+    <string name="recents_action_bar_style_label">Recents Action Bar Style</string>
+    <string name="recents_bar_style_glass">Floating Glass Capsule</string>
+    <string name="recents_bar_style_tonal">Tonal Accent Pill</string>
+    <string name="recents_bar_style_classic">Classic Transparent</string>
+    <string name="recents_action_bar_radius_label">Action Bar Corner Radius</string>
+    <string name="search_results_card_style_heading">Search Results Card &amp; Animation</string>
+    <string name="search_card_style_label">Search Result Card Style</string>
+    <string name="search_card_style_glass">Frosted Glass Card</string>
+    <string name="search_card_style_tonal">Tonal Accent Pod</string>
+    <string name="search_card_style_3d">3D Elevated Card</string>
+    <string name="search_card_style_flat">Classic Flat</string>
+    <string name="search_card_corner_radius_label">Search Card Corner Radius</string>
+    <string name="search_card_alpha_label">Search Card Opacity</string>
+    <string name="search_result_animate_in_label">Smooth Result Entry Animation</string>
+    <string name="search_result_animate_in_summary">Animate search result cards with a smooth upward slide and scale as you type</string>
 </resources>

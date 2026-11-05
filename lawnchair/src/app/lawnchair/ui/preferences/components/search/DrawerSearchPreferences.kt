@@ -20,6 +20,7 @@ import app.lawnchair.ui.preferences.components.HiddenAppsInSearchPreference
 import app.lawnchair.ui.preferences.components.controls.ListPreference
 import app.lawnchair.ui.preferences.components.controls.ListPreferenceEntry
 import app.lawnchair.ui.preferences.components.controls.MainSwitchPreference
+import app.lawnchair.ui.preferences.components.controls.SliderPreference
 import app.lawnchair.ui.preferences.components.controls.SwitchPreference
 import app.lawnchair.ui.preferences.components.controls.TwoTargetSwitchPreference
 import app.lawnchair.ui.preferences.components.layout.PreferenceGroup
@@ -65,6 +66,41 @@ fun DrawerSearchPreference(
         }
 
         QsbLookPreferences()
+
+        val searchCardStyleEntries = remember {
+            listOf(
+                ListPreferenceEntry("glass_card") { stringResource(R.string.search_card_style_glass) },
+                ListPreferenceEntry("tonal_pod") { stringResource(R.string.search_card_style_tonal) },
+                ListPreferenceEntry("elevated_3d") { stringResource(R.string.search_card_style_3d) },
+                ListPreferenceEntry("flat") { stringResource(R.string.search_card_style_flat) },
+            )
+        }
+        PreferenceGroup(heading = stringResource(id = R.string.search_results_card_style_heading)) {
+            ListPreference(
+                adapter = prefs.searchCardStyle.getAdapter(),
+                entries = searchCardStyleEntries,
+                label = stringResource(id = R.string.search_card_style_label),
+            )
+            SliderPreference(
+                label = stringResource(id = R.string.search_card_corner_radius_label),
+                adapter = prefs.searchCardCornerRadius.getAdapter(),
+                step = 2,
+                valueRange = 8..32,
+                showUnit = "dp",
+            )
+            SliderPreference(
+                label = stringResource(id = R.string.search_card_alpha_label),
+                adapter = prefs.searchCardAlpha.getAdapter(),
+                step = 4,
+                valueRange = 20..100,
+                showUnit = "%",
+            )
+            SwitchPreference(
+                adapter = prefs.searchResultAnimateIn.getAdapter(),
+                label = stringResource(id = R.string.search_result_animate_in_label),
+                description = stringResource(id = R.string.search_result_animate_in_summary),
+            )
+        }
 
         val searchAlgorithm = preferenceManager2().searchAlgorithm.getAdapter().state.value
         val navController = LocalNavController.current

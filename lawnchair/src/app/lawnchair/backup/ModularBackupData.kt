@@ -161,6 +161,9 @@ internal object ModularBackupData {
         "pref_drawerOpenAnimationStyle",
         "pref_drawerAnimationSpeedFactor",
         "pref_drawerOpenSpringBounce",
+        "pref_drawerDockRiseFactor",
+        "pref_drawerCascadeStaggerFactor",
+        "pref_drawerIconScaleBloom",
     )
 
     private val SUGGESTION_KEYS = setOf(
@@ -231,6 +234,10 @@ internal object ModularBackupData {
         "max_web_suggestion_delay",
         "max_settings_entry_result_count",
         "max_recent_result_count",
+        "pref_searchCardStyle",
+        "pref_searchCardCornerRadius",
+        "pref_searchCardAlpha",
+        "pref_searchResultAnimateIn",
     )
 
     private val FOLDER_KEYS = setOf(

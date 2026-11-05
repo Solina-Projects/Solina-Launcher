@@ -187,11 +187,32 @@ fun AppDrawerPreferences(
                 showAsPercentage = true,
             )
             ExpandAndShrink(visible = openAnimStyleAdapter.state.value != "classic") {
-                SwitchPreference(
-                    adapter = prefs.drawerOpenSpringBounce.getAdapter(),
-                    label = stringResource(id = R.string.drawer_open_spring_bounce_label),
-                    description = stringResource(id = R.string.drawer_open_spring_bounce_summary),
-                )
+                Column {
+                    SliderPreference(
+                        label = stringResource(id = R.string.drawer_dock_rise_factor_label),
+                        adapter = prefs.drawerDockRiseFactor.getAdapter(),
+                        step = 0.05f,
+                        valueRange = 0.30f..0.85f,
+                        showAsPercentage = true,
+                    )
+                    SliderPreference(
+                        label = stringResource(id = R.string.drawer_cascade_stagger_label),
+                        adapter = prefs.drawerCascadeStaggerFactor.getAdapter(),
+                        step = 0.1f,
+                        valueRange = 0.0f..2.0f,
+                        showAsPercentage = true,
+                    )
+                    SwitchPreference(
+                        adapter = prefs.drawerOpenSpringBounce.getAdapter(),
+                        label = stringResource(id = R.string.drawer_open_spring_bounce_label),
+                        description = stringResource(id = R.string.drawer_open_spring_bounce_summary),
+                    )
+                    SwitchPreference(
+                        adapter = prefs.drawerIconScaleBloom.getAdapter(),
+                        label = stringResource(id = R.string.drawer_icon_scale_bloom_label),
+                        description = stringResource(id = R.string.drawer_icon_scale_bloom_summary),
+                    )
+                }
             }
         }
 

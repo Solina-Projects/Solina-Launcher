@@ -59,7 +59,14 @@ import java.io.File
 class LawnchairApp : LauncherApplication() {
     private val compatible = Build.VERSION.SDK_INT in BuildConfig.QUICKSTEP_MIN_SDK..BuildConfig.QUICKSTEP_MAX_SDK
     private val isRecentsComponent: Boolean by unsafeLazy { checkRecentsComponent() }
-    private val recentsEnabled: Boolean get() = compatible && isRecentsComponent
+    private val recentsEnabled: Boolean
+        get() = BuildConfig.IS_QUICKSTEP_FLAVOR && compatible && (isRecentsComponent || isForceRecentsEnabled())
+
+    private fun isForceRecentsEnabled(): Boolean = try {
+        PreferenceManager.getInstance(this).forceEnableRecents.get()
+    } catch (_: Throwable) {
+        false
+    }
     private val isAtleastT = Utilities.ATLEAST_T
     internal var accessibilityService: LawnchairAccessibilityService? = null
     val isVibrateOnIconAnimation: Boolean by unsafeLazy { getSystemUiBoolean("config_vibrateOnIconAnimation", false) }
@@ -210,8 +217,14 @@ class LawnchairApp : LauncherApplication() {
             return false
         }
 
+        val validClassNames = setOf(
+            RecentsActivity::class.java.name,
+            SolinaLauncher::class.java.name,
+            "app.lawnchair.LawnchairLauncher",
+            "com.android.launcher3.uioverrides.QuickstepLauncher",
+        )
         val isRecentsComponent = recentsComponent.packageName == packageName &&
-            recentsComponent.className == RecentsActivity::class.java.name
+            (recentsComponent.className in validClassNames || recentsComponent.className.isNotEmpty())
         if (!isRecentsComponent) {
             Log.d(TAG, "config_recentsComponentName ($recentsComponent) is not Lawnchair, disabling recents")
             return false
@@ -237,6 +250,9 @@ class LawnchairApp : LauncherApplication() {
         @JvmStatic
         lateinit var instance: LawnchairApp
             private set
+
+        @JvmStatic
+        val isQuickstepBuild: Boolean get() = BuildConfig.IS_QUICKSTEP_FLAVOR
 
         @JvmStatic
         val isRecentsEnabled: Boolean get() = instance.recentsEnabled

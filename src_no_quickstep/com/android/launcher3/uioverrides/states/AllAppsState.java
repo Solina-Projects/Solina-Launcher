@@ -80,7 +80,10 @@ public class AllAppsState extends LauncherState {
                 float shiftRange = Math.max(
                         launcher.getDeviceProfile().allAppsShiftRange,
                         launcher.getDeviceProfile().getDeviceProperties().getHeightPx() * 0.65f);
-                float riseTranslationY = -shiftRange * 0.56f;
+                float riseFactor = com.android.launcher3.Utilities.boundToRange(
+                        app.lawnchair.preferences.PreferenceManager.getInstance(launcher)
+                                .getDrawerDockRiseFactor().get(), 0.30f, 0.85f);
+                float riseTranslationY = -shiftRange * riseFactor;
                 return new ScaleAndTranslation(
                         0.94f,
                         NO_OFFSET,

@@ -946,4 +946,26 @@ Solina Launcher فعالیت‌های شما را زیر نظر نمی‌گیر�
     <string name="drawer_animation_speed_label">سرعت باز و بسته شدن کشوی برنامه‌ها</string>
     <string name="drawer_open_spring_bounce_label">جهش فنری نرم (Spring Bounce)</string>
     <string name="drawer_open_spring_bounce_summary">افکت فنری ظریف هنگام تبدیل داک به ردیف پیشنهادها و چیدمان برنامه‌ها</string>
+    <string name="drawer_dock_rise_factor_label">میزان بالا آمدن داک هنگام کشیدن</string>
+    <string name="drawer_cascade_stagger_label">شدت موج پلکانی ردیف‌های برنامه</string>
+    <string name="drawer_icon_scale_bloom_label">افکت شکوفایی مقیاس آیکن‌ها</string>
+    <string name="drawer_icon_scale_bloom_summary">بزرگ‌نمایی نرم آیکن‌های پیشنهادها و برنامه‌ها هنگام خروج از دل داک</string>
+    <string name="recents_integration_heading">یکپارچه‌سازی کویک‌استپ و برنامه‌های اخیر</string>
+    <string name="recents_force_enable_label">فعال‌سازی اجباری قابلیت‌های کویک‌استپ</string>
+    <string name="recents_force_enable_summary">حفظ قابلیت‌های اخیرها (Recents) و کویک‌استپ در کاستوم رام‌ها و دسترسی روت</string>
+    <string name="recents_action_bar_style_label">استایل نوار دکمه‌های پایین اخیرها</string>
+    <string name="recents_bar_style_glass">کپسول شیشه‌ای شناور</string>
+    <string name="recents_bar_style_tonal">کپسول تونال رنگی</string>
+    <string name="recents_bar_style_classic">کلاسیک (بدون کادر)</string>
+    <string name="recents_action_bar_radius_label">شعاع گردی نوار دکمه‌های اخیرها</string>
+    <string name="search_results_card_style_heading">استایل کارت و انیمیشن نتایج جستجو</string>
+    <string name="search_card_style_label">سبک کارت نتایج جستجو</string>
+    <string name="search_card_style_glass">کارت شیشه‌ای براق</string>
+    <string name="search_card_style_tonal">کارت تونال رنگی</string>
+    <string name="search_card_style_3d">کارت برجسته سه‌بعدی</string>
+    <string name="search_card_style_flat">ساده (کلاسیک)</string>
+    <string name="search_card_corner_radius_label">شعاع گردی کارت نتایج جستجو</string>
+    <string name="search_card_alpha_label">شفافیت کارت‌های نتایج جستجو</string>
+    <string name="search_result_animate_in_label">انیمیشن ورود نرم نتایج جستجو</string>
+    <string name="search_result_animate_in_summary">نمایش کارت‌ها و ردیف‌های نتایج جستجو با انیمیشن لغزش و مقیاس نرم هنگام تایپ</string>
 </resources>

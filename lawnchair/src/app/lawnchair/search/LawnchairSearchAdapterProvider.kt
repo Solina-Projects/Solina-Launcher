@@ -62,6 +62,23 @@ class LawnchairSearchAdapterProvider(
         if (itemView.isQuickLaunch) {
             quickLaunchItem = itemView
         }
+        val prefs = app.lawnchair.preferences.PreferenceManager.getInstance(holder.itemView.context)
+        if (prefs.searchResultAnimateIn.get()) {
+            val v = holder.itemView
+            val density = v.resources.displayMetrics.density
+            v.alpha = 0.28f
+            v.translationY = 14f * density
+            v.scaleX = 0.96f
+            v.scaleY = 0.96f
+            v.animate()
+                .alpha(1f)
+                .translationY(0f)
+                .scaleX(1f)
+                .scaleY(1f)
+                .setDuration(180L)
+                .setStartDelay((position.coerceAtMost(8) * 14).toLong())
+                .start()
+        }
     }
 
     override fun onCreateViewHolder(

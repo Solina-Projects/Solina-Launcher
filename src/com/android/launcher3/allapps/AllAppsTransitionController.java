@@ -333,6 +333,9 @@ public class AllAppsTransitionController
                 && suggestionView.getVisibility() == View.VISIBLE
                 && suggestionView.getExpectedHeight() > 0;
         boolean springBounce = prefs.getDrawerOpenSpringBounce().get();
+        boolean scaleBloom = prefs.getDrawerIconScaleBloom().get();
+        float cascadeFactor = Utilities.boundToRange(
+                prefs.getDrawerCascadeStaggerFactor().get(), 0f, 2f);
         float dpDensity = mLauncher.getResources().getDisplayMetrics().density;
 
         if (hasActiveSuggestions && !"instant_snap".equals(animStyle)) {
@@ -349,7 +352,7 @@ public class AllAppsTransitionController
                     : 0f;
             suggestionHost.setAlpha(Utilities.boundToRange(stage1 * 1.4f, 0f, 1f));
             suggestionHost.setTranslationY((46f * dpDensity) * (1f - stage1Ease) + spring1);
-            float s1Scale = 0.88f + 0.12f * stage1Ease;
+            float s1Scale = scaleBloom ? (0.88f + 0.12f * stage1Ease) : 1f;
             suggestionHost.setScaleX(s1Scale);
             suggestionHost.setScaleY(s1Scale);
 
@@ -362,11 +365,11 @@ public class AllAppsTransitionController
             if (rv != null) {
                 int count = rv.getChildCount();
                 int rvHeight = Math.max(1, rv.getHeight());
-                float staggerSpan = "cascade_wave".equals(animStyle) ? 0.22f : 0.14f;
+                float staggerSpan = ("cascade_wave".equals(animStyle) ? 0.22f : 0.14f) * cascadeFactor;
                 float baseStart = "cascade_wave".equals(animStyle) ? 0.28f : 0.24f;
                 float durationSpan = "cascade_wave".equals(animStyle) ? 0.48f : 0.50f;
-                float slideDp = "cascade_wave".equals(animStyle) ? 68f : 48f;
-                float minScale = "cascade_wave".equals(animStyle) ? 0.88f : 0.92f;
+                float slideDp = ("cascade_wave".equals(animStyle) ? 68f : 48f) * (0.5f + 0.5f * cascadeFactor);
+                float minScale = scaleBloom ? ("cascade_wave".equals(animStyle) ? 0.88f : 0.92f) : 1f;
 
                 for (int i = 0; i < count; i++) {
                     View child = rv.getChildAt(i);
@@ -400,7 +403,7 @@ public class AllAppsTransitionController
             if (rv != null) {
                 int count = rv.getChildCount();
                 int rvHeight = Math.max(1, rv.getHeight());
-                float stagger = "instant_snap".equals(animStyle) ? 0.05f : 0.10f;
+                float stagger = ("instant_snap".equals(animStyle) ? 0.05f : 0.10f) * cascadeFactor;
                 for (int i = 0; i < count; i++) {
                     View child = rv.getChildAt(i);
                     float rowFactor = Utilities.boundToRange(
@@ -413,7 +416,7 @@ public class AllAppsTransitionController
                             : 0f;
                     child.setAlpha(Utilities.boundToRange(cProg * 1.45f, 0f, 1f));
                     child.setTranslationY((32f * dpDensity) * (1f - cEase) + cSpring);
-                    float cScale = 0.92f + 0.08f * cEase;
+                    float cScale = scaleBloom ? (0.92f + 0.08f * cEase) : 1f;
                     child.setScaleX(cScale);
                     child.setScaleY(cScale);
                 }

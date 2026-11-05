@@ -144,8 +144,8 @@ final def releaseName = "Beta 1"
 final def versionDisplayName = "${version}.${isReleaseBuild ? releaseName : devReleaseName}"
 final def majorVersion = versionDisplayName.split("\\.")[0]
 
-final def quickstepMinSdk = "35"
-final def quickstepMaxSdk = "36"
+final def quickstepMinSdk = "29"
+final def quickstepMaxSdk = "40"
 
 android {
     namespace "com.android.launcher3"
@@ -264,11 +264,13 @@ android {
         withoutQuickstep {
             dimension "recents"
             minSdk = 26
+            buildConfigField "boolean", "IS_QUICKSTEP_FLAVOR", "false"
         }
 
         withQuickstep {
             dimension "recents"
             minSdk = 26
+            buildConfigField "boolean", "IS_QUICKSTEP_FLAVOR", "true"
         }
 
         github {
