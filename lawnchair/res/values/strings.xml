@@ -1332,4 +1332,5 @@
     <string name="workspace_transition_carousel">3D Carousel</string>
     <string name="workspace_transition_accordion">Accordion Fold</string>
     <string name="workspace_transition_windmill">Windmill Arc</string>
+    <string name="settings_quick_access">Quick settings</string>
 </resources>
