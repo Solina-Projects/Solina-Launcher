@@ -68,9 +68,8 @@
     <dimen name="search_result_text_height">52dp</dimen>
     <dimen name="search_result_subtitle_padding_start">4dp</dimen>
 
-    <!-- Header is aligned to the search container top with this margin. 60dp search
-         container + a small gap; keep in sync with search_box_container_height. -->
-    <dimen name="all_apps_header_top_margin">64dp</dimen>
+    <!-- Keep an 8dp gap between the 60dp search container and app suggestions. -->
+    <dimen name="all_apps_header_top_margin">68dp</dimen>
     <!-- AOSP uses 36dp to clear an overlapping search bar; Solina Launcher's larger
          top_margin already clears the search, so keep this tight. -->
     <dimen name="all_apps_header_top_padding">4dp</dimen>
