@@ -287,7 +287,6 @@ fun PreferencesDashboard(
         backArrowVisible = false,
         actions = {
             val highlightColor = MaterialTheme.colorScheme.surfaceColorAtElevation(4.dp)
-            val highlightShape = MaterialTheme.shapes.large
             Row(
                 modifier = Modifier
                     .clip(RoundedCornerShape(24.dp))
@@ -310,7 +309,11 @@ fun PreferencesDashboard(
                 )
             }
             ClickableIcon(
-                imageVector = if (launcherTheme == "dark") Icons.Rounded.LightMode else Icons.Rounded.DarkMode,
+                imageVector = if (launcherTheme == "dark") {
+                    Icons.Rounded.LightMode
+                } else {
+                    Icons.Rounded.DarkMode
+                },
                 onClick = {
                     launcherThemeAdapter.onChange(if (launcherTheme == "dark") "light" else "dark")
                 },
