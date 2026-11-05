@@ -129,20 +129,9 @@ final def buildCommit = providers.exec {
     commandLine('git', 'rev-parse', '--short=7', 'HEAD')
 }.standardOutput.asText.get().trim()
 
-final def ciBuild = System.getenv("CI") == "true"
-final def ciRef = System.getenv("GITHUB_REF") ?: ""
-final def ciRunNumber = System.getenv("GITHUB_RUN_NUMBER") ?: ""
-final def isReleaseBuild = ciBuild
-        && (ciRef.endsWith("-alpha")
-        || ciRef.endsWith("-beta")
-        || ciRef.endsWith("-rc")
-        || ciRef.endsWith("-stable"))
-final def devReleaseName = ciBuild ? "Dev.(#${ciRunNumber})" : "Dev.(${buildCommit})"
-
-final def version = "16"
-final def releaseName = "Beta 1"
-final def versionDisplayName = "${version}.${isReleaseBuild ? releaseName : devReleaseName}"
-final def majorVersion = versionDisplayName.split("\\.")[0]
+// Keep the user-facing version consistent across the installer and launcher UI.
+final def versionDisplayName = "1.0.0 Dev"
+final def majorVersion = "1.0.0"
 
 final def quickstepMinSdk = "29"
 final def quickstepMaxSdk = "40"
