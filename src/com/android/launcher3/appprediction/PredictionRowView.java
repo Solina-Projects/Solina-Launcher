@@ -158,7 +158,9 @@ public class PredictionRowView<T extends Context & ActivityContext>
         mVerticalPadding = getResources().getDimensionPixelSize(
                 R.dimen.all_apps_predicted_icon_vertical_padding);
         float density = getResources().getDisplayMetrics().density;
-        mDividerHeight = Math.round(30 * density);
+        // Keep the suggestion header compact so it does not create a large fixed gap
+        // between the floating search bar and the first suggestion row.
+        mDividerHeight = Math.round(24 * density);
         boolean atBottom = "bottom".equals(
                 PreferenceCacheExtensionsKt.firstCached(prefs2.getSuggestionPosition()));
         mAtBottom = atBottom;
