@@ -1028,7 +1028,7 @@
     <string name="search_pref_result_apps_and_shortcuts_title">Apps and shortcuts</string>
     <string name="search_pref_result_shortcuts_title">App shortcuts</string>
     <string name="search_pref_result_people_title">People</string>
-    <string name="search_pref_result_tips_title">Pixel tips</string>
+    <string name="search_pref_result_tips_title">Solina tips</string>
     <string name="search_pref_result_settings_title">Android settings</string>
     <string name="search_pref_result_files_title">Files</string>
     <string name="search_pref_result_visual_media_title">Photos and videos</string>
@@ -1130,7 +1130,7 @@
     <string name="backup_restore_confirmation_wallpaper_message">This replaces your current wallpaper. Continue?</string>
     <string name="backup_restore_confirmation_suggestions_message">This replaces your current App Drawer suggestion settings without changing your layout or wallpaper. Continue?</string>
     <string name="backup_restore_confirmation_suggestions_and_wallpaper_message">This replaces your App Drawer suggestion settings and current wallpaper without changing your layout. Continue?</string>
-    <string name="backup_restore_metadata">Created: %1$s · Lawnchair version: %2$d</string>
+    <string name="backup_restore_metadata">Created: %1$s · Solina Launcher version: %2$d</string>
     <string name="backup_restore_cancel">Cancel</string>
     <string name="solina_persian_calendar_widget_name">Persian calendar</string>
     <string name="solina_persian_calendar_widget_description">Shows today\'s date in the Solar Hijri calendar.</string>
@@ -1291,4 +1291,6 @@
     <string name="app_lock_pin_cleared_toast">Custom PIN removed</string>
     <string name="app_lock_search_hint">Search apps to lock…</string>
     <string name="app_lock_filter_locked">Locked</string>
+    <string name="developer_credit_subtitle">Developer: Solina • t.me/N2Solina</string>
+    <string name="solina_telegram_channel">Telegram (@N2Solina)</string>
 </resources>

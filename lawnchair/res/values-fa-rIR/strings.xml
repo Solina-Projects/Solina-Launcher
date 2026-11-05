@@ -14,840 +14,927 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <!-- TODO: Rename all strings to follow CONTRIBUTING.md guidelines -->
-    <!--
+<resources xmlns:tools="http://schemas.android.com/tools" xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="generic_smartspace_concatenated_desc">%1$s،%2$s</string>
+    <string name="accessibility_smartspace_page">صفحه %1$d از %2$d</string>
+    <string name="regional_settings">زبان، اعداد و تقویم</string>
+    <string name="app_language_label">زبان برنامه</string>
+    <string name="app_language_description">زبان فارسی یا انگلیسی را از تنظیمات زبان برنامه در اندروید انتخاب کنید.</string>
+    <string name="persian_numerals_label">استفاده از اعداد فارسی در ویجت تاریخ</string>
+    <string name="persian_numerals_description">نمایش اعداد به شکل ۰۱۲۳۴۵۶۷۸۹ در ویجت تاریخ و ساعت لانچر.</string>
+    <string name="smartspace_calendar">تقویم</string>
+    <string name="smartspace_calendar_gregorian">میلادی</string>
+    <string name="smartspace_calendar_persian">شمسی</string>
+    <string name="dock_vertical_padding">فضای عمودی هر ردیف داک</string>
+    <string name="dock_icon_spacing">فضای افقی هر ستون داک</string>
+    <string name="home_label_vertical_offset">موقعیت عمودی برچسب صفحهٔ اصلی</string>
+    <string name="drawer_label_vertical_offset">موقعیت عمودی برچسب کشوی برنامه‌ها</string>
+    <string name="dock_label_vertical_offset">موقعیت عمودی برچسب داک</string>
+    <string name="solina_persian_calendar_widget_name">تقویم شمسی</string>
+    <string name="solina_persian_calendar_widget_description">نمایش تاریخ امروز در تقویم هجری شمسی.</string>
+    <string name="solina_persian_calendar_caption">تقویم هجری شمسی</string>
+    <string name="app_lock_title">قفل برنامه‌ها</string>
+    <string name="app_lock_description">برای باز کردن برنامه‌های انتخاب‌شده از طریق سولینا، رمز، الگو یا گذرواژهٔ قفل صفحه لازم است.</string>
+    <string name="app_lock_unlock_title">باز کردن قفل برنامه</string>
+    <string name="app_lock_unlock_subtitle">برای اجرای این برنامه قفل صفحهٔ دستگاه را تأیید کنید.</string>
+    <string name="app_lock_unavailable">احراز هویت امن تنظیم نشده است. در تنظیمات اندروید قفل صفحه یا اثر انگشت را فعال کنید.</string>
+    <string name="app_lock_apps_heading">برنامه‌های موردنظر برای قفل</string>
+    <string name="app_lock_empty">برنامه قابل اجرایی پیدا نشد.</string>
+    <string name="smart_categories_title">دسته‌بندی هوشمند برنامه‌ها</string>
+    <string name="smart_categories_description">بر اساس نوع برنامه‌ها پوشه بساز. پوشه‌های موجود حفظ می‌شوند.</string>
+    <string name="smart_categories_create">ساخت پوشه‌های هوشمند</string>
+    <string name="smart_categories_done">پوشه‌های هوشمند ساخته شدند.</string>
+    <string name="smart_category_social">شبکه‌های اجتماعی</string>
+    <string name="smart_category_communication">ارتباطات</string>
+    <string name="smart_category_media">رسانه و سرگرمی</string>
+    <string name="smart_category_games">بازی‌ها</string>
+    <string name="smart_category_productivity">کار و بهره‌وری</string>
+    <string name="smart_category_shopping">خرید و امور مالی</string>
+    <string name="smart_category_tools">ابزارها</string>
 
-    Actions and Verbs
-
-    -->
+    <!-- تنظیمات ردیف پیشنهاد برنامه‌ها -->
+    <string name="suggestion_strip_heading">ردیف پیشنهاد برنامه‌ها</string>
+    <string name="suggestion_strip_enabled">نمایش پیشنهاد برنامه‌ها</string>
+    <string name="suggestion_strip_position">جایگاه</string>
+    <string name="suggestion_strip_top">بالا</string>
+    <string name="suggestion_strip_bottom">پایین</string>
+    <string name="suggestion_strip_rows">تعداد ردیف پیشنهادها</string>
+    <string name="suggestion_strip_row_height">ارتفاع ردیف‌های پیشنهاد</string>
+    <string name="suggestion_strip_label_vertical_offset">موقعیت عمودی نام برنامه‌های پیشنهاد</string>
+    <string name="suggestion_strip_source">منبع پیشنهادها</string>
+    <string name="suggestion_strip_source_usage">برنامه‌های پراستفاده</string>
+    <string name="suggestion_strip_source_dock">برنامه‌های داک</string>
+    <string name="suggestion_strip_icon_size">اندازه آیکن پیشنهادها</string>
+    <string name="suggestion_strip_label_size">اندازه نوشته پیشنهادها</string>
+    <string name="suggestion_strip_show_labels">نمایش نام برنامه‌ها</string>
+    <string name="suggestion_strip_background">پس‌زمینه پیشنهادها</string>
+    <string name="suggestion_strip_background_opacity">شفافیت پس‌زمینه</string>
+    <string name="suggestion_strip_corner_radius">گردی گوشه‌های پیشنهادها</string>
+    <string name="suggestion_strip_inner_spacing">فاصله داخلی پیشنهادها</string>
+    <string name="suggestion_strip_outer_spacing">فاصله بیرونی پیشنهادها</string>
     <string name="preview_label">پیش‌نمایش</string>
-    <string name="action_create">ساخت</string>
+    <string name="action_create">ایجاد</string>
     <string name="action_backup">پشتیبان‌گیری</string>
-    <string name="action_restore">بازنشانی</string>
+    <string name="action_restore">بازیابی</string>
     <string name="action_delete">حذف</string>
-    <string name="action_reset">تنظیم مجدد</string>
-    <string name="action_unlock">بازکردن</string>
-    <string name="action_lock">قفل</string>
+    <string name="action_reset">بازنشانی</string>
+    <string name="action_unlock">بازکردن قفل</string>
+    <string name="action_lock">قفل‌کردن</string>
     <string name="action_apply">اعمال</string>
     <string name="action_customize">شخصی‌سازی</string>
     <string name="always_choice">همیشه</string>
     <string name="never_choice">هرگز</string>
-    <string name="clipboard">کلیپ بورد</string>
-    <string name="action_copy_link">رونوشت پیوند</string>
+    <string name="clipboard">تخته‌گیره</string>
+    <string name="action_copy_link">کپی پیوند</string>
     <string name="action_copy">کپی</string>
     <string name="action_paste">چسباندن</string>
-    <string name="action_done">انجام شده</string>
+    <string name="action_done">انجام شد</string>
     <string name="select_all">انتخاب همه</string>
-    <string name="deselect_all">لغو‌انتخاب همه</string>
-    <string name="inverse_selection">انتخاب معکوس</string>
-    <string name="loading">درحال بارگذاری…</string>
-    <string name="dismiss">رد کردن</string>
-    <string name="download_update">بارگیری به‌روزرسانی</string>
+    <string name="deselect_all">لغو انتخاب همه</string>
+    <string name="inverse_selection">معکوس‌کردن انتخاب</string>
+    <string name="loading">در حال بارگذاری…</string>
+    <string name="dismiss">بستن</string>
+    <string name="download_update">دریافت به‌روزرسانی</string>
     <string name="install_update">نصب به‌روزرسانی</string>
     <string name="view_changes">مشاهده تغییرات</string>
-    <string name="pro_updated">You\'re up-to-date</string>
-    <!-- Changes dialog strings -->
+    <string name="pro_updated">برنامه به‌روز است</string>
     <string name="changes_dialog_title">به‌روزرسانی‌ها</string>
-    <string name="changes_dialog_error">Couldn\'t load updates</string>
-    <string name="changes_dialog_no_changes">هیچ تغییری یافت نشد</string>
-    <string name="changes_dialog_build_format">ساخت #%1$d → #%2$d</string>
-    <string name="changes_dialog_commit_info">توسط %1$s • %2$s • %3$s</string>
-    <!-- Time ago strings -->
+    <string name="changes_dialog_error">بارگیری به‌روزرسانی‌ها ناموفق بود</string>
+    <string name="changes_dialog_no_changes">تغییری پیدا نشد</string>
     <string name="time_just_now">همین الان</string>
-    <plurals name="time_minutes_ago">
-        <item quantity="one">%dد</item>
-        <item quantity="other">%dد</item>
-    </plurals>
-    <plurals name="time_hours_ago">
-        <item quantity="one">%dس</item>
-        <item quantity="other">%dس</item>
-    </plurals>
-    <plurals name="time_days_ago">
-        <item quantity="one">%dر</item>
-        <item quantity="other">%dر</item>
-    </plurals>
-    <plurals name="time_weeks_ago">
-        <item quantity="one">%dه</item>
-        <item quantity="other">%dه</item>
-    </plurals>
-    <plurals name="time_months_ago">
-        <item quantity="one">%dماه</item>
-        <item quantity="other">%dماه</item>
-    </plurals>
-    <plurals name="time_years_ago">
-        <item quantity="one">%dسال</item>
-        <item quantity="other">%dسال</item>
-    </plurals>
-    <string name="managed_by_lawnchair">مدیریت شده توسط Solina Launcher</string>
-    <!-- When mentioning settings UI -->
-    <string name="smartspace_preferences">ترجیحات</string>
-    <string name="settings_button_text">تنظیمات خانه</string>
+    <string name="source_and_licenses">کد منبع و مجوزها</string>
+    <string name="managed_by_lawnchair">مدیریت‌شده توسط Solina Launcher</string>
+    <string name="settings_button_text">تنظیمات صفحه اصلی</string>
     <string name="system_settings">تنظیمات سیستم</string>
     <string name="title_change_settings">تغییر تنظیمات</string>
-    <!--
-
-    General "words" used throughout Solina Launcher
-
-    -->
-    <string name="others_category_label">بقیه</string>
-    <!-- Selection options -->
+    <string name="others_category_label">سایر</string>
     <string name="dynamic">پویا</string>
-    <string name="presets">از پیش تعیین شده‌ها</string>
-    <string name="custom">شخصی</string>
+    <string name="presets">پیش‌تنظیم‌ها</string>
+    <string name="custom">سفارشی</string>
     <string name="feed_default">پیش‌فرض</string>
     <string name="system">سیستم</string>
-    <!-- Relating to the Launcher ui -->
     <string name="columns">ستون‌ها</string>
     <string name="rows">ردیف‌ها</string>
-    <string name="label">نام</string>
+    <string name="label">برچسب</string>
     <string name="icons">آیکون‌ها</string>
-    <string name="grid">جدول</string>
+    <string name="grid">شبکه</string>
     <string name="layout">چیدمان</string>
-    <!-- Generic styling options -->
-    <string name="show_wallpaper">نمایش تصویر‌زمینه</string>
-    <string name="wallpaper">کاغذ دیواری</string>
+    <string name="show_wallpaper">نمایش تصویر زمینه</string>
+    <string name="wallpaper">تصویر زمینه</string>
     <string name="style">سبک</string>
     <string name="background_opacity">شفافیت پس‌زمینه</string>
-    <!-- Toast text and tips -->
-    <string name="copied_toast">در کلیپ‌بورد کپی شد</string>
-    <string name="calculator_search_result_copied_toast">نتیجه در کلیپ بورد کپی شد</string>
+    <string name="copied_toast">در تخته‌گیره کپی شد</string>
     <string name="item_removed">مورد حذف شد</string>
-    <!-- Miscellaneous -->
-    <string name="what_to_show">چه چیزی نشان‌داده شود</string>
-    <string name="wallpapers">تصویر‌زمینه</string>
-    <string name="caddy_beta">Caddy (beta)</string>
-    <string name="caddy">کدی</string>
-    <string name="app_drawer_folder">ستون‌های کشوی برنامه‌ها</string>
-    <string name="selected_apps">برنامه‌های انتخابی</string>
+    <string name="what_to_show">چه چیزی نمایش داده شود</string>
+    <string name="app_drawer_folder">پوشه‌های کشوی برنامه‌ها</string>
+    <string name="selected_apps">برنامه‌های انتخاب‌شده</string>
     <string name="add_apps">افزودن برنامه</string>
-    <string name="app_drawer_folder_settings">App drawer folder</string>
     <string name="add_folder">ایجاد پوشه</string>
     <string name="edit_folder">ویرایش پوشه</string>
-    <string name="add_label">افزودن</string>
-    <string name="edit_label">ویرایش</string>
-    <string name="apply_label">اعمال</string>
-    <string name="delete_label">حذف</string>
-    <string name="folder_list_note">برای ویرایش به چپ کشید، برای حذف به راست، یا برای به‌روزرسانی موارد ضربه بزنید</string>
-    <string name="apps_in_folder_label">پنهان کردن برنامه‌های پوشه</string>
-    <string name="apps_in_folder_description">برنامه‌های اختصاص داده شده به پوشه‌ها از فهرست برنامه‌ها حذف می‌شوند</string>
-    <string name="folders_filter_duplicates">فقط برنامه های ویژه را نشان بده</string>
-    <string name="folder_manage_apps">Manage apps</string>
-    <string name="my_folder_label">پوشه من</string>
-    <string name="sort_active_items_action">Sort active items</string>
-    <!-- A11y description -->
-    <string name="accessibility_service_description">To perform certain actions when you use a gesture, such as locking your phone, Solina Launcher requires accessibility access.\n\nSolina Launcher doesn\'t watch your actions, though all accessibility services require this privilege. Solina Launcher discards any event sent by the system.\n\nTo lock your phone or open the Recents screen, Solina Launcher uses the performGlobalAction accessibility service.</string>
-    <string name="x_with_y_count">%1$s (%2$d)</string>
-    <string name="x_by_y">%1$d &#xd7; %2$d</string>
-    <string name="x_and_y">%1$s &amp; %2$s</string>
+    <string name="folder_manage_apps">مدیریت برنامه‌ها</string>
     <string name="advanced">پیشرفته</string>
-    <!-- Draggable -->
-    <string name="reorderable_move_up">Move up</string>
-    <string name="reorderable_move_down">Move down</string>
-    <string name="reorderable_active_items">Active items</string>
-    <string name="reorderable_disabled_items">Other items</string>
-    <string name="reorderable_disabled_hint">Disabled items will appear here</string>
-    <string name="reorderable_add_hint_items">Active items will appear here</string>
-    <!--
-
-    Preference Dashboard
-
-    -->
     <string name="settings">تنظیمات</string>
-    <!-- Shown on large screens until a settings page is picked from the menu beside it. -->
-    <string name="settings_pick_a_page">Pick a setting from the menu</string>
     <string name="general_label">عمومی</string>
-    <string name="general_description">رنگ‌ها، بسته آیکون، نشان اعلان‌ها</string>
     <string name="home_screen_label">صفحه اصلی</string>
-    <string name="home_screen_description">اخبار، جدول، آیکون‌ها</string>
-    <string name="home_screen_actions">Home screen actions</string>
     <string name="dock_label">داک</string>
-    <string name="dock_description">نوار جستجو، تعداد آیکون‌ها</string>
     <string name="app_drawer_label">کشوی برنامه‌ها</string>
-    <string name="app_drawer_description">برنامه‌های مخفی، تعداد ستون‌ها، آیکون‌ها</string>
-    <string name="drawer_search_label">جستجو کشو</string>
-    <string name="drawer_search_description">پیشنهادها وب، جستجوی جهانی</string>
     <string name="folders_label">پوشه‌ها</string>
-    <string name="folders_description">تعداد سطرها و ستون‌ها</string>
-    <string name="gestures_label">حرکات</string>
-    <string name="gestures_description">ضربه‌ها و کشیدن‌ها</string>
-    <string name="quickstep_label">صفحه اخیر</string>
-    <string name="quickstep_description">Clear all button, corner radius</string>
-    <string name="backup_and_restore_label">Backup and restore</string>
-    <string name="backup_and_restore_description">Save current setup, restore backups</string>
+    <string name="gestures_label">ژست‌ها</string>
+    <string name="backup_and_restore_label">پشتیبان‌گیری و بازیابی</string>
     <string name="about_label">درباره</string>
-    <string name="app_info_drop_target_label">اطلاعات برنامه</string>
-    <string name="debug_restart_launcher">راه‌اندازی مجدد Solina Launcher</string>
     <string name="experimental_features_label">قابلیت‌های آزمایشی</string>
-    <!-- Experimental features -->
-    <string name="workspace_label">Workspace</string>
-    <string name="smartspace_label">Smartspace</string>
-    <string name="internal_label">Internal</string>
-    <string name="internal_description">Internal may be less stable than other experimental groups</string>
     <string name="font_picker_label">شخصی‌سازی قلم</string>
-    <string name="font_picker_description">بعضی متون بدون تغییر می‌مانند</string>
-    <string name="smartspace_calendar_label">شخصی‌سازی تقویمِ در یک نگاه</string>
-    <string name="smartspace_calendar_description">اجازه نمایش تاریخ در سیستم‌های تقویم غیرمیلادی</string>
-    <string name="workspace_increase_max_grid_size_label">حداکثر محدودیت اندازه شبکه را افزایش دهید</string>
-    <string name="workspace_increase_max_grid_size_description">Increase maximum allowed home screen grid size from 10 &#xd7; 10 to 20 &#xd7; 20</string>
-    <string name="always_reload_icons_label">همیشه بارگذاری دوباره آیکون‌ها</string>
-    <string name="always_reload_icons_description">Avoid caching to reload icons immediately when theme or accent color changes</string>
-    <string name="always_reload_icons_warning">This will cause icons to refresh regularly, impacting performance. Turn off if the icon pack doesn\'t update regularly.</string>
-    <string name="show_deck_layout">چیدمان عرشه</string>
-    <string name="show_deck_layout_description">نمایش گزینه طرح‌بندی برای مخفی کردن کشوی برنامه‌ها و افزودن خودکار برنامه‌های جدید به صفحه اصلی</string>
+    <string name="smartspace_calendar_label">شخصی‌سازی تقویم نمای کلی</string>
+    <string name="show_deck_layout">چیدمان دسته‌ای</string>
+    <string name="show_deck_layout_description">نمایش گزینه‌ای برای پنهان‌کردن کشوی برنامه‌ها و افزودن خودکار برنامه‌های جدید به صفحه اصلی</string>
     <string name="material_expressive_label">Material 3 Expressive</string>
-    <string name="material_expressive_description">Enable Material 3 Expressive changes in the workspace</string>
-    <string name="folder_shape_label">Folder shape</string>
-    <string name="folder_label">Folder</string>
+    <string name="material_expressive_description">فعال‌کردن تغییرات Material 3 Expressive در فضای کاری</string>
+    <string name="folder_shape_label">شکل پوشه</string>
+    <string name="folder_label">پوشه</string>
     <string name="app_icon_shape_label">برنامه</string>
-    <string name="gesturenavcontract_label">Use GestureNavContract API</string>
-    <string name="gesturenavcontract_description">Support Android\'s enhanced animations when using gesture navigation</string>
-    <string name="gesturenavcontract_warning_incompatibility">Your device isn\'t fully supported. This may cause visual issue for some animations.</string>
-    <string name="vibration_feedback_level_label">Vibration feedback level</string>
-    <string name="vibration_feedback_no_feedback_choice">هیچ</string>
-    <string name="vibration_feedback_minimal_choice">Minimal</string>
+    <string name="gesturenavcontract_label">استفاده از API پیمایش حرکتی</string>
+    <string name="gesturenavcontract_description">پشتیبانی از پویانمایی‌های پیشرفته اندروید هنگام استفاده از پیمایش حرکتی</string>
+    <string name="gesturenavcontract_warning_incompatibility">دستگاه شما به‌طور کامل پشتیبانی نمی‌شود؛ ممکن است برخی پویانمایی‌ها مشکلات بصری داشته باشند.</string>
+    <string name="vibration_feedback_level_label">شدت بازخورد لرزشی</string>
+    <string name="vibration_feedback_no_feedback_choice">بدون لرزش</string>
+    <string name="vibration_feedback_minimal_choice">کمینه</string>
     <string name="vibration_feedback_default_choice">پیش‌فرض</string>
-    <string name="vibration_feedback_expressive_choice">رسا</string>
-    <string name="recents_lock_unlock">App locking</string>
-    <string name="recents_lock_unlock_description">Prevent the selected app from closing when you tap \"Clear all\"</string>
-    <!--Overlay-->
-    <string name="app_closing_animation">پویانمایی بسته شدن برنامه</string>
-    <string name="overlay_fade_in">Fade in</string>
-    <string name="overlay_suck_in">Suck in</string>
-    <string name="overlay_label">همپوشانی</string>
-    <string name="overlay_none">هیچ</string>
-    <!--
-    App suggestions
-    -->
+    <string name="vibration_feedback_expressive_choice">پویاتر</string>
+    <string name="recents_lock_unlock">قفل برنامه‌ها</string>
+    <string name="recents_lock_unlock_description">با لمس «بستن همه»، از بسته‌شدن برنامه انتخاب‌شده جلوگیری کنید</string>
+    <string name="app_closing_animation">پویانمایی بستن برنامه</string>
+    <string name="overlay_fade_in">محو شدن به داخل</string>
+    <string name="overlay_suck_in">جمع‌شدن به داخل</string>
+    <string name="overlay_label">لایهٔ رویی</string>
+    <string name="overlay_none">هیچ‌کدام</string>
     <string name="suggestion_pref_screen_title">پیشنهادها</string>
-    <string name="global_predictions_label">Show suggestion features</string>
-    <string name="app_predictions_label">App suggestions</string>
-    <string name="prediction_mode_label">Suggestions provider</string>
-    <string name="app_predictions_disable_reason_pre_q_description">This feature requires Android 10 or higher</string>
+    <string name="global_predictions_label">نمایش قابلیت‌های پیشنهادی</string>
+    <string name="app_predictions_label">پیشنهاد برنامه‌ها</string>
+    <string name="prediction_mode_label">ارائه‌دهنده پیشنهادها</string>
+    <string name="app_predictions_disable_reason_pre_q_description">این قابلیت به اندروید ۱۰ یا بالاتر نیاز دارد</string>
     <string name="prediction_mode_system">سیستم</string>
+    <string name="prediction_mode_lawnchair" translatable="false">Solina Launcher</string>
     <string name="prediction_mode_none">خاموش</string>
-    <string name="prediction_weighted_usage_stats_label">Use device usage data</string>
-    <string name="prediction_weighted_usage_stats_description">Use your device\'s usage statistics to make suggestions more accurate</string>
-    <string name="dismissed_prediction_apps_label">Blocked apps</string>
-    <string name="dismissed_prediction_apps_label_with_count">Blocked apps (%1$d)</string>
-    <string name="prediction_system_settings">Manage system suggestions</string>
-    <string name="missing_usage_access_label">Usage access needed</string>
-    <string name="missing_usage_access_desc">To improve app suggestions, turn on usage access for <xliff:g id="name" example="Solina Launcher">%1$s</xliff:g></string>
-    <!--
-
-    Notifications
-
-    -->
-    <string name="set_default_launcher_tip">برای دسترسی به میانبرها و ویژگی‌های اضافی، Solina Launcher را به عنوان راه‌انداز پیش‌فرض خود تنظیم کنید</string>
-    <string name="notification_dots">نشان اعلان‌ها</string>
-    <string name="show_notification_count">نشان‌دادن تعداد اعلان‌ها</string>
-    <string name="notification_dots_color">رنگ نشان اعلان‌ها</string>
-    <string name="notification_dots_text_color">رنگ تعداد اعلان‌ها</string>
-    <string name="notification_dots_color_contrast_warning_always">Notification dot and counter colors don\'t have enough contrast with each other</string>
-    <string name="notification_dots_color_contrast_warning_sometimes">Notification dot and counter colors might not always have enough contrast with each other</string>
-    <!--
-
-    Icons
-
-    -->
-    <!-- General strings -->
-    <string name="icon_style_label">ظاهر آیکون</string>
-    <string name="apply_icon_pack_title">Apply icon pack</string>
-    <string name="icon_shape_label">شکل آیکن</string>
+    <string name="prediction_weighted_usage_stats_label">استفاده از داده‌های استفاده دستگاه</string>
+    <string name="prediction_weighted_usage_stats_description">برای دقیق‌ترشدن پیشنهادها از آمار استفاده دستگاه بهره بگیرید</string>
+    <string name="dismissed_prediction_apps_label">برنامه‌های مسدودشده</string>
+    <string name="dismissed_prediction_apps_label_with_count">برنامه‌های مسدودشده (%1$d)</string>
+    <string name="prediction_system_settings">مدیریت پیشنهادهای سیستم</string>
+    <string name="missing_usage_access_label">دسترسی به آمار استفاده لازم است</string>
+    <string name="missing_usage_access_desc">برای بهبود پیشنهاد برنامه‌ها، دسترسی استفاده را برای <xliff:g id="name" example="Solina Launcher">%1$s</xliff:g> فعال کنید</string>
+    <string name="set_default_launcher_tip">برای دسترسی به میان‌برها و قابلیت‌های بیشتر، Solina Launcher را به‌عنوان لانچر پیش‌فرض انتخاب کنید</string>
+    <string name="notification_dots">نشان‌های اعلان</string>
+    <string name="show_notification_count">نمایش شمارنده اعلان</string>
+    <string name="notification_dots_color">رنگ نشان اعلان</string>
+    <string name="notification_dots_text_color">رنگ شمارنده اعلان</string>
+    <string name="notification_dots_color_contrast_warning_always">کنتراست رنگ نشان و شمارنده اعلان با یکدیگر کافی نیست</string>
+    <string name="notification_dots_color_contrast_warning_sometimes">ممکن است کنتراست رنگ نشان و شمارنده اعلان همیشه کافی نباشد</string>
+    <string name="icon_style_label">سبک آیکون</string>
+    <string name="apply_icon_pack_title">اعمال بسته آیکون</string>
+    <string name="icon_shape_label">شکل آیکون</string>
     <string name="icon_sizes">اندازه آیکون</string>
-    <string name="show_labels">نشان‌دادن نام‌ها</string>
-    <string name="label_size">اندازه نام‌</string>
-    <string name="twoline_label">استفاده از چندخطی</string>
-    <!-- Icon-related settings -->
-    <string name="transparent_background_icons_label">Transparent icon backgrounds</string>
-    <string name="auto_adaptive_icons_label">آیکون‌های انطباقی خودکار</string>
-    <string name="shadow_bg_icons_label">نمایش سایه پشت آیکون ها</string>
+    <string name="show_labels">نمایش نام‌ها</string>
+    <string name="label_size">اندازه نوشته</string>
+    <string name="twoline_label">استفاده از چند خط</string>
+    <string name="transparent_background_icons_label">پس‌زمینه شفاف آیکون‌ها</string>
+    <string name="auto_adaptive_icons_label">آیکون‌های تطبیقی خودکار</string>
+    <string name="shadow_bg_icons_label">نمایش سایه پشت آیکون‌ها</string>
     <string name="background_lightness_label">روشنایی پس‌زمینه</string>
-    <string name="adaptive_icon_background_description">استفاده از نور پس زمینه 100% برای رنگ سفید</string>
+    <string name="adaptive_icon_background_description">برای رنگ سفید از روشنایی ۱۰۰٪ پس‌زمینه استفاده کنید</string>
     <string name="reset_custom_icons">بازنشانی آیکون‌های سفارشی</string>
-    <string name="reset_custom_icons_confirmation">تمام آیکون‌های سفارشی بازنشانی خواهند شد. آیا میخواهید ادامه دهید؟</string>
-    <string name="remove_all_views_from_home_screen">Clear home screen</string>
-    <string name="remove_all_views_from_home_screen_desc">Home screen will be cleared. Do you want to continue?</string>
-    <!-- Icon picker -->
+    <string name="reset_custom_icons_confirmation">همه آیکون‌های سفارشی بازنشانی می‌شوند. ادامه می‌دهید؟</string>
+    <string name="remove_all_views_from_home_screen">پاک‌کردن صفحه اصلی</string>
+    <string name="remove_all_views_from_home_screen_desc">صفحه اصلی پاک می‌شود. ادامه می‌دهید؟</string>
     <string name="icon_picker_default_category">آیکون‌ها</string>
     <string name="icon_picker_reset_to_default">بازنشانی به پیش‌فرض</string>
-    <string name="icon_pack_external_picker">بازکردن انتخاب‌کننده خارجی</string>
+    <string name="icon_pack_external_picker">بازکردن انتخاب‌گر بیرونی</string>
     <string name="pick_icon_from_label">انتخاب آیکون از</string>
-    <string name="icon_picker_load_failed">بعضی از آیکون‌ها بارگیری نشدند</string>
-    <!-- Icon shapes  -->
+    <string name="icon_picker_load_failed">بارگیری آیکون‌های بیشتر ناموفق بود</string>
     <string name="icon_shape_system">سیستم</string>
     <string name="icon_shape_circle">دایره</string>
-    <string name="icon_shape_cylinder">سیلندر</string>
-    <string name="icon_shape_diamond">الماس</string>
-    <string name="icon_shape_egg">تخم‌مرغ</string>
-    <string name="icon_shape_cupertino">آی‌اواس</string>
-    <string name="icon_shape_octagon">هشت وجهی</string>
-    <string name="icon_shape_hexagon">شش ضلعی</string>
-    <string name="icon_shape_sammy">وان یو‌آی</string>
-    <string name="icon_shape_rounded_square">مربع گرد</string>
-    <string name="icon_shape_sharp_square">مربع تیز</string>
+    <string name="icon_shape_cylinder">استوانه</string>
+    <string name="icon_shape_diamond">لوزی</string>
+    <string name="icon_shape_egg">بیضی</string>
+    <string name="icon_shape_cupertino">iOS</string>
+    <string name="icon_shape_octagon">هشت‌ضلعی</string>
+    <string name="icon_shape_hexagon">شش‌ضلعی</string>
+    <string name="icon_shape_sammy">One UI</string>
+    <string name="icon_shape_rounded_square">مربع گوشه‌گرد</string>
+    <string name="icon_shape_sharp_square">مربع گوشه‌تیز</string>
     <string name="icon_shape_square">مربع</string>
-    <string name="icon_shape_squircle">مربع دایره‌ای</string>
-    <string name="icon_shape_teardrop">اشک</string>
-    <!-- Icon shapes (Material 3 Expressive) -->
-    <string name="icon_shape_very_sunny">Very sunny</string>
-    <string name="icon_shape_complex_clover">Complex clover</string>
-    <string name="icon_shape_four_sided_cookie">کوکی چهار طرفه</string>
-    <string name="icon_shape_seven_sided_cookie">کوکی هفت ضلعی</string>
-    <string name="icon_shape_arch">قوس</string>
-    <!-- Additional icon shapes -->
-    <string name="icon_shape_cloudy">Cloudy</string>
-    <string name="icon_shape_flower">Flower</string>
-    <string name="icon_shape_heart">Heart</string>
-    <string name="icon_shape_leaf">Leaf</string>
-    <string name="icon_shape_meow">Meow</string>
-    <string name="icon_shape_pebble">Pebble</string>
-    <string name="icon_shape_roundedhexagon">Rounded hexagon</string>
-    <string name="icon_shape_stretched">Stretched</string>
-    <string name="icon_shape_vessel">Vessel</string>
-    <!-- Custom icon shapes -->
-    <string name="custom_icon_shape">شکل آیکون سفارشی</string>
-    <string name="custom_icon_shape_create">ایجاد شکل آیکون سفارشی</string>
-    <string name="custom_icon_shape_edit">شکل آیکون سفارشی را ویرایش کنید</string>
-    <string name="custom_folder_shape">Custom folder shape</string>
-    <string name="custom_folder_shape_create">Create custom folder shape</string>
-    <string name="custom_folder_shape_edit">Edit custom folder shape</string>
+    <string name="icon_shape_squircle">مربع نرم</string>
+    <string name="icon_shape_teardrop">اشکی</string>
+    <string name="icon_shape_very_sunny">خورشیدی</string>
+    <string name="icon_shape_complex_clover">شبدر پیچیده</string>
+    <string name="icon_shape_four_sided_cookie">چهارگوش</string>
+    <string name="icon_shape_seven_sided_cookie">هفت‌گوش</string>
+    <string name="icon_shape_arch">قوسی</string>
+    <string name="icon_shape_cloudy">ابری</string>
+    <string name="icon_shape_flower">گل</string>
+    <string name="icon_shape_heart">قلب</string>
+    <string name="icon_shape_leaf">برگ</string>
+    <string name="icon_shape_meow">میو</string>
+    <string name="icon_shape_pebble">سنگ‌ریزه</string>
+    <string name="icon_shape_roundedhexagon">شش‌ضلعی گوشه‌گرد</string>
+    <string name="icon_shape_stretched">کشیده</string>
+    <string name="icon_shape_vessel">ظرف</string>
+    <string name="custom_icon_shape">شکل سفارشی آیکون</string>
+    <string name="custom_icon_shape_create">ایجاد شکل سفارشی آیکون</string>
+    <string name="custom_icon_shape_edit">ویرایش شکل سفارشی آیکون</string>
+    <string name="custom_folder_shape">شکل سفارشی پوشه</string>
+    <string name="custom_folder_shape_create">ایجاد شکل سفارشی پوشه</string>
+    <string name="custom_folder_shape_edit">ویرایش شکل سفارشی پوشه</string>
     <string name="custom_icon_shape_corner">شکل گوشه</string>
     <string name="custom_icon_shape_corner_round">گرد</string>
-    <string name="custom_icon_shape_corner_squircle">صاف</string>
-    <string name="custom_icon_shape_corner_cut">مقطع</string>
+    <string name="custom_icon_shape_corner_squircle">نرم</string>
+    <string name="custom_icon_shape_corner_cut">برش‌خورده</string>
     <string name="custom_icon_shape_top_left">بالا چپ</string>
     <string name="custom_icon_shape_top_right">بالا راست</string>
     <string name="custom_icon_shape_bottom_left">پایین چپ</string>
     <string name="custom_icon_shape_bottom_right">پایین راست</string>
-    <string name="export_to_clipboard">صادر کردن به کلیپ بورد</string>
-    <string name="import_from_clipboard">وارد کردن از کلیپ بورد</string>
-    <string name="icon_shape_clipboard_import_error">کلیپ بورد دارای شکل آیکون معتبری نیست</string>
-    <!-- Icon pack settings -->
+    <string name="export_to_clipboard">خروجی به تخته‌گیره</string>
+    <string name="import_from_clipboard">ورود از تخته‌گیره</string>
+    <string name="icon_shape_clipboard_import_error">تخته‌گیره شامل شکل آیکون معتبری نیست</string>
     <string name="icon_pack">بسته آیکون</string>
-    <string name="get_more_icon_packs">Get more icons</string>
-    <string name="fallback_icon_source_title">Fallback icon source</string>
-    <string name="system_icons">آیکون‌های سیستمی</string>
-    <string name="force_monochrome_label">Force monochrome</string>
-    <string name="force_monochrome_description">Recolor unsupported apps with the current accent color.</string>
-    <string name="enforce_themed_icons_title">Enforce themed icons</string>
-    <string name="enforce_themed_icons_description">Even to unsupported apps (not recommended)</string>
-    <string name="themed_icon_title">آیکون‌های پوسته‎‌ای</string>
-    <string name="themed_icons_description">Adapt supported app icons to match your device\'s theme and color scheme. These icons are applied on top of your existing icon packs.</string>
+    <string name="get_more_icon_packs">دریافت بسته‌های آیکون بیشتر</string>
+    <string name="fallback_icon_source_title">منبع جایگزین آیکون</string>
+    <string name="system_icons">آیکون‌های سیستم</string>
+    <string name="force_monochrome_label">اجبار به تک‌رنگ</string>
+    <string name="force_monochrome_description">رنگ‌آمیزی دوباره برنامه‌های پشتیبانی‌نشده با رنگ تأکیدی فعلی</string>
+    <string name="enforce_themed_icons_title">اجبار آیکون‌های تم‌دار</string>
+    <string name="enforce_themed_icons_description">حتی برای برنامه‌های پشتیبانی‌نشده (توصیه نمی‌شود)</string>
+    <string name="themed_icon_title">آیکون‌های تم‌دار</string>
+    <string name="themed_icons_description">آیکون برنامه‌های پشتیبانی‌شده را با تم و طرح رنگ دستگاه هماهنگ کنید. این آیکون‌ها روی بسته‌های آیکون فعلی اعمال می‌شوند.</string>
     <string name="themed_icons_off_label">خاموش</string>
     <string name="themed_icons_home_label">صفحه اصلی</string>
-    <string name="themed_icons_home_and_drawer_label">کشوی برنامه‌ها و صفحه اصلی</string>
-    <string name="themed_icons_no_fallback">No fallback</string>
-    <string name="lawnicons_not_installed_description">هیچ بسته آیکونی پشتیبانی نمی‌شود</string>
-    <string name="advanced_icon_settings_title">Advanced icon settings</string>
-    <string name="reshape_unthemed_icons_title">Reshape unthemed icons</string>
-    <string name="reshape_unthemed_icons_description">By adding a background</string>
-    <!-- Fonts -->
+    <string name="themed_icons_home_and_drawer_label">صفحه اصلی و کشوی برنامه‌ها</string>
+    <string name="themed_icons_no_fallback">بدون جایگزین</string>
+    <string name="lawnicons_not_installed_description">هیچ بسته آیکون پشتیبانی‌شده‌ای نصب نیست</string>
+    <string name="advanced_icon_settings_title">تنظیمات پیشرفته آیکون</string>
+    <string name="reshape_unthemed_icons_title">تغییر شکل آیکون‌های بدون تم</string>
+    <string name="reshape_unthemed_icons_description">با افزودن پس‌زمینه</string>
     <string name="pref_fonts_add_fonts">افزودن قلم</string>
     <string name="pref_fonts_add_fonts_summary">قلم‌های OTF و TTF پشتیبانی می‌شوند</string>
+    <string name="changes_dialog_build_format">ساخت شمارهٔ %1$d ← %2$d</string>
+    <string name="changes_dialog_commit_info">توسط %1$s • %2$s • %3$s</string>
+    <string name="smartspace_preferences">تنظیمات</string>
+    <string name="calculator_search_result_copied_toast">نتیجه در تخته‌گیره کپی شد</string>
+    <string name="google_folder_title" translatable="false">گوگل</string>
+    <string name="wallpapers">تصاویر زمینه</string>
+    <string name="caddy_beta">کدی (آزمایشی)</string>
+    <string name="caddy">کدی</string>
+    <string name="app_drawer_folder_settings">پوشهٔ کشوی برنامه‌ها</string>
+    <string name="add_label">افزودن</string>
+    <string name="edit_label">ویرایش</string>
+    <string name="apply_label">اعمال</string>
+    <string name="delete_label">حذف</string>
+    <string name="folder_list_note">برای ویرایش به چپ بکشید، برای حذف به راست بکشید یا برای به‌روزرسانی موارد ضربه بزنید</string>
+    <string name="apps_in_folder_label">پنهان‌کردن برنامه‌های پوشه</string>
+    <string name="apps_in_folder_description">برنامه‌های اختصاص‌یافته به پوشه‌ها از فهرست برنامه‌ها کنار گذاشته می‌شوند</string>
+    <string name="folders_filter_duplicates">فقط برنامه‌های یکتا نمایش داده شوند</string>
+    <string name="my_folder_label">پوشهٔ من</string>
+    <string name="sort_active_items_action">مرتب‌سازی موارد فعال</string>
+    <string name="iconPackPackageDefault" translatable="false"></string>
+    <string name="n_percent" translatable="false">%1$d%%</string>
+    <string name="x_with_y_count">%1$s (%2$d)</string>
+    <string name="x_by_y">%1$d &#xd7; %2$d</string>
+    <string name="x_and_y">%1$s &amp; %2$s</string>
+    <string name="reorderable_move_up">انتقال به بالا</string>
+    <string name="reorderable_move_down">انتقال به پایین</string>
+    <string name="reorderable_active_items">موارد فعال</string>
+    <string name="reorderable_disabled_items">موارد دیگر</string>
+    <string name="reorderable_disabled_hint">موارد غیرفعال اینجا نمایش داده می‌شوند</string>
+    <string name="reorderable_add_hint_items">موارد فعال اینجا نمایش داده می‌شوند</string>
+    <string name="settings_pick_a_page">یک گزینه از منو انتخاب کنید</string>
+    <string name="general_description">رنگ‌ها، بسته‌های آیکون و نشان‌های اعلان</string>
+    <string name="home_screen_description">فید، شبکه و آیکون‌ها</string>
+    <string name="home_screen_actions">عملکردهای صفحه اصلی</string>
+    <string name="dock_description">نوار جست‌وجو و تعداد آیکون‌ها</string>
+    <string name="app_drawer_description">برنامه‌های مخفی، تعداد ستون‌ها و آیکون‌ها</string>
+    <string name="drawer_search_label">جست‌وجوی کشو</string>
+    <string name="drawer_search_description">پیشنهادهای وب و جست‌وجوی سراسری</string>
+    <string name="folders_description">تعداد ردیف‌ها و ستون‌ها</string>
+    <string name="gestures_description">ضربه‌ها و کشیدن‌ها</string>
+    <string name="quickstep_label">صفحه برنامه‌های اخیر</string>
+    <string name="quickstep_description">دکمه بستن همه و شعاع گوشه‌ها</string>
+    <string name="backup_and_restore_description">ذخیره چیدمان فعلی و بازیابی نسخه‌های پشتیبان</string>
+    <string name="app_info_drop_target_label">اطلاعات برنامه</string>
+    <string name="debug_restart_launcher">راه‌اندازی دوباره Solina Launcher</string>
+    <string name="workspace_label">فضای کاری</string>
+    <string name="smartspace_label">نمای کلی هوشمند</string>
+    <string name="internal_label">داخلی</string>
+    <string name="internal_description">گروه داخلی ممکن است از سایر گروه‌های آزمایشی ناپایدارتر باشد</string>
+    <string name="font_picker_description">برخی متن‌ها بدون تغییر باقی می‌مانند</string>
+    <string name="smartspace_calendar_description">اجازه نمایش تاریخ در تقویم‌های غیرمیلادی</string>
+    <string name="workspace_increase_max_grid_size_label">افزایش حداکثر اندازه شبکه</string>
+    <string name="workspace_increase_max_grid_size_description">افزایش حداکثر اندازه شبکه صفحه اصلی از ۱۰ × ۱۰ به ۲۰ × ۲۰</string>
+    <string name="always_reload_icons_label">همیشه بارگذاری دوباره آیکون‌ها</string>
+    <string name="always_reload_icons_description">برای بارگذاری فوری آیکون‌ها هنگام تغییر تم یا رنگ تأکیدی، از حافظه نهان استفاده نکنید</string>
+    <string name="always_reload_icons_warning">این کار باعث تازه‌سازی مکرر آیکون‌ها و کاهش کارایی می‌شود. اگر بسته آیکون مرتب به‌روزرسانی نمی‌شود، این گزینه را خاموش کنید.</string>
     <string name="pref_fonts_missing_font">قلم پیدا نشد</string>
-    <string name="font_label">قلم‌ (آزمایشی)</string>
+    <string name="font_label">قلم (آزمایشی)</string>
     <string name="fontWorkspace">عمومی</string>
-    <string name="fontHeading">سربرگ</string>
-    <string name="fontHeadingMedium">سربرگ (متوسط)</string>
-    <string name="fontBody">بدنه</string>
-    <string name="fontBodyMedium">بدنه (متوسط)</string>
+    <string name="fontHeading">عنوان‌ها</string>
+    <string name="fontHeadingMedium">عنوان‌ها (متوسط)</string>
+    <string name="fontBody">متن</string>
+    <string name="fontBodyMedium">متن (متوسط)</string>
     <string name="font_variant_italic">مورب</string>
     <string name="font_weight_thin">نازک</string>
-    <string name="font_weight_extra_light">خیلی نازک</string>
-    <string name="font_weight_light">روشن</string>
-    <string name="font_weight_regular">عادی</string>
+    <string name="font_weight_extra_light">بسیار سبک</string>
+    <string name="font_weight_light">سبک</string>
+    <string name="font_weight_regular">معمولی</string>
     <string name="font_weight_medium">متوسط</string>
-    <string name="font_weight_semi_bold">نیمه پررنگ</string>
-    <string name="font_weight_bold">پررنگ</string>
-    <string name="font_weight_extra_bold">بسیار پررنگ</string>
-    <string name="font_weight_extra_black">مشکی</string>
-    <!--
-
-    Colors and theme
-
-    -->
-    <!-- Theme -->
-    <string name="theme_label">پوسته</string>
+    <string name="font_weight_semi_bold">نیمه‌ضخیم</string>
+    <string name="font_weight_bold">ضخیم</string>
+    <string name="font_weight_extra_bold">بسیار ضخیم</string>
+    <string name="font_weight_extra_black">سیاه</string>
+    <string name="theme_label">تم</string>
     <string name="theme_light">روشن</string>
-    <string name="theme_dark">تاریک</string>
+    <string name="theme_dark">تیره</string>
     <string name="theme_system_default">سیستم</string>
-    <string name="theme_follow_wallpaper">تطابق با تصویر‌زمینه</string>
-    <!-- Color style -->
+    <string name="theme_follow_wallpaper">هماهنگ با تصویر زمینه</string>
     <string name="color_style_label">سبک رنگ</string>
-    <string name="color_style_spritz">اسپریتز</string>
-    <string name="color_style_tonal_spot">نقطه تونال</string>
-    <string name="color_style_vibrant">سرزنده</string>
-    <string name="color_style_expressive">رسا</string>
-    <string name="color_style_rainbow">رنگین‌کمان</string>
+    <string name="color_style_spritz">پاششی</string>
+    <string name="color_style_tonal_spot">نقطه‌ای تُنال</string>
+    <string name="color_style_vibrant">زنده</string>
+    <string name="color_style_expressive">بیانی</string>
+    <string name="color_style_rainbow">رنگین‌کمانی</string>
     <string name="color_style_fruit_salad">سالاد میوه</string>
     <string name="color_style_content">محتوا</string>
-    <string name="color_style_monochromatic">سیاه و سفید</string>
-    <!-- Accent color and color picker -->
+    <string name="color_style_monochromatic">تک‌رنگ</string>
     <string name="colors">رنگ‌ها</string>
-    <string name="accent_color">رنگ تاکیدی</string>
-    <string name="swatches">سواچ‌ها</string>
-    <string name="rgb">آرجی‌بی</string>
+    <string name="accent_color">رنگ تأکیدی</string>
+    <string name="swatches">نمونه‌رنگ‌ها</string>
+    <string name="rgb">RGB</string>
     <string name="rgb_red">قرمز</string>
     <string name="rgb_green">سبز</string>
     <string name="rgb_blue">آبی</string>
-    <string name="hsb">اچ‌اس‌بی</string>
-    <string name="hsb_hue">رنگ</string>
+    <string name="hsb">HSB</string>
+    <string name="hsb_hue">فام</string>
     <string name="hsb_saturation">اشباع</string>
     <string name="hsb_brightness">روشنایی</string>
     <string name="hex">هگز</string>
     <string name="color_sliders">لغزنده‌ها</string>
     <string name="invalid_color">رنگ نامعتبر</string>
-    <!--
-
-    Smartspace
-
-    -->
-    <!-- Date formats -->
-    <string name="smartspace_calendar_gregorian">میلادی</string>
-    <string name="smartspace_calendar_persian">شمسی</string>
-    <string name="smartspace_calendar_lunar">Lunar</string>
-    <string name="generic_smartspace_concatenated_desc">%1$s، %2$s</string>
-    <!-- Battery labels -->
-    <string name="smartspace_battery_fast_charging">Fast charging</string>
-    <string name="smartspace_battery_slow_charging">Slow charging</string>
-    <string name="smartspace_battery_charging">درحال شارژ</string>
-    <string name="smartspace_battery_full">شارژ شده</string>
-    <string name="smartspace_battery_low">باتری کم است</string>
-    <string name="battery_charging_percentage_charging_time">"%1$d٪ — کامل در %2$s"</string>
-    <string name="smartspace_widget">در یک نگاه</string>
-    <string name="smartspace_widget_description">چه چیزی نشان‌داده شود</string>
-    <!-- Data and time format settings -->
-    <string name="smartspace_calendar">تقویم</string>
-    <string name="smartspace_date_and_time">تاریخ و زمان</string>
+    <string name="smartspace_calendar_lunar">قمری</string>
+    <string name="smartspace_icu_date_pattern_gregorian_wday_month_day_no_year" translatable="false">EEE، d MMM</string>
+    <string name="smartspace_icu_date_pattern_gregorian_time" translatable="false">HH:mm</string>
+    <string name="smartspace_icu_date_pattern_gregorian_time_12h" translatable="false">hh:mm aa</string>
+    <string name="smartspace_icu_date_pattern_gregorian_date" translatable="false">d MMMM</string>
+    <string name="smartspace_battery_fast_charging">شارژ سریع</string>
+    <string name="smartspace_battery_slow_charging">شارژ آهسته</string>
+    <string name="smartspace_battery_charging">در حال شارژ</string>
+    <string name="smartspace_battery_full">شارژ کامل</string>
+    <string name="smartspace_battery_low">باتری ضعیف است</string>
+    <string name="battery_charging_percentage_charging_time">%1$d٪ — شارژ کامل تا %2$s</string>
+    <string name="smartspace_widget">نمای کلی</string>
+    <string name="smartspace_widget_description">موارد قابل نمایش</string>
+    <string name="smartspace_date_and_time">تاریخ و ساعت</string>
     <string name="smartspace_date">تاریخ</string>
-    <string name="smartspace_time">زمان</string>
+    <string name="smartspace_time">ساعت</string>
     <string name="smartspace_time_format">قالب ساعت</string>
-    <string name="smartspace_time_follow_system">دنبال‌کردن سیستم</string>
+    <string name="smartspace_time_follow_system">پیروی از سیستم</string>
     <string name="smartspace_time_12_hour_format">قالب ۱۲ ساعته</string>
     <string name="smartspace_time_24_hour_format">قالب ۲۴ ساعته</string>
-    <!-- Available targets -->
-    <string name="smartspace_weather">آب و هوا</string>
+    <string name="smartspace_weather">آب‌وهوا</string>
     <string name="smartspace_battery_status">وضعیت باتری</string>
-    <string name="smartspace_torch">Flashlight status</string>
-    <string name="smartspace_now_playing">Now playing</string>
-    <string name="smartspace_onboarding">Onboarding</string>
-    <!-- Torch strings -->
-    <string name="torch_status_on">Flashlight on</string>
-    <string name="torch_action_off">Tap to turn off</string>
-    <!-- Onboarding strings -->
-    <string name="onboarding_open_settings_title">Set up Solina Launcher</string>
-    <string name="onboarding_open_settings_subtitle">Long-press on the home screen to open settings</string>
-    <string name="onboarding_major_upgrade_title">Meet the new Solina Launcher</string>
-    <string name="onboarding_major_upgrade_subtitle">See what\'s new</string>
-    <string name="onboarding_welcome">Welcome to Solina Launcher!</string>
-    <string name="onboarding_swipe_up">Swipe up to open the app drawer</string>
-    <!-- Smartspacer strings -->
-    <string name="maximum_number_of_targets">حداکثر تعداد اهداف</string>
-    <string name="open_smartspacer_settings">بازکردن تنظیمات فضای‌هوشمند</string>
-    <string name="smartspacer_settings">تنظیمات فضای‌هوشمند</string>
-    <!-- Setup settings -->
-    <string name="smartspace_requires_setup">برای تنظیم ضربه بزنید</string>
-    <string name="event_provider_missing_notification_dots">To use <xliff:g example="My Provider" id="providerName">%1$s</xliff:g>, turn on notification dots</string>
-    <!-- Toggle button for enabling Smartspace -->
-    <string name="smartspace_widget_toggle_label">نشان دادن در صفحه ‌اصلی</string>
-    <string name="smartspace_widget_toggle_description">At a Glance can be added to the home screen with the Solina Launcher widget</string>
-    <!-- List of available providers -->
-    <string name="smartspace_mode_label">ارائه دهنده در یک نگاه</string>
+    <string name="smartspace_torch">وضعیت چراغ‌قوه</string>
+    <string name="smartspace_now_playing">در حال پخش</string>
+    <string name="smartspace_onboarding">آموزش آغازین</string>
+    <string name="torch_status_on">چراغ‌قوه روشن است</string>
+    <string name="torch_action_off">برای خاموش‌کردن ضربه بزنید</string>
+    <string name="onboarding_open_settings_title">راه‌اندازی Solina Launcher</string>
+    <string name="onboarding_open_settings_subtitle">برای بازکردن تنظیمات، روی صفحه اصلی انگشت خود را نگه دارید</string>
+    <string name="onboarding_major_upgrade_title">با نسخه جدید Solina Launcher آشنا شوید</string>
+    <string name="onboarding_major_upgrade_subtitle">تغییرات جدید را ببینید</string>
+    <string name="onboarding_welcome">به Solina Launcher خوش آمدید!</string>
+    <string name="onboarding_swipe_up">برای بازکردن کشوی برنامه‌ها به بالا بکشید</string>
+    <string name="maximum_number_of_targets">حداکثر تعداد موارد</string>
+    <string name="open_smartspacer_settings">بازکردن تنظیمات Smartspacer</string>
+    <string name="smartspacer_settings">تنظیمات Smartspacer</string>
+    <string name="smartspace_requires_setup">برای راه‌اندازی ضربه بزنید</string>
+    <string name="event_provider_missing_notification_dots">برای استفاده از <xliff:g example="My Provider" id="providerName">%1$s</xliff:g>، نشان‌های اعلان را فعال کنید</string>
+    <string name="smartspace_widget_toggle_label">نمایش در صفحه اصلی</string>
+    <string name="smartspace_widget_toggle_description">نمای کلی را می‌توان با ویجت Solina Launcher به صفحه اصلی افزود</string>
+    <string name="smartspace_mode_label">ارائه‌دهنده نمای کلی</string>
+    <string name="smartspace_mode_lawnchair" translatable="false">Solina Launcher</string>
     <string name="smartspace_mode_google">گوگل</string>
-    <string name="smartspace_mode_google_search">جستجوی گوگل</string>
-    <!-- Miscellaneous Smartspace strings -->
-    <string name="smartspace_media_info_separator">" — "</string>
-    <string name="accessibility_smartspace_page">صفحه %1$d از %2$d</string>
+    <string name="smartspace_mode_google_search">جست‌وجوی گوگل</string>
+    <string name="smartspace_mode_smartspacer" translatable="false">Smartspacer</string>
+    <string name="smartspace_media_info_separator"> — </string>
     <string name="smartspace_widget_placeholder_date">جمعه، ۳ مارس</string>
-    <!--
-
-    About the app
-
-    -->
+    <string name="github" translatable="false">گیت‌هاب</string>
     <string name="support">پشتیبانی</string>
     <string name="translate">ترجمه</string>
-    <string name="donate">کمک‌کردن</string>
+    <string name="donate">حمایت مالی</string>
     <string name="product">محصول</string>
     <string name="design_and_development">طراحی و توسعه</string>
     <string name="development">توسعه</string>
-    <string name="quickswitch_maintenance">نگهداری QuickSwitch</string>
-    <string name="devops">توسعه دهنده</string>
+    <string name="quickswitch_maintenance">نگه‌داری QuickSwitch</string>
+    <string name="devops">توسعه و عملیات</string>
     <string name="support_and_pr">پشتیبانی و روابط عمومی</string>
     <string name="community">انجمن</string>
+    <string name="x_twitter" translatable="false">X</string>
     <string name="telegram">تلگرام</string>
     <string name="news">اخبار</string>
+    <string name="discord" translatable="false">دیسکورد</string>
     <string name="legal">حقوقی</string>
-    <string name="acknowledgements">سپاسگزاریها</string>
-    <string name="privacy_policy">سیاست حفظ حریم خصوصی</string>
+    <string name="acknowledgements">قدردانی</string>
+    <string name="privacy_policy">سیاست حریم خصوصی</string>
     <string name="contributor_status_active">فعال</string>
     <string name="update_check_failed">بررسی به‌روزرسانی‌ها ناموفق بود</string>
-    <string name="major_update_label">Update to major version?</string>
-    <string name="major_update_description">You are updating from version <xliff:g example="15" id="current_major_version">%1$s</xliff:g>. This newer version is a major update and may be less stable.</string>
-    <string name="pro_disabled_by_unknown">Updates are not available</string>
-    <string name="pro_disabled_by_major_is_newer">You are already running a newer version</string>
+    <string name="major_update_label">به نسخه اصلی جدیدتر به‌روزرسانی شود؟</string>
+    <string name="major_update_description">شما از نسخه <xliff:g example="15" id="current_major_version">%1$s</xliff:g> به‌روزرسانی می‌کنید. این نسخه به‌روزرسانی بزرگی است و ممکن است پایداری کمتری داشته باشد.</string>
+    <string name="pro_disabled_by_unknown">به‌روزرسانی‌ها در دسترس نیستند</string>
+    <string name="pro_disabled_by_major_is_newer">نسخه جدیدتری را از قبل اجرا می‌کنید</string>
     <string name="updater">به‌روزرسانی‌ها</string>
-    <!--
-
-    Backup and restore
-
-    -->
-    <string name="create_backup">ساخت پشتیبان</string>
-    <string name="what_to_backup">چی پشتیبان گرفته شود</string>
-    <string name="backup_content_layout_and_settings">چیدمان و تنظیمات</string>
-    <string name="backup_content_wallpaper">کاغذ دیواری</string>
-    <string name="backup_create_success">پشتیبان ساخته‌شد</string>
-    <string name="backup_create_error">پشتیبان ساخته‌ نشد</string>
-    <string name="restore_backup">بازیابی پشتیبان</string>
-    <string name="what_to_restore">چی بازیابی شود</string>
-    <string name="backup_restore_success">پشتیبان بازیابی شد</string>
-    <string name="backup_restore_error">پشتیبان بازیابی نشد</string>
-    <string name="invalid_backup_file">فایل پشتیبان نامعتبر</string>
-    <string name="restore_nova_backup">Restore Nova backup</string>
-    <string name="invalid_nova_backup_file">Invalid Nova backup file</string>
-    <string name="nova_grid_label">جدول</string>
-    <string name="nova_grid_value">%1$d x %2$d</string>
+    <string name="create_backup">ایجاد نسخه پشتیبان</string>
+    <string name="what_to_backup">موارد قابل پشتیبان‌گیری</string>
+    <string name="backup_select_all_sections">انتخاب همه بخش‌ها</string>
+    <string name="backup_content_layout_and_settings">صفحه اصلی و شبکه (چیدمان، ردیف‌ها و ویجت‌ها)</string>
+    <string name="backup_content_dock">داک (آیتم‌ها، ردیف‌ها، ستون‌ها و ظاهر داک)</string>
+    <string name="backup_content_app_drawer">کشوی برنامه‌ها (گرید، لیبل‌ها و برنامه‌های مخفی)</string>
+    <string name="backup_content_suggestion_settings">پیشنهادهای برنامه (ردیف‌ها و کارت سه‌بعدی)</string>
+    <string name="backup_content_search">نوار جستجو و موتور جستجو (ظاهر سه‌بعدی و رنگ‌ها)</string>
+    <string name="backup_content_folders">پوشه‌ها و دسته‌بندی‌های کشوی برنامه</string>
+    <string name="backup_content_theme_and_fonts">تم، رنگ‌ها و فونت‌ها (به‌همراه فونت‌های سفارشی)</string>
+    <string name="backup_content_icons">آیکون‌ها، آیکون‌پک و تغییر نام/آیکون برنامه‌ها</string>
+    <string name="backup_content_gestures_and_extras">ژست‌های حرکتی، تقویم شمسی و قفل برنامه‌ها</string>
+    <string name="backup_content_wallpaper">تصویر زمینه و گالری والپیپرها</string>
+    <string name="backup_create_success">نسخه پشتیبان ایجاد شد</string>
+    <string name="backup_create_error">ایجاد نسخه پشتیبان ناموفق بود</string>
+    <string name="restore_backup">بازیابی نسخه پشتیبان</string>
+    <string name="what_to_restore">موارد قابل بازیابی</string>
+    <string name="backup_restore_success">نسخه پشتیبان بازیابی شد</string>
+    <string name="backup_restore_error">بازیابی نسخه پشتیبان ناموفق بود</string>
+    <string name="invalid_backup_file">فایل پشتیبان نامعتبر است</string>
+    <string name="restore_nova_backup">بازیابی نسخه پشتیبان Nova</string>
+    <string name="invalid_nova_backup_file">فایل پشتیبان Nova نامعتبر است</string>
+    <string name="nova_grid_label">شبکه</string>
+    <string name="nova_grid_value">%1$d × %2$d</string>
     <string name="nova_dock_label">داک</string>
-    <string name="nova_app_label">Apps</string>
-    <string name="nova_widget_label">Widgets</string>
+    <string name="nova_app_label">برنامه‌ها</string>
+    <string name="nova_widget_label">ویجت‌ها</string>
     <string name="nova_folder_label">پوشه‌ها</string>
-    <string name="nova_shortcut_label">Shortcuts</string>
+    <string name="nova_shortcut_label">میان‌برها</string>
     <string name="nova_icon_pack_label">بسته آیکون</string>
-    <string name="create_backup_description">Export settings and launcher layout</string>
-    <string name="restore_backup_description">Import a previously created backup</string>
-    <string name="restore_nova_backup_description">Import layout from a Nova Launcher backup</string>
-    <!--
-
-    Gesture settings
-
-    -->
-    <string name="gesture_double_tap">دو ضربه</string>
-    <string name="gesture_swipe_up">بالا کشیدن</string>
-    <string name="gesture_swipe_down">پایین کشیدن</string>
-    <string name="gesture_two_finger_swipe_down">Two-finger swipe down</string>
-    <string name="gesture_two_finger_swipe_up">Two-finger swipe up</string>
+    <string name="create_backup_description">خروجی‌گرفتن از تنظیمات و چیدمان لانچر</string>
+    <string name="restore_backup_description">واردکردن نسخه پشتیبان ایجادشده</string>
+    <string name="restore_nova_backup_description">واردکردن چیدمان از نسخه پشتیبان Nova Launcher</string>
+    <string name="gesture_double_tap">دو بار ضربه</string>
+    <string name="gesture_swipe_up">کشیدن به بالا</string>
+    <string name="gesture_swipe_down">کشیدن به پایین</string>
+    <string name="gesture_two_finger_swipe_down">کشیدن دو انگشتی به پایین</string>
+    <string name="gesture_two_finger_swipe_up">کشیدن دو انگشتی به بالا</string>
     <string name="gesture_home_tap">دکمه خانه</string>
-    <string name="gesture_back_tap">دکمه برگشت</string>
-    <string name="gesture_swipe_left">کشیدن چپ</string>
-    <string name="gesture_swipe_right">کشیدن راست</string>
-    <string name="gesture_handler_no_op">انجام هیچ‌کار</string>
-    <string name="gesture_handler_sleep">خاموش کردن صفحه نمایش</string>
-    <string name="gesture_handler_recents">باز کردن صفحه موارد اخیر</string>
-    <string name="gesture_handler_open_notifications">بازکردن صفحه اعلان</string>
-    <string name="gesture_handler_open_quick_settings">Open Quick Settings</string>
+    <string name="gesture_back_tap">دکمه بازگشت</string>
+    <string name="gesture_swipe_left">کشیدن به چپ</string>
+    <string name="gesture_swipe_right">کشیدن به راست</string>
+    <string name="gesture_handler_no_op">هیچ کاری انجام نده</string>
+    <string name="gesture_handler_sleep">خاموش‌کردن صفحه</string>
+    <string name="gesture_handler_recents">بازکردن صفحه برنامه‌های اخیر</string>
+    <string name="gesture_handler_open_notifications">بازکردن پنل اعلان‌ها</string>
+    <string name="gesture_handler_open_quick_settings">بازکردن تنظیمات سریع</string>
     <string name="gesture_handler_open_app_option">بازکردن برنامه</string>
     <string name="gesture_handler_open_app_config">بازکردن %1$s</string>
-    <string name="gesture_handler_open_app_drawer">بازکردن کشوی برنامه‌</string>
-    <string name="gesture_handler_open_app_search">بازکردن جستجوی برنامه‌</string>
-    <string name="gesture_handler_open_search">بازکردن جستجو</string>
+    <string name="gesture_handler_open_app_drawer">بازکردن کشوی برنامه‌ها</string>
+    <string name="gesture_handler_open_app_search">بازکردن جست‌وجوی برنامه‌ها</string>
+    <string name="gesture_handler_open_search">بازکردن جست‌وجو</string>
     <string name="gesture_handler_open_assistant">بازکردن دستیار</string>
     <string name="pick_app_for_gesture">انتخاب برنامه</string>
-    <string name="dt2s_admin_hint_title">دسترسی ادمین نیاز است</string>
-    <string name="dt2s_admin_hint">To put the device to sleep, set Solina Launcher as a device admin app. Tap \"Open settings\", then tap \"Activate this device admin app.\"</string>
-    <string name="dt2s_admin_warning">Gestures to put the device to sleep will be turned off.</string>
-    <string name="d2ts_recents_a11y_hint_title">فعال‌سازی سرویس دسترس‌پذیری</string>
-    <string name="sleep_a11y_hint">put the device to sleep</string>
-    <string name="notifications_fallback_a11y_hint">open the notification panel</string>
-    <string name="quick_settings_a11y_hint">open the Quick Settings panel</string>
-    <string name="recents_screen_a11y_hint">open the Recents screen</string>
-    <string name="generic_a11y_hint">To %1$s, turn on the Solina Launcher accessibility service. Tap \"Open settings\", choose \"Solina Launcher\" and turn on \"Use Solina Launcher.\"</string>
-    <string name="generic_a11y_disclaimer">Solina Launcher uses Accessibility\'s `performGlobalAction` method to perform this action. This is a sensitive permission that allows monitoring other apps. However, Solina Launcher is not configured for that functionality and receives no events.</string>
-    <string name="sleep_mode_label">Sleep mode</string>
-    <string name="sleep_mode_auto">Automatic</string>
-    <string name="sleep_mode_root">Root</string>
-    <string name="sleep_mode_accessibility">Accessibility service</string>
-    <string name="sleep_mode_device_admin">Device admin</string>
-    <!--
-
-    Bug reporting
-
-    -->
-    <string name="lawnchair_bug_report">گزارش مشکلات Solina Launcher</string>
-    <string name="crash_report_notif_title">%1$s خطا داد</string>
-    <string name="action_upload_crash_report">ارسال گزارش خطا</string>
-    <string name="action_upload_error">آپلود با خطا مواجه شد</string>
-    <string name="dogbin_uploading">درحال آپلود…</string>
-    <string name="bugreport_channel_name">گزارش خطاها</string>
-    <string name="status_channel_name">وضعیت ارسال</string>
+    <string name="dt2s_admin_hint_title">مجوز مدیر دستگاه لازم است</string>
+    <string name="dt2s_admin_hint">برای قراردادن دستگاه در حالت خواب، Solina Launcher را به‌عنوان برنامه مدیر دستگاه تنظیم کنید. روی «بازکردن تنظیمات» و سپس «فعال‌کردن برنامه مدیر دستگاه» ضربه بزنید.</string>
+    <string name="dt2s_admin_warning">ژست‌های قراردادن دستگاه در حالت خواب خاموش خواهند شد.</string>
+    <string name="d2ts_recents_a11y_hint_title">فعال‌کردن سرویس دسترس‌پذیری</string>
+    <string name="sleep_a11y_hint">قرار دادن دستگاه در حالت خواب</string>
+    <string name="notifications_fallback_a11y_hint">بازکردن پنل اعلان‌ها</string>
+    <string name="quick_settings_a11y_hint">بازکردن پنل تنظیمات سریع</string>
+    <string name="recents_screen_a11y_hint">بازکردن صفحه برنامه‌های اخیر</string>
+    <string name="generic_a11y_hint">برای %1$s، سرویس دسترس‌پذیری Solina Launcher را فعال کنید. روی «بازکردن تنظیمات» ضربه بزنید، «Solina Launcher» را انتخاب کنید و «استفاده از Solina Launcher» را روشن کنید.</string>
+    <string name="generic_a11y_disclaimer">Solina Launcher برای انجام این کار از روش `performGlobalAction` دسترس‌پذیری استفاده می‌کند. این مجوز حساسی است که امکان نظارت بر برنامه‌های دیگر را می‌دهد؛ بااین‌حال Solina Launcher برای چنین قابلیتی پیکربندی نشده و هیچ رویدادی دریافت نمی‌کند.</string>
+    <string name="sleep_mode_label">حالت خواب</string>
+    <string name="sleep_mode_auto">خودکار</string>
+    <string name="sleep_mode_root">دسترسی ریشه</string>
+    <string name="sleep_mode_accessibility">سرویس دسترس‌پذیری</string>
+    <string name="sleep_mode_device_admin">مدیر دستگاه</string>
+    <string name="lawnchair_bug_report">گزارش اشکال Solina Launcher</string>
+    <string name="crash_report_notif_title">%1$s متوقف شد</string>
+    <string name="action_upload_crash_report">بارگذاری گزارش خرابی</string>
+    <string name="action_upload_error">بارگذاری ناموفق بود</string>
+    <string name="dogbin_uploading">در حال بارگذاری…</string>
+    <string name="bugreport_channel_name">گزارش‌های اشکال</string>
+    <string name="status_channel_name">وضعیت بارگذاری</string>
     <string name="bugreport_group_summary">%d گزارش جدید</string>
-    <string name="bugreport_group_summary_multiple">چندین گزارش‌ جدید</string>
-    <!--
-
-    Preferences (without special screens)
-
-    -->
-    <!-- General and home screen settings -->
-    <string name="home_screen_rotation_label">چرخش صفحه‌ اصلی</string>
-    <string name="home_screen_rotation_description">Allow home screen rotation when the device is rotated</string>
-    <string name="auto_updater_label">Automatically check for updates</string>
-    <string name="auto_updater_description">Checks for Nightly updates when opening the About screen</string>
-    <string name="live_information_label">Live information</string>
-    <string name="live_information_description">Displays announcement, and set the default feature flags</string>
-    <string name="wallpaper_blur">تاری تصویر‌زمینه (آزمایشی)</string>
+    <string name="bugreport_group_summary_multiple">چند گزارش جدید</string>
+    <string name="home_screen_rotation_label">چرخش صفحه اصلی</string>
+    <string name="home_screen_rotation_description">هنگام چرخاندن دستگاه، چرخش صفحه اصلی مجاز باشد</string>
+    <string name="auto_updater_label">بررسی خودکار به‌روزرسانی‌ها</string>
+    <string name="auto_updater_description">هنگام بازکردن صفحه درباره، به‌روزرسانی‌های شبانه را بررسی می‌کند</string>
+    <string name="live_information_label">اطلاعات زنده</string>
+    <string name="live_information_description">اعلان‌ها را نمایش می‌دهد و پرچم‌های قابلیت پیش‌فرض را تنظیم می‌کند</string>
+    <string name="wallpaper_blur">تاری تصویر زمینه (آزمایشی)</string>
     <string name="wallpaper_background_blur">شدت تاری</string>
-    <string name="wallpaper_background_blur_factor">آستانه عامل</string>
-    <string name="home_lawn_deck_label">عرشه</string>
-    <string name="home_lawn_deck_label_beta">عرشه (بتا)</string>
-    <string name="home_lawn_deck_description">Effortlessly access your apps with Deck, a drawerless experience designed for simplicity and seamless organization</string>
-    <string name="auto_add_shortcuts_label">افزودن برنامه‌های جدید به صفحه‌اصلی</string>
-    <string name="minus_one_enable">نمایش خبر</string>
-    <string name="minus_one_unavailable">هیچ اخباری نصب نشده</string>
-    <string name="minus_one">اخبار</string>
-    <string name="feed_provider">ارائه دهنده خبر</string>
+    <string name="wallpaper_background_blur_factor">آستانه ضریب</string>
+    <string name="home_lawn_deck_label">دسته</string>
+    <string name="home_lawn_deck_label_beta">دسته (آزمایشی)</string>
+    <string name="home_lawn_deck_description">با تجربه‌ای بدون کشوی برنامه‌ها، به‌سادگی و با نظم به برنامه‌ها دسترسی پیدا کنید</string>
+    <string name="auto_add_shortcuts_label">افزودن برنامه‌های جدید به صفحه اصلی</string>
+    <string name="minus_one_enable">نمایش فید</string>
+    <string name="minus_one_unavailable">هیچ برنامه فیدی نصب نشده است</string>
+    <string name="minus_one">فید</string>
+    <string name="feed_provider">ارائه‌دهنده فید</string>
     <string name="wallpaper_scrolling_label">پیمایش تصویر زمینه</string>
-    <string name="wallpaper_depth_effect_label">افکت عمق تصویر زمینه</string>
-    <string name="wallpaper_depth_effect_description">هنگام انتقال بین حالت‌ها، تصویر زمینه بزرگ‌نمایی و کوچک‌نمایی شود</string>
+    <string name="wallpaper_depth_effect_label">جلوه عمق تصویر زمینه</string>
+    <string name="wallpaper_depth_effect_description">هنگام جابه‌جایی میان بخش‌های لانچر، تصویر زمینه بزرگ‌نمایی و کوچک‌نمایی شود</string>
     <string name="show_sys_ui_scrim">سایه بالا</string>
-    <string name="infinite_scrolling_label">پیمایش بی‌نهایت</string>
-    <string name="infinite_scrolling_description">برای چرخش بین صفحات اول و آخر، انگشت خود را بکشید</string>
-    <string name="home_screen_grid">جدول صفحه‌اصلی</string>
+    <string name="infinite_scrolling_label">پیمایش بی‌پایان</string>
+    <string name="infinite_scrolling_description">برای چرخش میان نخستین و آخرین صفحه بکشید</string>
+    <string name="home_screen_grid">شبکه صفحه اصلی</string>
     <string name="home_screen_lock">قفل صفحه اصلی</string>
     <string name="home_screen_unlock">بازکردن قفل صفحه اصلی</string>
-    <string name="home_screen_locked">صفحه اصلی قفل شده</string>
-    <string name="home_screen_lock_description">جلوگیری از تغییرات در چیدمان صفحه اصلی</string>
-    <string name="horizontal_padding_label">حاشیه افقی</string>
-    <string name="vertical_padding_label">Vertical padding</string>
-    <string name="top_padding_label">Top padding</string>
-    <string name="widget_padding_label">Widget padding</string>
-    <string name="set_default_home_page">Set as default page</string>
-    <string name="default_home_page_set">Default home page updated</string>
-    <string name="move_page_left">Move page left</string>
-    <string name="move_page_right">Move page right</string>
-    <string name="page_order_updated">Page order updated</string>
+    <string name="home_screen_locked">صفحه اصلی قفل است</string>
+    <string name="home_screen_lock_description">جلوگیری از تغییر چیدمان صفحه اصلی</string>
+    <string name="horizontal_padding_label">فاصله افقی</string>
+    <string name="vertical_padding_label">فاصله عمودی</string>
+    <string name="top_padding_label">فاصله از بالا</string>
+    <string name="widget_padding_label">فاصله ویجت</string>
+    <string name="set_default_home_page">تنظیم به‌عنوان صفحه پیش‌فرض</string>
+    <string name="default_home_page_set">صفحه پیش‌فرض خانه به‌روزرسانی شد</string>
+    <string name="move_page_left">انتقال صفحه به چپ</string>
+    <string name="move_page_right">انتقال صفحه به راست</string>
+    <string name="page_order_updated">ترتیب صفحات به‌روزرسانی شد</string>
     <string name="edit_mode_page_strip_default">پیش‌فرض</string>
-    <string name="edit_mode_page_strip_page">Page %1$d</string>
-    <string name="edit_mode_page_strip_set_home">Set as home page</string>
-    <string name="edit_mode_page_strip_home_selected">Default home page</string>
-    <string name="edit_mode_page_strip_tip">Drag pages to reorder. Tap the home icon to set your default page.</string>
-    <string name="popup_menu">فهرست بازشو</string>
-    <string name="popup_menu_items">موارد فهرست بازشو</string>
-    <string name="edit_menu_items">ویرایش موارد فهرست بازشو</string>
+    <string name="edit_mode_page_strip_page">صفحه %1$d</string>
+    <string name="edit_mode_page_strip_set_home">تنظیم به‌عنوان صفحه اصلی</string>
+    <string name="edit_mode_page_strip_home_selected">صفحه اصلی پیش‌فرض</string>
+    <string name="edit_mode_page_strip_tip">برای تغییر ترتیب، صفحات را بکشید. برای تعیین صفحه پیش‌فرض، روی نماد خانه ضربه بزنید.</string>
+    <string name="popup_menu">منوی بازشو</string>
+    <string name="popup_menu_items">موارد منوی بازشو</string>
+    <string name="edit_menu_items">ویرایش موارد منوی بازشو</string>
     <string name="wallpaper_quick_picker">انتخاب سریع تصویر زمینه</string>
     <string name="status_bar_label">نوار وضعیت</string>
-    <string name="show_status_bar">نشان‌دادن نوار وضعیت</string>
-    <string name="dark_status_bar_label">نوار وضعیت تاریک</string>
+    <string name="show_status_bar">نمایش نوار وضعیت</string>
+    <string name="dark_status_bar_label">نوار وضعیت تیره</string>
     <string name="status_bar_clock_label">ساعت نوار وضعیت</string>
-    <string name="status_bar_clock_description">Dynamically hide the status bar clock on the first screen</string>
+    <string name="status_bar_clock_description">ساعت نوار وضعیت را در صفحه نخست به‌صورت پویا پنهان کنید</string>
     <string name="home_screen_text_color">رنگ متن</string>
     <string name="color_light">روشن</string>
-    <string name="color_dark">تاریک</string>
+    <string name="color_dark">تیره</string>
     <string name="force_rounded_widgets">گوشه‌های گرد</string>
-    <string name="allow_widget_overlap">اجازه همپوشانی</string>
-    <string name="force_widget_resize_label">اعمال تغییر اندازه ابزارک</string>
-    <string name="force_widget_resize_description">اجازه تغییر اندازه ابزارک‌هایی که به اندازه خاصی محدود شدن را بدهید</string>
-    <string name="widget_unlimited_size_label">حذف محدودیت های اندازه</string>
-    <string name="widget_unlimited_size_description">حداقل و حداکثر محدودیت اندازه ویجت ها را حذف کنید</string>
-    <!-- Dock settings -->
-    <string name="show_hotseat_title">نمایش اسکله</string>
-    <string name="enable_dock_to_access_qsb_settings">Search bar settings are available when the dock is visible. Tap to show the dock</string>
-    <string name="search_bar_label">نوار جستجو</string>
-    <string name="search_bar_settings">تنظیمات نوار جستجو</string>
-    <string name="hotseat_mode_label">ابزارک نوار جستجو</string>
+    <string name="allow_widget_overlap">اجازه هم‌پوشانی</string>
+    <string name="force_widget_resize_label">اجبار به تغییر اندازه ویجت</string>
+    <string name="force_widget_resize_description">اجازه تغییر اندازه ویجت‌هایی که به اندازه مشخصی محدود شده‌اند</string>
+    <string name="widget_unlimited_size_label">حذف محدودیت اندازه</string>
+    <string name="widget_unlimited_size_description">محدودیت حداقل و حداکثر اندازه ویجت‌ها را حذف کنید</string>
+    <string name="show_hotseat_title">نمایش داک</string>
+    <string name="enable_dock_to_access_qsb_settings">تنظیمات نوار جست‌وجو هنگام نمایش داک در دسترس است. برای نمایش داک ضربه بزنید</string>
+    <string name="search_bar_label">نوار جست‌وجو</string>
+    <string name="search_bar_settings">تنظیمات نوار جست‌وجو</string>
+    <string name="hotseat_mode_label">ویجت نوار جست‌وجو</string>
     <string name="hotseat_mode_disabled">غیرفعال</string>
-    <string name="hotseat_mode_google_search">Google search bar</string>
+    <string name="hotseat_mode_lawnchair" translatable="false">Solina Launcher</string>
+    <string name="hotseat_mode_google_search">نوار جست‌وجوی گوگل</string>
     <string name="qsb_hotseat_background_transparency">شفافیت پس‌زمینه</string>
-    <string name="qsb_hotseat_stroke_width">عرض طرح کلی</string>
-    <string name="qsb_hotseat_stroke_color">رنگ طرح کلی</string>
+    <string name="qsb_hotseat_stroke_width">ضخامت حاشیه</string>
+    <string name="qsb_hotseat_stroke_color">رنگ حاشیه</string>
     <string name="corner_radius_label">شعاع گوشه</string>
-    <string name="apply_accent_color_label">اعمال رنگ برنامه</string>
-    <string name="search_provider">تامین کننده جستجو</string>
+    <string name="apply_accent_color_label">اعمال رنگ تأکیدی</string>
+    <string name="search_provider">ارائه‌دهنده جست‌وجو</string>
     <string name="hotseat_background">نمایش پس‌زمینه</string>
     <string name="hotseat_bg_horizontal_inset_left">حاشیه چپ</string>
     <string name="hotseat_bg_horizontal_inset_right">حاشیه راست</string>
     <string name="hotseat_bg_vertical_inset_top">حاشیه بالا</string>
     <string name="hotseat_bg_vertical_inset_bottom">حاشیه پایین</string>
     <string name="hotseat_bg_color_label">رنگ پس‌زمینه</string>
-    <string name="hotseat_bg_corner_radius">Background corner radius</string>
+    <string name="hotseat_bg_corner_radius">گردی گوشه پس‌زمینه</string>
     <string name="hotseat_bg_alpha">شفافیت پس‌زمینه</string>
-    <!-- Pause apps shortcut -->
     <string name="pause">مکث</string>
-    <string name="pause_apps_dialog_title">%1$s مکث شود؟</string>
-    <string name="pause_apps_dialog_message">اعلان‌های %1$s متوقف می‌شوند</string>
-    <string name="paused_apps_dialog_title">برنامه مکث شد</string>
-    <string name="paused_apps_dialog_message">%1$s مستقیماً از راه‌انداز متوقف شد</string>
-    <string name="paused_apps_drop_target_label">مکث برنامه</string>
-    <string name="open_in_store_drop_target_label">Open in store</string>
-    <string name="dock_icons">آیکون‌های اسکله</string>
-    <string name="dock_rows">Dock rows</string>
-    <string name="dock_pages">Dock pages</string>
-    <string name="state_folded">%1$s (folded)</string>
-    <string name="state_unfolded">%1$s (unfolded)</string>
-    <string name="folded_label">Folded</string>
-    <string name="unfolded_label">Unfolded</string>
-    <string name="when_folded_label">When folded</string>
-    <string name="when_unfolded_label">When unfolded</string>
-    <string name="unfolded_grid_description">Solina Launcher pairs two pages together to fill the larger display</string>
-    <string name="foldable_columns_error">The folded value must be less than or equal to the unfolded value. It will be automatically adjusted if needed.</string>
-    <string name="hotseat_bottom_space_label">حاشیه پایین</string>
+    <string name="pause_apps_dialog_title">مکث برای %1$s؟</string>
+    <string name="pause_apps_dialog_message">اعلان‌های %1$s متوقف خواهند شد</string>
+    <string name="paused_apps_dialog_title">برنامه متوقف شد</string>
+    <string name="paused_apps_dialog_message">%1$s مستقیماً از لانچر متوقف شد</string>
+    <string name="paused_apps_drop_target_label">توقف برنامه</string>
+    <string name="open_in_store_drop_target_label">بازکردن در فروشگاه</string>
+    <string name="dock_icons">آیکون‌های داک</string>
+    <string name="dock_rows">ردیف‌های داک</string>
+    <string name="dock_row_spacing">فاصله میان ردیف‌های داک</string>
+    <string name="dock_pages">صفحات داک</string>
+    <string name="state_folded">%1$s (تا‌شده)</string>
+    <string name="state_unfolded">%1$s (بازشده)</string>
+    <string name="folded_label">تا‌شده</string>
+    <string name="unfolded_label">بازشده</string>
+    <string name="when_folded_label">در حالت تا‌شده</string>
+    <string name="when_unfolded_label">در حالت بازشده</string>
+    <string name="unfolded_grid_description">Solina Launcher دو صفحه را برای پرکردن نمایشگر بزرگ‌تر کنار هم قرار می‌دهد</string>
+    <string name="foldable_columns_error">مقدار حالت تا‌شده باید کمتر یا مساوی مقدار حالت بازشده باشد. در صورت نیاز به‌طور خودکار اصلاح می‌شود.</string>
+    <string name="hotseat_bottom_space_label">فاصله از پایین</string>
     <string name="page_indicator_height">ارتفاع نشانگر صفحه</string>
-    <!-- Search providers -->
-    <string name="search_provider_app_search">جستجو برنامه</string>
-    <string name="search_provider_custom">شخصی</string>
-    <string name="search_provider_sponsored_description">%1$s و Solina Launcher یک قرارداد سهم درآمد دارند.\n\nجستجو با %1$s به پشتیبانی از Solina Launcher کمک می‌کند.</string>
+    <string name="search_provider_app_search">جست‌وجوی برنامه</string>
+    <string name="search_provider_startpage" translatable="false">Startpage</string>
+    <string name="search_provider_startpage_eu" translatable="false">Startpage (اروپا)</string>
+    <string name="search_provider_google" translatable="false">گوگل</string>
+    <string name="search_provider_google_go" translatable="false">Google Go</string>
+    <string name="search_provider_duckduckgo" translatable="false">DuckDuckGo</string>
+    <string name="search_provider_wikipedia" translatable="false">ویکی‌پدیا</string>
+    <string name="search_provider_presearch" translatable="false">Presearch</string>
+    <string name="search_provider_bing" translatable="false">بینگ</string>
+    <string name="search_provider_ecosia" translatable="false">Ecosia</string>
+    <string name="search_provider_sesame" translatable="false">Sesame</string>
+    <string name="search_provider_brave" translatable="false">Brave</string>
+    <string name="search_provider_github" translatable="false">گیت‌هاب</string>
+    <string name="search_provider_youtube" translatable="false">یوتیوب</string>
+    <string name="search_provider_pixel_search" translatable="false">Pixel Search</string>
+    <string name="search_provider_yandex" translatable="false">Yandex</string>
+    <string name="search_provider_fennec" translatable="false">Fennec</string>
+    <string name="search_provider_firefox" translatable="false">فایرفاکس</string>
+    <string name="search_provider_firefox_beta" translatable="false">فایرفاکس بتا</string>
+    <string name="search_provider_firefox_nightly" translatable="false">فایرفاکس شبانه</string>
+    <string name="search_provider_iceraven" translatable="false">Iceraven</string>
+    <string name="search_provider_ironfox" translatable="false">IronFox</string>
+    <string name="search_provider_waterfox" translatable="false">Waterfox</string>
+    <string name="search_provider_kagi" translatable="false">Kagi</string>
+    <string name="search_provider_cromite" translatable="false">Cromite</string>
+    <string name="search_provider_vivaldi" translatable="false">Vivaldi</string>
+    <string name="search_provider_custom">سفارشی</string>
+    <string name="search_provider_sponsored_description">میان %1$s و Solina Launcher توافق مشارکت در درآمد وجود دارد.
+
+جست‌وجو با %1$s به پشتیبانی از Solina Launcher کمک می‌کند.</string>
     <string name="app_label">برنامه</string>
     <string name="website_label">وب‌سایت</string>
-    <string name="qsb_search_provider_app_required">برنامه نیاز است</string>
-    <!-- Dock search bar a11y -->
-    <string name="label_search">جستجو</string>
-    <string name="label_lens">گوگل لنز</string>
-    <string name="label_voice_search">جستجو صوتی</string>
-    <!-- App drawer settings -->
+    <string name="qsb_search_provider_app_required">برنامه لازم است</string>
+    <string name="label_search">جست‌وجو</string>
+    <string name="label_lens">لنز گوگل</string>
+    <string name="label_voice_search">جست‌وجوی صوتی</string>
     <string name="hidden_apps_label">برنامه‌های مخفی</string>
-    <string name="pref_all_apps_bulk_icon_loading_title">بارگذاری برنامه‌ها به‌طور انبوه</string>
-    <string name="pref_all_apps_bulk_icon_loading_description">بارگذاری و نمایش آیکون‌ها به‌طور انبوه به‌جای جداگانه</string>
-    <string name="pref_all_apps_remember_position_title">Remember scroll position</string>
-    <string name="pref_all_apps_remember_position_description">Save the last scrolled location when closing the app drawer</string>
+    <string name="pref_all_apps_bulk_icon_loading_title">بارگذاری گروهی برنامه‌ها</string>
+    <string name="pref_all_apps_bulk_icon_loading_description">آیکون‌ها را به‌صورت گروهی و نه جداگانه بارگذاری و نمایش دهید</string>
+    <string name="pref_all_apps_remember_position_title">به‌خاطرسپردن موقعیت پیمایش</string>
+    <string name="pref_all_apps_remember_position_description">هنگام بستن کشوی برنامه‌ها، آخرین موقعیت پیمایش را ذخیره کنید</string>
     <string name="pref_all_apps_show_scrollbar_title">نمایش نوار پیمایش</string>
-    <string name="app_drawer_columns">ستون‌های کشوی برنامه‌</string>
+    <string name="app_drawer_columns">ستون‌های کشوی برنامه‌ها</string>
     <string name="row_height_label">ارتفاع ردیف</string>
-    <string name="app_drawer_haptic_feedback_label">Haptic feedback</string>
-    <string name="app_drawer_indent_label">حاشیه افقی</string>
+    <string name="app_drawer_haptic_feedback_label">بازخورد لمسی</string>
+    <string name="app_drawer_indent_label">فاصله افقی</string>
     <string name="app_drawer_bg_color_label">رنگ پس‌زمینه</string>
-    <string name="work_profile_tab_background_label">Tab background color</string>
-    <string name="pref_all_apps_search_bar_background">Show background behind search bar</string>
-    <string name="work_profile_tab_container_background_label">Show background behind tabs</string>
-    <!-- HiddenAppsPreferences -->
-    <string name="hide_from_drawer">مخفی‌ در کشوی برنامه‌</string>
+    <string name="work_profile_tab_background_label">رنگ پس‌زمینه زبانه</string>
+    <string name="pref_all_apps_search_bar_background">نمایش پس‌زمینه پشت نوار جست‌وجو</string>
+    <string name="work_profile_tab_container_background_label">نمایش پس‌زمینه پشت زبانه‌ها</string>
+    <string name="hide_from_drawer">پنهان‌کردن از کشوی برنامه‌ها</string>
     <string name="hidden_apps_label_with_count">برنامه‌های مخفی (%1$d)</string>
-    <plurals name="apps_count">
-        <item quantity="one">%1$d برنامه</item>
-        <item quantity="other">%1$d برنامه</item>
-    </plurals>
-    <!-- Folder settings -->
-    <string name="folder_preview_bg_opacity_label">کدورت پس‌زمینه پیش‌نمایش آیکون</string>
-    <string name="folder_bg_opacity_label">کدورت پس‌زمینه پوشه</string>
-    <string name="folder_preview_bg_color_label">رنگ پس‌زمینه ‌آیکون</string>
-    <string name="max_folder_columns">حداکثر ستون‌های پوشه‌</string>
-    <string name="max_folder_rows">حداکثر ردیف پوشه</string>
-    <!-- Quickstep settings -->
-    <string name="quickswitch_ignored_warning">These settings will be ignored because Solina Launcher isn\'t set as the Recents screen provider</string>
-    <string name="quickstep_incompatible">یکپارچه سازی سیستم ناسازگار</string>
-    <string name="quickstep_incompatible_description">Your device is configured to have system gestures, known as Quickstep, provided by %1$s, but this version of %1$s isn\'t compatible with your Android version. To continue using your device, uninstall %1$s updates or disable %1$s as a system gesture provider.</string>
-    <string name="translucent_background">پس‌زمینه نیمه شفاف</string>
+    <string name="folder_preview_bg_opacity_label">شفافیت پس‌زمینه پیش‌نمایش آیکون</string>
+    <string name="folder_bg_opacity_label">شفافیت پس‌زمینه پوشه</string>
+    <string name="folder_preview_bg_color_label">رنگ پس‌زمینه آیکون</string>
+    <string name="max_folder_columns">حداکثر ستون‌های پوشه</string>
+    <string name="max_folder_rows">حداکثر ردیف‌های پوشه</string>
+    <string name="quickswitch_ignored_warning">این تنظیمات نادیده گرفته می‌شوند، زیرا Solina Launcher به‌عنوان ارائه‌دهنده صفحه برنامه‌های اخیر انتخاب نشده است</string>
+    <string name="quickstep_incompatible">یکپارچه‌سازی ناسازگار با سیستم</string>
+    <string name="translucent_background">پس‌زمینه نیمه‌شفاف</string>
     <string name="translucent_background_alpha">شفافیت پس‌زمینه</string>
-    <string name="recents_actions_label">عملیات‌ سریع</string>
-    <string name="action_share">اشتراک گذاری</string>
+    <string name="recents_actions_label">عملیات سریع</string>
+    <string name="action_share">اشتراک‌گذاری</string>
     <string name="action_lens">لنز</string>
-    <string name="recents_clear_all">حذف همه</string>
+    <string name="recents_clear_all">بستن همه</string>
     <string name="task_menu_force_stop">توقف اجباری</string>
     <string name="window_corner_radius_label">شعاع گوشه صفحه</string>
-    <string name="override_window_corner_radius_label">شعاع گوشه صفحه سفارشی</string>
-    <string name="window_corner_radius_description">وقتی برای باز کردن صفحه اخیرا، انگشت خود را به بالا می‌کشید، برنامه فعلی انگشت شما را دنبال می‌کند و به شکل یک کارت کوچک می‌شود. از این اسلایدر برای تنظیم شعاع گوشه کارت، زمانی که تقریباً تمام صفحه است، استفاده کنید تا با گوشه‌های صفحه نمایش شما مطابقت داشته باشد.</string>
+    <string name="override_window_corner_radius_label">شعاع گوشه سفارشی صفحه</string>
     <string name="taskbar_label">نوار وظیفه</string>
     <string name="enable_taskbar_experimental">نمایش نوار وظیفه (آزمایشی)</string>
-    <!--
-
-    All Apps search
-
-    -->
-    <!-- Launcher strings used -->
-    <string name="all_apps_device_search_hint">Search web and more</string>
-    <string name="all_apps_search_bar_hint">جستجو برنامه‌ها</string>
-    <string name="all_apps_no_search_results">No apps found matching \"<xliff:g example="Android" id="query">%1$s</xliff:g>\"
-    </string>
+    <string name="all_apps_device_search_hint">جست‌وجو در وب و موارد دیگر</string>
+    <string name="all_apps_search_bar_hint">جست‌وجوی برنامه‌ها</string>
+    <string name="all_apps_no_search_results">هیچ برنامه‌ای مطابق «<xliff:g example="Android" id="query">%1$s</xliff:g>» پیدا نشد</string>
     <string name="all_apps_search_result_suggestions">از وب</string>
     <string name="all_apps_search_result_contacts_from_device">مخاطبین دستگاه</string>
-    <string name="all_apps_search_result_files">فایل ها از دستگاه</string>
-    <string name="all_apps_search_result_settings_entry_from_device">تنظیمات از دستگاه</string>
-    <string name="all_apps_search_market_message">جستجو برنامه‌های بیشتر</string>
-    <string name="all_apps_search_on_web_message">Search on <xliff:g example="Startpage" id="web_search_provider">%1$s</xliff:g>
-    </string>
-    <string name="error_no_market_or_browser_installed">هیچ فروشگاه برنامه یا مرورگری نصب نیست</string>
-    <string name="all_apps_search_on_web_general">جستجو در وب</string>
-    <string name="clear_history">پاک‌کردن تاریخچه جستجو</string>
-    <string name="search_input_action_clear_results">پاک‌کردن متن جستجو</string>
-    <!-- Search settings -->
-    <string name="pref_category_search">جستجو</string>
-    <string name="show_app_search_bar">نشان‌دادن نوار جستجو</string>
-    <string name="pref_search_auto_show_keyboard">نمایش خودکار صفحه کلید</string>
-    <string name="fuzzy_search_title">جستجو فازی</string>
-    <string name="fuzzy_search_desc">مطابقت تقریبی برای جستجوی برنامه‌ها</string>
-    <string name="show_suggested_apps_at_drawer_top">نمایش برنامه های پیشنهادی در بالای کشو</string>
-    <string name="perform_wide_search_title">جستجوی دستگاه</string>
-    <string name="perform_wide_search_description">مخاطبین، فایل‌ها و تنظیمات تلفن خود را جستجو کنید</string>
-    <string name="show_hidden_apps_in_search_results">نمایش برنامه های پنهان در نتایج جستجو</string>
-    <string name="hidden_apps_show_name_typed">در صورت تایپ کامل اسم</string>
-    <string name="allapps_web_suggestion_provider_label">ارائه دهنده پیشنهاد وب</string>
-    <string name="allapps_use_web_suggestion_icon_label">Show the web suggestion provider icon in the search bar</string>
-    <string name="allapps_match_qsb_style_label">مطابقت اقدامات نوار جستجوی اسکله</string>
-    <string name="allapps_match_qsb_style_description">Tapping the dock search bar opens the app drawer search view</string>
-    <string name="app_search_algorithm">الگوریتم جستجو</string>
-    <string name="search_algorithm_app_search">جستجو برنامه</string>
-    <string name="search_algorithm_global_search_on_device">جستجوی جهانی (روی دستگاه)</string>
-    <string name="search_algorithm_global_search_via_asi">جستجوی جهانی (با ASI)</string>
-    <string name="custom_search_label">نام موتور جستجو</string>
-    <string name="custom_search_url">آدرس موتور جستجو</string>
-    <string name="custom_search_suggestions_url">آدرس اینترنتی پیشنهادات جستجو</string>
-    <string name="custom_search_input_hint">&#37; با عبارت جستجو جایگزین خواهد شد</string>
-    <string name="custom_search_suggestions_hint">&#37; با عبارت جستجو جایگزین می‌شوند. نتایج باید در قالب جستجو‌آزاد JSON باشند.</string>
-    <!-- Labels of each search result types -->
-    <string name="show_search_result_types">نشان‌دادن در نتایج جستجو</string>
-    <string name="search_pref_result_apps_and_shortcuts_title">برنامه‌ها و میانبرها</string>
-    <string name="search_pref_result_shortcuts_title">میانبرهای برنامه</string>
-    <string name="search_pref_result_people_title">مردم</string>
-    <string name="search_pref_result_tips_title">نکته‌های پیکسل</string>
+    <string name="all_apps_search_result_files">فایل‌های دستگاه</string>
+    <string name="all_apps_search_result_settings_entry_from_device">تنظیمات دستگاه</string>
+    <string name="all_apps_search_market_message">جست‌وجوی برنامه‌های بیشتر</string>
+    <string name="all_apps_search_on_web_message">جست‌وجو در <xliff:g example="Startpage" id="web_search_provider">%1$s</xliff:g></string>
+    <string name="error_no_market_or_browser_installed">هیچ فروشگاه برنامه یا مرورگری نصب نشده است</string>
+    <string name="quickstep_incompatible_description">دستگاه شما طوری پیکربندی شده است که ژست‌های سیستمی موسوم به Quickstep توسط %1$s ارائه شوند، اما این نسخه از %1$s با نسخه اندروید شما سازگار نیست. برای ادامه استفاده از دستگاه، به‌روزرسانی‌های %1$s را حذف کنید یا %1$s را به‌عنوان ارائه‌دهنده ژست سیستمی غیرفعال کنید.</string>
+    <string name="window_corner_radius_description">هنگام کشیدن انگشت به بالا برای بازکردن صفحه برنامه‌های اخیر، برنامه فعلی انگشت شما را دنبال می‌کند و به شکل یک کارت کوچک می‌شود. از این لغزنده برای تنظیم گردی گوشه‌های کارت در حالت تقریباً تمام‌صفحه استفاده کنید تا با گوشه‌های نمایشگر هماهنگ شود.</string>
+    <string name="all_apps_search_on_web_general">جست‌وجو در وب</string>
+    <string name="clear_history">پاک‌کردن تاریخچه جست‌وجو</string>
+    <string name="search_input_action_clear_results">پاک‌کردن کادر جست‌وجو</string>
+    <string name="pref_category_search">جست‌وجو</string>
+    <string name="show_app_search_bar">نمایش نوار جست‌وجو</string>
+    <string name="pref_search_auto_show_keyboard">نمایش خودکار صفحه‌کلید</string>
+    <string name="fuzzy_search_title">جست‌وجوی تقریبی</string>
+    <string name="fuzzy_search_desc">تطبیق تقریبی برای جست‌وجوی برنامه‌ها</string>
+    <string name="show_suggested_apps_at_drawer_top">نمایش برنامه‌های پیشنهادی در بالای کشو</string>
+    <string name="perform_wide_search_title">جست‌وجوی دستگاه</string>
+    <string name="perform_wide_search_description">جست‌وجو در مخاطبین، فایل‌ها و تنظیمات تلفن</string>
+    <string name="show_hidden_apps_in_search_results">نمایش برنامه‌های مخفی در نتایج جست‌وجو</string>
+    <string name="hidden_apps_show_name_typed">در صورت واردکردن نام کامل</string>
+    <string name="allapps_web_suggestion_provider_label">ارائه‌دهنده پیشنهادهای وب</string>
+    <string name="allapps_use_web_suggestion_icon_label">نمایش نماد ارائه‌دهنده پیشنهاد وب در نوار جست‌وجو</string>
+    <string name="allapps_match_qsb_style_label">هماهنگی با عملکردهای نوار جست‌وجوی داک</string>
+    <string name="allapps_match_qsb_style_description">با ضربه‌زدن روی نوار جست‌وجوی داک، نمای جست‌وجوی کشوی برنامه‌ها باز می‌شود</string>
+    <string name="app_search_algorithm">الگوریتم جست‌وجو</string>
+    <string name="search_algorithm_app_search">جست‌وجوی برنامه</string>
+    <string name="search_algorithm_global_search_on_device">جست‌وجوی سراسری (روی دستگاه)</string>
+    <string name="search_algorithm_global_search_via_asi">جست‌وجوی سراسری (از طریق ASI)</string>
+    <string name="custom_search_label">نام موتور جست‌وجو</string>
+    <string name="custom_search_url">نشانی موتور جست‌وجو</string>
+    <string name="custom_search_suggestions_url">نشانی پیشنهادهای جست‌وجو</string>
+    <string name="custom_search_input_hint">عبارت %s با عبارت جست‌وجو جایگزین می‌شود</string>
+    <string name="custom_search_suggestions_hint">عبارت %s با عبارت جست‌وجو جایگزین می‌شود. نتایج باید در قالب JSON OpenSearch باشند.</string>
+    <string name="custom_search_input_placeholder" translatable="false">https://example.com/search?q=%s</string>
+    <string name="show_search_result_types">نمایش در نتایج جست‌وجو</string>
+    <string name="search_pref_result_apps_and_shortcuts_title">برنامه‌ها و میان‌برها</string>
+    <string name="search_pref_result_shortcuts_title">میان‌برهای برنامه</string>
+    <string name="search_pref_result_people_title">افراد</string>
+    <string name="search_pref_result_tips_title">نکته‌های Solina</string>
     <string name="search_pref_result_settings_title">تنظیمات اندروید</string>
     <string name="search_pref_result_files_title">فایل‌ها</string>
     <string name="search_pref_result_visual_media_title">عکس‌ها و ویدیوها</string>
     <string name="search_pref_result_audio_media_title">فایل‌های صوتی</string>
     <string name="search_pref_result_all_files_title">همه فایل‌ها</string>
-    <string name="search_pref_result_web_title">پیشنهادات وب</string>
-    <string name="search_pref_result_history_title">تاریخچه جستجو</string>
-    <string name="all_apps_search_result_calculator">ماشین حساب</string>
-    <string name="search_empty_state_title">شروع جستجو</string>
-    <string name="search_empty_state_no_history_subtitle">برنامه‌ها، مخاطبین و موارد دیگر را پیدا کنید. جستجوهای اخیر شما در اینجا نمایش داده می‌شوند.</string>
-    <string name="search_empty_state_history_disabled_subtitle">Find apps, contacts, and more</string>
-    <!-- Description for each search result type -->
-    <string name="search_pref_files_search_on">جستجو در</string>
+    <string name="search_pref_result_web_title">پیشنهادهای وب</string>
+    <string name="search_pref_result_history_title">تاریخچه جست‌وجو</string>
+    <string name="all_apps_search_result_calculator">ماشین‌حساب</string>
+    <string name="search_empty_state_title">جست‌وجو را آغاز کنید</string>
+    <string name="search_empty_state_no_history_subtitle">برنامه‌ها، مخاطبین و موارد دیگر را پیدا کنید. جست‌وجوهای اخیر شما اینجا نمایش داده می‌شوند.</string>
+    <string name="search_empty_state_history_disabled_subtitle">برنامه‌ها، مخاطبین و موارد دیگر را پیدا کنید</string>
+    <string name="search_pref_files_search_on">جست‌وجو در</string>
     <string name="search_pref_result_files_description">رسانه، فایل‌ها و موارد دیگر</string>
     <string name="search_pref_result_contacts_description">مخاطبین و موارد دیگر</string>
-    <string name="search_pref_result_web_provider_description">Via <xliff:g id="web_search_provider">%1$s</xliff:g>
-    </string>
-    <!-- Maximum xyz for each search result type -->
+    <string name="search_pref_result_web_provider_description">از طریق <xliff:g id="web_search_provider">%1$s</xliff:g></string>
     <string name="max_apps_result_count_title">حداکثر تعداد برنامه‌ها</string>
     <string name="max_people_result_count_title">حداکثر تعداد افراد</string>
     <string name="max_file_result_count_title">حداکثر تعداد فایل‌ها</string>
     <string name="max_settings_entry_result_count_title">حداکثر تعداد تنظیمات</string>
-    <string name="max_recent_result_count_title">حداکثر موارد در تاریخچه جستجو</string>
-    <string name="max_suggestion_result_count_title">حداکثر تعداد پیشنهادات</string>
-    <string name="max_web_suggestion_delay">حداکثر تاخیر پیشنهاد وب</string>
-    <!-- Permission management -->
-    <string name="missing_notification_access_label">دسترسی به اعلان‌ها نیاز است</string>
-    <string name="missing_notification_access_desc">To show notification dots, turn on app notifications for <xliff:g id="name" example="My App">%1$s</xliff:g>
-    </string>
-    <string name="warn_contact_permission_title">مجوز مخاطبین مورد نیاز است</string>
-    <string name="warn_contact_permission_content">To search for contacts, grant contacts and phone permissions to <xliff:g id="name" example="My App">%1$s</xliff:g>
-    </string>
+    <string name="max_recent_result_count_title">حداکثر موارد تاریخچه جست‌وجو</string>
+    <string name="max_suggestion_result_count_title">حداکثر تعداد پیشنهادها</string>
+    <string name="max_web_suggestion_delay">حداکثر تأخیر پیشنهاد وب</string>
+    <string name="missing_notification_access_label">دسترسی اعلان لازم است</string>
+    <string name="missing_notification_access_desc">برای نمایش نشان‌های اعلان، اعلان‌های برنامه <xliff:g id="name" example="My App">%1$s</xliff:g> را فعال کنید</string>
+    <string name="warn_contact_permission_title">مجوز مخاطبین لازم است</string>
+    <string name="warn_contact_permission_content">برای جست‌وجوی مخاطبین، مجوزهای مخاطبین و تلفن را به <xliff:g id="name" example="My App">%1$s</xliff:g> بدهید</string>
     <string name="permissions_music_audio">دسترسی به موسیقی و صدا لازم است</string>
-    <string name="permissions_music_audio_description">To search your music and other audio files, <xliff:g id="name" example="My App">%1$s</xliff:g> needs permission to access your media library</string>
-    <!-- Photos and videos -->
-    <string name="permissions_photos_videos">دسترسی به عکس‌ها و ویدیوها الزامی است</string>
-    <string name="permissions_photos_videos_description">To search your photos and videos, <xliff:g id="name" example="My App">%1$s</xliff:g> needs permission to access your media library</string>
-    <string name="permissions_photos_videos_full">به کتابخانه کامل رسانه خود دسترسی پیدا کنید؟</string>
-    <string name="permissions_photos_videos_full_description">To search all your photos and videos, <xliff:g id="name" example="My App">%1$s</xliff:g> needs full access to your media library</string>
-    <string name="permissions_photos_videos_grant_full">اعطای مجوز کامل رسانه</string>
-    <string name="permissions_photos_videos_manage_selected">مدیریت موارد انتخابی</string>
-    <!-- External storage -->
-    <string name="permissions_external_storage">دسترسی به حافظه خارجی مورد نیاز است</string>
-    <string name="permissions_external_storage_description">To search your files, <xliff:g id="name" example="My App">%1$s</xliff:g> needs permission to access your device\'s external storage</string>
-    <string name="permissions_manage_storage">دسترسی به حافظه مورد نیاز است</string>
-    <string name="permissions_manage_storage_description">برای نمایش فایل‌های شما در نتایج جستجو، <xliff:g id="name" example="My App">%1$s</xliff:g> به مجوز مدیریت تمام فایل‌های دستگاه شما نیاز دارد. این مجوز صرفاً برای فهرست کردن فایل‌ها استفاده می‌شود و برای خواندن یا تغییر محتوای فایل‌های شخصی شما استفاده نخواهد شد.</string>
-    <string name="permission_desc_wallpaper_base">برای نمایش پیش‌نمایش تصاویر پس‌زمینه و قرار دادن آنها در پشتیبان‌گیری‌ها، <xliff:g id="name" example="My App">%1$s</xliff:g> به مجوز %2$s نیاز دارد. این به دلیل محدودیت‌های سیستم برای دسترسی به داده‌های تصویر زمینه است.</string>
-    <string name="permission_desc_ending_read_all_files">برای خواندن تمام فایل‌های موجود در دستگاه شما</string>
-    <string name="permission_desc_ending_manage_all_files">برای مدیریت تمام فایل‌های موجود در دستگاه شما</string>
-    <string name="permission_desc_wallpaper_multiple">مجوزهای متعدد مورد نیاز است</string>
-    <string name="permission_desc_wallpaper_multiple_desc">برای نمایش پیش‌نمایش تصاویر پس‌زمینه و قرار دادن آنها در پشتیبان‌گیری‌ها، <xliff:g id="name" example="My App">%1$s</xliff:g> به مجوزهای زیر نیاز دارد. به دلیل محدودیت‌های سیستم برای دسترسی به داده‌های تصویر زمینه است.</string>
-    <string name="permission_label_manage_all_files">مدیریت فایل‌های دستگاه</string>
-    <string name="permission_label_read_photos_videos">خواندن عکسها و ویدیو ها</string>
-    <string name="manage_storage_access_denied_title">Cannot turn on manage storage access</string>
-    <string name="manage_storage_access_denied_description">به دلیل سیاست‌های فروشگاه Play، <xliff:g id="name" example="My App">%1$s</xliff:g> نمی‌تواند در اینجا درخواست دسترسی کامل به فضای ذخیره‌سازی را بدهد. برای دسترسی به همه فایل‌ها، لطفاً <xliff:g id="name" example="My App">%1$s</xliff:g> را از GitHub دانلود کنید. همچنین، می‌توانید در تنظیمات، دسترسی به عکس‌ها، ویدیوها و فایل‌های صوتی را به صورت جداگانه اعطا کنید.</string>
+    <string name="permissions_music_audio_description">برای جست‌وجوی موسیقی و سایر فایل‌های صوتی، <xliff:g id="name" example="My App">%1$s</xliff:g> به مجوز دسترسی به کتابخانه رسانه شما نیاز دارد</string>
+    <string name="permissions_photos_videos">دسترسی به عکس‌ها و ویدیوها لازم است</string>
+    <string name="permissions_photos_videos_description">برای جست‌وجوی عکس‌ها و ویدیوهای شما، <xliff:g id="name" example="My App">%1$s</xliff:g> به مجوز دسترسی به کتابخانه رسانه نیاز دارد</string>
+    <string name="permissions_photos_videos_full">به کل کتابخانه رسانه دسترسی داده شود؟</string>
+    <string name="permissions_photos_videos_full_description">برای جست‌وجوی همه عکس‌ها و ویدیوهای شما، <xliff:g id="name" example="My App">%1$s</xliff:g> به دسترسی کامل به کتابخانه رسانه نیاز دارد</string>
+    <string name="permissions_photos_videos_grant_full">دادن مجوز کامل رسانه</string>
+    <string name="permissions_photos_videos_manage_selected">مدیریت موارد انتخاب‌شده</string>
+    <string name="permissions_external_storage">دسترسی به حافظه خارجی لازم است</string>
+    <string name="permissions_external_storage_description">برای جست‌وجوی فایل‌های شما، <xliff:g id="name" example="My App">%1$s</xliff:g> به مجوز دسترسی به حافظه خارجی دستگاه نیاز دارد</string>
+    <string name="permissions_manage_storage">دسترسی مدیریت حافظه لازم است</string>
+    <string name="permissions_manage_storage_description">برای نمایش فایل‌ها در نتایج جست‌وجو، <xliff:g id="name" example="My App">%1$s</xliff:g> به مجوز مدیریت همه فایل‌های دستگاه نیاز دارد. این مجوز فقط برای فهرست‌کردن فایل‌ها استفاده می‌شود و محتوای فایل‌های شخصی شما خوانده یا تغییر داده نخواهد شد.</string>
+    <string name="permission_desc_wallpaper_base">برای نمایش پیش‌نمایش تصویر زمینه و گنجاندن آن در نسخه پشتیبان، <xliff:g id="name" example="My App">%1$s</xliff:g> به مجوز %2$s نیاز دارد. این محدودیت ناشی از محدودیت‌های سیستم برای دسترسی به داده‌های تصویر زمینه است.</string>
+    <string name="permission_desc_ending_read_all_files">برای خواندن همه فایل‌های دستگاه</string>
+    <string name="permission_desc_ending_manage_all_files">برای مدیریت همه فایل‌های دستگاه</string>
+    <string name="permission_desc_wallpaper_multiple">چند مجوز لازم است</string>
+    <string name="permission_desc_wallpaper_multiple_desc">برای نمایش پیش‌نمایش تصویر زمینه و گنجاندن آن در نسخه پشتیبان، <xliff:g id="name" example="My App">%1$s</xliff:g> به مجوزهای زیر نیاز دارد. این محدودیت ناشی از محدودیت‌های سیستم برای دسترسی به داده‌های تصویر زمینه است.</string>
+    <string name="permission_label_manage_all_files">مدیریت همه فایل‌های دستگاه</string>
+    <string name="permission_label_read_photos_videos">خواندن عکس‌ها و ویدیوها</string>
+    <string name="manage_storage_access_denied_title">امکان فعال‌کردن دسترسی مدیریت حافظه وجود ندارد</string>
+    <string name="manage_storage_access_denied_description">به‌دلیل خط‌مشی فروشگاه Play، <xliff:g id="name" example="My App">%1$s</xliff:g> نمی‌تواند در اینجا درخواست دسترسی کامل به حافظه کند. برای دسترسی به همه فایل‌ها، <xliff:g id="name" example="My App">%1$s</xliff:g> را از گیت‌هاب دریافت کنید. همچنین می‌توانید در تنظیمات، دسترسی به عکس‌ها، ویدیوها و فایل‌های صوتی را جداگانه بدهید.</string>
     <string name="open_permission_settings">بازکردن تنظیمات</string>
-    <string name="grant_requested_permissions">اعطای مجوز</string>
-    <string name="permissions_needed">مجوزهای مورد نیاز</string>
-    <string name="grant_requested_permissions_tap">برای اعطای مجوزها ضربه بزنید</string>
-    <!-- Message shown when all home screen views are removed -->
-    <string name="home_screen_all_views_removed_msg">Home screen cleared</string>
-    <string name="lawnchair_actions">Actions</string>
-    <string name="lawnchair_action_failed">Failed to trigger action</string>
-    <string name="please_wait">Please wait…</string>
+    <string name="grant_requested_permissions">دادن مجوزها</string>
+    <string name="permissions_needed">مجوزهای لازم</string>
+    <string name="grant_requested_permissions_tap">برای دادن مجوزها ضربه بزنید</string>
+    <string name="home_screen_all_views_removed_msg">صفحه اصلی پاک شد</string>
+    <string name="lawnchair_actions">عملکردها</string>
+    <string name="lawnchair_action_failed">اجرای عملکرد ناموفق بود</string>
+    <string name="please_wait">لطفاً صبر کنید…</string>
+    <string name="dock_label_size">اندازه متن برچسب داک</string>
+    <string name="dock_search_bar_vertical_position">موقعیت عمودی نوار جست‌وجو</string>
+    <string name="home_icon_label_color">رنگ برچسب آیکون صفحه اصلی</string>
+    <string name="drawer_icon_label_color">رنگ برچسب آیکون کشوی برنامه‌ها</string>
+    <string name="dock_icon_label_color">رنگ برچسب آیکون داک</string>
+    <string name="suggestion_label_color">رنگ برچسب پیشنهاد</string>
+    <string name="suggestion_frequently_used">پیشنهادهای پرکاربرد</string>
+    <string name="suggestion_background_color">رنگ پس‌زمینه پیشنهاد</string>
+    <string name="backup_restore_confirmation_title">نسخه پشتیبان بازیابی شود؟</string>
+    <string name="backup_restore_confirmation_layout_message">این کار چیدمان و تنظیمات فعلی لانچر را جایگزین می‌کند. پیش از ادامه، مطمئن شوید نسخه پشتیبان جدیدی دارید.</string>
+    <string name="backup_restore_confirmation_wallpaper_message">این کار تصویر زمینه فعلی شما را جایگزین می‌کند. ادامه می‌دهید؟</string>
+    <string name="backup_restore_confirmation_suggestions_message">این کار تنظیمات پیشنهادهای کشوی برنامه‌ها را بدون تغییر چیدمان یا تصویر زمینه جایگزین می‌کند. ادامه می‌دهید؟</string>
+    <string name="backup_restore_confirmation_suggestions_and_wallpaper_message">این کار تنظیمات پیشنهادهای کشوی برنامه‌ها و تصویر زمینه فعلی را بدون تغییر چیدمان جایگزین می‌کند. ادامه می‌دهید؟</string>
+    <string name="backup_restore_metadata">ایجادشده: %1$s · نسخه Solina Launcher: %2$d</string>
+    <string name="backup_restore_cancel">لغو</string>
+    <string name="accessibility_service_description">برای اجرای برخی عملکردها هنگام استفاده از ژست‌ها، مانند قفل‌کردن تلفن، Solina Launcher به دسترسی‌پذیری نیاز دارد.
+
+Solina Launcher فعالیت‌های شما را زیر نظر نمی‌گیرد؛ بااین‌حال همه سرویس‌های دسترس‌پذیری به این مجوز نیاز دارند. Solina Launcher تمام رویدادهای ارسالی سیستم را نادیده می‌گیرد.
+
+برای قفل‌کردن تلفن یا بازکردن صفحه برنامه‌های اخیر، Solina Launcher از سرویس دسترس‌پذیری performGlobalAction استفاده می‌کند.</string>
+    <string name="qsb_style_heading">ظاهر نوار جستجو</string>
+    <string name="qsb_3d_enabled">نوار جستجوی سه‌بعدی</string>
+    <string name="qsb_3d_depth">عمق حالت سه‌بعدی</string>
+    <string name="qsb_icons_3d">آیکن‌های سه‌بعدی</string>
+    <string name="qsb_background_color_label">رنگ نوار جستجو</string>
+    <string name="qsb_icon_color_label">رنگ آیکن‌های نوار جستجو</string>
+    <string name="settings_ui_customization_heading">ظاهر و کنترلرهای محیط تنظیمات</string>
+    <string name="settings_dashboard_layout_label">چیدمان داشبورد تنظیمات</string>
+    <string name="settings_layout_bento">شبکه مدرن بنتو (Bento Grid)</string>
+    <string name="settings_layout_grouped">کارت‌های دسته‌بندی‌شده مدرن</string>
+    <string name="settings_layout_classic">فهرست کلاسیک</string>
+    <string name="settings_show_status_header_label">کارت وضعیت سریع در بالای تنظیمات</string>
+    <string name="settings_show_status_header_desc">نمایش خلاصه وضعیت شبکه، داک، قفل برنامه‌ها و دسترسی سریع در بالای تنظیمات</string>
+    <string name="settings_search_bar_label">نوار جست‌وجوی سریع تنظیمات</string>
+    <string name="settings_search_bar_desc">نمایش نوار جست‌وجو در بالای داشبورد برای فیلتر آنی بخش‌های تنظیمات</string>
+    <string name="settings_colorful_icons_label">آیکون‌های رنگی و مدرن دسته‌بندی‌ها</string>
+    <string name="settings_colorful_icons_desc">استفاده از پس‌زمینه کپسولی رنگی برای آیکون‌های تنظیمات به‌جای آیکون‌های تک‌رنگ</string>
+    <string name="settings_stepper_sliders_label">دکمه‌های تنظیم دقیق (+ و -) برای اسلایدرها</string>
+    <string name="settings_stepper_sliders_desc">نمایش دکمه‌های گام‌به‌گام کنار نوارهای لغزنده برای تغییر دقیق مقادیر</string>
+    <string name="home_show_live_preview_label">پیش‌نمایش زنده در تنظیمات صفحه اصلی</string>
+    <string name="home_show_live_preview_desc">نمایش پیش‌نمایش آنی صفحه اصلی در بالای تنظیمات صفحه اصلی</string>
+    <string name="settings_search_placeholder">جست‌وجو در تنظیمات سولینا…</string>
+    <string name="settings_search_no_results">بخشی با این عبارت یافت نشد</string>
+    <string name="settings_quick_status_grid">شبکه %1$d×%2$d</string>
+    <string name="settings_quick_status_dock">داک %1$d×%2$d</string>
+    <string name="settings_quick_status_locked_apps">%1$d برنامه قفل‌شده</string>
+    <string name="settings_group_workspace">صفحه اصلی و داک</string>
+    <string name="settings_group_appearance">ظاهر، آیکون‌ها و کشوی برنامه‌ها</string>
+    <string name="settings_group_smart_search">هوشمند، جست‌وجو و ژست‌های حرکتی</string>
+    <string name="settings_group_security_system">امنیت، پشتیبان‌گیری و سیستم</string>
+    <string name="settings_customize_sheet_title">شخصی‌سازی ظاهر تنظیمات</string>
+    <string name="hotseat_style_presets_title">قالب‌های آماده استایل داک</string>
+    <string name="hotseat_preset_floating_glass">کپسول شیشه‌ای</string>
+    <string name="hotseat_preset_modern_capsule">کپسول مدرن</string>
+    <string name="hotseat_preset_neon_card">کارت درخشان</string>
+    <string name="hotseat_preset_full_width">تمام‌عرض</string>
+    <string name="hotseat_bg_glossy_sheen">گرادیان و بازتاب شیشه‌ای سه‌بعدی</string>
+    <string name="hotseat_bg_glossy_sheen_summary">اعمال جلوه بازتاب نور در لبه بالایی و عمق شیشه‌ای در پس‌زمینه داک</string>
+    <string name="hotseat_bg_glass_border">حاشیه شیشه‌ای درخشان داک</string>
+    <string name="hotseat_bg_glass_border_summary">نمایش کادر ظریف و براق شیشه‌ای پیرامون کپسول داک</string>
+    <string name="hotseat_bg_glass_border_width">ضخامت حاشیه شیشه‌ای</string>
+    <string name="qsb_surface_style_label">استایل ظاهری نوار جست‌وجو</string>
+    <string name="qsb_surface_style_3d_bevel">سه‌بعدی برجسته (3D Bevel)</string>
+    <string name="qsb_surface_style_glass_capsule">کپسول شیشه‌ای مدرن</string>
+    <string name="qsb_surface_style_neon_border">کادر گرادیان رنگی</string>
+    <string name="qsb_surface_style_minimal_flat">مینیمال تخت</string>
+    <string name="qsb_show_hint_text_label">نمایش متن راهنمای جست‌وجو درون نوار</string>
+    <string name="qsb_show_hint_text_summary">نمایش عبارت «جست‌وجو» در کنار آیکون موتور جست‌وجو</string>
+    <string name="qsb_end_icon_pill_bg_label">کپسول مجزا برای آیکون‌های میکروفون و لنز</string>
+    <string name="qsb_end_icon_pill_bg_summary">قرارگیری آیکون‌های کناری درون یک کپسول رنگی مدرن</string>
+    <string name="smartspace_card_style_heading">استایل کارت ویجت و کپسول تاریخ</string>
+    <string name="smartspace_card_style_label">استایل قاب ویجت Smartspace</string>
+    <string name="smartspace_card_style_transparent">کلاسیک شفاف (بدون کادر)</string>
+    <string name="smartspace_card_style_glass_card">کارت شیشه‌ای مدرن</string>
+    <string name="smartspace_card_style_tonal_capsule">کپسول رنگی Material You</string>
+    <string name="smartspace_card_style_elevated_card">کارت برجسته سه‌بعدی</string>
+    <string name="smartspace_card_alpha_label">میزان غلظت پس‌زمینه کارت</string>
+    <string name="smartspace_card_corner_radius_label">گردی گوشه‌های کارت ویجت</string>
+    <string name="smartspace_date_pill_badge_label">نمایش تاریخ شمسی/میلادی درون کپسول برجسته</string>
+    <string name="smartspace_date_pill_badge_summary">برجسته‌سازی تاریخ با یک کپسول رنگی ظریف و مدرن</string>
+    <string name="smartspace_date_text_scale_label">مقیاس اندازه فونت تاریخ و ساعت</string>
+    <string name="all_apps_category_all">همه</string>
+    <string name="drawer_category_system_apps">برنامه‌های سیستمی</string>
+    <string name="drawer_category_google_apps">برنامه‌های گوگل</string>
+    <string name="drawer_caddy_and_cards_heading">نوار دسته‌بندی سریع و استایل کارت‌ها</string>
+    <string name="drawer_caddy_display_mode_label">شیوه نمایش دسته‌بندی هوشمند (کدی)</string>
+    <string name="drawer_caddy_mode_folders">پوشه‌های دسته‌بندی هوشمند</string>
+    <string name="drawer_caddy_mode_sections">بخش‌های باز با سرتیتر مدرن</string>
+    <string name="drawer_show_category_bar_label">نوار فیلتر سریع دسته‌بندی‌ها</string>
+    <string name="drawer_show_category_bar_summary">نمایش نوار افقی دسته‌بندی‌ها در بالای کشوی برنامه‌ها برای فیلتر آنی</string>
+    <string name="drawer_category_bar_style_label">ظاهر نوار دسته‌بندی</string>
+    <string name="drawer_cat_bar_style_glass">کپسول‌های شیشه‌ای شناور</string>
+    <string name="drawer_cat_bar_style_segmented">تب‌های یکپارچه متریال یو</string>
+    <string name="drawer_cat_bar_style_neon">چیپ‌های نئونی درخشان</string>
+    <string name="drawer_cat_bar_style_classic">تب‌های مینیمال کلاسیک</string>
+    <string name="drawer_caddy_show_counts_label">نمایش نشان تعداد برنامه‌ها</string>
+    <string name="drawer_caddy_show_counts_summary">نمایش تعداد برنامه‌های هر دسته در چیپ‌های فیلتر و سرتیتر بخش‌ها</string>
+    <string name="drawer_caddy_card_style_label">استایل کارت پوشه‌ها و دسته‌ها</string>
+    <string name="drawer_card_style_none">کلاسیک (بدون کادر)</string>
+    <string name="drawer_card_style_tonal">کارت ملایم متریال (Tonal Pod)</string>
+    <string name="drawer_card_style_glass">کارت شیشه‌ای مدرن (Glass Card)</string>
+    <string name="drawer_card_style_3d">کارت برجسته سه‌بعدی (3D Bevel)</string>
+    <string name="drawer_caddy_card_radius_label">شعاع انحنای گوشه کارت‌ها</string>
+    <string name="drawer_apply_card_to_apps_label">اعمال کادر کارت به آیکون برنامه‌ها</string>
+    <string name="drawer_apply_card_to_apps_summary">نمایش پس‌زمینه کارتی ظریف در پشت تک‌تک آیکون‌های کشوی برنامه‌ها</string>
+    <string name="folder_surface_style_label">استایل پنجره پوشه باز</string>
+    <string name="folder_style_glass_card">کارت شیشه‌ای مدرن (Frosted Glass)</string>
+    <string name="folder_style_elevated_3d">برجسته سه‌بعدی (3D Bevel)</string>
+    <string name="folder_style_neon_border">حاشیه نئونی رنگی</string>
+    <string name="folder_style_classic">کلاسیک پیش‌فرض</string>
+    <string name="folder_corner_radius_label">شعاع انحنای گوشه پوشه باز</string>
+    <string name="popup_surface_style_label">استایل منوی پاپ‌آپ (لمس طولانی)</string>
+    <string name="popup_style_glass_card">منوی شیشه‌ای مدرن</string>
+    <string name="popup_style_elevated_3d">منوی برجسته سه‌بعدی</string>
+    <string name="popup_style_neon_border">حاشیه نئونی درخشان</string>
+    <string name="popup_style_classic">کلاسیک پیش‌فرض</string>
+    <string name="popup_corner_radius_label">شعاع انحنای گوشه منوی پاپ‌آپ</string>
+    <string name="popup_bg_opacity_label">شفافیت پس‌زمینه منوی پاپ‌آپ</string>
+    <string name="app_lock_pin_wrong">رمز ۴ رقمی نادرست است. دوباره تلاش کنید.</string>
+    <string name="app_lock_use_biometric_btn">بازگشایی با اثر انگشت / قفل سیستم</string>
+    <string name="app_lock_screen_style_label">استایل صفحه قفل برنامه‌ها</string>
+    <string name="app_lock_style_glass_modern">شیشه‌ای مدرن (Frosted Glass)</string>
+    <string name="app_lock_style_neon_cyber">نئونی تیره (Neon Cyber)</string>
+    <string name="app_lock_style_minimal_clean">مینیمال متریال (Minimal Clean)</string>
+    <string name="app_lock_style_system_direct">مستقیم با صفحه قفل سیستم</string>
+    <string name="app_lock_auto_biometric_label">فراخوانی خودکار اثر انگشت</string>
+    <string name="app_lock_auto_biometric_summary">نمایش خودکار پنجره اثر انگشت سیستم به محض باز کردن برنامه قفل‌شده</string>
+    <string name="app_lock_custom_pin_label">رمز ۴ رقمی اختصاصی سولینا</string>
+    <string name="app_lock_custom_pin_active">فعال (پین ۴ رقمی تنظیم شده است)</string>
+    <string name="app_lock_custom_pin_not_set">تنظیم نشده (استفاده از قفل سیستم)</string>
+    <string name="app_lock_custom_pin_dialog_desc">یک رمز ۴ رقمی برای بازگشایی مستقیم برنامه‌ها روی صفحه‌کلید شیشه‌ای سولینا وارد کنید.</string>
+    <string name="app_lock_pin_input_hint">رمز ۴ رقمی</string>
+    <string name="app_lock_clear_pin_btn">حذف رمز</string>
+    <string name="app_lock_pin_saved_toast">رمز ۴ رقمی اختصاصی ذخیره شد</string>
+    <string name="app_lock_pin_cleared_toast">رمز اختصاصی حذف شد</string>
+    <string name="app_lock_search_hint">جستجوی برنامه برای قفل کردن…</string>
+    <string name="app_lock_filter_locked">قفل‌شده‌ها</string>
+    <string name="developer_credit_subtitle">توسعه‌دهنده: Solina • t.me/N2Solina</string>
+    <string name="solina_telegram_channel">تلگرام توسعه‌دهنده (t.me/N2Solina)</string>
 </resources>

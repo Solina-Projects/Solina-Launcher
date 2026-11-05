@@ -227,7 +227,7 @@ android {
 
         debug {
             applicationIdSuffix ".debug"
-            resValue("string", "derived_app_name", "Solina Launcher (Debug)")
+            resValue("string", "derived_app_name", "Solina Launcher")
 
             manifestPlaceholders.quickstepMinSdk = "0"
             manifestPlaceholders.quickstepMaxSdk = "100000"

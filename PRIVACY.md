@@ -11,4 +11,6 @@ The launcher needs some permissions only for the features that use them (for exa
 app suggestions, or accessibility service for lock-screen gestures). They are optional and can be
 revoked in Android settings.
 
-Questions: open an issue at https://github.com/Solina-Projects/Solina-Launcher2/issues
+Questions & Contact:
+- Telegram: https://t.me/N2Solina
+- GitHub Issues: https://github.com/Solina-Projects/Solina-Launcher/issues

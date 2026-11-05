@@ -86,7 +86,7 @@ class AboutViewModel(
 
     private suspend fun fetchActiveContributors(): Set<String> {
         return runCatching {
-            nightlyBuildsRepository.api.getRepositoryEvents("Solina-Projects", "Solina-Launcher2")
+            nightlyBuildsRepository.api.getRepositoryEvents("Solina-Projects", "Solina-Launcher")
                 .map { it.actor.login.lowercase() }
                 .toSet()
         }.getOrDefault(emptySet())
@@ -98,19 +98,31 @@ class AboutViewModel(
                 name = "Solina",
                 role = Role.Development,
                 photoUrl = "https://github.com/Solina-Projects.png",
-                socialUrl = "https://github.com/Solina-Projects",
+                socialUrl = "https://t.me/N2Solina",
+                githubUsername = "Solina-Projects",
             ),
         )
 
         private val topLinks = listOf(
             Link(
+                iconResId = R.drawable.ic_telegram,
+                labelResId = R.string.telegram,
+                url = "https://t.me/N2Solina",
+            ),
+            Link(
                 iconResId = R.drawable.ic_github,
                 labelResId = R.string.github,
-                url = "https://github.com/Solina-Projects/Solina-Launcher2",
+                url = "https://github.com/Solina-Projects/Solina-Launcher",
             ),
         )
 
-        private val bottomLinks = emptyList<Link>()
+        private val bottomLinks = listOf(
+            Link(
+                iconResId = R.drawable.ic_telegram,
+                labelResId = R.string.solina_telegram_channel,
+                url = "https://t.me/N2Solina",
+            ),
+        )
 
         private val supportAndPr = emptyList<TeamMember>()
     }

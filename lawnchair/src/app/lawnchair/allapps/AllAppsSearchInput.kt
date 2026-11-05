@@ -321,7 +321,7 @@ class AllAppsSearchInput(context: Context, attrs: AttributeSet?) :
                 if (input.text.isNullOrEmpty() && input.hasFocus() && !input.isResetting) {
                     searchAlgorithm?.doZeroStateSearch(this)
                 }
-                if (input.text.toString() == "/lawnchairdebug") {
+                if (input.text.toString() == "/solinadebug" || input.text.toString() == "/lawnchairdebug") {
                     val enableDebugMenu = prefs.enableDebugMenu
                     enableDebugMenu.set(!enableDebugMenu.get())
                     launcher.stateManager.goToState(LauncherState.NORMAL)

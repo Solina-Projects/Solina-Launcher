@@ -366,7 +366,7 @@ public class QuickstepTransitionManager implements OnDeviceProfileChangeListener
                 new RemoteAnimationAdapter(runner, duration, statusBarTransitionDelay),
                 LawnchairQuickstepCompat.getRemoteTransitionCompat().getRemoteTransition(runner.toRemoteTransition(),
                         mLauncher.getIApplicationThread(), "QuickstepLaunch"),
-                "Lawnchair");
+                "SolinaLauncher");
         IRemoteCallback endCallback = completeRunnableListCallback(onEndCallback, mLauncher);
         options.setOnAnimationAbortListener(endCallback);
         options.setOnAnimationFinishedListener(endCallback);

@@ -222,8 +222,8 @@ object StartPageWebSearchProvider : WebSearchProvider {
         @GET("suggestions")
         suspend fun getSuggestions(
             @Query("q") query: String,
-            @Query("segment") segment: String = "startpage.lawnchair", // Identify our app
-            @Query("partner") partner: String = "lawnchair",
+            @Query("segment") segment: String = "startpage.solina", // Identify our app
+            @Query("partner") partner: String = "solina",
             @Query("format") format: String = "opensearch",
         ): Response<String>
     }
@@ -303,8 +303,8 @@ object StartPageEUWebSearchProvider : WebSearchProvider {
         @GET("suggestions")
         suspend fun getSuggestions(
             @Query("q") query: String,
-            @Query("segment") segment: String = "startpage.lawnchair",
-            @Query("partner") partner: String = "lawnchair",
+            @Query("segment") segment: String = "startpage.solina",
+            @Query("partner") partner: String = "solina",
             @Query("format") format: String = "opensearch",
         ): Response<String>
     }

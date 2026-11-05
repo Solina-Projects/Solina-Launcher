@@ -10,6 +10,6 @@ data object Startpage : QsbSearchProvider(
     themingMethod = ThemingMethod.TINT,
     packageName = "com.startpage.app",
     className = "org.chromium.chrome.browser.searchwidget.SearchActivity",
-    website = "https://startpage.com/?segment=startpage.lawnchair",
+    website = "https://startpage.com/?segment=startpage.solina",
     sponsored = false,
 )

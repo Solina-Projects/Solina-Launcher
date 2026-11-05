@@ -12,7 +12,7 @@ data object StartpageEU : QsbSearchProvider(
     icon = R.drawable.ic_startpage,
     themingMethod = ThemingMethod.TINT,
     packageName = "",
-    website = "https://eu.startpage.com/?segment=startpage.lawnchair",
+    website = "https://eu.startpage.com/?segment=startpage.solina",
     type = QsbSearchProviderType.LOCAL,
     sponsored = false,
 ) {
