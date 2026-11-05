@@ -58,7 +58,6 @@ import app.lawnchair.ui.preferences.components.layout.PreferenceGroupItem
 import app.lawnchair.ui.preferences.components.layout.PreferenceLayoutLazyColumn
 import app.lawnchair.ui.preferences.components.layout.preferenceGroupItems
 import app.lawnchair.ui.preferences.navigation.AboutLicenses
-import com.android.launcher3.BuildConfig
 import com.android.launcher3.R
 import kotlinx.coroutines.launch
 
@@ -159,7 +158,7 @@ fun About(
                     text = if (prefs.hideVersionInfo.get()) {
                         prefs.pseudonymVersion.get() + " (pseudonym)"
                     } else {
-                        BuildConfig.VERSION_DISPLAY_NAME
+                        "1.0.0Dev"
                     },
                     style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
