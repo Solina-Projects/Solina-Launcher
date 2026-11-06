@@ -12,10 +12,23 @@ import com.android.launcher3.util.Themes
 
 class CardPagerAdapter(context: Context) : PagerAdapter() {
 
-    private val currentTextColor = Themes.getAttrColor(context, R.attr.workspaceTextColor)
+    private val defaultTextColor = Themes.getAttrColor(context, R.attr.workspaceTextColor)
+    private var currentTextColor = defaultTextColor
     private val targets = mutableListOf<SmartspaceTarget>()
     private var smartspaceTargets = targets
     private val holders = SparseArray<ViewHolder>()
+
+    /**
+     * Overrides the text color of all cards. Passing `null` restores the theme's default color.
+     */
+    fun setTextColorOverride(color: Int?) {
+        val newColor = color ?: defaultTextColor
+        if (newColor == currentTextColor) return
+        currentTextColor = newColor
+        for (i in 0 until holders.size()) {
+            holders.valueAt(i).card.setPrimaryTextColor(newColor)
+        }
+    }
 
     fun setTargets(newTargets: List<SmartspaceTarget>) {
         targets.clear()

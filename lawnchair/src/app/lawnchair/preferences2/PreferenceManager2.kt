@@ -1027,6 +1027,13 @@ class PreferenceManager2 @Inject constructor(
         defaultValue = false,
     )
 
+    val smartspaceTextColor = preference(
+        key = stringPreferencesKey(name = "smartspace_text_color"),
+        parse = ColorOption::fromString,
+        save = ColorOption::toString,
+        defaultValue = ColorOption.Default,
+    )
+
     val smartspacerMaxCount = preference(
         key = intPreferencesKey(name = "smartspace_max_count"),
         defaultValue = 5,
