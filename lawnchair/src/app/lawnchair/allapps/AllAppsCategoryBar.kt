@@ -22,6 +22,7 @@ import app.lawnchair.preferences2.PreferenceManager2
 import app.lawnchair.preferences2.firstCached
 import app.lawnchair.theme.color.tokens.AllAppsTabColors
 import app.lawnchair.theme.color.tokens.ColorTokens
+import app.lawnchair.util.OutlineStyleRenderer
 import com.android.launcher3.R
 import java.util.Locale
 
@@ -460,66 +461,164 @@ object AllAppsCardStyler {
     @JvmStatic
     fun styleFolderContainer(container: ViewGroup, context: Context) {
         val prefs = PreferenceManager.getInstance(context)
+        val prefs2 = PreferenceManager2.getInstance(context)
         val style = prefs.drawerCaddyCardStyle.get()
         val density = context.resources.displayMetrics.density
-        if (style == "none") {
-            container.background = null
-            container.setPadding(0, 0, 0, 0)
-            return
-        }
         val radiusPx = prefs.drawerCaddyCardRadius.get().coerceIn(8, 32) * density
         val surfaceColor = ColorTokens.SurfaceContainerHighest.resolveColor(context)
         val accentColor = ColorTokens.AllAppsTabBackgroundSelected.resolveColor(context)
         val inset = (4f * density).toInt()
-        val rawDrawable = buildPodDrawable(
-            style = style,
-            surfaceColor = surfaceColor,
-            accentColor = accentColor,
-            radiusPx = radiusPx,
-            density = density,
-        )
-        if (rawDrawable != null) {
-            val insetLayer = LayerDrawable(arrayOf(rawDrawable)).apply {
+        val rawDrawable = if (style == "none") {
+            null
+        } else {
+            buildPodDrawable(
+                style = style,
+                surfaceColor = surfaceColor,
+                accentColor = accentColor,
+                radiusPx = radiusPx,
+                density = density,
+            )
+        }
+        val baseDrawable = if (rawDrawable != null) {
+            LayerDrawable(arrayOf(rawDrawable)).apply {
                 setLayerInset(0, inset, inset / 2, inset, inset / 2)
             }
-            container.background = insetLayer
         } else {
-            container.background = null
+            null
         }
+        container.background = wrapWithAllAppsCellOutlineIfEnabled(
+            baseDrawable = baseDrawable,
+            context = context,
+            prefs2 = prefs2,
+            density = density,
+            defaultAccentColor = accentColor,
+            insetHorizontalPx = inset,
+            insetVerticalPx = inset / 2,
+        )
     }
 
     @JvmStatic
     fun styleAppIconView(iconView: View, context: Context) {
         val prefs = PreferenceManager.getInstance(context)
-        if (!prefs.drawerApplyCardToApps.get()) {
-            iconView.background = null
-            return
-        }
+        val prefs2 = PreferenceManager2.getInstance(context)
+        val density = context.resources.displayMetrics.density
+        val accentColor = ColorTokens.AllAppsTabBackgroundSelected.resolveColor(context)
+        val inset = (4f * density).toInt()
         val style = prefs.drawerCaddyCardStyle.get()
-        if (style == "none") {
-            iconView.background = null
+        val applyCard = prefs.drawerApplyCardToApps.get() && style != "none"
+        val baseDrawable = if (applyCard) {
+            val radiusPx = prefs.drawerCaddyCardRadius.get().coerceIn(8, 32) * density
+            val surfaceColor = ColorTokens.SurfaceContainerHighest.resolveColor(context)
+            val rawDrawable = buildPodDrawable(
+                style = style,
+                surfaceColor = surfaceColor,
+                accentColor = accentColor,
+                radiusPx = radiusPx,
+                density = density,
+                alphaFactor = 0.65f,
+            )
+            if (rawDrawable != null) {
+                LayerDrawable(arrayOf(rawDrawable)).apply {
+                    setLayerInset(0, inset, inset / 2, inset, inset / 2)
+                }
+            } else {
+                null
+            }
+        } else {
+            null
+        }
+        iconView.background = wrapWithAllAppsCellOutlineIfEnabled(
+            baseDrawable = baseDrawable,
+            context = context,
+            prefs2 = prefs2,
+            density = density,
+            defaultAccentColor = accentColor,
+            insetHorizontalPx = inset,
+            insetVerticalPx = inset / 2,
+        )
+    }
+
+    private fun wrapWithAllAppsCellOutlineIfEnabled(
+        baseDrawable: android.graphics.drawable.Drawable?,
+        context: Context,
+        prefs2: PreferenceManager2,
+        density: Float,
+        defaultAccentColor: Int,
+        insetHorizontalPx: Int,
+        insetVerticalPx: Int,
+    ): android.graphics.drawable.Drawable? {
+        val outlineEnabled = prefs2.drawerAppsOutlineEnabled.firstCached()
+        val target = prefs2.drawerAppsOutlineTarget.firstCached()
+        if (!outlineEnabled || (target != "cells" && target != "both")) {
+            return baseDrawable
+        }
+        val outlineStyle = prefs2.drawerAppsOutlineStyle.firstCached()
+        val strokeWidthPx = (prefs2.drawerAppsOutlineWidthDp.firstCached() * density).coerceAtLeast(1f)
+        val cornerRadiusPx = (prefs2.drawerAppsOutlineRadiusDp.firstCached() * density).coerceAtLeast(4f)
+        val colorOpt = prefs2.drawerAppsOutlineColor.firstCached()
+        val primaryColor = if (colorOpt.isSupported) {
+            colorOpt.colorPreferenceEntry.lightColor.invoke(context)
+        } else {
+            defaultAccentColor
+        }
+        val secondaryColor = ColorTokens.SurfaceBright.resolveColor(context)
+        return OutlineStyleRenderer.createOutlineDrawable(
+            baseDrawable = baseDrawable,
+            cornerRadiusPx = cornerRadiusPx,
+            style = outlineStyle,
+            strokeWidthPx = strokeWidthPx,
+            primaryColor = primaryColor,
+            secondaryColor = secondaryColor,
+            alpha = 240,
+            insetHorizontalPx = insetHorizontalPx,
+            insetVerticalPx = insetVerticalPx,
+        )
+    }
+
+    @JvmStatic
+    fun drawAllAppsContainerOutline(
+        canvas: android.graphics.Canvas,
+        view: View,
+        context: Context,
+    ) {
+        val prefs2 = PreferenceManager2.getInstance(context)
+        val outlineEnabled = prefs2.drawerAppsOutlineEnabled.firstCached()
+        val target = prefs2.drawerAppsOutlineTarget.firstCached()
+        if (!outlineEnabled || (target != "container" && target != "both")) {
             return
         }
         val density = context.resources.displayMetrics.density
-        val radiusPx = prefs.drawerCaddyCardRadius.get().coerceIn(8, 32) * density
-        val surfaceColor = ColorTokens.SurfaceContainerHighest.resolveColor(context)
-        val accentColor = ColorTokens.AllAppsTabBackgroundSelected.resolveColor(context)
-        val inset = (4f * density).toInt()
-        val rawDrawable = buildPodDrawable(
-            style = style,
-            surfaceColor = surfaceColor,
-            accentColor = accentColor,
-            radiusPx = radiusPx,
-            density = density,
-            alphaFactor = 0.65f,
-        )
-        if (rawDrawable != null) {
-            iconView.background = LayerDrawable(arrayOf(rawDrawable)).apply {
-                setLayerInset(0, inset, inset / 2, inset, inset / 2)
-            }
+        val outlineStyle = prefs2.drawerAppsOutlineStyle.firstCached()
+        val strokeWidthPx = (prefs2.drawerAppsOutlineWidthDp.firstCached() * density).coerceAtLeast(1f)
+        val cornerRadiusPx = (prefs2.drawerAppsOutlineRadiusDp.firstCached() * density).coerceAtLeast(8f)
+        val colorOpt = prefs2.drawerAppsOutlineColor.firstCached()
+        val primaryColor = if (colorOpt.isSupported) {
+            colorOpt.colorPreferenceEntry.lightColor.invoke(context)
         } else {
-            iconView.background = null
+            ColorTokens.AllAppsTabBackgroundSelected.resolveColor(context)
         }
+        val secondaryColor = ColorTokens.SurfaceBright.resolveColor(context)
+        val scrollY = view.scrollY
+        val sideInset = (8f * density) + strokeWidthPx
+        val topInset = scrollY + view.paddingTop.toFloat() + strokeWidthPx
+        val bottomInset = scrollY + view.height.toFloat() - maxOf(view.paddingBottom.toFloat(), 8f * density) - strokeWidthPx
+        if (bottomInset <= topInset + cornerRadiusPx) return
+        val rect = android.graphics.RectF(
+            sideInset,
+            topInset,
+            view.width.toFloat() - sideInset,
+            bottomInset,
+        )
+        OutlineStyleRenderer.drawOutline(
+            canvas = canvas,
+            bounds = rect,
+            cornerRadiusPx = cornerRadiusPx,
+            style = outlineStyle,
+            strokeWidthPx = strokeWidthPx,
+            primaryColor = primaryColor,
+            secondaryColor = secondaryColor,
+            alpha = 245,
+        )
     }
 
     private fun buildPodDrawable(

@@ -210,6 +210,93 @@ class PreferenceManager2 @Inject constructor(
         onSet = { it?.let(folderShape::setBlocking) },
     )
 
+    val suggestionIconShape = preference(
+        key = stringPreferencesKey(name = "suggestion_icon_shape"),
+        defaultValue = IconShape.fromString(
+            value = context.getString(R.string.config_default_icon_shape),
+            context = context,
+        ) ?: IconShape.Circle,
+        parse = {
+            IconShape.fromString(value = it, context = context)
+                ?: IconShapeManager.getSystemIconShape(context)
+        },
+        save = { it.toString() },
+        onSet = {
+            app.lawnchair.icons.shape.SuggestionIconShapeHelper.clearCache()
+            reloadHelper.recreate()
+        },
+    )
+
+    val suggestionOutlineEnabled = preference(
+        key = booleanPreferencesKey(name = "suggestion_outline_enabled"),
+        defaultValue = false,
+        onSet = { reloadHelper.recreate() },
+    )
+
+    val suggestionOutlineStyle = preference(
+        key = stringPreferencesKey(name = "suggestion_outline_style"),
+        defaultValue = "solid",
+        onSet = { reloadHelper.recreate() },
+    )
+
+    val suggestionOutlineWidthDp = preference(
+        key = floatPreferencesKey(name = "suggestion_outline_width_dp"),
+        defaultValue = 1.5f,
+        onSet = { reloadHelper.recreate() },
+    )
+
+    val suggestionOutlineColor = preference(
+        key = stringPreferencesKey(name = "suggestion_outline_color"),
+        parse = ColorOption::fromString,
+        save = ColorOption::toString,
+        defaultValue = ColorOption.Default,
+        onSet = { reloadHelper.recreate() },
+    )
+
+    val suggestionAppCellOutlineEnabled = preference(
+        key = booleanPreferencesKey(name = "suggestion_app_cell_outline_enabled"),
+        defaultValue = false,
+        onSet = { reloadHelper.recreate() },
+    )
+
+    val drawerAppsOutlineEnabled = preference(
+        key = booleanPreferencesKey(name = "drawer_apps_outline_enabled"),
+        defaultValue = false,
+        onSet = { reloadHelper.recreate() },
+    )
+
+    val drawerAppsOutlineTarget = preference(
+        key = stringPreferencesKey(name = "drawer_apps_outline_target"),
+        defaultValue = "both",
+        onSet = { reloadHelper.recreate() },
+    )
+
+    val drawerAppsOutlineStyle = preference(
+        key = stringPreferencesKey(name = "drawer_apps_outline_style"),
+        defaultValue = "solid",
+        onSet = { reloadHelper.recreate() },
+    )
+
+    val drawerAppsOutlineWidthDp = preference(
+        key = floatPreferencesKey(name = "drawer_apps_outline_width_dp"),
+        defaultValue = 1.5f,
+        onSet = { reloadHelper.recreate() },
+    )
+
+    val drawerAppsOutlineRadiusDp = preference(
+        key = floatPreferencesKey(name = "drawer_apps_outline_radius_dp"),
+        defaultValue = 18f,
+        onSet = { reloadHelper.recreate() },
+    )
+
+    val drawerAppsOutlineColor = preference(
+        key = stringPreferencesKey(name = "drawer_apps_outline_color"),
+        parse = ColorOption::fromString,
+        save = ColorOption::toString,
+        defaultValue = ColorOption.Default,
+        onSet = { reloadHelper.recreate() },
+    )
+
     val alwaysReloadIcons = preference(
         key = booleanPreferencesKey(name = "always_reload_icons"),
         defaultValue = context.resources.getBoolean(R.bool.config_default_always_reload_icons),

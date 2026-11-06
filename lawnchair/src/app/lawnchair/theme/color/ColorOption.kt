@@ -60,6 +60,19 @@ sealed class ColorOption {
         override fun toString() = "custom|#${String.format("%08x", color)}"
     }
 
+    object GoogleRainbow : ColorOption() {
+        override val isSupported = true
+
+        override val colorPreferenceEntry = ColorPreferenceEntry<ColorOption>(
+            this,
+            { stringResource(id = R.string.color_google_rainbow) },
+            { GoogleRainbowTheme.GOOGLE_RAINBOW_SENTINEL },
+            { GoogleRainbowTheme.GOOGLE_RAINBOW_SENTINEL },
+        )
+
+        override fun toString() = "google_rainbow"
+    }
+
     object Default : ColorOption() {
         override val isSupported = false
 
@@ -78,6 +91,7 @@ sealed class ColorOption {
         fun fromString(stringValue: String) = when (stringValue) {
             "system_accent" -> SystemAccent
             "wallpaper_primary" -> WallpaperPrimary
+            "google_rainbow" -> GoogleRainbow
             "default" -> Default
             else -> instantiateCustomColor(stringValue)
         }

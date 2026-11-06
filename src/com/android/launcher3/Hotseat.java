@@ -67,6 +67,7 @@ import app.lawnchair.hotseat.LawnchairHotseat;
 import app.lawnchair.preferences.PreferenceManager;
 import app.lawnchair.preferences2.PreferenceCacheExtensionsKt;
 import app.lawnchair.preferences2.PreferenceManager2;
+import app.lawnchair.theme.color.GoogleRainbowTheme;
 
 /**
  * View class that represents the bottom dock of the home screen.
@@ -239,7 +240,10 @@ public class Hotseat extends FrameLayout implements Insettable {
         var bgColor = PreferenceCacheExtensionsKt.firstCached(preferenceManager2.getHotseatBackgroundColor());
         var transparency = preferenceManager.getHotseatBGAlpha().get();
         var alphaValue = (transparency * 255) / 100;
-        var baseColor = bgColor.getColorPreferenceEntry().getLightColor().invoke(getContext());
+        boolean isRainbow = GoogleRainbowTheme.isGoogleRainbowOption(bgColor);
+        var baseColor = isRainbow
+                ? GoogleRainbowTheme.GOOGLE_BLUE
+                : bgColor.getColorPreferenceEntry().getLightColor().invoke(getContext());
         var finalColor = Color.argb(alphaValue, Color.red(baseColor), Color.green(baseColor), Color.blue(baseColor));
         int insetHorizontalLeft = preferenceManager.getHotseatBGHorizontalInsetLeft().get();
         int insetHorizontalRight = preferenceManager.getHotseatBGHorizontalInsetRight().get();
@@ -259,6 +263,19 @@ public class Hotseat extends FrameLayout implements Insettable {
                     cornerRadius,
                     baseColor,
                     Math.max(0.15f, transparency / 100f));
+        } else if (isRainbow) {
+            GradientDrawable background = GoogleRainbowTheme.createRainbowGradientDrawable(cornerRadius, alphaValue);
+            boolean glassBorder = preferenceManager.getHotseatBGGlassBorder().get();
+            int borderWidthDp = preferenceManager.getHotseatBGGlassBorderWidth().get();
+            if (glassBorder && borderWidthDp > 0) {
+                int strokeWidthPx = Math.max(1, Math.round(TypedValue.applyDimension(
+                        TypedValue.COMPLEX_UNIT_DIP,
+                        borderWidthDp,
+                        getResources().getDisplayMetrics())));
+                int borderAlpha = Math.max(70, Math.min(235, Math.round(alphaValue * 0.85f)));
+                background.setStroke(strokeWidthPx, Color.argb(borderAlpha, 255, 255, 255));
+            }
+            targetDrawable = background;
         } else {
             boolean glossySheen = preferenceManager.getHotseatBGGlossySheen().get();
             boolean glassBorder = preferenceManager.getHotseatBGGlassBorder().get();

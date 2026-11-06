@@ -252,6 +252,63 @@ fun AppDrawerPreferences(
                 adapter = prefs2.appDrawerSearchBarBackground.getAdapter(),
             )
         }
+
+        val drawerOutlineEnabledAdapter = prefs2.drawerAppsOutlineEnabled.getAdapter()
+        val drawerOutlineTargetEntries = remember {
+            listOf(
+                ListPreferenceEntry("both") { stringResource(R.string.drawer_outline_target_both) },
+                ListPreferenceEntry("cells") { stringResource(R.string.drawer_outline_target_cells) },
+                ListPreferenceEntry("container") { stringResource(R.string.drawer_outline_target_container) },
+            )
+        }
+        val drawerOutlineStyleEntries = remember {
+            listOf(
+                ListPreferenceEntry("solid") { stringResource(R.string.outline_style_solid) },
+                ListPreferenceEntry("double_line") { stringResource(R.string.outline_style_double_line) },
+                ListPreferenceEntry("dashed") { stringResource(R.string.outline_style_dashed) },
+                ListPreferenceEntry("dotted") { stringResource(R.string.outline_style_dotted) },
+                ListPreferenceEntry("google_rainbow") { stringResource(R.string.outline_style_google_rainbow) },
+                ListPreferenceEntry("neon_glow") { stringResource(R.string.outline_style_neon_glow) },
+                ListPreferenceEntry("diamond_corners") { stringResource(R.string.outline_style_diamond_corners) },
+                ListPreferenceEntry("gradient_fade") { stringResource(R.string.outline_style_gradient_fade) },
+            )
+        }
+        PreferenceGroup(heading = stringResource(id = R.string.drawer_apps_outline_heading)) {
+            SwitchPreference(
+                adapter = drawerOutlineEnabledAdapter,
+                label = stringResource(id = R.string.drawer_apps_outline_enabled_label),
+                description = stringResource(id = R.string.drawer_apps_outline_enabled_summary),
+            )
+            ExpandAndShrink(visible = drawerOutlineEnabledAdapter.state.value) {
+                Column {
+                    ListPreference(
+                        adapter = prefs2.drawerAppsOutlineTarget.getAdapter(),
+                        entries = drawerOutlineTargetEntries,
+                        label = stringResource(id = R.string.drawer_apps_outline_target_label),
+                    )
+                    ListPreference(
+                        adapter = prefs2.drawerAppsOutlineStyle.getAdapter(),
+                        entries = drawerOutlineStyleEntries,
+                        label = stringResource(id = R.string.outline_style_label),
+                    )
+                    SliderPreference(
+                        adapter = prefs2.drawerAppsOutlineWidthDp.getAdapter(),
+                        label = stringResource(id = R.string.outline_width_label),
+                        valueRange = 1f..5f,
+                        step = 0.5f,
+                        showUnit = "dp",
+                    )
+                    SliderPreference(
+                        adapter = prefs2.drawerAppsOutlineRadiusDp.getAdapter(),
+                        label = stringResource(id = R.string.drawer_apps_outline_radius_label),
+                        valueRange = 6f..32f,
+                        step = 2f,
+                        showUnit = "dp",
+                    )
+                    ColorPreference(preference = prefs2.drawerAppsOutlineColor)
+                }
+            }
+        }
         PreferenceGroup(heading = stringResource(id = R.string.grid)) {
             val drawerColumnsAdapter = prefs2.drawerColumns.getAdapter()
             val drawerColumnsUnfoldedAdapter = prefs2.drawerColumnsUnfolded.getAdapter()

@@ -147,6 +147,13 @@ public class AllAppsRecyclerView extends FastScrollRecyclerView {
     }
 
     @Override
+    protected void dispatchDraw(Canvas canvas) {
+        super.dispatchDraw(canvas);
+        app.lawnchair.allapps.AllAppsCardStyler.drawAllAppsContainerOutline(
+                canvas, this, getContext());
+    }
+
+    @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         updatePoolSize();
     }

@@ -208,6 +208,7 @@ public class FolderIcon extends FrameLayout implements FloatingIconViewCompanion
         icon.setClipToPadding(false);
         icon.mFolderName = icon.findViewById(R.id.folder_icon_name);
         icon.mFolderName.setText(folderInfo.title);
+        icon.mFolderName.applyLabel(folderInfo);
         icon.mFolderName.setCompoundDrawablePadding(0);
         FrameLayout.LayoutParams lp = (FrameLayout.LayoutParams) icon.mFolderName.getLayoutParams();
         if (folderInfo.container == ItemInfo.NO_ID) {
@@ -638,13 +639,26 @@ public class FolderIcon extends FrameLayout implements FloatingIconViewCompanion
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         boolean shouldCenterIcon = mActivity.getDeviceProfile().iconCenterVertically;
+        int iconSize = isInAppDrawer()
+                ? mActivity.getDeviceProfile().getAllAppsProfile().getIconSizePx()
+                : mActivity.getDeviceProfile().iconSizePx;
+        int cellHeight = MeasureSpec.getSize(heightMeasureSpec);
+        boolean hasVisibleLabel = mFolderName != null
+                && mFolderName.getVisibility() == VISIBLE
+                && mFolderName.getText() != null
+                && mFolderName.getText().length() > 0;
         if (shouldCenterIcon) {
-            int iconSize = mActivity.getDeviceProfile().iconSizePx;
             Paint.FontMetrics fm = mFolderName.getPaint().getFontMetrics();
-            int cellHeightPx = iconSize + mFolderName.getCompoundDrawablePadding()
-                    + (int) Math.ceil(fm.bottom - fm.top);
-            setPadding(getPaddingLeft(), (MeasureSpec.getSize(heightMeasureSpec)
-                    - cellHeightPx) / 2, getPaddingRight(), getPaddingBottom());
+            int contentHeightPx = iconSize + (hasVisibleLabel
+                    ? mFolderName.getCompoundDrawablePadding() + (int) Math.ceil(fm.bottom - fm.top)
+                    : 0);
+            setPadding(getPaddingLeft(), Math.max(0, (cellHeight - contentHeightPx) / 2),
+                    getPaddingRight(), getPaddingBottom());
+        } else if (!hasVisibleLabel && cellHeight > iconSize) {
+            // When folder label is empty or hidden, shift the folder preview down slightly so it
+            // sits balanced in its cell instead of leaving a large gap at the bottom above the dock.
+            int balancedTop = Math.max(0, (cellHeight - iconSize) / 2);
+            setPadding(getPaddingLeft(), balancedTop, getPaddingRight(), getPaddingBottom());
         }
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
     }
@@ -698,7 +712,11 @@ public class FolderIcon extends FrameLayout implements FloatingIconViewCompanion
 
     public void onTitleChanged(CharSequence title) {
         mFolderName.setText(title);
+        if (mInfo != null) {
+            mFolderName.applyLabel(mInfo);
+        }
         setContentDescription(getAccessiblityTitle(title));
+        requestLayout();
     }
 
     @Override

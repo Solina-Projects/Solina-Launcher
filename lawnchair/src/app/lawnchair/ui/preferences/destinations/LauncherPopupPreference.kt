@@ -128,7 +128,7 @@ fun LauncherPopupPreference(
                 label = stringResource(R.string.popup_bg_opacity_label),
                 adapter = popupOpacityAdapter,
                 step = 2,
-                valueRange = 50..100,
+                valueRange = 20..100,
                 showUnit = "%",
             )
         }
@@ -199,7 +199,7 @@ private fun LauncherPopupPreview(
                 "neon_border" -> BorderStroke(1.5.dp, MaterialTheme.colorScheme.primary)
                 else -> null
             }
-            val itemAlpha = (opacityPct.coerceIn(50, 100) / 100f)
+            val itemAlpha = (opacityPct.coerceIn(20, 100) / 100f)
 
             Column(
                 modifier = Modifier.padding(horizontal = 32.dp, vertical = 16.dp),

@@ -313,14 +313,12 @@ public abstract class ArrowPopup<T extends Context & ActivityContext>
         Drawable bg = view.getBackground();
         if (bg instanceof GradientDrawable) {
             GradientDrawable gd = (GradientDrawable) bg.mutate();
-            int oldColor = ((GradientDrawable) bg).getColor() != null
-                    ? ((GradientDrawable) bg).getColor().getDefaultColor() : color;
-            animatorSetOut.play(ObjectAnimator.ofArgb(gd, "color", oldColor, color));
             FolderPopupStyleHelper.applyPopupItemDrawable(getContext(), gd, color);
         } else if (bg instanceof ColorDrawable) {
             ColorDrawable cd = (ColorDrawable) bg.mutate();
+            int styledColor = FolderPopupStyleHelper.applyPopupAlphaToColor(getContext(), color);
             int oldColor = ((ColorDrawable) bg).getColor();
-            animatorSetOut.play(ObjectAnimator.ofArgb(cd, "color", oldColor, color));
+            animatorSetOut.play(ObjectAnimator.ofArgb(cd, "color", oldColor, styledColor));
         }
     }
 
@@ -375,12 +373,14 @@ public abstract class ArrowPopup<T extends Context & ActivityContext>
 
     protected void updateArrowColor() {
         if (!Gravity.isVertical(mGravity)) {
+            int arrowColorWithAlpha = FolderPopupStyleHelper.applyPopupAlphaToColor(
+                    getContext(), mArrowColor);
             mArrow.setBackground(new RoundedArrowDrawable(
                     mArrowWidth, mArrowHeight, mArrowPointRadius,
                     mOutlineRadius, getMeasuredWidth(), getMeasuredHeight(),
                     mArrowOffsetHorizontal, -mArrowOffsetVertical,
                     !mIsAboveIcon, mIsLeftAligned,
-                    mArrowColor));
+                    arrowColorWithAlpha));
             setElevation(mElevation);
             mArrow.setElevation(mElevation);
         }

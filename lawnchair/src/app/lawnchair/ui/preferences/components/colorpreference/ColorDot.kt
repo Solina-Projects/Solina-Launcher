@@ -11,9 +11,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import app.lawnchair.theme.color.ColorOption
+import app.lawnchair.theme.color.GoogleRainbowTheme
 import app.lawnchair.ui.theme.isSelectedThemeDark
 
 @Composable
@@ -28,7 +31,9 @@ fun <T> ColorDot(
 
     val color = if (isSelectedThemeDark) colorDark else colorLight
 
-    if (colorLight != 0) {
+    if (entry.value == ColorOption.GoogleRainbow || GoogleRainbowTheme.isGoogleRainbowColor(color)) {
+        GoogleRainbowColorDot(modifier = modifier)
+    } else if (colorLight != 0) {
         ColorDot(
             color = Color(color),
             modifier = modifier,
@@ -36,6 +41,27 @@ fun <T> ColorDot(
     } else {
         DefaultColorDot(modifier = modifier)
     }
+}
+
+@Composable
+fun GoogleRainbowColorDot(
+    modifier: Modifier = Modifier,
+) {
+    val rainbowBrush = Brush.sweepGradient(
+        listOf(
+            Color(GoogleRainbowTheme.GOOGLE_BLUE),
+            Color(GoogleRainbowTheme.GOOGLE_RED),
+            Color(GoogleRainbowTheme.GOOGLE_YELLOW),
+            Color(GoogleRainbowTheme.GOOGLE_GREEN),
+            Color(GoogleRainbowTheme.GOOGLE_BLUE),
+        ),
+    )
+    Box(
+        modifier = modifier
+            .size(30.dp)
+            .clip(CircleShape)
+            .background(brush = rainbowBrush),
+    )
 }
 
 @Composable

@@ -699,8 +699,11 @@ public class DeviceProfile {
         int cellLayoutPadding =
                 mDeviceProperties.isTwoPanels() ? cellLayoutBorderSpacePx.x / 2 : res.getDimensionPixelSize(
                         R.dimen.cell_layout_padding);
+        int bottomCellPadding = mDeviceProperties.isTwoPanels()
+                ? cellLayoutPadding
+                : pxFromDp(2, mMetrics);
         cellLayoutPaddingPx = new Rect(cellLayoutPadding, cellLayoutPadding, cellLayoutPadding,
-                cellLayoutPadding);
+                bottomCellPadding);
         updateWorkspacePadding();
 
         // Folder scaling requires correct workspace paddings
@@ -712,6 +715,9 @@ public class DeviceProfile {
         if (mIsResponsiveGrid && isVerticalBarLayout()) {
             hotseatBorderSpace = cellLayoutBorderSpacePx.y;
         }
+        // Recalculate hotseat vertical sizes and workspace padding now that hotseatBorderSpace is finalized
+        updateHotseatSizes(iconSizePx);
+        updateWorkspacePadding();
 
 
         if (shouldShowAllAppsOnSheet()) {
@@ -925,7 +931,7 @@ public class DeviceProfile {
         hotseatQsbSpace = mHotseatQsbSpaceBase;
         hotseatQsbSpace += isQsbEnable && isLabelInDock ? (iconTextHeight / 2) : 0;
         
-        int space = Math.abs(baseHotseatCellHeightPx / 2) - 16;
+        int space = pxFromDp(2, mMetrics);
         int verticalPadding = Math.round(PreferenceCacheExtensionsKt.firstCached(
                 preferenceManager2.getHotseatVerticalPaddingDp()) * mMetrics.density);
 
@@ -955,8 +961,7 @@ public class DeviceProfile {
                     + extraRowsHeight + rowSpaceAdjustmentPx + verticalPadding * 2;
         } else {
             int legacyBarSizePx = hotseatIconSizePx
-                    + hotseatQsbSpace
-                    + getHotseatProfile().getQsbVisualHeight()
+                    + (isQsbEnable ? hotseatQsbSpace + getHotseatProfile().getQsbVisualHeight() : 0)
                     + hotseatBarBottomSpacePx
                     + space
                     + extraRowsHeight + rowSpaceAdjustmentPx + verticalPadding * 2;
@@ -1799,13 +1804,9 @@ public class DeviceProfile {
                 }
             }
         } else {
-            // Pad the bottom of the workspace with hotseat bar
-            // and leave a bit of space in case a widget go all the way down
-            int paddingBottom = hotseatBarSizePx + workspaceBottomPadding - mInsets.bottom;
-            if (!mIsResponsiveGrid) {
-                paddingBottom +=
-                        workspacePageIndicatorHeight - mWorkspacePageIndicatorOverlapWorkspace;
-            }
+            // Pad the bottom of the workspace with hotseat bar and a natural compact gap above the dock
+            int compactDockGapPx = pxFromDp(numHotseatRows > 1 ? 4 : 6, mMetrics);
+            int bottomHotseatReserve = Math.max(0, hotseatBarSizePx - mInsets.bottom);
             int paddingTop = workspaceTopPadding + (mIsScalableGrid ? 0 : edgeMarginPx);
             int paddingLeft = desiredWorkspaceHorizontalMarginPx;
             int paddingRight = desiredWorkspaceHorizontalMarginPx;
@@ -1823,9 +1824,8 @@ public class DeviceProfile {
             // The dock (hotseatBarSizePx) reservation in the bottom padding must be preserved,
             // otherwise reducing the factor pulls the last row into the dock and clips it.
             paddingTop = Math.round(paddingTop * workspacePaddingVerticalFactor);
-            int bottomHotseatReserve = Math.min(hotseatBarSizePx, paddingBottom);
-            paddingBottom = bottomHotseatReserve
-                    + Math.round((paddingBottom - bottomHotseatReserve) * workspacePaddingVerticalFactor);
+            int paddingBottom = bottomHotseatReserve
+                    + Math.round(compactDockGapPx * workspacePaddingVerticalFactor);
 
             padding.set(paddingLeft, paddingTop, paddingRight, paddingBottom);
         }

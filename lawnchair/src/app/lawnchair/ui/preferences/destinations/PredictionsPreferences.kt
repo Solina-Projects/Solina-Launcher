@@ -137,12 +137,14 @@ private fun AppPredictionsFeature(
 
 @Composable
 private fun SuggestionStripSettings(prefs2: PreferenceManager2) {
+    val context = LocalContext.current
     val enabled = prefs2.showSuggestedAppsInDrawer.getAdapter()
     val rows = prefs2.suggestionRows.getAdapter()
     val rowHeight = prefs2.suggestionRowHeightFactor.getAdapter()
     val position = prefs2.suggestionPosition.getAdapter()
     val source = prefs2.suggestionSource.getAdapter()
     val iconScale = prefs2.suggestionIconScale.getAdapter()
+    val suggestionIconShape = prefs2.suggestionIconShape.getAdapter()
     val labelScale = prefs2.suggestionLabelScale.getAdapter()
     val labelsVisible = prefs2.suggestionLabelsVisible.getAdapter()
     val background = prefs2.suggestionBackgroundEnabled.getAdapter()
@@ -150,6 +152,34 @@ private fun SuggestionStripSettings(prefs2: PreferenceManager2) {
     val padding = prefs2.suggestionPadding.getAdapter()
     val margin = prefs2.suggestionMargin.getAdapter()
     val radius = prefs2.suggestionCornerRadius.getAdapter()
+    val outlineEnabled = prefs2.suggestionOutlineEnabled.getAdapter()
+    val outlineStyle = prefs2.suggestionOutlineStyle.getAdapter()
+    val outlineWidth = prefs2.suggestionOutlineWidthDp.getAdapter()
+    val appCellOutlineEnabled = prefs2.suggestionAppCellOutlineEnabled.getAdapter()
+
+    val shapeEntriesWithPreview = remember(context) {
+        iconShapeEntries(context).map { entry ->
+            ListPreferenceEntry(
+                value = entry.value,
+                enabled = entry.enabled,
+                endWidget = { IconShapePreview(iconShape = entry.value) },
+                label = entry.label,
+            )
+        }
+    }
+
+    val outlineStyleEntries = remember {
+        listOf(
+            ListPreferenceEntry(value = "solid", label = { stringResource(R.string.outline_style_solid) }),
+            ListPreferenceEntry(value = "double_line", label = { stringResource(R.string.outline_style_double_line) }),
+            ListPreferenceEntry(value = "dashed", label = { stringResource(R.string.outline_style_dashed) }),
+            ListPreferenceEntry(value = "dotted", label = { stringResource(R.string.outline_style_dotted) }),
+            ListPreferenceEntry(value = "google_rainbow", label = { stringResource(R.string.outline_style_google_rainbow) }),
+            ListPreferenceEntry(value = "neon_glow", label = { stringResource(R.string.outline_style_neon_glow) }),
+            ListPreferenceEntry(value = "diamond_corners", label = { stringResource(R.string.outline_style_diamond_corners) }),
+            ListPreferenceEntry(value = "gradient_fade", label = { stringResource(R.string.outline_style_gradient_fade) }),
+        )
+    }
 
     PreferenceGroup(heading = stringResource(R.string.suggestion_strip_heading)) {
         SwitchPreference(
@@ -186,6 +216,14 @@ private fun SuggestionStripSettings(prefs2: PreferenceManager2) {
                         ListPreferenceEntry(value = "usage", label = { stringResource(R.string.suggestion_strip_source_usage) }),
                         ListPreferenceEntry(value = "dock", label = { stringResource(R.string.suggestion_strip_source_dock) }),
                     ),
+                )
+                ListPreference(
+                    adapter = suggestionIconShape,
+                    entries = shapeEntriesWithPreview,
+                    label = stringResource(R.string.suggestion_icon_shape_label),
+                    endWidget = {
+                        IconShapePreview(iconShape = suggestionIconShape.state.value)
+                    },
                 )
                 SliderPreference(
                     adapter = iconScale,
@@ -234,6 +272,33 @@ private fun SuggestionStripSettings(prefs2: PreferenceManager2) {
                             step = 1f,
                             showUnit = "dp",
                         )
+                    }
+                }
+                SwitchPreference(
+                    adapter = outlineEnabled,
+                    label = stringResource(R.string.suggestion_outline_enabled_label),
+                    description = stringResource(R.string.suggestion_outline_enabled_summary),
+                )
+                SwitchPreference(
+                    adapter = appCellOutlineEnabled,
+                    label = stringResource(R.string.suggestion_cell_outline_enabled_label),
+                    description = stringResource(R.string.suggestion_cell_outline_enabled_summary),
+                )
+                ExpandAndShrink(visible = outlineEnabled.state.value || appCellOutlineEnabled.state.value) {
+                    Column(verticalArrangement = Arrangement.spacedBy(ListItemDefaults.SegmentedGap)) {
+                        ListPreference(
+                            adapter = outlineStyle,
+                            entries = outlineStyleEntries,
+                            label = stringResource(R.string.outline_style_label),
+                        )
+                        SliderPreference(
+                            adapter = outlineWidth,
+                            label = stringResource(R.string.outline_width_label),
+                            valueRange = 1f..5f,
+                            step = 0.5f,
+                            showUnit = "dp",
+                        )
+                        ColorPreference(preference = prefs2.suggestionOutlineColor)
                     }
                 }
                 SliderPreference(

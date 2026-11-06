@@ -129,6 +129,20 @@ class ColorPreferenceModelList @Inject constructor(
                 dynamicEntries = dynamicColorsWithDefault,
             ),
         )
+        registerModel(
+            ColorPreferenceModel(
+                prefObject = prefs.suggestionOutlineColor,
+                labelRes = R.string.suggestion_outline_color_label,
+                dynamicEntries = dynamicColorsWithDefault,
+            ),
+        )
+        registerModel(
+            ColorPreferenceModel(
+                prefObject = prefs.drawerAppsOutlineColor,
+                labelRes = R.string.drawer_apps_outline_color_label,
+                dynamicEntries = dynamicColorsWithDefault,
+            ),
+        )
     }
 
     operator fun get(key: String): ColorPreferenceModel = models.getValue(key)

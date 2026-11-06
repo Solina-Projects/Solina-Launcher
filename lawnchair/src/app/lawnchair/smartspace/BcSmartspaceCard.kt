@@ -14,6 +14,7 @@ import androidx.core.view.isVisible
 import app.lawnchair.smartspace.model.SmartspaceAction
 import app.lawnchair.smartspace.model.SmartspaceTarget
 import app.lawnchair.smartspace.model.hasIntent
+import app.lawnchair.theme.color.GoogleRainbowTheme
 import com.android.launcher3.R
 import java.util.Locale
 import java.util.UUID
@@ -122,11 +123,25 @@ class BcSmartspaceCard @JvmOverloads constructor(
     }
 
     fun setPrimaryTextColor(textColor: Int) {
-        titleTextView?.setTextColor(textColor)
-        dateView?.setTextColor(textColor)
-        subtitleTextView?.setTextColor(textColor)
-        baseActionIconSubtitleView?.setTextColor(textColor)
-        iconTintColor = textColor
+        val isRainbow = GoogleRainbowTheme.isGoogleRainbowColor(textColor)
+        val safeColor = if (isRainbow) GoogleRainbowTheme.GOOGLE_BLUE else textColor
+        titleTextView?.let {
+            it.setTextColor(safeColor)
+            GoogleRainbowTheme.applyTextViewRainbow(it, isRainbow)
+        }
+        dateView?.let {
+            it.setTextColor(safeColor)
+            GoogleRainbowTheme.applyTextViewRainbow(it, isRainbow)
+        }
+        subtitleTextView?.let {
+            it.setTextColor(safeColor)
+            GoogleRainbowTheme.applyTextViewRainbow(it, isRainbow)
+        }
+        baseActionIconSubtitleView?.let {
+            it.setTextColor(safeColor)
+            GoogleRainbowTheme.applyTextViewRainbow(it, isRainbow)
+        }
+        iconTintColor = safeColor
         updateIconTint()
     }
 

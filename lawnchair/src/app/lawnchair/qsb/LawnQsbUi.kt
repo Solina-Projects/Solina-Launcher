@@ -77,6 +77,7 @@ import app.lawnchair.qsb.providers.GoogleGo
 import app.lawnchair.qsb.providers.PixelSearch
 import app.lawnchair.qsb.providers.QsbSearchProvider
 import app.lawnchair.theme.color.ColorOption
+import app.lawnchair.theme.color.GoogleRainbowTheme
 import app.lawnchair.ui.theme.LawnchairTheme
 import app.lawnchair.ui.util.addIf
 import app.lawnchair.ui.util.preview.PreviewLawnchair
@@ -375,6 +376,28 @@ fun rememberQsb3dSettings(): Qsb3dSettings {
 
 private fun ColorOption.resolveQsbColor(context: Context): Int? = if (this == ColorOption.Default) null else colorPreferenceEntry.lightColor.invoke(context)
 
+private fun Modifier.qsbGoogleRainbowOverlay(enabled: Boolean): Modifier {
+    if (!enabled) return this
+    return this
+        .graphicsLayer { compositingStrategy = CompositingStrategy.Offscreen }
+        .drawWithContent {
+            drawContent()
+            drawRect(
+                brush = Brush.linearGradient(
+                    colors = listOf(
+                        ComposeColor(GoogleRainbowTheme.GOOGLE_BLUE),
+                        ComposeColor(GoogleRainbowTheme.GOOGLE_RED),
+                        ComposeColor(GoogleRainbowTheme.GOOGLE_YELLOW),
+                        ComposeColor(GoogleRainbowTheme.GOOGLE_GREEN),
+                    ),
+                    start = Offset(0f, 0f),
+                    end = Offset(size.width, size.height * 0.4f),
+                ),
+                blendMode = BlendMode.SrcIn,
+            )
+        }
+}
+
 private fun Modifier.qsbIcon3d(enabled: Boolean): Modifier {
     if (!enabled) return this
     return this
@@ -468,7 +491,33 @@ fun LawnQsbUi(
     val strokeWidth = with(density) { style.strokeWidthPx.toDp() }
     val shape = RoundedCornerShape(cornerRadius)
 
-    val baseColor = ComposeColor(look.backgroundOverride ?: style.backgroundColor)
+    val isRainbowBg = GoogleRainbowTheme.isGoogleRainbowColor(look.backgroundOverride) ||
+        GoogleRainbowTheme.isGoogleRainbowColor(style.backgroundColor)
+    val isRainbowIcons = GoogleRainbowTheme.isGoogleRainbowColor(look.iconOverride)
+    val isRainbowStroke = GoogleRainbowTheme.isGoogleRainbowColor(style.strokeColor)
+    val googleRainbowBrush = remember(style.backgroundAlpha) {
+        Brush.horizontalGradient(
+            listOf(
+                ComposeColor(GoogleRainbowTheme.GOOGLE_BLUE).copy(alpha = style.backgroundAlpha),
+                ComposeColor(GoogleRainbowTheme.GOOGLE_RED).copy(alpha = style.backgroundAlpha),
+                ComposeColor(GoogleRainbowTheme.GOOGLE_YELLOW).copy(alpha = style.backgroundAlpha),
+                ComposeColor(GoogleRainbowTheme.GOOGLE_GREEN).copy(alpha = style.backgroundAlpha),
+            ),
+        )
+    }
+    val googleRainbowSolidBrush = remember {
+        Brush.horizontalGradient(
+            listOf(
+                ComposeColor(GoogleRainbowTheme.GOOGLE_BLUE),
+                ComposeColor(GoogleRainbowTheme.GOOGLE_RED),
+                ComposeColor(GoogleRainbowTheme.GOOGLE_YELLOW),
+                ComposeColor(GoogleRainbowTheme.GOOGLE_GREEN),
+            ),
+        )
+    }
+
+    val rawBgArgb = look.backgroundOverride ?: style.backgroundColor
+    val baseColor = ComposeColor(if (isRainbowBg) GoogleRainbowTheme.GOOGLE_BLUE else rawBgArgb)
     val faceColor = baseColor.copy(alpha = style.backgroundAlpha)
     val is3dBevel = !useLiquidGlass && look.enabled && look.surfaceStyle == "3d_bevel"
     val depth = if (is3dBevel) look.depthDp.dp else 0.dp
@@ -477,12 +526,16 @@ fun LawnQsbUi(
     val edgeColor = lerpColor(baseColor, ComposeColor.Black, 0.38f).copy(alpha = style.backgroundAlpha)
     val topLight = lerpColor(baseColor, ComposeColor.White, 0.28f).copy(alpha = style.backgroundAlpha)
     val bottomShade = lerpColor(baseColor, ComposeColor.Black, 0.08f).copy(alpha = style.backgroundAlpha)
-    val iconTint = look.iconOverride?.let { ComposeColor(it) }
+    val iconTint = if (isRainbowIcons) {
+        ComposeColor.White
+    } else {
+        look.iconOverride?.let { ComposeColor(it) }
+    }
     val primaryAccent = MaterialTheme.colorScheme.primary
     val tertiaryAccent = MaterialTheme.colorScheme.tertiary
     val secondaryAccent = MaterialTheme.colorScheme.secondary
     val pillContainerColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.09f)
-    val hintTextColor = (iconTint ?: MaterialTheme.colorScheme.onSurfaceVariant).copy(alpha = 0.72f)
+    val hintTextColor = (if (isRainbowIcons) ComposeColor.White else (iconTint ?: MaterialTheme.colorScheme.onSurfaceVariant)).copy(alpha = 0.78f)
 
     val containerModifier = Modifier
         .fillMaxSize()
@@ -540,6 +593,10 @@ fun LawnQsbUi(
                         )
                 }
 
+                isRainbowBg -> {
+                    Modifier.background(googleRainbowBrush, shape)
+                }
+
                 look.surfaceStyle == "minimal_flat" || !look.enabled -> {
                     Modifier.background(faceColor, shape)
                 }
@@ -572,7 +629,11 @@ fun LawnQsbUi(
             ),
         )
         .addIf(style.strokeWidthPx > 0f && look.surfaceStyle != "neon_border" && !useLiquidGlass) {
-            border(strokeWidth, ComposeColor(style.strokeColor), shape)
+            if (isRainbowStroke) {
+                border(strokeWidth, googleRainbowSolidBrush, shape)
+            } else {
+                border(strokeWidth, ComposeColor(style.strokeColor), shape)
+            }
         }
 
     Box(
@@ -616,12 +677,15 @@ fun LawnQsbUi(
                 Image(
                     painter = rememberThemedIconPainter(
                         resId = state.startIcon.resId,
-                        themed = state.startIcon.themed,
-                        method = state.startIcon.method,
+                        themed = state.startIcon.themed || isRainbowIcons,
+                        method = if (isRainbowIcons) ThemingMethod.TINT else state.startIcon.method,
                     ),
                     contentDescription = state.startIcon.contentDescription,
                     colorFilter = iconTint?.let { ColorFilter.tint(it) },
-                    modifier = Modifier.size(24.dp).qsbIcon3d(look.icons3d),
+                    modifier = Modifier
+                        .size(24.dp)
+                        .qsbGoogleRainbowOverlay(isRainbowIcons)
+                        .qsbIcon3d(look.icons3d),
                 )
             }
 
@@ -635,7 +699,8 @@ fun LawnQsbUi(
                     overflow = TextOverflow.Ellipsis,
                     modifier = Modifier
                         .weight(1f)
-                        .padding(horizontal = 4.dp),
+                        .padding(horizontal = 4.dp)
+                        .qsbGoogleRainbowOverlay(isRainbowIcons),
                 )
             } else {
                 Spacer(Modifier.weight(1f))
@@ -666,6 +731,7 @@ fun LawnQsbUi(
                             shape = shape,
                             onClick = { actions.onEndIconClick(icon.id) },
                             tint = iconTint ?: ComposeColor.Unspecified,
+                            rainbowTint = isRainbowIcons,
                             icons3d = look.icons3d,
                             modifier = Modifier.addIf(isLast && !look.endIconPillBg) {
                                 offset(x = (-6).dp)
@@ -693,6 +759,7 @@ fun QsbIcon(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     tint: ComposeColor = ComposeColor.Unspecified,
+    rainbowTint: Boolean = false,
     icons3d: Boolean = false,
 ) {
     Box(
@@ -710,12 +777,15 @@ fun QsbIcon(
         Icon(
             painter = rememberThemedIconPainter(
                 resId = icon.resId,
-                themed = icon.themed,
-                method = icon.method,
+                themed = icon.themed || rainbowTint,
+                method = if (rainbowTint) ThemingMethod.TINT else icon.method,
             ),
             contentDescription = icon.contentDescription,
             tint = tint,
-            modifier = Modifier.fillMaxSize().qsbIcon3d(icons3d),
+            modifier = Modifier
+                .fillMaxSize()
+                .qsbGoogleRainbowOverlay(rainbowTint)
+                .qsbIcon3d(icons3d),
         )
     }
 }

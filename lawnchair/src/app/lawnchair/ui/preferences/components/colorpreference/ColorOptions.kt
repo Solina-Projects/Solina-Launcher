@@ -3,7 +3,8 @@ package app.lawnchair.ui.preferences.components.colorpreference
 import app.lawnchair.theme.color.ColorOption
 
 val staticColors: List<ColorPreferenceEntry<ColorOption>> = sequenceOf(
-    // Google brand colors
+    // Google brand rainbow & colors
+    ColorOption.GoogleRainbow,
     ColorOption.CustomColor(0xFF4285F4),
     ColorOption.CustomColor(0xFFEA4335),
     ColorOption.CustomColor(0xFFFBBC05),
@@ -23,7 +24,7 @@ val staticColors: List<ColorPreferenceEntry<ColorOption>> = sequenceOf(
 ).map(ColorOption::colorPreferenceEntry).toList()
 
 val dynamicColors: List<ColorPreferenceEntry<ColorOption>> =
-    sequenceOf(ColorOption.SystemAccent, ColorOption.WallpaperPrimary)
+    sequenceOf(ColorOption.SystemAccent, ColorOption.WallpaperPrimary, ColorOption.GoogleRainbow)
         .filter(ColorOption::isSupported)
         .map(ColorOption::colorPreferenceEntry)
         .toList()

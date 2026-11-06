@@ -45,10 +45,14 @@ import androidx.annotation.Nullable;
 import androidx.core.graphics.ColorUtils;
 
 import app.lawnchair.glass.LiquidGlassStyleHelper;
+import app.lawnchair.icons.shape.IconShape;
+import app.lawnchair.icons.shape.SuggestionIconShapeHelper;
 import app.lawnchair.preferences2.PreferenceCacheExtensionsKt;
 import app.lawnchair.preferences2.PreferenceManager2;
 import app.lawnchair.theme.color.ColorOption;
+import app.lawnchair.theme.color.GoogleRainbowTheme;
 import app.lawnchair.theme.color.tokens.ColorTokens;
+import app.lawnchair.util.OutlineStyleRenderer;
 import com.android.launcher3.BubbleTextView;
 import com.android.launcher3.DeviceProfile;
 import com.android.launcher3.DeviceProfile.OnDeviceProfileChangeListener;
@@ -161,11 +165,46 @@ public class PredictionRowView<T extends Context & ActivityContext>
         float density = getResources().getDisplayMetrics().density;
         // Keep the suggestion header compact so it does not create a large fixed gap
         // between the floating search bar and the first suggestion row.
-        mDividerHeight = Math.round(24 * density);
+        mDividerHeight = Math.round(18 * density);
         boolean atBottom = "bottom".equals(
                 PreferenceCacheExtensionsKt.firstCached(prefs2.getSuggestionPosition()));
         mAtBottom = atBottom;
-        mCard = new LinearLayout(context);
+        mCard = new LinearLayout(context) {
+            private final RectF mOutlineRect = new RectF();
+
+            @Override
+            protected void dispatchDraw(Canvas canvas) {
+                super.dispatchDraw(canvas);
+                if (PreferenceCacheExtensionsKt.firstCached(prefs2.getSuggestionOutlineEnabled())) {
+                    float d = getResources().getDisplayMetrics().density;
+                    float strokeWidthDp = PreferenceCacheExtensionsKt.firstCached(
+                            prefs2.getSuggestionOutlineWidthDp());
+                    float strokeWidthPx = Math.max(1f, strokeWidthDp * d);
+                    float radiusPx = PreferenceCacheExtensionsKt.firstCached(
+                            prefs2.getSuggestionCornerRadius()) * d;
+                    String outlineStyle = PreferenceCacheExtensionsKt.firstCached(
+                            prefs2.getSuggestionOutlineStyle());
+                    ColorOption outlineColorOpt = PreferenceCacheExtensionsKt.firstCached(
+                            prefs2.getSuggestionOutlineColor());
+                    int primaryColor = (outlineColorOpt != null && outlineColorOpt.isSupported())
+                            ? outlineColorOpt.getColorPreferenceEntry().getLightColor().invoke(getContext())
+                            : ColorTokens.ColorAccent.resolveColor(getContext());
+                    int secondaryColor = ColorTokens.SurfaceBright.resolveColor(getContext());
+                    float inset = strokeWidthPx * 0.6f;
+                    mOutlineRect.set(inset, inset, getWidth() - inset, getHeight() - inset);
+                    OutlineStyleRenderer.drawOutline(
+                            canvas,
+                            mOutlineRect,
+                            radiusPx,
+                            outlineStyle,
+                            strokeWidthPx,
+                            primaryColor,
+                            secondaryColor,
+                            255
+                    );
+                }
+            }
+        };
         mCard.setOrientation(LinearLayout.VERTICAL);
         mHeader = new SectionDivider(context,
                 context.getString(R.string.suggestion_frequently_used), SectionDivider.NO_ARROW);
@@ -204,9 +243,19 @@ public class PredictionRowView<T extends Context & ActivityContext>
         }
         float alpha = Math.max(0f, Math.min(1f, PreferenceCacheExtensionsKt.firstCached(
                 prefs2.getSuggestionBackgroundAlpha())));
-        int baseAlpha = Math.round(Color.alpha(color) * alpha);
+        int baseAlpha = Math.round(255 * alpha);
         float radius = PreferenceCacheExtensionsKt.firstCached(
                 prefs2.getSuggestionCornerRadius()) * density;
+        if (GoogleRainbowTheme.isGoogleRainbowColor(color)) {
+            mCard.setPadding(padding, padding, padding, padding);
+            mCard.setBackground(GoogleRainbowTheme.createRainbowGradientDrawable(
+                    radius,
+                    baseAlpha,
+                    Math.max(1, Math.round(1.2f * density)),
+                    withAlpha(Color.WHITE, Math.round(baseAlpha * 0.65f))
+            ));
+            return;
+        }
         if (LiquidGlassStyleHelper.shouldUseForSuggestions(getContext())) {
             mCard.setPadding(padding, padding, padding, padding);
             mCard.setBackground(LiquidGlassStyleHelper.createDrawable(
@@ -498,6 +547,26 @@ public class PredictionRowView<T extends Context & ActivityContext>
                 row.setLayoutParams(rowParams);
             }
         }
+        IconShape dedicatedSuggestionShape = PreferenceCacheExtensionsKt.firstCached(
+                prefs2.getSuggestionIconShape());
+        boolean cellOutlineEnabled = PreferenceCacheExtensionsKt.firstCached(
+                prefs2.getSuggestionAppCellOutlineEnabled());
+        float density = getResources().getDisplayMetrics().density;
+        String outlineStyle = PreferenceCacheExtensionsKt.firstCached(
+                prefs2.getSuggestionOutlineStyle());
+        float outlineWidthPx = Math.max(1f, PreferenceCacheExtensionsKt.firstCached(
+                prefs2.getSuggestionOutlineWidthDp()) * density);
+        ColorOption outlineColorOpt = PreferenceCacheExtensionsKt.firstCached(
+                prefs2.getSuggestionOutlineColor());
+        int outlinePrimaryColor = (outlineColorOpt != null && outlineColorOpt.isSupported())
+                ? outlineColorOpt.getColorPreferenceEntry().getLightColor().invoke(getContext())
+                : ColorTokens.ColorAccent.resolveColor(getContext());
+        int outlineSecondaryColor = ColorTokens.SurfaceBright.resolveColor(getContext());
+        float cellRadiusPx = Math.max(8f * density, PreferenceCacheExtensionsKt.firstCached(
+                prefs2.getSuggestionCornerRadius()) * density * 0.65f);
+        int cellInsetPx = Math.round(3f * density);
+        int iconSizePx = getSuggestionIconSizePx();
+
         for (int rowIndex = 0; rowIndex < rows; rowIndex++) {
             for (int column = 0; column < columns; column++) {
                 int iconIndex = rowIndex * columns + column;
@@ -512,7 +581,34 @@ public class PredictionRowView<T extends Context & ActivityContext>
                     predictedItem.cellX = column;
                     predictedItem.cellY = rowIndex;
                     icon.applyFromWorkspaceItem(predictedItem);
+                    SuggestionIconShapeHelper.applySuggestionIconShape(
+                            icon,
+                            dedicatedSuggestionShape,
+                            iconSizePx
+                    );
+                    ColorOption labelColor = PreferenceCacheExtensionsKt.firstCached(
+                            prefs2.getSuggestionLabelColor());
+                    if (labelColor != null && labelColor.isSupported()) {
+                        icon.setTextColor(labelColor.getColorPreferenceEntry()
+                                .getLightColor().invoke(getContext()));
+                    }
+                    if (cellOutlineEnabled) {
+                        icon.setBackground(OutlineStyleRenderer.createOutlineDrawable(
+                                null,
+                                cellRadiusPx,
+                                outlineStyle,
+                                outlineWidthPx,
+                                outlinePrimaryColor,
+                                outlineSecondaryColor,
+                                235,
+                                cellInsetPx,
+                                cellInsetPx / 2
+                        ));
+                    } else {
+                        icon.setBackground(null);
+                    }
                 } else {
+                    icon.setBackground(null);
                     icon.setVisibility(predictionCount == 0 ? GONE : INVISIBLE);
                 }
             }

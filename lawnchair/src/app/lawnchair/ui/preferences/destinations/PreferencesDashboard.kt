@@ -96,6 +96,7 @@ import app.lawnchair.ui.preferences.navigation.General
 import app.lawnchair.ui.preferences.navigation.Gestures
 import app.lawnchair.ui.preferences.navigation.HomeScreen
 import app.lawnchair.ui.preferences.navigation.LiquidGlass
+import app.lawnchair.ui.preferences.navigation.Predictions
 import app.lawnchair.ui.preferences.navigation.PreferenceRootRoute
 import app.lawnchair.ui.preferences.navigation.Quickstep
 import app.lawnchair.ui.preferences.navigation.Search
@@ -211,6 +212,15 @@ fun PreferencesDashboard(
             accentColor = Color(0xFF42A5F5),
             group = DashboardSectionGroup.APPEARANCE,
             visible = !deckLayout.state.value,
+        ),
+        DashboardCategoryItem(
+            label = stringResource(R.string.suggestion_pref_screen_title),
+            description = stringResource(R.string.suggestion_dashboard_description),
+            iconResource = R.drawable.ic_new_releases,
+            route = Predictions,
+            isSelected = currentRoute is Predictions,
+            accentColor = Color(0xFFAB47BC),
+            group = DashboardSectionGroup.SMART_SEARCH,
         ),
         DashboardCategoryItem(
             label = stringResource(R.string.search_bar_label),

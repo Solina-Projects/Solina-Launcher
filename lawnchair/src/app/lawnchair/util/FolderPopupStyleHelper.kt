@@ -133,6 +133,17 @@ object FolderPopupStyleHelper {
     }
 
     @JvmStatic
+    fun applyPopupAlphaToColor(
+        context: Context,
+        baseColor: Int,
+    ): Int {
+        val prefs = PreferenceManager.getInstance(context)
+        val opacityPct = prefs.popupBgOpacity.get().coerceIn(20, 100)
+        val alpha = (opacityPct / 100f * 255f).roundToInt().coerceIn(51, 255)
+        return ColorUtils.setAlphaComponent(baseColor, alpha)
+    }
+
+    @JvmStatic
     fun applyPopupItemDrawable(
         context: Context,
         drawable: GradientDrawable,
@@ -140,19 +151,25 @@ object FolderPopupStyleHelper {
     ) {
         val prefs = PreferenceManager.getInstance(context)
         val style = prefs.popupSurfaceStyle.get()
-        val opacityPct = prefs.popupBgOpacity.get().coerceIn(50, 100)
-        val alpha = (opacityPct / 100f * 255f).roundToInt().coerceIn(100, 255)
+        val opacityPct = prefs.popupBgOpacity.get().coerceIn(20, 100)
+        val alpha = (opacityPct / 100f * 255f).roundToInt().coerceIn(51, 255)
         val density = context.resources.displayMetrics.density
         val accentColor = ColorTokens.ColorAccent.resolveColor(context)
+        val opaqueBase = ColorUtils.setAlphaComponent(baseColor, 255)
 
         if (LiquidGlassStyleHelper.shouldUseForFoldersPopups(context, style)) {
             val config = LiquidGlassStyleHelper.getConfig(context)
             val isDark = LiquidGlassStyleHelper.isDarkConfiguration(context)
-            val tint = LiquidGlassStyleHelper.resolveTintColor(config.tintSwatch, isDark, baseColor, accentColor)
-            val blendedColor = ColorUtils.blendARGB(baseColor, tint, 0.55f)
-            val glassAlpha = (alpha * (0.55f + config.density * 0.40f)).roundToInt().coerceIn(95, 248)
-            drawable.setColor(blendedColor)
-            drawable.alpha = glassAlpha
+            val tint = ColorUtils.setAlphaComponent(
+                LiquidGlassStyleHelper.resolveTintColor(config.tintSwatch, isDark, opaqueBase, accentColor),
+                255,
+            )
+            // Blend tint into baseColor while strictly honoring the user's popupBgOpacity slider (100% -> alpha 255)
+            val tintStrength = if (opacityPct >= 98) 0.22f else 0.48f
+            val blendedColor = ColorUtils.blendARGB(opaqueBase, tint, tintStrength)
+            drawable.colors = null
+            drawable.setColor(ColorUtils.setAlphaComponent(blendedColor, alpha))
+            drawable.alpha = 255
             val catchAlpha = (145f * config.rimLight).roundToInt().coerceIn(45, 235)
             val rimColor = if (config.dispersion > 0.12f) {
                 ColorUtils.blendARGB(Color.WHITE, accentColor, 0.28f)
@@ -166,9 +183,19 @@ object FolderPopupStyleHelper {
             return
         }
 
-        drawable.alpha = alpha
+        drawable.alpha = 255
         when (style) {
             "glass_card" -> {
+                val topColor = ColorUtils.setAlphaComponent(
+                    ColorUtils.blendARGB(opaqueBase, Color.WHITE, 0.14f),
+                    alpha,
+                )
+                val bottomColor = ColorUtils.setAlphaComponent(
+                    ColorUtils.blendARGB(opaqueBase, accentColor, 0.08f),
+                    alpha,
+                )
+                drawable.orientation = GradientDrawable.Orientation.TOP_BOTTOM
+                drawable.colors = intArrayOf(topColor, bottomColor)
                 drawable.setStroke(
                     max(1, (1.1f * density).roundToInt()),
                     ColorUtils.setAlphaComponent(Color.WHITE, 95),
@@ -176,16 +203,28 @@ object FolderPopupStyleHelper {
             }
 
             "elevated_3d" -> {
+                val topColor = ColorUtils.setAlphaComponent(
+                    ColorUtils.blendARGB(opaqueBase, Color.WHITE, 0.16f),
+                    alpha,
+                )
+                val bottomColor = ColorUtils.setAlphaComponent(
+                    ColorUtils.blendARGB(opaqueBase, Color.BLACK, 0.10f),
+                    alpha,
+                )
+                drawable.orientation = GradientDrawable.Orientation.TOP_BOTTOM
+                drawable.colors = intArrayOf(topColor, bottomColor)
                 drawable.setStroke(
                     max(1, (1.4f * density).roundToInt()),
                     ColorUtils.setAlphaComponent(
-                        ColorUtils.blendARGB(baseColor, Color.WHITE, 0.35f),
+                        ColorUtils.blendARGB(opaqueBase, Color.WHITE, 0.35f),
                         150,
                     ),
                 )
             }
 
             "neon_border" -> {
+                drawable.colors = null
+                drawable.setColor(ColorUtils.setAlphaComponent(opaqueBase, alpha))
                 drawable.setStroke(
                     max(1, (1.6f * density).roundToInt()),
                     ColorUtils.setAlphaComponent(accentColor, 195),
@@ -193,6 +232,8 @@ object FolderPopupStyleHelper {
             }
 
             else -> {
+                drawable.colors = null
+                drawable.setColor(ColorUtils.setAlphaComponent(opaqueBase, alpha))
                 drawable.setStroke(0, Color.TRANSPARENT)
             }
         }

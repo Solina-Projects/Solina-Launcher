@@ -117,6 +117,7 @@ import app.lawnchair.gestures.IconGestureListener;
 import app.lawnchair.preferences.PreferenceManager;
 import app.lawnchair.preferences2.PreferenceManager2;
 import app.lawnchair.theme.color.ColorOption;
+import app.lawnchair.theme.color.GoogleRainbowTheme;
 import app.lawnchair.util.LawnchairUtilsKt;
 import app.lawnchair.animation.PhysicsAnimator;
 
@@ -214,6 +215,7 @@ public class BubbleTextView extends TextView implements ItemInfoUpdateReceiver,
     private ColorStateList mTextColorStateList;
     @ViewDebug.ExportedProperty(category = "launcher")
     private float mTextAlpha = 1;
+    private boolean mUseGoogleRainbowLabel = false;
 
     @ViewDebug.ExportedProperty(category = "launcher")
     private DotInfo mDotInfo;
@@ -669,13 +671,20 @@ public class BubbleTextView extends TextView implements ItemInfoUpdateReceiver,
         if (mDisplay == DISPLAY_ALL_APPS || mDisplay == DISPLAY_DRAWER_FOLDER) {
             colorOption = PreferenceCacheExtensionsKt.firstCached(pref2.getDrawerIconLabelColor(), pref2);
         } else if (mDisplay == DISPLAY_WORKSPACE || mDisplay == DISPLAY_FOLDER) {
-            boolean inHotseat = info.container == LauncherSettings.Favorites.CONTAINER_HOTSEAT;
+            boolean inHotseat = info != null && info.container == LauncherSettings.Favorites.CONTAINER_HOTSEAT;
             colorOption = inHotseat
                     ? PreferenceCacheExtensionsKt.firstCached(pref2.getDockIconLabelColor(), pref2)
                     : PreferenceCacheExtensionsKt.firstCached(pref2.getHomeIconLabelColor(), pref2);
+        } else if (mDisplay == DISPLAY_PREDICTION_ROW || mDisplay == DISPLAY_SEARCH_RESULT_APP_ROW) {
+            colorOption = PreferenceCacheExtensionsKt.firstCached(pref2.getSuggestionLabelColor(), pref2);
         }
         if (colorOption != null && colorOption.isSupported()) {
+            mUseGoogleRainbowLabel = GoogleRainbowTheme.isGoogleRainbowOption(colorOption);
             setTextColor(colorOption.getColorPreferenceEntry().getLightColor().invoke(getContext()));
+            GoogleRainbowTheme.applyTextViewRainbow(this, mUseGoogleRainbowLabel, mTextAlpha);
+        } else {
+            mUseGoogleRainbowLabel = false;
+            GoogleRainbowTheme.applyTextViewRainbow(this, false, mTextAlpha);
         }
     }
 
@@ -951,12 +960,18 @@ public class BubbleTextView extends TextView implements ItemInfoUpdateReceiver,
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
         checkForEllipsis();
+        if (mUseGoogleRainbowLabel) {
+            GoogleRainbowTheme.applyTextViewRainbow(this, true, mTextAlpha);
+        }
     }
 
     @Override
     protected void onTextChanged(CharSequence text, int start, int lengthBefore, int lengthAfter) {
         super.onTextChanged(text, start, lengthBefore, lengthAfter);
         checkForEllipsis();
+        if (mUseGoogleRainbowLabel) {
+            GoogleRainbowTheme.applyTextViewRainbow(this, true, mTextAlpha);
+        }
     }
 
     private void checkForEllipsis() {
@@ -1015,11 +1030,17 @@ public class BubbleTextView extends TextView implements ItemInfoUpdateReceiver,
 
     @SuppressWarnings("wrongcall")
     protected void drawWithoutDot(Canvas canvas) {
+        if (mUseGoogleRainbowLabel) {
+            GoogleRainbowTheme.applyTextViewRainbow(this, true, mTextAlpha);
+        }
         super.onDraw(canvas);
     }
 
     @Override
     public void onDraw(Canvas canvas) {
+        if (mUseGoogleRainbowLabel) {
+            GoogleRainbowTheme.applyTextViewRainbow(this, true, mTextAlpha);
+        }
         super.onDraw(canvas);
         drawDotIfNecessary(canvas);
         drawRunningAppIndicatorIfNecessary(canvas);
@@ -1234,9 +1255,11 @@ public class BubbleTextView extends TextView implements ItemInfoUpdateReceiver,
 
     @Override
     public void setTextColor(int color) {
-        mTextColor = color;
+        mUseGoogleRainbowLabel = GoogleRainbowTheme.isGoogleRainbowColor(color);
+        mTextColor = mUseGoogleRainbowLabel ? GoogleRainbowTheme.GOOGLE_BLUE : color;
         mTextColorStateList = null;
         super.setTextColor(getModifiedColor());
+        GoogleRainbowTheme.applyTextViewRainbow(this, mUseGoogleRainbowLabel, mTextAlpha);
     }
 
     /**
