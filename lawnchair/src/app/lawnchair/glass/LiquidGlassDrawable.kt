@@ -207,6 +207,7 @@ object LiquidGlassStyleHelper {
     }
 
     @JvmStatic
+    @JvmOverloads
     fun shouldUseForSuggestions(context: Context, localStyle: String? = null): Boolean {
         val prefs = PreferenceManager.getInstance(context)
         return shouldUseLiquidGlass(context, localStyle, prefs.liquidGlassApplySuggestions.get())
@@ -310,6 +311,7 @@ object LiquidGlassStyleHelper {
     }
 
     @JvmStatic
+    @JvmOverloads
     fun drawOnCanvas(
         context: Context,
         canvas: Canvas,
@@ -335,6 +337,7 @@ object LiquidGlassStyleHelper {
     }
 
     @JvmStatic
+    @JvmOverloads
     fun drawOnCanvasBounds(
         context: Context,
         canvas: Canvas,
@@ -771,7 +774,7 @@ object LiquidGlassStyleHelper {
         return buildString {
             appendLine("/* Solina Launcher • Liquid Glass (Glasswork) */")
             appendLine(":root {")
-            appendLine("  --m-tint: rgba($r, $g, $b, ${"%.2f".format( java.util.Locale.US, alpha )});")
+            appendLine("  --m-tint: rgba($r, $g, $b, ${"%.2f".format(java.util.Locale.US, alpha)});")
             appendLine("  --m-blur: ${config.blurPx}px;")
             appendLine("  --m-catch: ${"%.2f".format(java.util.Locale.US, catchA)};")
             appendLine("  --m-bevel: ${"%.2f".format(java.util.Locale.US, bevelTop)};")
