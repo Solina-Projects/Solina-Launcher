@@ -491,9 +491,7 @@ object AllAppsCardStyler {
             context = context,
             prefs2 = prefs2,
             density = density,
-            defaultAccentColor = accentColor,
             insetHorizontalPx = inset,
-            insetVerticalPx = inset / 2,
         )
     }
 
