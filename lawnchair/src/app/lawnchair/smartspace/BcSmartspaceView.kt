@@ -12,6 +12,7 @@ import android.view.View.MeasureSpec.makeMeasureSpec
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import androidx.viewpager.widget.ViewPager
+import app.lawnchair.preferences2.PreferenceManager2
 import app.lawnchair.smartspace.model.SmartspaceTarget
 import app.lawnchair.smartspace.provider.SmartspaceProvider
 import app.lawnchair.util.repeatOnAttached
@@ -27,6 +28,7 @@ class BcSmartspaceView @JvmOverloads constructor(
 ) : FrameLayout(context, attrs) {
 
     private val provider = SmartspaceProvider.INSTANCE.get(context)
+    private val prefs = PreferenceManager2.getInstance(context)
 
     private lateinit var viewPager: ViewPager
     private lateinit var indicator: PageIndicator
@@ -69,6 +71,16 @@ class BcSmartspaceView @JvmOverloads constructor(
             viewPager.adapter = adapter
             targets
                 .onEach(::onSmartspaceTargetsUpdate)
+                .launchIn(this)
+            prefs.smartspaceTextColor.get()
+                .onEach { option ->
+                    val color = if (option.isSupported) {
+                        option.colorPreferenceEntry.lightColor.invoke(context)
+                    } else {
+                        null
+                    }
+                    adapter.setTextColorOverride(color)
+                }
                 .launchIn(this)
         }
     }

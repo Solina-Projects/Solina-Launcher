@@ -422,6 +422,8 @@
     <string name="smartspace_date_and_time">تاریخ و زمان</string>
     <string name="smartspace_date">تاریخ</string>
     <string name="smartspace_time">زمان</string>
+    <string name="smartspace_appearance">ظاهر</string>
+    <string name="smartspace_text_color">رنگ نوشته‌ها</string>
     <string name="smartspace_time_format">قالب ساعت</string>
     <string name="smartspace_time_follow_system">دنبال‌کردن سیستم</string>
     <string name="smartspace_time_12_hour_format">قالب ۱۲ ساعته</string>

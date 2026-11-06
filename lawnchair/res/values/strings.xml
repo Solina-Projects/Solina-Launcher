@@ -525,6 +525,8 @@
     <string name="smartspace_date">Date</string>
     <string name="smartspace_time">Time</string>
     <string name="smartspace_time_format">Time format</string>
+    <string name="smartspace_appearance">Appearance</string>
+    <string name="smartspace_text_color">Text color</string>
     <string name="smartspace_time_follow_system">Follow system</string>
     <string name="smartspace_time_12_hour_format">12-hour format</string>
     <string name="smartspace_time_24_hour_format">24-hour format</string>

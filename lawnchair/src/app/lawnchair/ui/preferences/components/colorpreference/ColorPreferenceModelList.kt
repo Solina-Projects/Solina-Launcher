@@ -40,6 +40,13 @@ class ColorPreferenceModelList @Inject constructor(
         )
         registerModel(
             ColorPreferenceModel(
+                prefObject = prefs.smartspaceTextColor,
+                labelRes = R.string.smartspace_text_color,
+                dynamicEntries = dynamicColorsWithDefault,
+            ),
+        )
+        registerModel(
+            ColorPreferenceModel(
                 prefObject = prefs.accentColor,
                 labelRes = R.string.accent_color,
                 dynamicEntries = dynamicColors,

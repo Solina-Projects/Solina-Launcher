@@ -47,6 +47,7 @@ import app.lawnchair.smartspace.model.SmartspaceTimeFormat
 import app.lawnchair.smartspace.model.Smartspacer
 import app.lawnchair.smartspace.provider.SmartspaceProvider
 import app.lawnchair.ui.preferences.LocalIsExpandedScreen
+import app.lawnchair.ui.preferences.components.colorpreference.ColorPreference
 import app.lawnchair.ui.preferences.components.controls.ClickablePreference
 import app.lawnchair.ui.preferences.components.controls.ListPreference
 import app.lawnchair.ui.preferences.components.controls.ListPreferenceEntry
@@ -81,6 +82,7 @@ fun SmartspacePreferences(
         if (fromWidget) {
             SmartspacePreview()
             LawnchairSmartspaceSettings(smartspaceProvider)
+            SmartspaceAppearancePreferences()
         } else {
             MainSwitchPreference(
                 adapter = smartspaceAdapter,
@@ -112,8 +114,22 @@ fun SmartspacePreferences(
                         else -> {}
                     }
                 }
+
+                SmartspaceAppearancePreferences()
             }
         }
+    }
+}
+
+@Composable
+fun SmartspaceAppearancePreferences(
+    modifier: Modifier = Modifier,
+) {
+    PreferenceGroup(
+        heading = stringResource(id = R.string.smartspace_appearance),
+        modifier = modifier.padding(top = 8.dp),
+    ) {
+        ColorPreference(preference = preferenceManager2().smartspaceTextColor)
     }
 }
 
