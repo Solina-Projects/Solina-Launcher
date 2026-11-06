@@ -179,28 +179,24 @@ public class PredictionRowView<T extends Context & ActivityContext>
                     float d = getResources().getDisplayMetrics().density;
                     float strokeWidthDp = PreferenceCacheExtensionsKt.firstCached(
                             prefs2.getSuggestionOutlineWidthDp());
-                    float strokeWidthPx = Math.max(1f, strokeWidthDp * d);
                     float radiusPx = PreferenceCacheExtensionsKt.firstCached(
                             prefs2.getSuggestionCornerRadius()) * d;
                     String outlineStyle = PreferenceCacheExtensionsKt.firstCached(
                             prefs2.getSuggestionOutlineStyle());
                     ColorOption outlineColorOpt = PreferenceCacheExtensionsKt.firstCached(
                             prefs2.getSuggestionOutlineColor());
-                    int primaryColor = (outlineColorOpt != null && outlineColorOpt.isSupported())
-                            ? outlineColorOpt.getColorPreferenceEntry().getLightColor().invoke(getContext())
-                            : ColorTokens.ColorAccent.resolveColor(getContext());
-                    int secondaryColor = ColorTokens.SurfaceBright.resolveColor(getContext());
-                    float inset = strokeWidthPx * 0.6f;
-                    mOutlineRect.set(inset, inset, getWidth() - inset, getHeight() - inset);
+                    int outlineColor = OutlineStyleRenderer.resolveOutlineColor(
+                            getContext(), outlineColorOpt);
+                    mOutlineRect.set(0f, 0f, getWidth(), getHeight());
                     OutlineStyleRenderer.drawOutline(
                             canvas,
                             mOutlineRect,
                             radiusPx,
                             outlineStyle,
-                            strokeWidthPx,
-                            primaryColor,
-                            secondaryColor,
-                            255
+                            strokeWidthDp,
+                            outlineColor,
+                            d,
+                            1f
                     );
                 }
             }
@@ -248,12 +244,13 @@ public class PredictionRowView<T extends Context & ActivityContext>
                 prefs2.getSuggestionCornerRadius()) * density;
         if (GoogleRainbowTheme.isGoogleRainbowColor(color)) {
             mCard.setPadding(padding, padding, padding, padding);
-            mCard.setBackground(GoogleRainbowTheme.createRainbowGradientDrawable(
-                    radius,
-                    baseAlpha,
+            GradientDrawable rainbowDrawable =
+                    GoogleRainbowTheme.createRainbowGradientDrawable(radius, baseAlpha);
+            rainbowDrawable.setStroke(
                     Math.max(1, Math.round(1.2f * density)),
                     withAlpha(Color.WHITE, Math.round(baseAlpha * 0.65f))
-            ));
+            );
+            mCard.setBackground(rainbowDrawable);
             return;
         }
         if (LiquidGlassStyleHelper.shouldUseForSuggestions(getContext())) {
@@ -554,14 +551,11 @@ public class PredictionRowView<T extends Context & ActivityContext>
         float density = getResources().getDisplayMetrics().density;
         String outlineStyle = PreferenceCacheExtensionsKt.firstCached(
                 prefs2.getSuggestionOutlineStyle());
-        float outlineWidthPx = Math.max(1f, PreferenceCacheExtensionsKt.firstCached(
-                prefs2.getSuggestionOutlineWidthDp()) * density);
+        float outlineWidthDp = PreferenceCacheExtensionsKt.firstCached(
+                prefs2.getSuggestionOutlineWidthDp());
         ColorOption outlineColorOpt = PreferenceCacheExtensionsKt.firstCached(
                 prefs2.getSuggestionOutlineColor());
-        int outlinePrimaryColor = (outlineColorOpt != null && outlineColorOpt.isSupported())
-                ? outlineColorOpt.getColorPreferenceEntry().getLightColor().invoke(getContext())
-                : ColorTokens.ColorAccent.resolveColor(getContext());
-        int outlineSecondaryColor = ColorTokens.SurfaceBright.resolveColor(getContext());
+        int outlineColor = OutlineStyleRenderer.resolveOutlineColor(getContext(), outlineColorOpt);
         float cellRadiusPx = Math.max(8f * density, PreferenceCacheExtensionsKt.firstCached(
                 prefs2.getSuggestionCornerRadius()) * density * 0.65f);
         int cellInsetPx = Math.round(3f * density);
@@ -594,15 +588,13 @@ public class PredictionRowView<T extends Context & ActivityContext>
                     }
                     if (cellOutlineEnabled) {
                         icon.setBackground(OutlineStyleRenderer.createOutlineDrawable(
-                                null,
                                 cellRadiusPx,
                                 outlineStyle,
-                                outlineWidthPx,
-                                outlinePrimaryColor,
-                                outlineSecondaryColor,
-                                235,
+                                outlineWidthDp,
+                                outlineColor,
+                                density,
                                 cellInsetPx,
-                                cellInsetPx / 2
+                                null
                         ));
                     } else {
                         icon.setBackground(null);
