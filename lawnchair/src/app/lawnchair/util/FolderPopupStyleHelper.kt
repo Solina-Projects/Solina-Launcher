@@ -1,9 +1,12 @@
 package app.lawnchair.util
 
 import android.content.Context
+import android.graphics.Canvas
 import android.graphics.Color
+import android.graphics.Rect
 import android.graphics.drawable.GradientDrawable
 import androidx.core.graphics.ColorUtils
+import app.lawnchair.glass.LiquidGlassStyleHelper
 import app.lawnchair.preferences.PreferenceManager
 import app.lawnchair.theme.color.tokens.ColorTokens
 import kotlin.math.max
@@ -28,6 +31,17 @@ object FolderPopupStyleHelper {
         background.cornerRadius = radiusPx
 
         val accentColor = ColorTokens.ColorAccent.resolveColor(context)
+        if (LiquidGlassStyleHelper.shouldUseForFoldersPopups(context, style)) {
+            // Keep mBackground lightweight during morph and let drawOpenFolderOverlay render full Liquid Glass layers
+            val isDark = LiquidGlassStyleHelper.isDarkConfiguration(context)
+            val config = LiquidGlassStyleHelper.getConfig(context)
+            val tint = LiquidGlassStyleHelper.resolveTintColor(config.tintSwatch, isDark, baseColor, accentColor)
+            val glassAlpha = (alpha * 0.25f).roundToInt().coerceIn(16, 90)
+            background.setColor(ColorUtils.setAlphaComponent(tint, glassAlpha))
+            background.setStroke(0, Color.TRANSPARENT)
+            return
+        }
+
         when (style) {
             "glass_card" -> {
                 val topColor = ColorUtils.setAlphaComponent(
@@ -82,13 +96,36 @@ object FolderPopupStyleHelper {
     }
 
     @JvmStatic
+    fun drawOpenFolderOverlay(
+        context: Context,
+        canvas: Canvas,
+        bounds: Rect,
+    ) {
+        val prefs = PreferenceManager.getInstance(context)
+        val style = prefs.folderSurfaceStyle.get()
+        if (!LiquidGlassStyleHelper.shouldUseForFoldersPopups(context, style)) return
+        val density = context.resources.displayMetrics.density
+        val radiusPx = prefs.folderCornerRadiusDp.get().coerceIn(12, 44) * density
+        val baseColor = resolveFolderBackgroundColor(context)
+        val alphaMultiplier = (getFolderBackgroundAlpha(context) / 255f).coerceIn(0.25f, 1.0f)
+        LiquidGlassStyleHelper.drawOnCanvasBounds(
+            context = context,
+            canvas = canvas,
+            bounds = bounds,
+            cornerRadiusPx = radiusPx,
+            fallbackColor = baseColor,
+            alphaMultiplier = alphaMultiplier,
+        )
+    }
+
+    @JvmStatic
     fun resolvePopupOutlineRadius(
         context: Context,
         defaultRadius: Float,
     ): Float {
         val prefs = PreferenceManager.getInstance(context)
         val style = prefs.popupSurfaceStyle.get()
-        if (style == "classic") {
+        if (style == "classic" && !LiquidGlassStyleHelper.shouldUseForFoldersPopups(context, style)) {
             return defaultRadius
         }
         val density = context.resources.displayMetrics.density
@@ -107,6 +144,27 @@ object FolderPopupStyleHelper {
         val alpha = (opacityPct / 100f * 255f).roundToInt().coerceIn(100, 255)
         val density = context.resources.displayMetrics.density
         val accentColor = ColorTokens.ColorAccent.resolveColor(context)
+
+        if (LiquidGlassStyleHelper.shouldUseForFoldersPopups(context, style)) {
+            val config = LiquidGlassStyleHelper.getConfig(context)
+            val isDark = LiquidGlassStyleHelper.isDarkConfiguration(context)
+            val tint = LiquidGlassStyleHelper.resolveTintColor(config.tintSwatch, isDark, baseColor, accentColor)
+            val blendedColor = ColorUtils.blendARGB(baseColor, tint, 0.55f)
+            val glassAlpha = (alpha * (0.55f + config.density * 0.40f)).roundToInt().coerceIn(95, 248)
+            drawable.setColor(blendedColor)
+            drawable.alpha = glassAlpha
+            val catchAlpha = (145f * config.rimLight).roundToInt().coerceIn(45, 235)
+            val rimColor = if (config.dispersion > 0.12f) {
+                ColorUtils.blendARGB(Color.WHITE, accentColor, 0.28f)
+            } else {
+                Color.WHITE
+            }
+            drawable.setStroke(
+                max(1, (1.4f * density).roundToInt()),
+                ColorUtils.setAlphaComponent(rimColor, catchAlpha),
+            )
+            return
+        }
 
         drawable.alpha = alpha
         when (style) {

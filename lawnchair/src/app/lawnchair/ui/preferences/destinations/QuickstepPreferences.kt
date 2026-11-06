@@ -45,6 +45,7 @@ fun QuickstepPreferences(
 
     val actionBarStyleEntries = remember {
         listOf(
+            ListPreferenceEntry("liquid_glass") { stringResource(R.string.style_option_liquid_glass) },
             ListPreferenceEntry("floating_glass") { stringResource(R.string.recents_bar_style_glass) },
             ListPreferenceEntry("tonal_pill") { stringResource(R.string.recents_bar_style_tonal) },
             ListPreferenceEntry("classic") { stringResource(R.string.recents_bar_style_classic) },

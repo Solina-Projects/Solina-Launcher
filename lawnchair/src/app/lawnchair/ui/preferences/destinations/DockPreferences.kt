@@ -151,6 +151,18 @@ fun HotseatBackgroundSettings(prefs: PreferenceManager, prefs2: PreferenceManage
             onSelectPreset = { presetId ->
                 presetAdapter.onChange(presetId)
                 when (presetId) {
+                    "liquid_glass" -> {
+                        cornerRadiusAdapter.onChange(34f)
+                        alphaAdapter.onChange(82)
+                        insetLeftAdapter.onChange(24)
+                        insetRightAdapter.onChange(24)
+                        insetTopAdapter.onChange(10)
+                        insetBottomAdapter.onChange(10)
+                        glossySheenAdapter.onChange(true)
+                        glassBorderAdapter.onChange(true)
+                        borderWidthAdapter.onChange(2)
+                    }
+
                     "floating_glass" -> {
                         cornerRadiusAdapter.onChange(32f)
                         alphaAdapter.onChange(75)
@@ -271,6 +283,7 @@ private fun DockStylePresetBar(
     modifier: Modifier = Modifier,
 ) {
     val presets = listOf(
+        "liquid_glass" to stringResource(id = R.string.style_option_liquid_glass),
         "floating_glass" to stringResource(id = R.string.hotseat_preset_floating_glass),
         "modern_capsule" to stringResource(id = R.string.hotseat_preset_modern_capsule),
         "neon_card" to stringResource(id = R.string.hotseat_preset_neon_card),

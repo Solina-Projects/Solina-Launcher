@@ -279,6 +279,25 @@ internal object ModularBackupData {
         "closing_app_overlay",
         "enable_font_selection",
         "additional_fonts",
+        "pref_liquidGlassEnabled",
+        "pref_liquidGlassPreset",
+        "pref_liquidGlassTintSwatch",
+        "pref_liquidGlassDensity",
+        "pref_liquidGlassBlurPx",
+        "pref_liquidGlassRimLight",
+        "pref_liquidGlassBevel",
+        "pref_liquidGlassRefraction",
+        "pref_liquidGlassDispersion",
+        "pref_liquidGlassRimWidthDp",
+        "pref_liquidGlassShadow",
+        "pref_liquidGlassApplyDock",
+        "pref_liquidGlassApplyQsb",
+        "pref_liquidGlassApplySmartspace",
+        "pref_liquidGlassApplyDrawer",
+        "pref_liquidGlassApplySuggestions",
+        "pref_liquidGlassApplySearchCards",
+        "pref_liquidGlassApplyFoldersPopups",
+        "pref_liquidGlassApplyRecents",
     )
 
     private val ICON_KEYS = setOf(
@@ -324,7 +343,8 @@ internal object ModularBackupData {
 
             lower.contains("font") || lower.contains("theme") || lower.contains("accent") ||
                 lower.contains("color_style") || lower.contains("stroke_color") ||
-                lower.contains("blur") || lower.contains("notification_dot") ->
+                lower.contains("blur") || lower.contains("notification_dot") ||
+                lower.contains("liquidglass") || lower.contains("liquid_glass") ->
                 LawnchairBackup.INCLUDE_THEME_AND_FONTS
 
             lower.contains("icon_pack") || lower.contains("iconpack") || lower.contains("icon_shape") ||

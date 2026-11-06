@@ -55,6 +55,7 @@ import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.lerp as lerpColor
+import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
@@ -66,6 +67,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import app.lawnchair.glass.LiquidGlassStyleHelper
 import app.lawnchair.preferences.observeAsState
 import app.lawnchair.preferences.preferenceManager
 import app.lawnchair.preferences2.asState
@@ -449,8 +451,18 @@ fun LawnQsbUi(
     actions: QsbActions,
     modifier: Modifier = Modifier,
 ) {
+    val context = LocalContext.current
+    val prefs = preferenceManager()
+    val liquidGlassEnabled by prefs.liquidGlassEnabled.observeAsState()
+    val liquidGlassApplyQsb by prefs.liquidGlassApplyQsb.observeAsState()
+    val liquidGlassPreset by prefs.liquidGlassPreset.observeAsState()
+    val liquidGlassDensity by prefs.liquidGlassDensity.observeAsState()
+    val liquidGlassRimLight by prefs.liquidGlassRimLight.observeAsState()
+    val liquidGlassDispersion by prefs.liquidGlassDispersion.observeAsState()
     val density = LocalDensity.current
     val look = rememberQsb3dSettings()
+    val useLiquidGlass = look.surfaceStyle == LiquidGlassStyleHelper.STYLE_LIQUID_GLASS ||
+        (liquidGlassEnabled && liquidGlassApplyQsb)
 
     val cornerRadius = with(density) { style.cornerRadiusPx.toDp() }
     val strokeWidth = with(density) { style.strokeWidthPx.toDp() }
@@ -458,7 +470,7 @@ fun LawnQsbUi(
 
     val baseColor = ComposeColor(look.backgroundOverride ?: style.backgroundColor)
     val faceColor = baseColor.copy(alpha = style.backgroundAlpha)
-    val is3dBevel = look.enabled && look.surfaceStyle == "3d_bevel"
+    val is3dBevel = !useLiquidGlass && look.enabled && look.surfaceStyle == "3d_bevel"
     val depth = if (is3dBevel) look.depthDp.dp else 0.dp
     val depthPx = with(density) { depth.toPx() }
     val cornerPx = style.cornerRadiusPx
@@ -478,6 +490,25 @@ fun LawnQsbUi(
         .clip(shape)
         .then(
             when {
+                useLiquidGlass -> {
+                    // Touch reactive state keys so Compose redraws when Liquid Glass sliders change
+                    val glassKey = "$liquidGlassPreset|$liquidGlassDensity|$liquidGlassRimLight|$liquidGlassDispersion"
+                    Modifier.drawBehind {
+                        if (glassKey.isNotEmpty()) {
+                            drawIntoCanvas { canvas ->
+                                LiquidGlassStyleHelper.drawOnCanvas(
+                                    context = context,
+                                    canvas = canvas.nativeCanvas,
+                                    rect = android.graphics.RectF(0f, 0f, size.width, size.height),
+                                    radii = FloatArray(8) { cornerPx },
+                                    fallbackColor = baseColor.toArgb(),
+                                    alphaMultiplier = style.backgroundAlpha.coerceIn(0.20f, 1.0f),
+                                )
+                            }
+                        }
+                    }
+                }
+
                 look.surfaceStyle == "glass_capsule" -> {
                     val glassTop = lerpColor(baseColor, ComposeColor.White, 0.34f).copy(alpha = (style.backgroundAlpha * 0.92f).coerceAtMost(1f))
                     val glassBottom = lerpColor(baseColor, ComposeColor.Black, 0.06f).copy(alpha = (style.backgroundAlpha * 0.85f).coerceAtMost(1f))
@@ -540,7 +571,7 @@ fun LawnQsbUi(
                 focusRingShape = shape,
             ),
         )
-        .addIf(style.strokeWidthPx > 0f && look.surfaceStyle != "neon_border") {
+        .addIf(style.strokeWidthPx > 0f && look.surfaceStyle != "neon_border" && !useLiquidGlass) {
             border(strokeWidth, ComposeColor(style.strokeColor), shape)
         }
 

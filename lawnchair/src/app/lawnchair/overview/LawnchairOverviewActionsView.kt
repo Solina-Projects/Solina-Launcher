@@ -2,6 +2,7 @@ package app.lawnchair.overview
 
 import android.content.Context
 import android.graphics.Color
+import android.graphics.drawable.Drawable
 import android.graphics.drawable.GradientDrawable
 import android.util.AttributeSet
 import android.util.TypedValue
@@ -12,6 +13,7 @@ import android.widget.Space
 import androidx.core.graphics.ColorUtils
 import androidx.core.view.ViewCompat
 import androidx.core.view.isVisible
+import app.lawnchair.glass.LiquidGlassStyleHelper
 import app.lawnchair.preferences.PreferenceManager
 import app.lawnchair.theme.color.tokens.ColorTokens
 import app.lawnchair.util.RecentHelper
@@ -65,6 +67,9 @@ class LawnchairOverviewActionsView @JvmOverloads constructor(
         prefs.recentActionOrder.subscribeChanges(this, ::updateVisibilities)
         prefs.recentsActionBarStyle.subscribeChanges(this, ::applyActionBarStyle)
         prefs.recentsActionBarRadius.subscribeChanges(this, ::applyActionBarStyle)
+        prefs.liquidGlassEnabled.subscribeChanges(this, ::applyActionBarStyle)
+        prefs.liquidGlassApplyRecents.subscribeChanges(this, ::applyActionBarStyle)
+        prefs.liquidGlassPreset.subscribeChanges(this, ::applyActionBarStyle)
 
         updateVisibilities()
         applyActionBarStyle()
@@ -79,7 +84,8 @@ class LawnchairOverviewActionsView @JvmOverloads constructor(
     private fun applyActionBarStyle() {
         if (!::container.isInitialized) return
         val style = prefs.recentsActionBarStyle.get()
-        if (style == "classic") {
+        val useLiquidGlass = LiquidGlassStyleHelper.shouldUseForRecents(context, style)
+        if (style == "classic" && !useLiquidGlass) {
             container.background = null
             container.setPadding(0, 0, 0, 0)
             return
@@ -87,36 +93,45 @@ class LawnchairOverviewActionsView @JvmOverloads constructor(
         val radiusPx = dpToPx(prefs.recentsActionBarRadius.get().toFloat())
         val surfaceColor = ColorTokens.Surface.resolveColor(context)
         val accentColor = ColorTokens.ColorAccent.resolveColor(context)
-        val bg = GradientDrawable().apply {
-            cornerRadius = radiusPx
-            when (style) {
-                "tonal_pill" -> {
-                    val fill = ColorUtils.blendARGB(surfaceColor, accentColor, 0.22f)
-                    setColor(ColorUtils.setAlphaComponent(fill, 228))
-                    setStroke(
-                        dpToPx(1.2f).roundToInt().coerceAtLeast(1),
-                        ColorUtils.setAlphaComponent(accentColor, 140),
-                    )
-                }
+        val bg: Drawable = if (useLiquidGlass) {
+            LiquidGlassStyleHelper.createDrawable(
+                context = context,
+                cornerRadiusPx = radiusPx,
+                fallbackColor = surfaceColor,
+                alphaMultiplier = 1f,
+            )
+        } else {
+            GradientDrawable().apply {
+                cornerRadius = radiusPx
+                when (style) {
+                    "tonal_pill" -> {
+                        val fill = ColorUtils.blendARGB(surfaceColor, accentColor, 0.22f)
+                        setColor(ColorUtils.setAlphaComponent(fill, 228))
+                        setStroke(
+                            dpToPx(1.2f).roundToInt().coerceAtLeast(1),
+                            ColorUtils.setAlphaComponent(accentColor, 140),
+                        )
+                    }
 
-                else -> {
-                    val topColor = ColorUtils.setAlphaComponent(
-                        ColorUtils.blendARGB(surfaceColor, Color.WHITE, 0.16f),
-                        220,
-                    )
-                    val bottomColor = ColorUtils.setAlphaComponent(
-                        ColorUtils.blendARGB(surfaceColor, Color.BLACK, 0.12f),
-                        205,
-                    )
-                    orientation = GradientDrawable.Orientation.TOP_BOTTOM
-                    colors = intArrayOf(topColor, bottomColor)
-                    setStroke(
-                        dpToPx(1.2f).roundToInt().coerceAtLeast(1),
-                        ColorUtils.setAlphaComponent(
-                            ColorUtils.blendARGB(surfaceColor, Color.WHITE, 0.42f),
-                            165,
-                        ),
-                    )
+                    else -> {
+                        val topColor = ColorUtils.setAlphaComponent(
+                            ColorUtils.blendARGB(surfaceColor, Color.WHITE, 0.16f),
+                            220,
+                        )
+                        val bottomColor = ColorUtils.setAlphaComponent(
+                            ColorUtils.blendARGB(surfaceColor, Color.BLACK, 0.12f),
+                            205,
+                        )
+                        orientation = GradientDrawable.Orientation.TOP_BOTTOM
+                        colors = intArrayOf(topColor, bottomColor)
+                        setStroke(
+                            dpToPx(1.2f).roundToInt().coerceAtLeast(1),
+                            ColorUtils.setAlphaComponent(
+                                ColorUtils.blendARGB(surfaceColor, Color.WHITE, 0.42f),
+                                165,
+                            ),
+                        )
+                    }
                 }
             }
         }

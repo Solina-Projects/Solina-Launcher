@@ -176,6 +176,7 @@ fun SmartspaceCardStylePreferences(
 
     val styleEntries = listOf(
         ListPreferenceEntry("transparent") { stringResource(R.string.smartspace_card_style_transparent) },
+        ListPreferenceEntry("liquid_glass") { stringResource(R.string.style_option_liquid_glass) },
         ListPreferenceEntry("glass_card") { stringResource(R.string.smartspace_card_style_glass_card) },
         ListPreferenceEntry("tonal_capsule") { stringResource(R.string.smartspace_card_style_tonal_capsule) },
         ListPreferenceEntry("elevated_card") { stringResource(R.string.smartspace_card_style_elevated_card) },

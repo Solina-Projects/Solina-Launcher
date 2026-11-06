@@ -87,6 +87,7 @@ fun LauncherPopupPreference(
 
     val popupStyleEntries = remember {
         listOf(
+            ListPreferenceEntry("liquid_glass") { stringResource(R.string.style_option_liquid_glass) },
             ListPreferenceEntry("glass_card") { stringResource(R.string.popup_style_glass_card) },
             ListPreferenceEntry("elevated_3d") { stringResource(R.string.popup_style_elevated_3d) },
             ListPreferenceEntry("neon_border") { stringResource(R.string.popup_style_neon_border) },
@@ -192,6 +193,7 @@ private fun LauncherPopupPreview(
             val outerCorner = CornerSize(cornerRadiusDp.coerceIn(12, 36).dp)
             val defaultCorner = CornerSize(6.dp)
             val borderStroke = when (surfaceStyle) {
+                "liquid_glass" -> BorderStroke(1.2.dp, Color.White.copy(alpha = 0.55f))
                 "glass_card" -> BorderStroke(1.dp, Color.White.copy(alpha = 0.35f))
                 "elevated_3d" -> BorderStroke(1.2.dp, MaterialTheme.colorScheme.outlineVariant)
                 "neon_border" -> BorderStroke(1.5.dp, MaterialTheme.colorScheme.primary)

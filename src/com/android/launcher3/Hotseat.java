@@ -29,6 +29,7 @@ import android.animation.ValueAnimator;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.Rect;
+import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.graphics.drawable.InsetDrawable;
 import android.util.AttributeSet;
@@ -58,6 +59,7 @@ import java.io.PrintWriter;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
+import app.lawnchair.glass.LiquidGlassStyleHelper;
 import app.lawnchair.hotseat.DisabledHotseat;
 import app.lawnchair.hotseat.HotseatMode;
 import app.lawnchair.hotseat.HotseatPagedView;
@@ -249,29 +251,40 @@ public class Hotseat extends FrameLayout implements Insettable {
                 TypedValue.COMPLEX_UNIT_DIP,
                 cornerRadiusDp,
                 getResources().getDisplayMetrics());
-        boolean glossySheen = preferenceManager.getHotseatBGGlossySheen().get();
-        boolean glassBorder = preferenceManager.getHotseatBGGlassBorder().get();
-        int borderWidthDp = preferenceManager.getHotseatBGGlassBorderWidth().get();
-        GradientDrawable background = new GradientDrawable();
-        if (glossySheen) {
-            int topColor = blendHotseatColor(baseColor, Color.WHITE, 0.22f, Math.min(255, Math.round(alphaValue * 1.06f)));
-            int bottomColor = blendHotseatColor(baseColor, Color.BLACK, 0.14f, alphaValue);
-            background.setOrientation(GradientDrawable.Orientation.TOP_BOTTOM);
-            background.setColors(new int[] { topColor, finalColor, bottomColor });
+        String stylePreset = preferenceManager.getHotseatBGStylePreset().get();
+        Drawable targetDrawable;
+        if (LiquidGlassStyleHelper.shouldUseForDock(getContext(), stylePreset)) {
+            targetDrawable = LiquidGlassStyleHelper.createDrawable(
+                    getContext(),
+                    cornerRadius,
+                    baseColor,
+                    Math.max(0.15f, transparency / 100f));
         } else {
-            background.setColor(finalColor);
+            boolean glossySheen = preferenceManager.getHotseatBGGlossySheen().get();
+            boolean glassBorder = preferenceManager.getHotseatBGGlassBorder().get();
+            int borderWidthDp = preferenceManager.getHotseatBGGlassBorderWidth().get();
+            GradientDrawable background = new GradientDrawable();
+            if (glossySheen) {
+                int topColor = blendHotseatColor(baseColor, Color.WHITE, 0.22f, Math.min(255, Math.round(alphaValue * 1.06f)));
+                int bottomColor = blendHotseatColor(baseColor, Color.BLACK, 0.14f, alphaValue);
+                background.setOrientation(GradientDrawable.Orientation.TOP_BOTTOM);
+                background.setColors(new int[] { topColor, finalColor, bottomColor });
+            } else {
+                background.setColor(finalColor);
+            }
+            background.setCornerRadius(cornerRadius);
+            if (glassBorder && borderWidthDp > 0) {
+                int strokeWidthPx = Math.max(1, Math.round(TypedValue.applyDimension(
+                        TypedValue.COMPLEX_UNIT_DIP,
+                        borderWidthDp,
+                        getResources().getDisplayMetrics())));
+                int borderAlpha = Math.max(70, Math.min(235, Math.round(alphaValue * 0.85f)));
+                int borderColor = blendHotseatColor(baseColor, Color.WHITE, 0.46f, borderAlpha);
+                background.setStroke(strokeWidthPx, borderColor);
+            }
+            targetDrawable = background;
         }
-        background.setCornerRadius(cornerRadius);
-        if (glassBorder && borderWidthDp > 0) {
-            int strokeWidthPx = Math.max(1, Math.round(TypedValue.applyDimension(
-                    TypedValue.COMPLEX_UNIT_DIP,
-                    borderWidthDp,
-                    getResources().getDisplayMetrics())));
-            int borderAlpha = Math.max(70, Math.min(235, Math.round(alphaValue * 0.85f)));
-            int borderColor = blendHotseatColor(baseColor, Color.WHITE, 0.46f, borderAlpha);
-            background.setStroke(strokeWidthPx, borderColor);
-        }
-        InsetDrawable bg = new InsetDrawable(background,
+        InsetDrawable bg = new InsetDrawable(targetDrawable,
                 insetHorizontalLeft, insetVerticalTop, insetHorizontalRight, insetVerticalBottom) {
             @Override
             public boolean getPadding(Rect padding) {

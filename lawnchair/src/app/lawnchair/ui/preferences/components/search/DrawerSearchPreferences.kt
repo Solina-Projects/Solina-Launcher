@@ -69,6 +69,7 @@ fun DrawerSearchPreference(
 
         val searchCardStyleEntries = remember {
             listOf(
+                ListPreferenceEntry("liquid_glass") { stringResource(R.string.style_option_liquid_glass) },
                 ListPreferenceEntry("glass_card") { stringResource(R.string.search_card_style_glass) },
                 ListPreferenceEntry("tonal_pod") { stringResource(R.string.search_card_style_tonal) },
                 ListPreferenceEntry("elevated_3d") { stringResource(R.string.search_card_style_3d) },

@@ -2030,6 +2030,7 @@ public class Folder extends AbstractFloatingView implements ClipPathView, DragSo
             int count = canvas.save();
             canvas.clipPath(mClipPath.getPath());
             mBackground.draw(canvas);
+            FolderPopupStyleHelper.drawOpenFolderOverlay(getContext(), canvas, mBackground.getBounds());
             if (!mIsAnimatingClosed) {
                 // If animating open, clip the content to the clip path to keep in bounds.
                 super.dispatchDraw(canvas);
@@ -2041,6 +2042,7 @@ public class Folder extends AbstractFloatingView implements ClipPathView, DragSo
             }
         } else {
             mBackground.draw(canvas);
+            FolderPopupStyleHelper.drawOpenFolderOverlay(getContext(), canvas, mBackground.getBounds());
             super.dispatchDraw(canvas);
         }
     }

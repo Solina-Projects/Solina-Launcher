@@ -10,6 +10,7 @@ import android.graphics.RectF
 import android.graphics.Shader
 import android.view.View
 import androidx.core.graphics.ColorUtils
+import app.lawnchair.glass.LiquidGlassStyleHelper
 import app.lawnchair.preferences.PreferenceManager
 import app.lawnchair.theme.color.tokens.ColorTokens
 import com.android.launcher3.R
@@ -108,6 +109,18 @@ class SearchItemBackground(
 
         val radii = computeCornerRadii()
         tmpRect.set(left, top, right, bottom)
+        if (LiquidGlassStyleHelper.shouldUseForSearchCards(context, style)) {
+            LiquidGlassStyleHelper.drawOnCanvas(
+                context = context,
+                canvas = c,
+                rect = tmpRect,
+                radii = radii,
+                fallbackColor = baseColor,
+                alphaMultiplier = alphaPercent / 100f,
+            )
+            return
+        }
+
         tmpPath.reset()
         tmpPath.addRoundRect(tmpRect, radii, Path.Direction.CW)
 

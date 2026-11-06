@@ -58,6 +58,7 @@ import app.lawnchair.ui.preferences.navigation.GeneralAdvancedIcons
 import app.lawnchair.ui.preferences.navigation.GeneralIconPack
 import app.lawnchair.ui.preferences.navigation.GeneralIconShape
 import app.lawnchair.ui.preferences.navigation.GeneralThemedIcons
+import app.lawnchair.ui.preferences.navigation.LiquidGlass
 import com.android.launcher3.BuildConfig
 import com.android.launcher3.R
 import com.android.launcher3.Utilities
@@ -223,6 +224,11 @@ fun GeneralPreferences(modifier: Modifier = Modifier) {
             ExpandAndShrink(visible = showColorStyle) {
                 ColorStylePreference(prefs2.colorStyle.getAdapter())
             }
+            NavigationActionPreference(
+                label = stringResource(id = R.string.liquid_glass_studio_title),
+                destination = LiquidGlass,
+                subtitle = stringResource(id = R.string.liquid_glass_studio_description),
+            )
         }
 
         val notificationEnabled by remember { notificationDotsEnabled(context) }.collectAsStateWithLifecycle(initialValue = false)

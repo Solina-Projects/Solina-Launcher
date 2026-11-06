@@ -108,6 +108,11 @@ data object ExperimentalFeatures : PreferenceRootRoute, PreferenceDeepLink {
 }
 
 @Serializable
+data object LiquidGlass : PreferenceRootRoute, PreferenceDeepLink {
+    override val deepLink = "$URI/liquid-glass"
+}
+
+@Serializable
 data object Predictions : PreferenceRoute, PreferenceDeepLink {
     override val deepLink = "$URI/predictions"
 }

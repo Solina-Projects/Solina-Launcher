@@ -30,6 +30,7 @@ fun QsbLookPreferences(
     val enabledAdapter = prefs2.qsb3dEnabled.getAdapter()
 
     val styleEntries = listOf(
+        ListPreferenceEntry("liquid_glass") { stringResource(R.string.style_option_liquid_glass) },
         ListPreferenceEntry("3d_bevel") { stringResource(R.string.qsb_surface_style_3d_bevel) },
         ListPreferenceEntry("glass_capsule") { stringResource(R.string.qsb_surface_style_glass_capsule) },
         ListPreferenceEntry("neon_border") { stringResource(R.string.qsb_surface_style_neon_border) },

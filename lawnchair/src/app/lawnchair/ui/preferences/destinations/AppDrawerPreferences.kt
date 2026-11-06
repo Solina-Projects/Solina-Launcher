@@ -82,6 +82,7 @@ fun AppDrawerPreferences(
 
     val categoryBarStyleEntries = remember {
         listOf(
+            ListPreferenceEntry("liquid_glass") { stringResource(R.string.style_option_liquid_glass) },
             ListPreferenceEntry("floating_glass") { stringResource(R.string.drawer_cat_bar_style_glass) },
             ListPreferenceEntry("tonal_segmented") { stringResource(R.string.drawer_cat_bar_style_segmented) },
             ListPreferenceEntry("neon_chips") { stringResource(R.string.drawer_cat_bar_style_neon) },
@@ -92,6 +93,7 @@ fun AppDrawerPreferences(
     val cardStyleEntries = remember {
         listOf(
             ListPreferenceEntry("none") { stringResource(R.string.drawer_card_style_none) },
+            ListPreferenceEntry("liquid_glass") { stringResource(R.string.style_option_liquid_glass) },
             ListPreferenceEntry("tonal_pod") { stringResource(R.string.drawer_card_style_tonal) },
             ListPreferenceEntry("glass_card") { stringResource(R.string.drawer_card_style_glass) },
             ListPreferenceEntry("elevated_3d") { stringResource(R.string.drawer_card_style_3d) },

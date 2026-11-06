@@ -16,6 +16,7 @@ import android.widget.HorizontalScrollView
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.core.graphics.ColorUtils
+import app.lawnchair.glass.LiquidGlassStyleHelper
 import app.lawnchair.preferences.PreferenceManager
 import app.lawnchair.preferences2.PreferenceManager2
 import app.lawnchair.preferences2.firstCached
@@ -64,11 +65,13 @@ class AllAppsCategoryBar(context: Context) : HorizontalScrollView(context) {
         onSelect: (String) -> Unit,
     ) {
         val style = prefs.drawerCategoryBarStyle.get()
+        val useLiquidGlass = LiquidGlassStyleHelper.shouldUseForDrawer(context, style)
         val showCounts = prefs.drawerCaddyShowCounts.get()
         val usePersianDigits = prefs2.smartspacePersianNumerals.firstCached() ||
             Locale.getDefault().language == "fa"
         val signature = buildString {
-            append(style).append('|').append(showCounts).append('|')
+            append(style).append('|').append(useLiquidGlass).append('|')
+            append(prefs.liquidGlassPreset.get()).append('|').append(showCounts).append('|')
             append(selectedId).append('|').append(usePersianDigits).append('|')
             chips.forEach { append(it.id).append(':').append(it.title).append(':').append(it.count).append(';') }
         }
@@ -89,7 +92,7 @@ class AllAppsCategoryBar(context: Context) : HorizontalScrollView(context) {
             Color.WHITE
         }
 
-        if (style == "tonal_segmented") {
+        if (style == "tonal_segmented" && !useLiquidGlass) {
             val trackBg = GradientDrawable().apply {
                 shape = GradientDrawable.RECTANGLE
                 cornerRadius = 18f * density
@@ -113,6 +116,7 @@ class AllAppsCategoryBar(context: Context) : HorizontalScrollView(context) {
                 setPadding(hInner, vInner, hInner, vInner)
                 background = buildChipDrawable(
                     style = style,
+                    useLiquidGlass = useLiquidGlass,
                     isSelected = isSelected,
                     accentColor = accentColor,
                     surfaceColor = surfaceColor,
@@ -141,6 +145,7 @@ class AllAppsCategoryBar(context: Context) : HorizontalScrollView(context) {
                 )
                 setTextColor(
                     when {
+                        useLiquidGlass && isSelected -> accentColor
                         style == "neon_chips" && isSelected -> accentColor
                         style == "classic_tabs" && isSelected -> accentColor
                         isSelected -> selectedTextColor
@@ -167,7 +172,7 @@ class AllAppsCategoryBar(context: Context) : HorizontalScrollView(context) {
                     val badgeBg = GradientDrawable().apply {
                         shape = GradientDrawable.RECTANGLE
                         cornerRadius = 999f
-                        val badgeColor = if (isSelected && style != "neon_chips" && style != "classic_tabs") {
+                        val badgeColor = if (isSelected && !useLiquidGlass && style != "neon_chips" && style != "classic_tabs") {
                             ColorUtils.setAlphaComponent(selectedTextColor, 45)
                         } else {
                             ColorUtils.setAlphaComponent(accentColor, 38)
@@ -176,7 +181,7 @@ class AllAppsCategoryBar(context: Context) : HorizontalScrollView(context) {
                     }
                     background = badgeBg
                     setTextColor(
-                        if (isSelected && style != "neon_chips" && style != "classic_tabs") {
+                        if (isSelected && !useLiquidGlass && style != "neon_chips" && style != "classic_tabs") {
                             selectedTextColor
                         } else {
                             textSecondary
@@ -206,11 +211,20 @@ class AllAppsCategoryBar(context: Context) : HorizontalScrollView(context) {
 
     private fun buildChipDrawable(
         style: String,
+        useLiquidGlass: Boolean,
         isSelected: Boolean,
         accentColor: Int,
         surfaceColor: Int,
         density: Float,
     ): Drawable {
+        if (useLiquidGlass || style == LiquidGlassStyleHelper.STYLE_LIQUID_GLASS) {
+            return LiquidGlassStyleHelper.createDrawable(
+                context = context,
+                cornerRadiusPx = 22f * density,
+                fallbackColor = if (isSelected) accentColor else surfaceColor,
+                alphaMultiplier = if (isSelected) 1.15f else 0.78f,
+            )
+        }
         return when (style) {
             "tonal_segmented" -> GradientDrawable().apply {
                 shape = GradientDrawable.RECTANGLE

@@ -56,6 +56,7 @@ fun FolderPreferences(
             ?: stringResource(id = R.string.custom)
         val folderStyleEntries = remember {
             listOf(
+                ListPreferenceEntry("liquid_glass") { stringResource(R.string.style_option_liquid_glass) },
                 ListPreferenceEntry("glass_card") { stringResource(R.string.folder_style_glass_card) },
                 ListPreferenceEntry("elevated_3d") { stringResource(R.string.folder_style_elevated_3d) },
                 ListPreferenceEntry("neon_border") { stringResource(R.string.folder_style_neon_border) },

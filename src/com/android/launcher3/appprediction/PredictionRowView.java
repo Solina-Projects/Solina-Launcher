@@ -44,6 +44,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.graphics.ColorUtils;
 
+import app.lawnchair.glass.LiquidGlassStyleHelper;
 import app.lawnchair.preferences2.PreferenceCacheExtensionsKt;
 import app.lawnchair.preferences2.PreferenceManager2;
 import app.lawnchair.theme.color.ColorOption;
@@ -206,6 +207,15 @@ public class PredictionRowView<T extends Context & ActivityContext>
         int baseAlpha = Math.round(Color.alpha(color) * alpha);
         float radius = PreferenceCacheExtensionsKt.firstCached(
                 prefs2.getSuggestionCornerRadius()) * density;
+        if (LiquidGlassStyleHelper.shouldUseForSuggestions(getContext())) {
+            mCard.setPadding(padding, padding, padding, padding);
+            mCard.setBackground(LiquidGlassStyleHelper.createDrawable(
+                    getContext(),
+                    radius,
+                    color,
+                    Math.max(0.18f, alpha)));
+            return;
+        }
         int thickness = Math.round(4 * density);
         // The raised edge sits under the face, so reserve its height at the bottom.
         mCard.setPadding(padding, padding, padding, padding + thickness);
