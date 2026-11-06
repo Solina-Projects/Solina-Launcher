@@ -1582,6 +1582,10 @@ public class BubbleTextView extends TextView implements ItemInfoUpdateReceiver,
         }
     }
 
+    public void setCustomIconDrawable(FastBitmapDrawable icon) {
+        setIcon(icon);
+    }
+
     @Override
     public void setIconVisible(boolean visible) {
         mIsIconVisible = visible;

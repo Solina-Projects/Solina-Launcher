@@ -10,6 +10,7 @@ import android.graphics.PorterDuffXfermode
 import android.util.LruCache
 import com.android.launcher3.BubbleTextView
 import com.android.launcher3.icons.FastBitmapDrawable
+import com.android.launcher3.model.data.ItemInfoWithIcon
 
 /**
  * Applies an independent, dedicated [IconShape] mask exclusively to Suggested Apps
@@ -40,13 +41,15 @@ object SuggestionIconShapeHelper {
         iconSizePx: Int,
     ) {
         if (iconShape == null || iconSizePx <= 0) return
-        val currentIcon = bubbleTextView.icon ?: return
-        val sourceBitmap = (currentIcon as? FastBitmapDrawable)?.bitmap ?: return
-        if (sourceBitmap.isRecycled || sourceBitmap.width <= 0 || sourceBitmap.height <= 0) return
+        val itemInfo = bubbleTextView.tag as? ItemInfoWithIcon
+        val infoBitmap = itemInfo?.bitmap?.icon
+        val currentIcon = bubbleTextView.icon
+        if (infoBitmap == null && currentIcon == null) return
 
-        val tagKey = bubbleTextView.tag?.toString() ?: sourceBitmap.generationId.toString()
+        val genId = infoBitmap?.generationId ?: System.identityHashCode(currentIcon)
+        val tagKey = itemInfo?.componentKey?.toString() ?: bubbleTextView.text?.toString().orEmpty()
         val shapeKey = iconShape.toString()
-        val cacheKey = "$tagKey|$shapeKey|$iconSizePx|${sourceBitmap.generationId}"
+        val cacheKey = "$tagKey|$shapeKey|$iconSizePx|$genId"
 
         val maskedBitmap = maskedBitmapCache.get(cacheKey) ?: run {
             val out = Bitmap.createBitmap(iconSizePx, iconSizePx, Bitmap.Config.ARGB_8888)
@@ -66,12 +69,19 @@ object SuggestionIconShapeHelper {
             maskCanvas.drawPath(path, fillPaint)
 
             val outCanvas = Canvas(out)
-            val srcMatrix = Matrix()
-            srcMatrix.setScale(
-                iconSizePx.toFloat() / sourceBitmap.width.toFloat(),
-                iconSizePx.toFloat() / sourceBitmap.height.toFloat(),
-            )
-            outCanvas.drawBitmap(sourceBitmap, srcMatrix, bitmapPaint)
+            if (infoBitmap != null && !infoBitmap.isRecycled && infoBitmap.width > 0 && infoBitmap.height > 0) {
+                val srcMatrix = Matrix()
+                srcMatrix.setScale(
+                    iconSizePx.toFloat() / infoBitmap.width.toFloat(),
+                    iconSizePx.toFloat() / infoBitmap.height.toFloat(),
+                )
+                outCanvas.drawBitmap(infoBitmap, srcMatrix, bitmapPaint)
+            } else if (currentIcon != null) {
+                val oldBounds = currentIcon.copyBounds()
+                currentIcon.setBounds(0, 0, iconSizePx, iconSizePx)
+                currentIcon.draw(outCanvas)
+                currentIcon.bounds = oldBounds
+            }
             outCanvas.drawBitmap(maskBitmap, 0f, 0f, maskPaint)
             maskBitmap.recycle()
 
@@ -81,7 +91,6 @@ object SuggestionIconShapeHelper {
 
         val shapedDrawable = FastBitmapDrawable(maskedBitmap)
         shapedDrawable.setBounds(0, 0, iconSizePx, iconSizePx)
-        bubbleTextView.setIconVisible(true)
-        bubbleTextView.applyCompoundDrawables(shapedDrawable)
+        bubbleTextView.setCustomIconDrawable(shapedDrawable)
     }
 }

@@ -532,9 +532,7 @@ object AllAppsCardStyler {
             context = context,
             prefs2 = prefs2,
             density = density,
-            defaultAccentColor = accentColor,
             insetHorizontalPx = inset,
-            insetVerticalPx = inset / 2,
         )
     }
 
@@ -543,9 +541,7 @@ object AllAppsCardStyler {
         context: Context,
         prefs2: PreferenceManager2,
         density: Float,
-        defaultAccentColor: Int,
         insetHorizontalPx: Int,
-        insetVerticalPx: Int,
     ): android.graphics.drawable.Drawable? {
         val outlineEnabled = prefs2.drawerAppsOutlineEnabled.firstCached()
         val target = prefs2.drawerAppsOutlineTarget.firstCached()
@@ -553,25 +549,18 @@ object AllAppsCardStyler {
             return baseDrawable
         }
         val outlineStyle = prefs2.drawerAppsOutlineStyle.firstCached()
-        val strokeWidthPx = (prefs2.drawerAppsOutlineWidthDp.firstCached() * density).coerceAtLeast(1f)
+        val strokeWidthDp = prefs2.drawerAppsOutlineWidthDp.firstCached().coerceAtLeast(1f)
         val cornerRadiusPx = (prefs2.drawerAppsOutlineRadiusDp.firstCached() * density).coerceAtLeast(4f)
         val colorOpt = prefs2.drawerAppsOutlineColor.firstCached()
-        val primaryColor = if (colorOpt.isSupported) {
-            colorOpt.colorPreferenceEntry.lightColor.invoke(context)
-        } else {
-            defaultAccentColor
-        }
-        val secondaryColor = ColorTokens.SurfaceBright.resolveColor(context)
+        val outlineColor = OutlineStyleRenderer.resolveOutlineColor(context, colorOpt)
         return OutlineStyleRenderer.createOutlineDrawable(
-            baseDrawable = baseDrawable,
             cornerRadiusPx = cornerRadiusPx,
             style = outlineStyle,
-            strokeWidthPx = strokeWidthPx,
-            primaryColor = primaryColor,
-            secondaryColor = secondaryColor,
-            alpha = 240,
-            insetHorizontalPx = insetHorizontalPx,
-            insetVerticalPx = insetVerticalPx,
+            strokeWidthDp = strokeWidthDp,
+            color = outlineColor,
+            density = density,
+            insetPx = insetHorizontalPx,
+            baseDrawable = baseDrawable,
         )
     }
 
@@ -589,15 +578,11 @@ object AllAppsCardStyler {
         }
         val density = context.resources.displayMetrics.density
         val outlineStyle = prefs2.drawerAppsOutlineStyle.firstCached()
-        val strokeWidthPx = (prefs2.drawerAppsOutlineWidthDp.firstCached() * density).coerceAtLeast(1f)
+        val strokeWidthDp = prefs2.drawerAppsOutlineWidthDp.firstCached().coerceAtLeast(1f)
+        val strokeWidthPx = (strokeWidthDp * density).coerceAtLeast(1f)
         val cornerRadiusPx = (prefs2.drawerAppsOutlineRadiusDp.firstCached() * density).coerceAtLeast(8f)
         val colorOpt = prefs2.drawerAppsOutlineColor.firstCached()
-        val primaryColor = if (colorOpt.isSupported) {
-            colorOpt.colorPreferenceEntry.lightColor.invoke(context)
-        } else {
-            ColorTokens.AllAppsTabBackgroundSelected.resolveColor(context)
-        }
-        val secondaryColor = ColorTokens.SurfaceBright.resolveColor(context)
+        val outlineColor = OutlineStyleRenderer.resolveOutlineColor(context, colorOpt)
         val scrollY = view.scrollY
         val sideInset = (8f * density) + strokeWidthPx
         val topInset = scrollY + view.paddingTop.toFloat() + strokeWidthPx
@@ -614,10 +599,10 @@ object AllAppsCardStyler {
             bounds = rect,
             cornerRadiusPx = cornerRadiusPx,
             style = outlineStyle,
-            strokeWidthPx = strokeWidthPx,
-            primaryColor = primaryColor,
-            secondaryColor = secondaryColor,
-            alpha = 245,
+            strokeWidthDp = strokeWidthDp,
+            color = outlineColor,
+            density = density,
+            alphaMultiplier = 0.96f,
         )
     }
 
