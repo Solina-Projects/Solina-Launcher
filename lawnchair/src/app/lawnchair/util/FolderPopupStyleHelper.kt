@@ -121,24 +121,22 @@ object FolderPopupStyleHelper {
     @JvmStatic
     fun resolvePopupOutlineRadius(
         context: Context,
+        profile: PopupProfile,
         defaultRadius: Float,
     ): Float {
-        val prefs = PreferenceManager.getInstance(context)
-        val style = prefs.popupSurfaceStyle.get()
-        if (style == "classic" && !LiquidGlassStyleHelper.shouldUseForFoldersPopups(context, style)) {
+        if (profile.style == "classic") {
             return defaultRadius
         }
         val density = context.resources.displayMetrics.density
-        return prefs.popupCornerRadiusDp.get().coerceIn(12, 36) * density
+        return profile.radiusDp.coerceIn(12, 36) * density
     }
 
     @JvmStatic
     fun applyPopupAlphaToColor(
-        context: Context,
+        profile: PopupProfile,
         baseColor: Int,
     ): Int {
-        val prefs = PreferenceManager.getInstance(context)
-        val opacityPct = prefs.popupBgOpacity.get().coerceIn(20, 100)
+        val opacityPct = profile.opacityPct.coerceIn(20, 100)
         val alpha = (opacityPct / 100f * 255f).roundToInt().coerceIn(51, 255)
         return ColorUtils.setAlphaComponent(baseColor, alpha)
     }
@@ -146,18 +144,19 @@ object FolderPopupStyleHelper {
     @JvmStatic
     fun applyPopupItemDrawable(
         context: Context,
+        profile: PopupProfile,
         drawable: GradientDrawable,
         baseColor: Int,
     ) {
-        val prefs = PreferenceManager.getInstance(context)
-        val style = prefs.popupSurfaceStyle.get()
-        val opacityPct = prefs.popupBgOpacity.get().coerceIn(20, 100)
+        val style = profile.style
+        val opacityPct = profile.opacityPct.coerceIn(20, 100)
         val alpha = (opacityPct / 100f * 255f).roundToInt().coerceIn(51, 255)
         val density = context.resources.displayMetrics.density
         val accentColor = ColorTokens.ColorAccent.resolveColor(context)
         val opaqueBase = ColorUtils.setAlphaComponent(baseColor, 255)
 
-        if (LiquidGlassStyleHelper.shouldUseForFoldersPopups(context, style)) {
+        // Menus follow their own style only; the Glass Studio toggle no longer controls them.
+        if (LiquidGlassStyleHelper.shouldUseLiquidGlass(context, style, false)) {
             val config = LiquidGlassStyleHelper.getConfig(context)
             val isDark = LiquidGlassStyleHelper.isDarkConfiguration(context)
             val tint = ColorUtils.setAlphaComponent(

@@ -1379,8 +1379,8 @@
     <string name="liquid_glass_apply_suggestions_desc">Render the top/bottom suggested apps container as a Liquid Glass slab</string>
     <string name="liquid_glass_apply_search_cards_label">Search Result Cards</string>
     <string name="liquid_glass_apply_search_cards_desc">Style universal search results with Liquid Glass cards</string>
-    <string name="liquid_glass_apply_folders_popups_label">Open Folders &amp; Popup Menus</string>
-    <string name="liquid_glass_apply_folders_popups_desc">Apply Liquid Glass to open folder windows and long-press shortcut popups</string>
+    <string name="liquid_glass_apply_folders_popups_label">Open Folders</string>
+    <string name="liquid_glass_apply_folders_popups_desc">Apply Liquid Glass to open folder windows. Pop-up menus are styled in General &gt; Pop-up menus</string>
     <string name="liquid_glass_apply_recents_label">Recents Action Bar (Quickstep)</string>
     <string name="liquid_glass_apply_recents_desc">Style the Overview bottom action bar pill with Liquid Glass</string>
     <string name="liquid_glass_css_export_heading">Glasswork CSS Output</string>
@@ -1417,4 +1417,16 @@
     <string name="drawer_outline_target_container">All Apps outer frame only</string>
     <string name="drawer_apps_outline_radius_label">Outline corner radius</string>
     <string name="drawer_apps_outline_color_label">All Apps outline color</string>
+    <string name="popup_menu_style_title">Pop-up menus</string>
+    <string name="popup_menu_style_description">Background, text color, opacity, shape and design of long-press menus</string>
+    <string name="popup_menu_bg_color_label">Background color</string>
+    <string name="popup_menu_text_color_label">Text color</string>
+    <string name="popup_menu_link_label">Use one style for all menus</string>
+    <string name="popup_menu_link_desc">When off, each menu below has its own style</string>
+    <string name="popup_menu_all_menus">All menus</string>
+    <string name="popup_kind_home_menu">Home screen menu</string>
+    <string name="popup_kind_home_menu_desc">Long-press on empty home screen space</string>
+    <string name="popup_kind_app_drawer">App drawer apps</string>
+    <string name="popup_kind_app_home">Home screen apps</string>
+    <string name="popup_kind_app_dock">Dock apps</string>
 </resources>

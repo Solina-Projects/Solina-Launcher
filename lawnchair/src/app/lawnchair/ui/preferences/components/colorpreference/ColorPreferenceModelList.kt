@@ -19,6 +19,76 @@ class ColorPreferenceModelList @Inject constructor(
         val prefs = PreferenceManager2.getInstance(context)
         registerModel(
             ColorPreferenceModel(
+                prefObject = prefs.popupSharedBackgroundColor,
+                labelRes = R.string.popup_menu_bg_color_label,
+                dynamicEntries = dynamicColorsWithDefault,
+            ),
+        )
+        registerModel(
+            ColorPreferenceModel(
+                prefObject = prefs.popupSharedTextColor,
+                labelRes = R.string.popup_menu_text_color_label,
+                dynamicEntries = dynamicColorsWithDefault,
+            ),
+        )
+        registerModel(
+            ColorPreferenceModel(
+                prefObject = prefs.popupHomeMenuBackgroundColor,
+                labelRes = R.string.popup_menu_bg_color_label,
+                dynamicEntries = dynamicColorsWithDefault,
+            ),
+        )
+        registerModel(
+            ColorPreferenceModel(
+                prefObject = prefs.popupHomeMenuTextColor,
+                labelRes = R.string.popup_menu_text_color_label,
+                dynamicEntries = dynamicColorsWithDefault,
+            ),
+        )
+        registerModel(
+            ColorPreferenceModel(
+                prefObject = prefs.popupAppDrawerBackgroundColor,
+                labelRes = R.string.popup_menu_bg_color_label,
+                dynamicEntries = dynamicColorsWithDefault,
+            ),
+        )
+        registerModel(
+            ColorPreferenceModel(
+                prefObject = prefs.popupAppDrawerTextColor,
+                labelRes = R.string.popup_menu_text_color_label,
+                dynamicEntries = dynamicColorsWithDefault,
+            ),
+        )
+        registerModel(
+            ColorPreferenceModel(
+                prefObject = prefs.popupAppHomeBackgroundColor,
+                labelRes = R.string.popup_menu_bg_color_label,
+                dynamicEntries = dynamicColorsWithDefault,
+            ),
+        )
+        registerModel(
+            ColorPreferenceModel(
+                prefObject = prefs.popupAppHomeTextColor,
+                labelRes = R.string.popup_menu_text_color_label,
+                dynamicEntries = dynamicColorsWithDefault,
+            ),
+        )
+        registerModel(
+            ColorPreferenceModel(
+                prefObject = prefs.popupAppDockBackgroundColor,
+                labelRes = R.string.popup_menu_bg_color_label,
+                dynamicEntries = dynamicColorsWithDefault,
+            ),
+        )
+        registerModel(
+            ColorPreferenceModel(
+                prefObject = prefs.popupAppDockTextColor,
+                labelRes = R.string.popup_menu_text_color_label,
+                dynamicEntries = dynamicColorsWithDefault,
+            ),
+        )
+        registerModel(
+            ColorPreferenceModel(
                 prefObject = prefs.smartspaceTextColor,
                 labelRes = R.string.smartspace_text_color,
                 dynamicEntries = dynamicColorsWithDefault,

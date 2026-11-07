@@ -71,6 +71,11 @@ import app.lawnchair.ui.popup.LauncherOptionsPopup;
 public class OptionsPopupView<T extends Context & ActivityContext> extends ArrowPopup<T>
         implements OnClickListener, OnLongClickListener {
 
+    @Override
+    protected app.lawnchair.util.PopupKind getPopupKind() {
+        return app.lawnchair.util.PopupKind.HOME_MENU;
+    }
+
     // An intent extra to indicate the horizontal scroll of the wallpaper.
     private static final String EXTRA_WALLPAPER_OFFSET = "com.android.launcher3.WALLPAPER_OFFSET";
     private static final String EXTRA_WALLPAPER_FLAVOR = "com.android.launcher3.WALLPAPER_FLAVOR";

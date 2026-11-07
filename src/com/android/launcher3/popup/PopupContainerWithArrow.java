@@ -507,6 +507,25 @@ public class PopupContainerWithArrow<T extends Context & ActivityContext>
         return mOriginalIcon;
     }
 
+    @Override
+    protected app.lawnchair.util.PopupKind getPopupKind() {
+        if (mOriginalIcon != null) {
+            Object tag = mOriginalIcon.getTag();
+            if (tag instanceof ItemInfo
+                    && ((ItemInfo) tag).container
+                            == com.android.launcher3.LauncherSettings.Favorites.CONTAINER_HOTSEAT) {
+                return app.lawnchair.util.PopupKind.APP_DOCK;
+            }
+            int display = mOriginalIcon.getIconDisplay();
+            if (display == BubbleTextView.DISPLAY_ALL_APPS
+                    || display == BubbleTextView.DISPLAY_PREDICTION_ROW
+                    || display == BubbleTextView.DISPLAY_SEARCH_RESULT_APP_ROW) {
+                return app.lawnchair.util.PopupKind.APP_DRAWER;
+            }
+        }
+        return app.lawnchair.util.PopupKind.APP_HOME;
+    }
+
     protected ViewGroup getSystemShortcutContainer() {
         return mSystemShortcutContainer;
     }

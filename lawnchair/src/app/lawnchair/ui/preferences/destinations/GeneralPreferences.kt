@@ -58,6 +58,7 @@ import app.lawnchair.ui.preferences.navigation.GeneralAdvancedIcons
 import app.lawnchair.ui.preferences.navigation.GeneralIconPack
 import app.lawnchair.ui.preferences.navigation.GeneralIconShape
 import app.lawnchair.ui.preferences.navigation.GeneralThemedIcons
+import app.lawnchair.ui.preferences.navigation.GeneralPopupMenus
 import app.lawnchair.ui.preferences.navigation.LiquidGlass
 import com.android.launcher3.BuildConfig
 import com.android.launcher3.R
@@ -228,6 +229,11 @@ fun GeneralPreferences(modifier: Modifier = Modifier) {
                 label = stringResource(id = R.string.liquid_glass_studio_title),
                 destination = LiquidGlass,
                 subtitle = stringResource(id = R.string.liquid_glass_studio_description),
+            )
+            NavigationActionPreference(
+                label = stringResource(id = R.string.popup_menu_style_title),
+                destination = GeneralPopupMenus,
+                subtitle = stringResource(id = R.string.popup_menu_style_description),
             )
         }
 

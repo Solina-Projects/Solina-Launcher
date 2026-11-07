@@ -1021,8 +1021,8 @@ Solina Launcher فعالیت‌های شما را زیر نظر نمی‌گیر�
     <string name="liquid_glass_apply_suggestions_desc">نمایش کادر برنامه‌های پرکاربرد کشو با استایل شیشه مایع</string>
     <string name="liquid_glass_apply_search_cards_label">کارت‌های نتایج جست‌وجو</string>
     <string name="liquid_glass_apply_search_cards_desc">اعمال شیشه مایع به کارت‌های نتایج جست‌وجوی جهانی</string>
-    <string name="liquid_glass_apply_folders_popups_label">پنجره پوشه‌های باز و منوهای پاپ‌آپ</string>
-    <string name="liquid_glass_apply_folders_popups_desc">اعمال شیشه مایع به پس‌زمینه پوشه‌های باز و منوی لمس طولانی آیکون‌ها</string>
+    <string name="liquid_glass_apply_folders_popups_label">پنجره پوشه‌های باز</string>
+    <string name="liquid_glass_apply_folders_popups_desc">اعمال شیشه مایع به پس‌زمینه پوشه‌های باز. منوهای بازشو در عمومی ‹ منوهای بازشو تنظیم می‌شوند</string>
     <string name="liquid_glass_apply_recents_label">نوار دکمه‌های صفحه برنامه‌های اخیر</string>
     <string name="liquid_glass_apply_recents_desc">اعمال کپسول شیشه مایع به نوار ابزار پایین صفحه اخیرها (Quickstep)</string>
     <string name="liquid_glass_css_export_heading">خروجی زنده کد CSS (سازگار با Glasswork)</string>
@@ -1059,4 +1059,16 @@ Solina Launcher فعالیت‌های شما را زیر نظر نمی‌گیر�
     <string name="drawer_outline_target_container">فقط کادر دور کشوی همه برنامه‌ها</string>
     <string name="drawer_apps_outline_radius_label">شعاع گردی گوشه اوتلاین</string>
     <string name="drawer_apps_outline_color_label">رنگ اوتلاین همه برنامه‌ها</string>
+    <string name="popup_menu_style_title">منوهای بازشو</string>
+    <string name="popup_menu_style_description">زمینه، رنگ نوشته، شفافیت، شکل و طراحی منوهای لمس طولانی</string>
+    <string name="popup_menu_bg_color_label">رنگ زمینه</string>
+    <string name="popup_menu_text_color_label">رنگ نوشته</string>
+    <string name="popup_menu_link_label">یک استایل برای همه منوها</string>
+    <string name="popup_menu_link_desc">با خاموش کردن، هر منو تنظیمات جداگانه خودش را دارد</string>
+    <string name="popup_menu_all_menus">همه منوها</string>
+    <string name="popup_kind_home_menu">منوی صفحه اصلی</string>
+    <string name="popup_kind_home_menu_desc">لمس طولانی روی فضای خالی صفحه اصلی</string>
+    <string name="popup_kind_app_drawer">برنامه‌های کشوی برنامه‌ها</string>
+    <string name="popup_kind_app_home">برنامه‌های صفحه اصلی</string>
+    <string name="popup_kind_app_dock">برنامه‌های داک</string>
 </resources>

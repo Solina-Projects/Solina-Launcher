@@ -59,6 +59,9 @@ import com.android.launcher3.views.BaseDragLayer;
 import app.lawnchair.theme.color.tokens.ColorTokens;
 import app.lawnchair.theme.drawable.DrawableTokens;
 import app.lawnchair.util.FolderPopupStyleHelper;
+import app.lawnchair.util.PopupKind;
+import app.lawnchair.util.PopupMenuStyle;
+import app.lawnchair.util.PopupProfile;
 
 /**
  * A container for shortcuts to deep links and notifications associated with an app.
@@ -97,7 +100,7 @@ public abstract class ArrowPopup<T extends Context & ActivityContext>
     protected final Rect mTempRect = new Rect();
 
     protected final LayoutInflater mInflater;
-    protected final float mOutlineRadius;
+    protected float mOutlineRadius;
     protected final T mActivityContext;
     protected final boolean mIsRtl;
 
@@ -137,7 +140,8 @@ public abstract class ArrowPopup<T extends Context & ActivityContext>
     public ArrowPopup(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         mInflater = LayoutInflater.from(context);
-        mOutlineRadius = FolderPopupStyleHelper.resolvePopupOutlineRadius(context, Themes.getDialogCornerRadius(context));
+        // Replaced by the per-menu radius in applyPopupProfile() once the popup kind is known.
+        mOutlineRadius = Themes.getDialogCornerRadius(context);
         mActivityContext = ActivityContext.lookupContext(context);
         mIsRtl = Utilities.isRtl(getResources());
 
@@ -307,16 +311,82 @@ public abstract class ArrowPopup<T extends Context & ActivityContext>
     }
 
     /**
+     * Which long-press menu this is. Subclasses override it so each menu can be styled from
+     * General settings independently.
+     */
+    protected PopupKind getPopupKind() {
+        return PopupKind.APP_HOME;
+    }
+
+    private PopupProfile mPopupProfile;
+
+    /** The user's style for this menu, resolved once per popup instance. */
+    protected PopupProfile getPopupProfile() {
+        if (mPopupProfile == null) {
+            mPopupProfile = PopupMenuStyle.resolve(getContext(), getPopupKind());
+        }
+        return mPopupProfile;
+    }
+
+    private void applyPopupProfile() {
+        PopupProfile profile = getPopupProfile();
+        mOutlineRadius = FolderPopupStyleHelper.resolvePopupOutlineRadius(
+                getContext(), profile, Themes.getDialogCornerRadius(getContext()));
+        int smallerRadius = getResources().getDimensionPixelSize(R.dimen.popup_smaller_radius);
+        mRoundedTop.setCornerRadii(new float[]{mOutlineRadius, mOutlineRadius, mOutlineRadius,
+                mOutlineRadius, smallerRadius, smallerRadius, smallerRadius, smallerRadius});
+        mRoundedBottom.setCornerRadii(new float[]{smallerRadius, smallerRadius, smallerRadius,
+                smallerRadius, mOutlineRadius, mOutlineRadius, mOutlineRadius, mOutlineRadius});
+    }
+
+    /**
+     * The color the menu surface is painted with: the user's custom background when set, otherwise
+     * the theme color. A transparent request means "the plain menu surface", never black.
+     */
+    private int resolveSurfaceColor(int requested) {
+        Integer custom = getPopupProfile().getBackgroundColor();
+        if (custom != null) {
+            return custom;
+        }
+        return requested == Color.TRANSPARENT ? mColors[0] : requested;
+    }
+
+    /** Applies the user's text color to every label and icon inside the menu. */
+    private void applyPopupTextColor(View view) {
+        Integer textColor = getPopupProfile().getEffectiveTextColor();
+        if (textColor == null) {
+            return;
+        }
+        tintPopupChildren(view, textColor);
+    }
+
+    private void tintPopupChildren(View view, int textColor) {
+        if (view instanceof android.widget.TextView) {
+            ((android.widget.TextView) view).setTextColor(textColor);
+        } else if (view.getId() == R.id.icon && view.getBackground() != null) {
+            view.setBackground(view.getBackground().mutate());
+            view.getBackground().setTint(textColor);
+        }
+        if (view instanceof ViewGroup) {
+            ViewGroup group = (ViewGroup) view;
+            for (int i = 0; i < group.getChildCount(); i++) {
+                tintPopupChildren(group.getChildAt(i), textColor);
+            }
+        }
+    }
+
+    /**
      * Sets the background color of the child.
      */
     protected void setChildColor(View view, int color, AnimatorSet animatorSetOut) {
         Drawable bg = view.getBackground();
+        int surfaceColor = resolveSurfaceColor(color);
         if (bg instanceof GradientDrawable) {
             GradientDrawable gd = (GradientDrawable) bg.mutate();
-            FolderPopupStyleHelper.applyPopupItemDrawable(getContext(), gd, color);
+            FolderPopupStyleHelper.applyPopupItemDrawable(getContext(), getPopupProfile(), gd, surfaceColor);
         } else if (bg instanceof ColorDrawable) {
             ColorDrawable cd = (ColorDrawable) bg.mutate();
-            int styledColor = FolderPopupStyleHelper.applyPopupAlphaToColor(getContext(), color);
+            int styledColor = FolderPopupStyleHelper.applyPopupAlphaToColor(getPopupProfile(), surfaceColor);
             int oldColor = ((ColorDrawable) bg).getColor();
             animatorSetOut.play(ObjectAnimator.ofArgb(cd, "color", oldColor, styledColor));
         }
@@ -326,8 +396,10 @@ public abstract class ArrowPopup<T extends Context & ActivityContext>
      * Shows the popup at the desired location.
      */
     public void show() {
+        applyPopupProfile();
         setupForDisplay();
         assignMarginsAndBackgrounds(this);
+        applyPopupTextColor(this);
         if (shouldAddArrow()) {
             addArrow();
         }
@@ -374,7 +446,7 @@ public abstract class ArrowPopup<T extends Context & ActivityContext>
     protected void updateArrowColor() {
         if (!Gravity.isVertical(mGravity)) {
             int arrowColorWithAlpha = FolderPopupStyleHelper.applyPopupAlphaToColor(
-                    getContext(), mArrowColor);
+                    getPopupProfile(), resolveSurfaceColor(mArrowColor));
             mArrow.setBackground(new RoundedArrowDrawable(
                     mArrowWidth, mArrowHeight, mArrowPointRadius,
                     mOutlineRadius, getMeasuredWidth(), getMeasuredHeight(),

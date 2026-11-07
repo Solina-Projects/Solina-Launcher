@@ -253,6 +253,27 @@ class PreferenceManager2 @Inject constructor(
         onSet = { reloadHelper.recreate() },
     )
 
+    private fun popupColorPref(name: String) = preference(
+        key = stringPreferencesKey(name = name),
+        parse = ColorOption::fromString,
+        save = ColorOption::toString,
+        defaultValue = ColorOption.Default,
+        onSet = { reloadHelper.recreate() },
+    )
+
+    // Background and text color of the long-press menus. "Shared" is used while the menus are
+    // linked; the per-kind pairs are used once the user unlinks them.
+    val popupSharedBackgroundColor = popupColorPref("popup_shared_background_color")
+    val popupSharedTextColor = popupColorPref("popup_shared_text_color")
+    val popupHomeMenuBackgroundColor = popupColorPref("popup_home_menu_background_color")
+    val popupHomeMenuTextColor = popupColorPref("popup_home_menu_text_color")
+    val popupAppDrawerBackgroundColor = popupColorPref("popup_app_drawer_background_color")
+    val popupAppDrawerTextColor = popupColorPref("popup_app_drawer_text_color")
+    val popupAppHomeBackgroundColor = popupColorPref("popup_app_home_background_color")
+    val popupAppHomeTextColor = popupColorPref("popup_app_home_text_color")
+    val popupAppDockBackgroundColor = popupColorPref("popup_app_dock_background_color")
+    val popupAppDockTextColor = popupColorPref("popup_app_dock_text_color")
+
     val suggestionAppCellOutlineEnabled = preference(
         key = booleanPreferencesKey(name = "suggestion_app_cell_outline_enabled"),
         defaultValue = false,

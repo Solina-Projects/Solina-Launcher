@@ -30,11 +30,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import app.lawnchair.preferences.getAdapter
-import app.lawnchair.preferences.preferenceManager
 import app.lawnchair.preferences2.preferenceManager2
 import app.lawnchair.ui.popup.LauncherOptionPopupItem
 import app.lawnchair.ui.popup.LauncherOptionsPopup
@@ -42,17 +42,18 @@ import app.lawnchair.ui.popup.toLauncherOptions
 import app.lawnchair.ui.popup.toOptionOrderString
 import app.lawnchair.ui.preferences.LocalIsExpandedScreen
 import app.lawnchair.ui.preferences.LocalNavController
+import app.lawnchair.ui.preferences.components.NavigationActionPreference
 import app.lawnchair.ui.preferences.components.controls.ClickablePreference
-import app.lawnchair.ui.preferences.components.controls.ListPreference
-import app.lawnchair.ui.preferences.components.controls.ListPreferenceEntry
-import app.lawnchair.ui.preferences.components.controls.SliderPreference
 import app.lawnchair.ui.preferences.components.layout.PreferenceGroup
 import app.lawnchair.ui.preferences.components.layout.PreferenceGroupHeading
 import app.lawnchair.ui.preferences.components.layout.PreferenceLayout
 import app.lawnchair.ui.preferences.components.reorderable.ReorderableDragHandle
 import app.lawnchair.ui.preferences.components.reorderable.ReorderablePreferenceGroup
 import app.lawnchair.ui.preferences.components.reorderable.ReorderableSwitchPreference
+import app.lawnchair.ui.preferences.navigation.GeneralPopupMenus
 import app.lawnchair.ui.preferences.navigation.HomeScreenPopupEditor
+import app.lawnchair.util.PopupKind
+import app.lawnchair.util.PopupMenuStyle
 import app.lawnchair.ui.theme.isSelectedThemeDark
 import com.android.launcher3.R
 
@@ -74,26 +75,15 @@ fun LauncherPopupPreferenceItem(
 fun LauncherPopupPreference(
     modifier: Modifier = Modifier,
 ) {
-    val prefs = preferenceManager()
     val prefs2 = preferenceManager2()
     val optionsPref = prefs2.launcherPopupOrder.getAdapter()
-    val popupStyleAdapter = prefs.popupSurfaceStyle.getAdapter()
-    val popupRadiusAdapter = prefs.popupCornerRadiusDp.getAdapter()
-    val popupOpacityAdapter = prefs.popupBgOpacity.getAdapter()
+    val context = LocalContext.current
+    // Style is edited in General > Pop-up menus; the preview just mirrors the home screen menu.
+    val previewProfile = remember { PopupMenuStyle.resolve(context, PopupKind.HOME_MENU) }
 
     val isHomeScreenLocked = prefs2.lockHomeScreen.getAdapter().state.value
 
     var optionsList = optionsPref.state.value.toLauncherOptions()
-
-    val popupStyleEntries = remember {
-        listOf(
-            ListPreferenceEntry("liquid_glass") { stringResource(R.string.style_option_liquid_glass) },
-            ListPreferenceEntry("glass_card") { stringResource(R.string.popup_style_glass_card) },
-            ListPreferenceEntry("elevated_3d") { stringResource(R.string.popup_style_elevated_3d) },
-            ListPreferenceEntry("neon_border") { stringResource(R.string.popup_style_neon_border) },
-            ListPreferenceEntry("classic") { stringResource(R.string.popup_style_classic) },
-        )
-    }
 
     PreferenceLayout(
         label = stringResource(R.string.popup_menu),
@@ -105,31 +95,17 @@ fun LauncherPopupPreference(
             PreferenceGroupHeading(stringResource(R.string.preview_label))
             LauncherPopupPreview(
                 optionsList = optionsList,
-                surfaceStyle = popupStyleAdapter.state.value,
-                cornerRadiusDp = popupRadiusAdapter.state.value,
-                opacityPct = popupOpacityAdapter.state.value,
+                surfaceStyle = previewProfile.style,
+                cornerRadiusDp = previewProfile.radiusDp,
+                opacityPct = previewProfile.opacityPct,
             )
         }
 
         PreferenceGroup(heading = stringResource(R.string.style)) {
-            ListPreference(
-                adapter = popupStyleAdapter,
-                entries = popupStyleEntries,
-                label = stringResource(R.string.popup_surface_style_label),
-            )
-            SliderPreference(
-                label = stringResource(R.string.popup_corner_radius_label),
-                adapter = popupRadiusAdapter,
-                step = 2,
-                valueRange = 12..36,
-                showUnit = "dp",
-            )
-            SliderPreference(
-                label = stringResource(R.string.popup_bg_opacity_label),
-                adapter = popupOpacityAdapter,
-                step = 2,
-                valueRange = 20..100,
-                showUnit = "%",
+            NavigationActionPreference(
+                label = stringResource(R.string.popup_menu_style_title),
+                destination = GeneralPopupMenus,
+                subtitle = stringResource(R.string.popup_menu_style_description),
             )
         }
 

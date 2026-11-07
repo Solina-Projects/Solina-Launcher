@@ -252,6 +252,18 @@ class PreferenceManager @Inject constructor(
     val popupSurfaceStyle = StringPref("pref_popupSurfaceStyle", "glass_card", recreate)
     val popupCornerRadiusDp = IntPref("pref_popupCornerRadiusDp", 24, recreate)
     val popupBgOpacity = IntPref("pref_popupBgOpacity", 92, recreate)
+    // When true every long-press menu shares the three popup* prefs above (plus shared colors).
+    // When false each menu kind below has its own style, radius and opacity.
+    val popupMenuLinked = BoolPref("pref_popupMenuLinked", true, recreate)
+    val popupSharedProfile = PopupProfilePrefs(popupSurfaceStyle, popupCornerRadiusDp, popupBgOpacity)
+    val popupProfiles: Map<String, PopupProfilePrefs> = listOf("home_menu", "app_drawer", "app_home", "app_dock")
+        .associateWith { id ->
+            PopupProfilePrefs(
+                StringPref("pref_popupSurfaceStyle_$id", "glass_card", recreate),
+                IntPref("pref_popupCornerRadiusDp_$id", 24, recreate),
+                IntPref("pref_popupBgOpacity_$id", 92, recreate),
+            )
+        }
     val appLockScreenStyle = StringPref("pref_appLockScreenStyle", "glass_modern")
     val appLockAutoBiometric = BoolPref("pref_appLockAutoBiometric", false)
     val liquidGlassEnabled = BoolPref("pref_liquidGlassEnabled", true, recreate)
@@ -349,4 +361,11 @@ data class LayoutConfig(
      * For non-foldable devices, this must be equals to [hotseatColumns].
      */
     val hotseatColumnsUnfolded: Int = hotseatColumns,
+)
+
+/** Style, corner radius and background opacity of one long-press menu kind. */
+class PopupProfilePrefs(
+    val style: BasePreferenceManager.StringPref,
+    val radiusDp: BasePreferenceManager.IntPref,
+    val opacityPct: BasePreferenceManager.IntPref,
 )

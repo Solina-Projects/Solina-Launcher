@@ -46,6 +46,7 @@ import app.lawnchair.ui.preferences.destinations.HomeScreenPreferences
 import app.lawnchair.ui.preferences.destinations.IconPickerPreference
 import app.lawnchair.ui.preferences.destinations.LauncherPopupPreference
 import app.lawnchair.ui.preferences.destinations.LiquidGlassPreferences
+import app.lawnchair.ui.preferences.destinations.PopupMenuStylePreferences
 import app.lawnchair.ui.preferences.destinations.PickAppForGesture
 import app.lawnchair.ui.preferences.destinations.PredictionsPreferences
 import app.lawnchair.ui.preferences.destinations.PreferencesDashboard
@@ -239,6 +240,9 @@ fun PreferenceNavigation(
         composable<LiquidGlass>(
             deepLinks = getDeepLink(LiquidGlass),
         ) { LiquidGlassPreferences() }
+        composable<GeneralPopupMenus>(
+            deepLinks = getDeepLink(GeneralPopupMenus),
+        ) { PopupMenuStylePreferences() }
         composable<Predictions>(
             deepLinks = getDeepLink(Predictions),
         ) { PredictionsPreferences() }
