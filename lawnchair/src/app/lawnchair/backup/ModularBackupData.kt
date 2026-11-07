@@ -192,6 +192,7 @@ internal object ModularBackupData {
     private val SUGGESTION_KEYS = setOf(
         "show_suggested_apps_at_drawer_top",
         "suggestion_rows",
+        "suggestion_columns",
         "suggestion_row_height_factor",
         "suggestion_position",
         "suggestion_source",

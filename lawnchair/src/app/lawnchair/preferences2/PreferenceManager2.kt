@@ -526,11 +526,17 @@ class PreferenceManager2 @Inject constructor(
         save = { it.toString() },
     )
 
-    // App drawer suggestion strip configuration. The number of columns always follows
-    // the active drawer grid; only the number of rows is independently configurable.
+    // App drawer suggestion strip configuration. Rows and icons per row are both independent
+    // from the app drawer grid.
     val suggestionRows = preference(
         key = intPreferencesKey(name = "suggestion_rows"),
         defaultValue = 1,
+        onSet = { reloadHelper.recreate() },
+    )
+
+    val suggestionColumns = preference(
+        key = intPreferencesKey(name = "suggestion_columns"),
+        defaultValue = 4,
         onSet = { reloadHelper.recreate() },
     )
 

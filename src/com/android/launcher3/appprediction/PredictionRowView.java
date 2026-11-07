@@ -157,7 +157,7 @@ public class PredictionRowView<T extends Context & ActivityContext>
 
         mFocusHelper = new SimpleFocusIndicatorHelper(this);
         mActivityContext = ActivityContext.lookupContext(context);
-        mNumPredictedAppsPerRow = mActivityContext.getDeviceProfile().numShownAllAppsColumns;
+        mNumPredictedAppsPerRow = readConfiguredColumns();
         mTopRowExtraHeight = getResources().getDimensionPixelSize(
                 R.dimen.all_apps_search_top_row_extra_height);
         mVerticalPadding = getResources().getDimensionPixelSize(
@@ -359,13 +359,20 @@ public class PredictionRowView<T extends Context & ActivityContext>
     private static final float BASE_LABEL_SP = 12f;
     private static final float BASE_LABEL_GAP_DP = 4f;
 
+    /** Icons per suggestion row; independent from the app drawer grid. */
+    private int readConfiguredColumns() {
+        Integer configured = PreferenceCacheExtensionsKt.firstCached(prefs2.getSuggestionColumns());
+        return Math.max(2, Math.min(8, configured == null ? 4 : configured));
+    }
+
     private int getSuggestionIconSizePx() {
         float scale = PreferenceCacheExtensionsKt.firstCached(prefs2.getSuggestionIconScale());
         int size = Math.max(1, Math.round(BASE_ICON_DP
                 * getResources().getDisplayMetrics().density * scale));
         // An icon can never be drawn wider than its column without being clipped.
-        int cellWidth = mActivityContext.getDeviceProfile().getAllAppsProfile().getCellWidthPx();
-        return cellWidth > 0 ? Math.min(size, cellWidth) : size;
+        int columnWidth = mActivityContext.getDeviceProfile().availableWidthPx
+                / Math.max(1, readConfiguredColumns());
+        return columnWidth > 0 ? Math.min(size, columnWidth) : size;
     }
 
     private float getSuggestionTextSizePx() {
@@ -462,7 +469,7 @@ public class PredictionRowView<T extends Context & ActivityContext>
 
     @Override
     public void onDeviceProfileChanged(DeviceProfile dp) {
-        mNumPredictedAppsPerRow = dp.numShownAllAppsColumns;
+        mNumPredictedAppsPerRow = readConfiguredColumns();
         mCard.removeAllViews();
         mPredictionRows.clear();
         mPredictionIcons.clear();
@@ -483,6 +490,7 @@ public class PredictionRowView<T extends Context & ActivityContext>
         }
         int configuredRows = Math.max(1, Math.min(3,
                 PreferenceCacheExtensionsKt.firstCached(prefs2.getSuggestionRows())));
+        mNumPredictedAppsPerRow = readConfiguredColumns();
         int columns = Math.max(1, mNumPredictedAppsPerRow);
         int predictionCount = mPredictedApps.size();
         int rows = Math.min(configuredRows, (predictionCount + columns - 1) / columns);

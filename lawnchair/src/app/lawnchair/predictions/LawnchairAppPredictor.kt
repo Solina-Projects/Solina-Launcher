@@ -162,9 +162,9 @@ class LawnchairAppPredictor(private val context: Context) : StatsLogCompatManage
         val excludedHotseatItems = occupiedHotseatItems + currentDismissedApps
 
         val suggestionRows = prefsSuggestionRows().coerceIn(1, 3)
-        val suggestionColumns = idp.numDatabaseAllAppsColumns.coerceAtLeast(1)
-        // Keep suggestion layout independent from the main drawer grid data. The helper
-        // consumes the active drawer column count and applies dock-row anchoring + de-duplication.
+        val suggestionColumns = prefs2.suggestionColumns.firstCached().coerceIn(2, 8)
+        // The suggestion layout is independent from the drawer grid: the helper uses the
+        // configured icons-per-row and applies dock-row anchoring + de-duplication.
         val dockRanked = predictionEngine.getDockRanked(dataModel)
         val arrangedSuggestions = SuggestionGridLayout.arrange(
             source = if (isDockSuggestionSource()) {

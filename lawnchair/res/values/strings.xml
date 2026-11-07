@@ -1163,6 +1163,7 @@
     <string name="suggestion_strip_top">Top</string>
     <string name="suggestion_strip_bottom">Bottom</string>
     <string name="suggestion_strip_rows">Suggestion rows</string>
+    <string name="suggestion_strip_columns">Icons per row</string>
     <string name="suggestion_strip_row_height">Suggestion row height</string>
     <string name="suggestion_strip_label_vertical_offset">Suggestion label vertical position</string>
     <string name="suggestion_strip_source">Suggestion source</string>
