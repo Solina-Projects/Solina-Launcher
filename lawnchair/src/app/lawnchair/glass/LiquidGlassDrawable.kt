@@ -14,8 +14,10 @@ import android.graphics.Shader
 import android.graphics.drawable.Drawable
 import androidx.core.graphics.ColorUtils
 import app.lawnchair.preferences.PreferenceManager
+import app.lawnchair.theme.UiColorMode
 import app.lawnchair.theme.color.tokens.ColorTokens
-import com.android.launcher3.Utilities
+import com.android.launcher3.R
+import com.android.launcher3.util.Themes
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.roundToInt
@@ -235,7 +237,9 @@ object LiquidGlassStyleHelper {
     fun isDarkConfiguration(context: Context): Boolean {
         // Follow the launcher's own theme choice (light/dark/system) rather than only the system uiMode,
         // otherwise a light launcher theme on a dark system renders dark glass tints under dark text.
-        return Utilities.isDarkTheme(context)
+        // Read the same attribute the color tokens (and therefore the popup text) resolve from, so the
+        // surface and its text can never disagree about light/dark.
+        return UiColorMode(Themes.getAttrInteger(context, R.attr.uiColorMode)).isDarkTheme
     }
 
     @JvmStatic
