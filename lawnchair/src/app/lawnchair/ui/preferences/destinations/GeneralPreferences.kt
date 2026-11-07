@@ -57,8 +57,8 @@ import app.lawnchair.ui.preferences.destinations.icons.ThemedIconsState
 import app.lawnchair.ui.preferences.navigation.GeneralAdvancedIcons
 import app.lawnchair.ui.preferences.navigation.GeneralIconPack
 import app.lawnchair.ui.preferences.navigation.GeneralIconShape
-import app.lawnchair.ui.preferences.navigation.GeneralThemedIcons
 import app.lawnchair.ui.preferences.navigation.GeneralPopupMenus
+import app.lawnchair.ui.preferences.navigation.GeneralThemedIcons
 import app.lawnchair.ui.preferences.navigation.LiquidGlass
 import com.android.launcher3.BuildConfig
 import com.android.launcher3.R

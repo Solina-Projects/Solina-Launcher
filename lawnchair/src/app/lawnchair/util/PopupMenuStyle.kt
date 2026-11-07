@@ -70,6 +70,5 @@ object PopupMenuStyle {
         )
     }
 
-    private fun ColorOption.toColorInt(context: Context): Int? =
-        if (this is ColorOption.Default) null else colorPreferenceEntry.lightColor.invoke(context)
+    private fun ColorOption.toColorInt(context: Context): Int? = if (this is ColorOption.Default) null else colorPreferenceEntry.lightColor.invoke(context)
 }

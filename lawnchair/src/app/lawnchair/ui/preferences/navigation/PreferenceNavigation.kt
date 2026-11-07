@@ -46,8 +46,8 @@ import app.lawnchair.ui.preferences.destinations.HomeScreenPreferences
 import app.lawnchair.ui.preferences.destinations.IconPickerPreference
 import app.lawnchair.ui.preferences.destinations.LauncherPopupPreference
 import app.lawnchair.ui.preferences.destinations.LiquidGlassPreferences
-import app.lawnchair.ui.preferences.destinations.PopupMenuStylePreferences
 import app.lawnchair.ui.preferences.destinations.PickAppForGesture
+import app.lawnchair.ui.preferences.destinations.PopupMenuStylePreferences
 import app.lawnchair.ui.preferences.destinations.PredictionsPreferences
 import app.lawnchair.ui.preferences.destinations.PreferencesDashboard
 import app.lawnchair.ui.preferences.destinations.QuickstepPreferences

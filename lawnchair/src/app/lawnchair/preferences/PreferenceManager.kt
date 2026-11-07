@@ -252,6 +252,7 @@ class PreferenceManager @Inject constructor(
     val popupSurfaceStyle = StringPref("pref_popupSurfaceStyle", "glass_card", recreate)
     val popupCornerRadiusDp = IntPref("pref_popupCornerRadiusDp", 24, recreate)
     val popupBgOpacity = IntPref("pref_popupBgOpacity", 92, recreate)
+
     // When true every long-press menu shares the three popup* prefs above (plus shared colors).
     // When false each menu kind below has its own style, radius and opacity.
     val popupMenuLinked = BoolPref("pref_popupMenuLinked", true, recreate)

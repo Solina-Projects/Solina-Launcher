@@ -52,9 +52,9 @@ import app.lawnchair.ui.preferences.components.reorderable.ReorderablePreference
 import app.lawnchair.ui.preferences.components.reorderable.ReorderableSwitchPreference
 import app.lawnchair.ui.preferences.navigation.GeneralPopupMenus
 import app.lawnchair.ui.preferences.navigation.HomeScreenPopupEditor
+import app.lawnchair.ui.theme.isSelectedThemeDark
 import app.lawnchair.util.PopupKind
 import app.lawnchair.util.PopupMenuStyle
-import app.lawnchair.ui.theme.isSelectedThemeDark
 import com.android.launcher3.R
 
 @Composable
