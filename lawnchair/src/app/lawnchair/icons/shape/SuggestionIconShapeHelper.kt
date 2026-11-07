@@ -45,6 +45,10 @@ object SuggestionIconShapeHelper {
         val infoBitmap = itemInfo?.bitmap?.icon
         val currentIcon = bubbleTextView.icon
         if (infoBitmap == null && currentIcon == null) return
+        // A tiny bitmap is the shared low-res placeholder used while the real icon is still loading.
+        // Masking it would produce (and cache) a blank circle, so leave the icon alone; the
+        // high-res reapply re-runs this helper once the real icon arrives.
+        if (infoBitmap != null && (infoBitmap.width <= 8 || infoBitmap.height <= 8)) return
 
         val genId = infoBitmap?.generationId ?: System.identityHashCode(currentIcon)
         val tagKey = itemInfo?.componentKey?.toString() ?: bubbleTextView.text?.toString().orEmpty()
@@ -85,7 +89,10 @@ object SuggestionIconShapeHelper {
             outCanvas.drawBitmap(maskBitmap, 0f, 0f, maskPaint)
             maskBitmap.recycle()
 
-            maskedBitmapCache.put(cacheKey, out)
+            if (infoBitmap != null) {
+                // Only cache masks built from the item's real bitmap, never from a transient drawable.
+                maskedBitmapCache.put(cacheKey, out)
+            }
             out
         }
 

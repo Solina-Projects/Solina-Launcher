@@ -111,6 +111,7 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Objects;
 
+import app.lawnchair.icons.shape.SuggestionIconShapeHelper;
 import app.lawnchair.preferences2.PreferenceCacheExtensionsKt;
 import app.lawnchair.font.FontManager;
 import app.lawnchair.gestures.IconGestureListener;
@@ -1675,6 +1676,13 @@ public class BubbleTextView extends TextView implements ItemInfoUpdateReceiver,
 
             mDisableRelayout = false;
             mHighResUpdateInProgress = false;
+
+            if (mDisplay == DISPLAY_PREDICTION_ROW) {
+                // The high-res reapply restores the unmasked icon; apply the suggestion shape again.
+                SuggestionIconShapeHelper.applySuggestionIconShape(this,
+                        PreferenceCacheExtensionsKt.firstCached(pref2.getSuggestionIconShape()),
+                        mIconSize);
+            }
         }
     }
 
