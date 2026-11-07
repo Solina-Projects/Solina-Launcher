@@ -684,8 +684,19 @@ public class BubbleTextView extends TextView implements ItemInfoUpdateReceiver,
             GoogleRainbowTheme.applyTextViewRainbow(this, mUseGoogleRainbowLabel, mTextAlpha);
         } else {
             mUseGoogleRainbowLabel = false;
+            if (colorOption != null && isThemeLabelDisplay()) {
+                // Default label color: black in the light theme, white in the dark theme.
+                setTextColor(Utilities.isDarkTheme(getContext()) ? Color.WHITE : Color.BLACK);
+            }
             GoogleRainbowTheme.applyTextViewRainbow(this, false, mTextAlpha);
         }
+    }
+
+    private boolean isThemeLabelDisplay() {
+        return mDisplay == DISPLAY_ALL_APPS
+                || mDisplay == DISPLAY_DRAWER_FOLDER
+                || mDisplay == DISPLAY_WORKSPACE
+                || mDisplay == DISPLAY_FOLDER;
     }
 
     /**

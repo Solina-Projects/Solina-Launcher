@@ -95,7 +95,6 @@ import app.lawnchair.ui.preferences.navigation.Folders
 import app.lawnchair.ui.preferences.navigation.General
 import app.lawnchair.ui.preferences.navigation.Gestures
 import app.lawnchair.ui.preferences.navigation.HomeScreen
-import app.lawnchair.ui.preferences.navigation.LiquidGlass
 import app.lawnchair.ui.preferences.navigation.Predictions
 import app.lawnchair.ui.preferences.navigation.PreferenceRootRoute
 import app.lawnchair.ui.preferences.navigation.Quickstep
@@ -165,15 +164,6 @@ fun PreferencesDashboard(
             route = General,
             isSelected = currentRoute is General,
             accentColor = Color(0xFF4F8EF7),
-            group = DashboardSectionGroup.APPEARANCE,
-        ),
-        DashboardCategoryItem(
-            label = stringResource(R.string.liquid_glass_studio_title),
-            description = stringResource(R.string.liquid_glass_studio_description),
-            iconResource = R.drawable.ic_new_releases,
-            route = LiquidGlass,
-            isSelected = currentRoute is LiquidGlass,
-            accentColor = Color(0xFF00BCD4),
             group = DashboardSectionGroup.APPEARANCE,
         ),
         DashboardCategoryItem(
