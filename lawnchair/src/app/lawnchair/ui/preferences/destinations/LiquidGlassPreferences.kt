@@ -1,8 +1,5 @@
 package app.lawnchair.ui.preferences.destinations
 
-import android.content.ClipData
-import android.content.ClipboardManager
-import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
@@ -37,10 +34,8 @@ import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.core.content.getSystemService
 import app.lawnchair.glass.LiquidGlassConfig
 import app.lawnchair.glass.LiquidGlassStyleHelper
 import app.lawnchair.preferences.getAdapter
@@ -48,7 +43,6 @@ import app.lawnchair.preferences.observeAsState
 import app.lawnchair.preferences.preferenceManager
 import app.lawnchair.theme.color.tokens.ColorTokens
 import app.lawnchair.ui.preferences.LocalIsExpandedScreen
-import app.lawnchair.ui.preferences.components.controls.ClickablePreference
 import app.lawnchair.ui.preferences.components.controls.ListPreference
 import app.lawnchair.ui.preferences.components.controls.ListPreferenceEntry
 import app.lawnchair.ui.preferences.components.controls.MainSwitchPreference
@@ -62,7 +56,6 @@ import com.android.launcher3.R
 fun LiquidGlassPreferences(
     modifier: Modifier = Modifier,
 ) {
-    val context = LocalContext.current
     val prefs = preferenceManager()
     val enabledAdapter = prefs.liquidGlassEnabled.getAdapter()
 
@@ -248,40 +241,6 @@ fun LiquidGlassPreferences(
                     adapter = prefs.liquidGlassApplyRecents.getAdapter(),
                     label = stringResource(id = R.string.liquid_glass_apply_recents_label),
                     description = stringResource(id = R.string.liquid_glass_apply_recents_desc),
-                )
-            }
-
-            val isDark = LiquidGlassStyleHelper.isDarkConfiguration(context)
-            val accentColor = remember(context) { ColorTokens.ColorAccent.resolveColor(context) }
-            val cssSnippet = remember(liveConfig, isDark, accentColor) {
-                LiquidGlassStyleHelper.generateGlassworkCss(liveConfig, isDark, accentColor)
-            }
-            val copiedMsg = stringResource(id = R.string.liquid_glass_css_copied_toast)
-
-            PreferenceGroup(heading = stringResource(id = R.string.liquid_glass_css_export_heading)) {
-                Surface(
-                    shape = RoundedCornerShape(16.dp),
-                    color = MaterialTheme.colorScheme.surfaceContainerLowest,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 8.dp),
-                ) {
-                    Text(
-                        text = cssSnippet,
-                        style = MaterialTheme.typography.bodySmall,
-                        fontFamily = FontFamily.Monospace,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.padding(14.dp),
-                    )
-                }
-                ClickablePreference(
-                    label = stringResource(id = R.string.liquid_glass_copy_css_label),
-                    subtitle = stringResource(id = R.string.liquid_glass_copy_css_desc),
-                    onClick = {
-                        val clipboard = context.getSystemService<ClipboardManager>()
-                        clipboard?.setPrimaryClip(ClipData.newPlainText("Solina Liquid Glass CSS", cssSnippet))
-                        Toast.makeText(context, copiedMsg, Toast.LENGTH_SHORT).show()
-                    },
                 )
             }
         }

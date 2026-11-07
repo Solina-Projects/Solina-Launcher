@@ -1,7 +1,6 @@
 package app.lawnchair.glass
 
 import android.content.Context
-import android.content.res.Configuration
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.ColorFilter
@@ -16,6 +15,7 @@ import android.graphics.drawable.Drawable
 import androidx.core.graphics.ColorUtils
 import app.lawnchair.preferences.PreferenceManager
 import app.lawnchair.theme.color.tokens.ColorTokens
+import com.android.launcher3.Utilities
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.roundToInt
@@ -233,8 +233,9 @@ object LiquidGlassStyleHelper {
 
     @JvmStatic
     fun isDarkConfiguration(context: Context): Boolean {
-        val nightMask = context.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK
-        return nightMask == Configuration.UI_MODE_NIGHT_YES
+        // Follow the launcher's own theme choice (light/dark/system) rather than only the system uiMode,
+        // otherwise a light launcher theme on a dark system renders dark glass tints under dark text.
+        return Utilities.isDarkTheme(context)
     }
 
     @JvmStatic
