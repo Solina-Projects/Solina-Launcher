@@ -370,8 +370,9 @@ public class PredictionRowView<T extends Context & ActivityContext>
         int size = Math.max(1, Math.round(BASE_ICON_DP
                 * getResources().getDisplayMetrics().density * scale));
         // An icon can never be drawn wider than its column without being clipped.
-        int columnWidth = mActivityContext.getDeviceProfile().availableWidthPx
-                / Math.max(1, readConfiguredColumns());
+        int stripWidth = getWidth() > 0 ? getWidth()
+                : getResources().getDisplayMetrics().widthPixels;
+        int columnWidth = stripWidth / Math.max(1, readConfiguredColumns());
         return columnWidth > 0 ? Math.min(size, columnWidth) : size;
     }
 
