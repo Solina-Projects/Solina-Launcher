@@ -130,7 +130,7 @@ final def buildCommit = providers.exec {
 }.standardOutput.asText.get().trim()
 
 // Keep the user-facing version consistent across the installer and launcher UI.
-final def versionDisplayName = "1.0.0 Dev"
+final def versionDisplayName = "1.0.0"
 final def majorVersion = "1"
 
 final def quickstepMinSdk = "29"
@@ -140,7 +140,7 @@ android {
     namespace "com.android.launcher3"
     defaultConfig {
         /*
-         * Solina Launcher 1.0.0 Dev
+         * Solina Launcher 1.0.0
          */
         versionCode 16_00_02_01_00
         versionName "${versionDisplayName}"
@@ -155,6 +155,15 @@ android {
         buildConfigField "int", "QUICKSTEP_MAX_SDK", quickstepMaxSdk
     }
 
+    splits {
+        abi {
+            enable true
+            reset()
+            include 'arm64-v8a', 'armeabi-v7a'
+            universalApk true
+        }
+    }
+    
     androidResources {
         generateLocaleConfig false
     }
@@ -343,7 +352,12 @@ androidComponents {
         def platformLabel = recentsFlavor == "withQuickstep" ? "Quickstep" : "Standard"
         def buildLabel = variant.buildType == "debug" ? "Test" : "Release"
         variant.outputs.forEach { output ->
-            output.outputFileName.set("Solina-Launcher.${platformLabel}.${buildLabel}.apk")
+                def abiFilter = output.filters.find { it.filterType.toString() == "ABI" }
+            def abiName = abiFilter?.identifier
+            def abiLabel = abiName == "arm64-v8a" ? "v8" : abiName == "armeabi-v7a" ? "v7" : "universal"
+            def abiCode = abiName == "arm64-v8a" ? 2 : abiName == "armeabi-v7a" ? 1 : 0
+            output.versionCode.set(abiCode * 1000 + (output.versionCode.get() ?: 0))
+            output.outputFileName.set("Solina-Launcher.${platformLabel}.${buildLabel}-${abiLabel}.apk")
         }
 
         // Lawnchair-TODO: A better way to sync proto file to the IDE preventing missing or outdated result. Please remove if this is the best solution we have right now
