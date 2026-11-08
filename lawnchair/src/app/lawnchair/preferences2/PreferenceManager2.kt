@@ -171,7 +171,7 @@ class PreferenceManager2 @Inject constructor(
     val folderShape = preference(
         key = stringPreferencesKey(name = "folder_shape"),
         defaultValue = IconShape.fromString(
-            value = context.getString(R.string.config_default_folder_shape),
+            value = "sammy",
             context = context,
         ) ?: IconShape.Circle,
         parse = {
@@ -213,7 +213,7 @@ class PreferenceManager2 @Inject constructor(
     val suggestionIconShape = preference(
         key = stringPreferencesKey(name = "suggestion_icon_shape"),
         defaultValue = IconShape.fromString(
-            value = context.getString(R.string.config_default_icon_shape),
+            value = "sevensidedcookie",
             context = context,
         ) ?: IconShape.Circle,
         parse = {
@@ -229,19 +229,19 @@ class PreferenceManager2 @Inject constructor(
 
     val suggestionOutlineEnabled = preference(
         key = booleanPreferencesKey(name = "suggestion_outline_enabled"),
-        defaultValue = false,
+        defaultValue = true,
         onSet = { reloadHelper.recreate() },
     )
 
     val suggestionOutlineStyle = preference(
         key = stringPreferencesKey(name = "suggestion_outline_style"),
-        defaultValue = "solid",
+        defaultValue = "dashed",
         onSet = { reloadHelper.recreate() },
     )
 
     val suggestionOutlineWidthDp = preference(
         key = floatPreferencesKey(name = "suggestion_outline_width_dp"),
-        defaultValue = 1.5f,
+        defaultValue = 2f,
         onSet = { reloadHelper.recreate() },
     )
 
@@ -344,13 +344,12 @@ class PreferenceManager2 @Inject constructor(
         parse = ColorOption::fromString,
         save = ColorOption::toString,
         onSet = { reloadHelper.reloadGrid() },
-        defaultValue = ColorOption.fromString(context.getString(R.string.config_default_hotseat_bg_color)),
+        defaultValue = ColorOption.fromString("custom|#fffcfcfc"),
     )
 
     val hotseatBackgroundCornerRadius = preference(
         key = floatPreferencesKey(name = "hotseat_bg_corner_radius"),
-        defaultValue = context.resources.getDimension(R.dimen.bg_round_rect_radius) /
-            context.resources.displayMetrics.density, // This should hopefully match corner of all devices
+        defaultValue = 34f,
         onSet = { reloadHelper.recreate() },
     )
 
@@ -359,7 +358,7 @@ class PreferenceManager2 @Inject constructor(
         parse = ColorOption::fromString,
         save = ColorOption::toString,
         onSet = { reloadHelper.recreate() },
-        defaultValue = ColorOption.fromString(context.getString(R.string.config_default_app_drawer_bg_color)),
+        defaultValue = ColorOption.fromString("custom|#fffcfcfc"),
     )
 
     val appDrawerSearchBarBackground = preference(
@@ -373,7 +372,7 @@ class PreferenceManager2 @Inject constructor(
         parse = ColorOption::fromString,
         save = ColorOption::toString,
         onSet = { reloadHelper.recreate() },
-        defaultValue = ColorOption.SystemAccent,
+        defaultValue = ColorOption.fromString("custom|#fffafafa"),
     )
 
     val workProfileTabContainerBackground = preference(
@@ -403,7 +402,7 @@ class PreferenceManager2 @Inject constructor(
         parse = ColorOption::fromString,
         save = ColorOption::toString,
         onSet = { reloadHelper.reloadGrid() },
-        defaultValue = ColorOption.fromString(context.getString(R.string.config_default_folder_color)),
+        defaultValue = ColorOption.fromString("custom|#ffffffff"),
     )
 
     val showNotificationCount = preference(
@@ -536,19 +535,19 @@ class PreferenceManager2 @Inject constructor(
 
     val suggestionColumns = preference(
         key = intPreferencesKey(name = "suggestion_columns"),
-        defaultValue = 4,
+        defaultValue = 5,
         onSet = { reloadHelper.recreate() },
     )
 
     val suggestionRowHeightFactor = preference(
         key = floatPreferencesKey(name = "suggestion_row_height_factor"),
-        defaultValue = 1f,
+        defaultValue = 0.9f,
         onSet = { reloadHelper.recreate() },
     )
 
     val suggestionLabelVerticalOffset = preference(
         key = floatPreferencesKey(name = "suggestion_label_vertical_offset"),
-        defaultValue = 0f,
+        defaultValue = -9f,
         onSet = { reloadHelper.recreate() },
     )
 
@@ -566,7 +565,7 @@ class PreferenceManager2 @Inject constructor(
 
     val suggestionIconScale = preference(
         key = floatPreferencesKey(name = "suggestion_icon_scale"),
-        defaultValue = 1f,
+        defaultValue = 1.1f,
         onSet = { reloadHelper.reloadGrid() },
     )
 
@@ -586,13 +585,13 @@ class PreferenceManager2 @Inject constructor(
 
     val suggestionLabelsVisible = preference(
         key = booleanPreferencesKey(name = "suggestion_labels_visible"),
-        defaultValue = true,
+        defaultValue = false,
         onSet = { reloadHelper.reloadGrid() },
     )
 
     val suggestionBackgroundAlpha = preference(
         key = floatPreferencesKey(name = "suggestion_background_alpha"),
-        defaultValue = 0.20f,
+        defaultValue = 0.5f,
         onSet = { reloadHelper.recreate() },
     )
 
@@ -630,7 +629,7 @@ class PreferenceManager2 @Inject constructor(
 
     val lawnchairPredictorUseWeightedUsageStats = preference(
         key = booleanPreferencesKey(name = "lawnchair_prediction_use_weighted_usage"),
-        defaultValue = false,
+        defaultValue = true,
     )
 
     val launcherPopupOrder = preference(
@@ -682,7 +681,7 @@ class PreferenceManager2 @Inject constructor(
 
     val showSuggestedAppsInDrawer = preference(
         key = booleanPreferencesKey(name = "show_suggested_apps_at_drawer_top"),
-        defaultValue = context.resources.getBoolean(R.bool.config_default_show_suggested_apps_at_drawer_top),
+        defaultValue = true,
         onSet = { reloadHelper.recreate() },
     )
 
@@ -712,14 +711,14 @@ class PreferenceManager2 @Inject constructor(
 
     val homeIconSizeFactor = preference(
         key = floatPreferencesKey(name = "home_icon_size_factor"),
-        defaultValue = resourceProvider.getFloat(R.dimen.config_default_home_icon_size_factor),
+        defaultValue = 1f,
         onSet = { reloadHelper.reloadGrid() },
     )
 
     // Independent dock icon scale; do not reuse the home-screen setting.
     val hotseatIconSizeFactor = preference(
         key = floatPreferencesKey(name = "hotseat_icon_size_factor"),
-        defaultValue = 1.0f,
+        defaultValue = 1.1f,
         onSet = { reloadHelper.reloadGrid() },
     )
 
@@ -774,7 +773,7 @@ class PreferenceManager2 @Inject constructor(
 
     val qsbIcons3d = preference(
         key = booleanPreferencesKey(name = "qsb_icons_3d"),
-        defaultValue = true,
+        defaultValue = false,
     )
 
     val qsbBackgroundColor = preference(
@@ -799,13 +798,13 @@ class PreferenceManager2 @Inject constructor(
 
     val folderPreviewBackgroundOpacity = preference(
         key = floatPreferencesKey(name = "folder_preview_background_opacity"),
-        defaultValue = resourceProvider.getFloat(R.dimen.config_default_folder_preview_background_opacity),
+        defaultValue = 0.4f,
         onSet = { reloadHelper.reloadGrid() },
     )
 
     val folderBackgroundOpacity = preference(
         key = floatPreferencesKey(name = "folder_background_opacity"),
-        defaultValue = resourceProvider.getFloat(R.dimen.config_default_folder_background_opacity),
+        defaultValue = 0.6f,
         onSet = { reloadHelper.reloadGrid() },
     )
 
@@ -823,7 +822,7 @@ class PreferenceManager2 @Inject constructor(
 
     val drawerIconSizeFactor = preference(
         key = floatPreferencesKey(name = "drawer_icon_size_factor"),
-        defaultValue = resourceProvider.getFloat(R.dimen.config_default_drawer_icon_size_factor),
+        defaultValue = 1.1f,
         onSet = { reloadHelper.reloadGrid() },
     )
 
@@ -838,15 +837,15 @@ class PreferenceManager2 @Inject constructor(
         key = stringPreferencesKey(name = "home_icon_label_color"),
         parse = ColorOption::fromString,
         save = ColorOption::toString,
-        defaultValue = ColorOption.Default,
+        defaultValue = ColorOption.fromString("custom|#ff000000"),
         onSet = { reloadHelper.reloadGrid() },
     )
 
     val drawerIconLabelColor = preference(
         key = stringPreferencesKey(name = "drawer_icon_label_color"),
         parse = ColorOption::fromString,
-        save = ColorOption::toString,
-        defaultValue = ColorOption.Default,
+        save = ColorOption.toString,
+        defaultValue = ColorOption.fromString("custom|#ff000000"),
         onSet = { reloadHelper.reloadGrid() },
     )
 
@@ -892,13 +891,13 @@ class PreferenceManager2 @Inject constructor(
     // Independent vertical offset for app drawer icon labels.
     val drawerIconLabelVerticalOffset = preference(
         key = floatPreferencesKey(name = "drawer_icon_label_vertical_offset"),
-        defaultValue = 0f,
+        defaultValue = -10f,
         onSet = { reloadHelper.reloadGrid() },
     )
 
     val drawerCellHeightFactor = preference(
         key = floatPreferencesKey(name = "drawer_cell_height_factor"),
-        defaultValue = resourceProvider.getFloat(R.dimen.config_default_drawer_cell_height_factor),
+        defaultValue = 1f,
         onSet = { reloadHelper.reloadGrid() },
     )
 
@@ -910,7 +909,7 @@ class PreferenceManager2 @Inject constructor(
 
     val hotseatBottomFactor = preference(
         key = floatPreferencesKey(name = "hotseat_bottom_factor"),
-        defaultValue = resourceProvider.getFloat(R.dimen.config_default_hotseat_bottom_factor),
+        defaultValue = 0.3f,
         onSet = { reloadHelper.reloadGrid() },
     )
 
@@ -934,7 +933,7 @@ class PreferenceManager2 @Inject constructor(
 
     val drawerPaddingTopFactor = preference(
         key = floatPreferencesKey(name = "drawer_padding_top"),
-        defaultValue = resourceProvider.getFloat(R.dimen.config_default_drawer_padding_top),
+        defaultValue = 1.05f,
         onSet = { reloadHelper.reloadGrid() },
     )
 
@@ -953,7 +952,7 @@ class PreferenceManager2 @Inject constructor(
 
     val matchHotseatQsbStyle = preference(
         key = booleanPreferencesKey(name = "use_drawer_search_icon"),
-        defaultValue = false,
+        defaultValue = true,
         onSet = { reloadHelper.recreate() },
     )
 
