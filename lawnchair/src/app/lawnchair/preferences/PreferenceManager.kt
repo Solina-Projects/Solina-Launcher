@@ -114,7 +114,7 @@ class PreferenceManager @Inject constructor(
     val workspaceIncreaseMaxGridSize = BoolPref("pref_workspace_increase_max_grid_size", false)
     val folderRows = IdpIntPref("pref_folderRows", { numFolderRows[INDEX_DEFAULT] }, reloadGrid)
 
-    val drawerOpacity = FloatPref("pref_drawerOpacity", .8f, recreate)
+    val drawerOpacity = FloatPref("pref_drawerOpacity", 0.7f, recreate)
     val coloredBackgroundLightness = FloatPref("pref_coloredBackgroundLightness", 1F)
     val feedProvider = StringPref("pref_feedProvider", "")
     val ignoreFeedWhitelist = BoolPref("pref_ignoreFeedWhitelist", false)
@@ -217,7 +217,7 @@ class PreferenceManager @Inject constructor(
     val qsbSurfaceStyle = StringPref("pref_qsbSurfaceStyle", "neon_border", recreate)
     val qsbShowHintText = BoolPref("pref_qsbShowHintText", false, recreate)
     val qsbEndIconPillBg = BoolPref("pref_qsbEndIconPillBg", false, recreate)
-    val smartspaceCardStyle = StringPref("pref_smartspaceCardStyle", "transparent", recreate)
+    val smartspaceCardStyle = StringPref("pref_smartspaceCardStyle", "liquid_glass", recreate)
     val smartspaceCardAlpha = IntPref("pref_smartspaceCardAlpha", 80, recreate)
     val smartspaceCardCornerRadius = IntPref("pref_smartspaceCardCornerRadius", 22, recreate)
     val smartspaceDatePillBadge = BoolPref("pref_smartspaceDatePillBadge", false, recreate)
