@@ -74,6 +74,7 @@ class LawnchairApp : LauncherApplication() {
     override fun onCreate() {
         super.onCreate()
         instance = this
+        DefaultWallpaperInitializer.applyOnFreshInstall(this)
         refreshRecentsState()
         Flowerpot.Manager.getInstance(this)
         registerActivityLifecycleCallbacks(activityHandler)
