@@ -541,7 +541,7 @@ class PreferenceManager2 @Inject constructor(
 
     val suggestionRowHeightFactor = preference(
         key = floatPreferencesKey(name = "suggestion_row_height_factor"),
-        defaultValue = 0.9f,
+        defaultValue = 1f,
         onSet = { reloadHelper.recreate() },
     )
 
@@ -718,7 +718,7 @@ class PreferenceManager2 @Inject constructor(
     // Independent dock icon scale; do not reuse the home-screen setting.
     val hotseatIconSizeFactor = preference(
         key = floatPreferencesKey(name = "hotseat_icon_size_factor"),
-        defaultValue = 1.1f,
+        defaultValue = 1f,
         onSet = { reloadHelper.reloadGrid() },
     )
 
@@ -822,7 +822,7 @@ class PreferenceManager2 @Inject constructor(
 
     val drawerIconSizeFactor = preference(
         key = floatPreferencesKey(name = "drawer_icon_size_factor"),
-        defaultValue = 1.1f,
+        defaultValue = 1f,
         onSet = { reloadHelper.reloadGrid() },
     )
 
