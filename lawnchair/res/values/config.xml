@@ -91,7 +91,7 @@
     <string name="config_default_smartspace_mode" translatable="false">lawnchair</string>
 
     <!-- which time format to use by default on smartspace -->
-    <string name="config_default_smartspace_time_format" translatable="false">system</string>
+    <string name="config_default_smartspace_time_format" translatable="false">24_hour_format</string>
 
     <!-- which prediction mode to use by default -->
     <string name="config_default_prediction_mode" translatable="false">lawnchair</string>
@@ -152,7 +152,7 @@
     <bool name="config_default_enable_icon_selection">false</bool>
     <bool name="config_default_show_component_names">false</bool>
     <bool name="config_default_smartspace_show_date">true</bool>
-    <bool name="config_default_smartspace_show_time">false</bool>
+    <bool name="config_default_smartspace_show_time">true</bool>
     <bool name="config_default_perform_wide_search">true</bool>
     <bool name="config_default_live_information_enabled">true</bool>
     <bool name="config_default_live_information_show_announcements">true</bool>
