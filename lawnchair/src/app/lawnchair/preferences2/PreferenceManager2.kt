@@ -844,7 +844,7 @@ class PreferenceManager2 @Inject constructor(
     val drawerIconLabelColor = preference(
         key = stringPreferencesKey(name = "drawer_icon_label_color"),
         parse = ColorOption::fromString,
-        save = ColorOption.toString,
+        save = ColorOption::toString,
         defaultValue = ColorOption.fromString("custom|#ff000000"),
         onSet = { reloadHelper.reloadGrid() },
     )
