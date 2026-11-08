@@ -853,7 +853,7 @@ class PreferenceManager2 @Inject constructor(
         key = stringPreferencesKey(name = "dock_icon_label_color"),
         parse = ColorOption::fromString,
         save = ColorOption::toString,
-        defaultValue = ColorOption.Default,
+        defaultValue = ColorOption.fromString("custom|#ff000000"),
         onSet = { reloadHelper.reloadGrid() },
     )
 
