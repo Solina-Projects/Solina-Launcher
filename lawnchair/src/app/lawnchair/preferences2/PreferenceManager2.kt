@@ -565,7 +565,7 @@ class PreferenceManager2 @Inject constructor(
 
     val suggestionIconScale = preference(
         key = floatPreferencesKey(name = "suggestion_icon_scale"),
-        defaultValue = 1.1f,
+        defaultValue = 1f,
         onSet = { reloadHelper.reloadGrid() },
     )
 
@@ -585,13 +585,13 @@ class PreferenceManager2 @Inject constructor(
 
     val suggestionLabelsVisible = preference(
         key = booleanPreferencesKey(name = "suggestion_labels_visible"),
-        defaultValue = false,
+        defaultValue = true,
         onSet = { reloadHelper.reloadGrid() },
     )
 
     val suggestionBackgroundAlpha = preference(
         key = floatPreferencesKey(name = "suggestion_background_alpha"),
-        defaultValue = 0.5f,
+        defaultValue = 0.2f,
         onSet = { reloadHelper.recreate() },
     )
 
