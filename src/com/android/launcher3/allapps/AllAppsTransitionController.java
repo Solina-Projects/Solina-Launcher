@@ -333,6 +333,7 @@ public class AllAppsTransitionController
                 && suggestionView.getVisibility() == View.VISIBLE
                 && suggestionView.getExpectedHeight() > 0;
         boolean springBounce = prefs.getDrawerOpenSpringBounce().get();
+        boolean solimaMotion = prefs.getSolimaMotion().get();
         boolean scaleBloom = prefs.getDrawerIconScaleBloom().get();
         float cascadeFactor = Utilities.boundToRange(
                 prefs.getDrawerCascadeStaggerFactor().get(), 0f, 2f);
@@ -365,7 +366,10 @@ public class AllAppsTransitionController
             if (rv != null) {
                 int count = rv.getChildCount();
                 int rvHeight = Math.max(1, rv.getHeight());
-                float staggerSpan = ("cascade_wave".equals(animStyle) ? 0.22f : 0.14f) * cascadeFactor;
+                float staggerSpan = solimaMotion
+                        ? ("cascade_wave".equals(animStyle) ? 0.22f : 0.14f) * cascadeFactor : 0f;
+                // Solina motion: finer per-item stagger across each row.
+                float colStagger = solimaMotion ? 0.03f : 0f;
                 float baseStart = "cascade_wave".equals(animStyle) ? 0.28f : 0.24f;
                 float durationSpan = "cascade_wave".equals(animStyle) ? 0.48f : 0.50f;
                 float slideDp = ("cascade_wave".equals(animStyle) ? 68f : 48f) * (0.5f + 0.5f * cascadeFactor);
@@ -378,7 +382,9 @@ public class AllAppsTransitionController
                     }
                     float rowFactor = Utilities.boundToRange(
                             (float) child.getTop() / (float) rvHeight, 0f, 1f);
-                    float startAt = baseStart + rowFactor * staggerSpan;
+                    float colFactor = Utilities.boundToRange(
+                            (float) child.getLeft() / (float) Math.max(1, rv.getWidth()), 0f, 1f);
+                    float startAt = baseStart + rowFactor * staggerSpan + colFactor * colStagger;
                     float cProg = Utilities.boundToRange(
                             (openProgress - startAt) / durationSpan, 0f, 1f);
                     float cEase = EMPHASIZED_DECELERATE.getInterpolation(cProg);
@@ -403,13 +409,18 @@ public class AllAppsTransitionController
             if (rv != null) {
                 int count = rv.getChildCount();
                 int rvHeight = Math.max(1, rv.getHeight());
-                float stagger = ("instant_snap".equals(animStyle) ? 0.05f : 0.10f) * cascadeFactor;
+                float stagger = solimaMotion
+                        ? ("instant_snap".equals(animStyle) ? 0.05f : 0.10f) * cascadeFactor : 0f;
+                float colStagger = solimaMotion ? 0.03f : 0f;
                 for (int i = 0; i < count; i++) {
                     View child = rv.getChildAt(i);
                     float rowFactor = Utilities.boundToRange(
                             (float) child.getTop() / (float) rvHeight, 0f, 1f);
+                    float colFactor = Utilities.boundToRange(
+                            (float) child.getLeft() / (float) Math.max(1, rv.getWidth()), 0f, 1f);
                     float cProg = Utilities.boundToRange(
-                            (openProgress - rowFactor * stagger) / 0.42f, 0f, 1f);
+                            (openProgress - rowFactor * stagger - colFactor * colStagger) / 0.42f,
+                            0f, 1f);
                     float cEase = EMPHASIZED_DECELERATE.getInterpolation(cProg);
                     float cSpring = springBounce
                             ? (float) (Math.sin(cProg * Math.PI) * (-4f * dpDensity) * (1f - cProg))

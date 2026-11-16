@@ -60,6 +60,7 @@ import app.lawnchair.ui.preferences.navigation.GeneralIconShape
 import app.lawnchair.ui.preferences.navigation.GeneralPopupMenus
 import app.lawnchair.ui.preferences.navigation.GeneralThemedIcons
 import app.lawnchair.ui.preferences.navigation.LiquidGlass
+import app.lawnchair.ui.theme.isSelectedThemeDark
 import com.android.launcher3.BuildConfig
 import com.android.launcher3.R
 import com.android.launcher3.Utilities
@@ -221,6 +222,16 @@ fun GeneralPreferences(modifier: Modifier = Modifier) {
 
         PreferenceGroup(heading = stringResource(id = R.string.colors)) {
             ThemePreference()
+            // Solina motion (d3motion Theme Switcher): the switch thumb slides with a
+            // spring; the sun/moon icon in the Settings top bar spins 180 degrees.
+            SwitchPreference(
+                checked = isSelectedThemeDark,
+                onCheckedChange = { dark ->
+                    preferenceManager().launcherTheme.getAdapter()
+                        .onChange(if (dark) "dark" else "light")
+                },
+                label = stringResource(id = R.string.theme_dark),
+            )
             ColorPreference(preference = prefs2.accentColor)
             ExpandAndShrink(visible = showColorStyle) {
                 ColorStylePreference(prefs2.colorStyle.getAdapter())

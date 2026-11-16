@@ -232,6 +232,9 @@ class PreferenceManager @Inject constructor(
     val drawerOpenAnimationStyle = StringPref("pref_drawerOpenAnimationStyle", "dock_morph", recreate)
     val drawerAnimationSpeedFactor = FloatPref("pref_drawerAnimationSpeedFactor", 1.15f, recreate)
     val drawerOpenSpringBounce = BoolPref("pref_drawerOpenSpringBounce", true, recreate)
+    // Solina motion: master switch for the d3motion-inspired animations
+    // (icon press spring, folder icon stagger, drawer icon stagger, theme switch).
+    val solimaMotion = BoolPref("pref_solimaMotion", true, recreate)
     val drawerDockRiseFactor = FloatPref("pref_drawerDockRiseFactor", 0.56f, recreate)
     val drawerCascadeStaggerFactor = FloatPref("pref_drawerCascadeStaggerFactor", 1.0f, recreate)
     val drawerIconScaleBloom = BoolPref("pref_drawerIconScaleBloom", true, recreate)

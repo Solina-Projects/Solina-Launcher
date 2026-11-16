@@ -17,6 +17,7 @@
 package com.android.launcher3.folder
 
 import android.view.View
+import app.lawnchair.preferences.PreferenceManager
 import com.android.launcher3.celllayout.CellLayoutLayoutParams
 import com.android.launcher3.folder.ClippedFolderIconLayoutRule.MAX_NUM_ITEMS_IN_PREVIEW
 import com.android.launcher3.folder.FolderAnimationSpringBuilderManager.Companion.getBubbleTextView
@@ -41,7 +42,12 @@ data class IconAnimationData(
 ) {
 
     companion object Factory {
-        private const val ICON_DELAY_INCREMENT = 5
+        private const val ICON_DELAY_INCREMENT = 25
+
+        /** Reads pref_solimaMotion; defaults to true if preferences are unavailable. */
+        private fun Folder.isSolimaMotionEnabled(): Boolean =
+            runCatching { PreferenceManager.getInstance(context).solimaMotion.get() }
+                .getOrDefault(true)
 
         /**
          * Animates the icons within the folder. Icons start at the Preview Icon scale and then are
@@ -52,6 +58,8 @@ data class IconAnimationData(
             folderAnimationData: FolderAnimationData
         ): List<IconAnimationData> {
             val isOpening = folderAnimationData.isOpening
+            // Solina motion: stagger the folder icons only when pref_solimaMotion is on.
+            val delayIncrement = if (isSolimaMotionEnabled()) ICON_DELAY_INCREMENT else 0
             // current page data
             val page = content.currentPage
             val folderItemsOnPage = getItemsOnPage(page)
@@ -63,7 +71,7 @@ data class IconAnimationData(
             val layoutRule = folderIcon.layoutRule
 
             // We delay the animation of each icon from top left to bottom right
-            var iconDelay = if (isOpening) 0 else (numItemsOnPage * ICON_DELAY_INCREMENT)
+            var iconDelay = if (isOpening) 0 else (numItemsOnPage * delayIncrement)
             val iconDataList = mutableListOf<IconAnimationData>()
 
             for (i in 0..<numItemsOnPage) {
@@ -128,9 +136,9 @@ data class IconAnimationData(
                     )
                 )
                 if (isOpening) {
-                    iconDelay += ICON_DELAY_INCREMENT
+                    iconDelay += delayIncrement
                 } else {
-                    iconDelay -= ICON_DELAY_INCREMENT
+                    iconDelay -= delayIncrement
                 }
             }
             return iconDataList
