@@ -74,6 +74,7 @@ fun GeneralPreferences(modifier: Modifier = Modifier) {
     val iconPacks by LocalPreferenceInteractor.current.iconPacks.collectAsStateWithLifecycle()
     val themedIconsAdapter = prefs.themedIcons.getAdapter()
     val drawerThemedIconsAdapter = prefs.drawerThemedIcons.getAdapter()
+    val launcherThemeAdapter = prefs.launcherTheme.getAdapter()
     val iconShapeAdapter = prefs2.iconShape.getAdapter()
 
     val currentIconPackName = iconPacks
@@ -227,8 +228,7 @@ fun GeneralPreferences(modifier: Modifier = Modifier) {
             SwitchPreference(
                 checked = isSelectedThemeDark,
                 onCheckedChange = { dark ->
-                    preferenceManager().launcherTheme.getAdapter()
-                        .onChange(if (dark) "dark" else "light")
+                    launcherThemeAdapter.onChange(if (dark) "dark" else "light")
                 },
                 label = stringResource(id = R.string.theme_dark),
             )
