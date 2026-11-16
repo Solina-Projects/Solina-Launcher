@@ -22,9 +22,9 @@ fun ClickableIcon(
     painter: Painter,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
+    iconModifier: Modifier = Modifier,
     enabled: Boolean = true,
     tint: Color = LocalContentColor.current,
-    iconModifier: Modifier = Modifier,
 ) {
     val mMSDLPlayerWrapper = MSDLPlayerWrapper.INSTANCE.get(LocalContext.current)
     FilledTonalIconButton(
@@ -55,9 +55,9 @@ fun ClickableIcon(
     imageVector: ImageVector,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
+    iconModifier: Modifier = Modifier,
     enabled: Boolean = true,
     tint: Color = LocalContentColor.current,
-    iconModifier: Modifier = Modifier,
 ) {
     ClickableIcon(
         painter = rememberVectorPainter(image = imageVector),
