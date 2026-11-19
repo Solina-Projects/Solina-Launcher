@@ -1,5 +1,9 @@
 # Solina Launcher
 
+<p align="center">
+  <img src="ic_launcher_home-playstore.png" alt="Solina Launcher icon" width="120" height="120">
+</p>
+
 **Solina Launcher** is an open-source Android home app developed by **Solina**.
 
 ## Current test-branch features
