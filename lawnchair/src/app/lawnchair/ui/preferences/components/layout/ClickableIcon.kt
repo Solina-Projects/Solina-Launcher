@@ -22,6 +22,7 @@ fun ClickableIcon(
     painter: Painter,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
+    iconModifier: Modifier = Modifier,
     enabled: Boolean = true,
     tint: Color = LocalContentColor.current,
 ) {
@@ -44,6 +45,7 @@ fun ClickableIcon(
             painter = painter,
             contentDescription = null,
             tint = tint.copy(alpha = alpha),
+            modifier = iconModifier,
         )
     }
 }
@@ -53,6 +55,7 @@ fun ClickableIcon(
     imageVector: ImageVector,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
+    iconModifier: Modifier = Modifier,
     enabled: Boolean = true,
     tint: Color = LocalContentColor.current,
 ) {
@@ -62,5 +65,6 @@ fun ClickableIcon(
         modifier = modifier,
         enabled = enabled,
         tint = tint,
+        iconModifier = iconModifier,
     )
 }

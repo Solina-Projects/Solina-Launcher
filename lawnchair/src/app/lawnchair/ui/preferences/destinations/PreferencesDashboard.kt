@@ -9,6 +9,9 @@ import android.os.Process
 import android.provider.Settings
 import androidx.annotation.DrawableRes
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.spring
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -60,6 +63,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -146,6 +150,16 @@ fun PreferencesDashboard(
     val colorfulIcons by prefs.settingsColorfulIcons.observeAsState()
     val launcherTheme by prefs.launcherTheme.observeAsState()
     val launcherThemeAdapter = prefs.launcherTheme.getAdapter()
+    // Solina motion (d3motion Theme Switcher): the sun/moon icon spins 180 degrees
+    // with a spring when toggling dark/light.
+    val themeIconRotation by animateFloatAsState(
+        targetValue = if (launcherTheme == "dark") 180f else 0f,
+        animationSpec = spring(
+            dampingRatio = Spring.DampingRatioMediumBouncy,
+            stiffness = Spring.StiffnessMediumLow,
+        ),
+        label = "ThemeIconRotation",
+    )
     val deckLayout = prefs2.deckLayout.getAdapter()
     val isSmartspaceEnabled = prefs2.enableSmartspace.firstCached()
 
@@ -299,7 +313,8 @@ fun PreferencesDashboard(
         backArrowVisible = false,
         actions = {
             ClickableIcon(
-                imageVector = if (launcherTheme == "dark") {
+                // Swap the glyph mid-spin so it never pops at the start of the rotation.
+                imageVector = if (themeIconRotation > 90f) {
                     Icons.Rounded.LightMode
                 } else {
                     Icons.Rounded.DarkMode
@@ -307,6 +322,7 @@ fun PreferencesDashboard(
                 onClick = {
                     launcherThemeAdapter.onChange(if (launcherTheme == "dark") "light" else "dark")
                 },
+                iconModifier = Modifier.graphicsLayer { rotationZ = themeIconRotation },
             )
             PreferencesOverflowMenu(currentRoute = currentRoute, onNavigate = onNavigate)
         },

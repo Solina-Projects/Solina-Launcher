@@ -130,7 +130,7 @@ final def buildCommit = providers.exec {
 }.standardOutput.asText.get().trim()
 
 // Keep the user-facing version consistent across the installer and launcher UI.
-final def versionDisplayName = "1.0.0"
+final def versionDisplayName = "1.1.0"
 final def majorVersion = "1"
 
 final def quickstepMinSdk = "29"
@@ -140,7 +140,7 @@ android {
     namespace "com.android.launcher3"
     defaultConfig {
         /*
-         * Solina Launcher 1.0.0
+         * Solina Launcher 1.1.0
          */
         versionCode 16_00_02_01_00
         versionName "${versionDisplayName}"

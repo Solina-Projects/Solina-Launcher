@@ -1305,6 +1305,8 @@
     <string name="drawer_animation_speed_label">Opening &amp; Closing Speed</string>
     <string name="drawer_open_spring_bounce_label">Dynamic Spring Overshoot</string>
     <string name="drawer_open_spring_bounce_summary">Add a subtle elastic bounce as the Dock morphs into Suggestions and App Drawer rows</string>
+    <string name="solima_motion_label">Solina motion</string>
+    <string name="solima_motion_summary">Spring press on icons, staggered folder and drawer icons, and an animated theme switch</string>
     <string name="drawer_dock_rise_factor_label">Dock Rise Height on Swipe</string>
     <string name="drawer_cascade_stagger_label">Row Cascade Wave Intensity</string>
     <string name="drawer_icon_scale_bloom_label">Icon Scale Bloom Effect</string>

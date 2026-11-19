@@ -79,6 +79,8 @@ import androidx.annotation.Nullable;
 import androidx.annotation.UiThread;
 import androidx.annotation.VisibleForTesting;
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat;
+import androidx.dynamicanimation.animation.DynamicAnimation;
+import androidx.dynamicanimation.animation.SpringForce;
 
 import com.android.launcher3.accessibility.BaseAccessibilityDelegate;
 import com.android.launcher3.dot.DotInfo;
@@ -810,6 +812,20 @@ public class BubbleTextView extends TextView implements ItemInfoUpdateReceiver,
         return mIcon;
     }
 
+    // Solina motion: icon press spring (d3motion-inspired), gated by pref_solimaMotion.
+    private static final float PRESSED_SCALE = 0.92f;
+
+    private void animatePressScale(float scale) {
+        if (mScaleForReorderBounce != 1f) return;
+        if (!PreferenceManager.getInstance(getContext()).getSolimaMotion().get()) return;
+        PhysicsAnimator.getInstance(this)
+                .spring(DynamicAnimation.SCALE_X, scale, 0f,
+                        SpringForce.STIFFNESS_MEDIUM, SpringForce.DAMPING_RATIO_MEDIUM_BOUNCY)
+                .spring(DynamicAnimation.SCALE_Y, scale, 0f,
+                        SpringForce.STIFFNESS_MEDIUM, SpringForce.DAMPING_RATIO_MEDIUM_BOUNCY)
+                .start();
+    }
+
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         // ignore events if they happen in padding area
@@ -820,6 +836,13 @@ public class BubbleTextView extends TextView implements ItemInfoUpdateReceiver,
         // Lawnchair: Icon swipe gesture feature
         if (handleIconSwipeTouchEvent(event)) {
             return true;
+        }
+        // Solina motion: press spring scale down on touch, spring back on release.
+        int action = event.getActionMasked();
+        if (action == MotionEvent.ACTION_DOWN) {
+            animatePressScale(PRESSED_SCALE);
+        } else if (action == MotionEvent.ACTION_UP || action == MotionEvent.ACTION_CANCEL) {
+            animatePressScale(1f);
         }
         if (isLongClickable()) {
             super.onTouchEvent(event);
@@ -1760,6 +1783,9 @@ public class BubbleTextView extends TextView implements ItemInfoUpdateReceiver,
         }
         // LC-Note: Cancel physics animator for icon swipe gesture
         PhysicsAnimator.getInstance(this).cancel();
+        // Solina motion: cancel() freezes scale mid-spring; restore it.
+        super.setScaleX(mScaleForReorderBounce);
+        super.setScaleY(mScaleForReorderBounce);
         setTranslationX(0);
         setTranslationY(0);
     }

@@ -214,6 +214,11 @@ fun AppDrawerPreferences(
                         label = stringResource(id = R.string.drawer_icon_scale_bloom_label),
                         description = stringResource(id = R.string.drawer_icon_scale_bloom_summary),
                     )
+                    SwitchPreference(
+                        adapter = prefs.solimaMotion.getAdapter(),
+                        label = stringResource(id = R.string.solima_motion_label),
+                        description = stringResource(id = R.string.solima_motion_summary),
+                    )
                 }
             }
         }
