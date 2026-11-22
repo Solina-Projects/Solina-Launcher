@@ -1,0 +1,531 @@
+{"fn":"calculateEquation","args":["abc"],"ok":""}
+{"fn":"calculateEquation","args":["trailing.HELLO"],"ok":""}
+{"fn":"calculateEquation","args":[".leading"],"ok":""}
+{"fn":"calculateEquation","args":[""],"ok":""}
+{"fn":"calculateEquation","args":["éünïcödé"],"ok":""}
+{"fn":"calculateEquation","args":["é"],"ok":""}
+{"fn":"calculateEquation","args":["ΣΊΣΥΦΟΣ"],"ok":""}
+{"fn":"calculateEquation","args":["a:b:c"],"ok":""}
+{"fn":"calculateEquation","args":["trailing."],"ok":""}
+{"fn":"calculateEquation","args":["a"],"ok":""}
+{"fn":"calculateEquation","args":["trailing.Hello World"],"ok":""}
+{"fn":"calculateEquation","args":["a\ud83d\ude00b\ud83d\ude00c"],"ok":""}
+{"fn":"calculateEquation","args":["ünïcödé"],"ok":""}
+{"fn":"calculateEquation","args":["İstanbul"],"ok":""}
+{"fn":"calculateEquation","args":["abc.leading"],"ok":""}
+{"fn":"calculateEquation","args":["a.b.c"],"ok":""}
+{"fn":"calculateEquation","args":["./x/**/*.json"],"ok":""}
+{"fn":"calculateEquation","args":["  padded  .leading"],"ok":""}
+{"fn":"calculateEquation","args":["Hello World"],"ok":""}
+{"fn":"calculateEquation","args":["src/a/b.ts"],"ok":""}
+{"fn":"calculateEquation","args":["emoji \ud83d\udc4d\ud83c\udffd mix"],"ok":""}
+{"fn":"calculateEquation","args":["ünïcödéstraße"],"ok":""}
+{"fn":"calculateEquation","args":["ab"],"ok":""}
+{"fn":"calculateEquation","args":["ahello world"],"ok":""}
+{"fn":"calculateEquation","args":["  padded  src/a/b.ts"],"ok":""}
+{"fn":"calculateEquation","args":["tab\tseparated"],"ok":""}
+{"fn":"calculateEquation","args":["éline1\nline2"],"ok":""}
+{"fn":"calculateEquation","args":["ΣΊΣΥΦΟΣhello"],"ok":""}
+{"fn":"calculateEquation","args":["key_name-1"],"ok":""}
+{"fn":"calculateEquation","args":["éa..b"],"ok":""}
+{"fn":"calculateEquation","args":["straße"],"ok":""}
+{"fn":"calculateEquation","args":["line1\nline2"],"ok":""}
+{"fn":"calculateEquation","args":["key_name-1hello world"],"ok":""}
+{"fn":"calculateEquation","args":["ns:key.path"],"ok":""}
+{"fn":"calculateEquation","args":["HELLO"],"ok":""}
+{"fn":"calculateEquation","args":[":"],"ok":""}
+{"fn":"calculateEquation","args":["\ud83d\ude00"],"ok":""}
+{"fn":"calculateEquation","args":["a..b"],"ok":""}
+{"fn":"calculateEquation","args":["  padded  "],"ok":""}
+{"fn":"calculateEquation","args":["  padded  \ud83d\ude00"],"ok":""}
+{"fn":"calculateEquation","args":["{name} has {count} items"],"ok":""}
+{"fn":"calculateEquation","args":["HELLOemoji \ud83d\udc4d\ud83c\udffd mix"],"ok":""}
+{"fn":"calculateEquation","args":["./x/**/*.jsonsrc/a/b.ts"],"ok":""}
+{"fn":"calculateEquation","args":["./x/**/*.jsontrailing."],"ok":""}
+{"fn":"calculateEquation","args":["line1\nline2a..b"],"ok":""}
+{"fn":"calculateEquation","args":["emoji \ud83d\udc4d\ud83c\udffd mixa"],"ok":""}
+{"fn":"calculateEquation","args":["\ud83d\ude00:"],"ok":""}
+{"fn":"calculateEquation","args":["ünïcödéhello world"],"ok":""}
+{"fn":"calculateEquation","args":["a.b.chello"],"ok":""}
+{"fn":"calculateEquation","args":["  padded  tab\tseparated"],"ok":""}
+{"fn":"calculateEquation","args":["Hello World:"],"ok":""}
+{"fn":"calculateEquation","args":["{name} has {count} items  padded  "],"ok":""}
+{"fn":"calculateEquation","args":["hello worldns:key.path"],"ok":""}
+{"fn":"calculateEquation","args":["ΣΊΣΥΦΟΣns:key.path"],"ok":""}
+{"fn":"calculateEquation","args":["./x/**/*.json﻿bom"],"ok":""}
+{"fn":"calculateEquation","args":[".leadinghello"],"ok":""}
+{"fn":"calculateEquation","args":["hello world"],"ok":""}
+{"fn":"calculateEquation","args":["hello"],"ok":""}
+{"fn":"calculateEquation","args":["trailing.abc"],"ok":""}
+{"fn":"calculateEquation","args":["a:"],"ok":""}
+{"fn":"calculateEquation","args":["ΣΊΣΥΦΟΣ  padded  "],"ok":""}
+{"fn":"calculateEquation","args":["a\ud83d\ude00b\ud83d\ude00cHello World"],"ok":""}
+{"fn":"calculateEquation","args":[".leadingHello World"],"ok":""}
+{"fn":"calculateEquation","args":["étrailing."],"ok":""}
+{"fn":"calculateEquation","args":["日本語のテキスト"],"ok":""}
+{"fn":"calculateEquation","args":["İstanbula"],"ok":""}
+{"fn":"calculateEquation","args":["ΣΊΣΥΦΟΣHELLO"],"ok":""}
+{"fn":"calculateEquation","args":["key_name-1straße"],"ok":""}
+{"fn":"calculateEquation","args":["abcünïcödé"],"ok":""}
+{"fn":"calculateEquation","args":["a.b.ca..b"],"ok":""}
+{"fn":"calculateEquation","args":["日本語のテキスト﻿bom"],"ok":""}
+{"fn":"calculateEquation","args":["﻿bom"],"ok":""}
+{"fn":"calculateEquation","args":["  padded  a"],"ok":""}
+{"fn":"calculateEquation","args":["日本語のテキスト日本語のテキスト"],"ok":""}
+{"fn":"calculateEquation","args":["emoji \ud83d\udc4d\ud83c\udffd mix  padded  "],"ok":""}
+{"fn":"calculateEquation","args":["\ud83d\ude00a..b"],"ok":""}
+{"fn":"calculateEquation","args":["\ud83d\ude00é"],"ok":""}
+{"fn":"calculateEquation","args":["  padded  a:b:c"],"ok":""}
+{"fn":"calculateEquation","args":["日本語のテキストé"],"ok":""}
+{"fn":"calculateEquation","args":["Hello Worlda:b:c"],"ok":""}
+{"fn":"calculateEquation","args":["Hello World.leading"],"ok":""}
+{"fn":"calculateEquation","args":["a:b:ckey_name-1"],"ok":""}
+{"fn":"calculateEquation","args":["abcsrc/a/b.ts"],"ok":""}
+{"fn":"calculateEquation","args":["ns:key.pathünïcödé"],"ok":""}
+{"fn":"calculateEquation","args":["﻿bom\ud83d\ude00"],"ok":""}
+{"fn":"calculateEquation","args":["{name} has {count} itemsa..b"],"ok":""}
+{"fn":"calculateEquation","args":["emoji \ud83d\udc4d\ud83c\udffd mixtab\tseparated"],"ok":""}
+{"fn":"calculateEquation","args":[":ΣΊΣΥΦΟΣ"],"ok":""}
+{"fn":"calculateEquation","args":["日本語のテキストİstanbul"],"ok":""}
+{"fn":"calculateEquation","args":[":İstanbul"],"ok":""}
+{"fn":"calculateEquation","args":["İstanbultab\tseparated"],"ok":""}
+{"fn":"calculateEquation","args":["hello.leading"],"ok":""}
+{"fn":"calculateEquation","args":["a\ud83d\ude00b\ud83d\ude00cé"],"ok":""}
+{"fn":"calculateEquation","args":["Hello Worldhello"],"ok":""}
+{"fn":"calculateEquation","args":["日本語のテキストtab\tseparated"],"ok":""}
+{"fn":"calculateEquation","args":["straßehello world"],"ok":""}
+{"fn":"calculateEquation","args":["ünïcödétrailing."],"ok":""}
+{"fn":"calculateEquation","args":["a\ud83d\ude00b\ud83d\ude00cabc"],"ok":""}
+{"fn":"calculateEquation","args":["﻿bomstraße"],"ok":""}
+{"fn":"calculateEquation","args":["HELLOtrailing."],"ok":""}
+{"fn":"calculateEquation","args":["helloünïcödé"],"ok":""}
+{"fn":"calculateEquation","args":["{name} has {count} itemsab"],"ok":""}
+{"fn":"calculateEquation","args":["key_name-1a\ud83d\ude00b\ud83d\ude00c"],"ok":""}
+{"fn":"calculateEquation","args":["./x/**/*.jsonünïcödé"],"ok":""}
+{"fn":"calculateEquation","args":["tab\tseparatedabc"],"ok":""}
+{"fn":"calculateEquation","args":["{name} has {count} itemssrc/a/b.ts"],"ok":""}
+{"fn":"calculateEquation","args":["a..b.leading"],"ok":""}
+{"fn":"calculateEquation","args":["key_name-1ΣΊΣΥΦΟΣ"],"ok":""}
+{"fn":"calculateEquation","args":[":\ud83d\ude00"],"ok":""}
+{"fn":"calculateEquation","args":["ns:key.pathİstanbul"],"ok":""}
+{"fn":"calculateEquation","args":["a\ud83d\ude00b\ud83d\ude00ca.b.c"],"ok":""}
+{"fn":"calculateEquation","args":["  padded  key_name-1"],"ok":""}
+{"fn":"calculateEquation","args":["hello:"],"ok":""}
+{"fn":"calculateEquation","args":["é{name} has {count} items"],"ok":""}
+{"fn":"calculateEquation","args":["日本語のテキストHELLO"],"ok":""}
+{"fn":"calculateEquation","args":["a.b.cab"],"ok":""}
+{"fn":"calculateEquation","args":["  padded  a..b"],"ok":""}
+{"fn":"calculateEquation","args":["aabc"],"ok":""}
+{"fn":"calculateEquation","args":["aba"],"ok":""}
+{"fn":"calculateEquation","args":["\ud83d\ude00a\ud83d\ude00b\ud83d\ude00c"],"ok":""}
+{"fn":"calculateEquation","args":["./x/**/*.json\ud83d\ude00"],"ok":""}
+{"fn":"calculateEquation","args":["emoji \ud83d\udc4d\ud83c\udffd mixabc"],"ok":""}
+{"fn":"calculateEquation","args":["key_name-1a.b.c"],"ok":""}
+{"fn":"calculateEquation","args":["{name} has {count} itemsa:b:c"],"ok":""}
+{"fn":"calculateEquation","args":[":Hello World"],"ok":""}
+{"fn":"calculateEquation","args":["a:b:ca"],"ok":""}
+{"fn":"calculateEquation","args":["./x/**/*.jsonabc"],"ok":""}
+{"fn":"calculateEquation","args":[".leadingΣΊΣΥΦΟΣ"],"ok":""}
+{"fn":"calculateEquation","args":["﻿bom./x/**/*.json"],"ok":""}
+{"fn":"calculateEquation","args":["aİstanbul"],"ok":""}
+{"fn":"calculateEquation","args":["ΣΊΣΥΦΟΣhello world"],"ok":""}
+{"fn":"calculateEquation","args":["src/a/b.ts{name} has {count} items"],"ok":""}
+{"fn":"calculateEquation","args":["ns:key.pathns:key.path"],"ok":""}
+{"fn":"calculateEquation","args":["a:b:cé"],"ok":""}
+{"fn":"calculateEquation","args":["HELLOhello world"],"ok":""}
+{"fn":"calculateEquation","args":["key_name-1abc"],"ok":""}
+{"fn":"calculateEquation","args":["étab\tseparated"],"ok":""}
+{"fn":"calculateEquation","args":[".leadingé"],"ok":""}
+{"fn":"calculateEquation","args":["ΣΊΣΥΦΟΣHello World"],"ok":""}
+{"fn":"calculateEquation","args":["trailing.src/a/b.ts"],"ok":""}
+{"fn":"calculateEquation","args":["HELLO﻿bom"],"ok":""}
+{"fn":"calculateEquation","args":["helloHello World"],"ok":""}
+{"fn":"calculateEquation","args":["é﻿bom"],"ok":""}
+{"fn":"calculateEquation","args":["{name} has {count} items﻿bom"],"ok":""}
+{"fn":"calculateEquation","args":["key_name-1line1\nline2"],"ok":""}
+{"fn":"calculateEquation","args":["key_name-1Hello World"],"ok":""}
+{"fn":"calculateEquation","args":["hello worldemoji \ud83d\udc4d\ud83c\udffd mix"],"ok":""}
+{"fn":"calculateEquation","args":["ns:key.patha"],"ok":""}
+{"fn":"calculateEquation","args":["日本語のテキスト.leading"],"ok":""}
+{"fn":"calculateEquation","args":["ünïcödéHELLO"],"ok":""}
+{"fn":"calculateEquation","args":["İstanbul﻿bom"],"ok":""}
+{"fn":"calculateEquation","args":["﻿bomİstanbul"],"ok":""}
+{"fn":"calculateEquation","args":["src/a/b.tsa.b.c"],"ok":""}
+{"fn":"calculateEquation","args":["a:b:ca..b"],"ok":""}
+{"fn":"calculateEquation","args":["hellons:key.path"],"ok":""}
+{"fn":"calculateEquation","args":["abcΣΊΣΥΦΟΣ"],"ok":""}
+{"fn":"calculateEquation","args":["\ud83d\ude00straße"],"ok":""}
+{"fn":"calculateEquation","args":["ΣΊΣΥΦΟΣ:"],"ok":""}
+{"fn":"calculateEquation","args":["Hello Worldns:key.path"],"ok":""}
+{"fn":"calculateEquation","args":["straße:"],"ok":""}
+{"fn":"calculateEquation","args":["a:b:cemoji \ud83d\udc4d\ud83c\udffd mix"],"ok":""}
+{"fn":"calculateEquation","args":["{name} has {count} itemstab\tseparated"],"ok":""}
+{"fn":"calculateEquation","args":["ns:key.pathabc"],"ok":""}
+{"fn":"calculateEquation","args":["﻿boma..b"],"ok":""}
+{"fn":"calculateEquation","args":["a:b:chello"],"ok":""}
+{"fn":"calculateEquation","args":["ΣΊΣΥΦΟΣa\ud83d\ude00b\ud83d\ude00c"],"ok":""}
+{"fn":"calculateEquation","args":["ünïcödé{name} has {count} items"],"ok":""}
+{"fn":"calculateEquation","args":["ünïcödéa"],"ok":""}
+{"fn":"calculateEquation","args":["a\ud83d\ude00b\ud83d\ude00ctab\tseparated"],"ok":""}
+{"fn":"calculateEquation","args":["key_name-1src/a/b.ts"],"ok":""}
+{"fn":"calculateEquation","args":["hello worlda\ud83d\ude00b\ud83d\ude00c"],"ok":""}
+{"fn":"calculateEquation","args":["{name} has {count} itemsa.b.c"],"ok":""}
+{"fn":"calculateEquation","args":["line1\nline2  padded  "],"ok":""}
+{"fn":"calculateEquation","args":["key_name-1a"],"ok":""}
+{"fn":"calculateEquation","args":["ns:key.pathHello World"],"ok":""}
+{"fn":"calculateEquation","args":["abca"],"ok":""}
+{"fn":"calculateEquation","args":["HELLOa:b:c"],"ok":""}
+{"fn":"calculateEquation","args":["{name} has {count} itemskey_name-1"],"ok":""}
+{"fn":"calculateEquation","args":["a:b:cns:key.path"],"ok":""}
+{"fn":"calculateEquation","args":["日本語のテキストtrailing."],"ok":""}
+{"fn":"calculateEquation","args":["./x/**/*.json日本語のテキスト"],"ok":""}
+{"fn":"calculateEquation","args":["./x/**/*.json./x/**/*.json"],"ok":""}
+{"fn":"calculateEquation","args":["﻿bomns:key.path"],"ok":""}
+{"fn":"calculateEquation","args":["ab\ud83d\ude00"],"ok":""}
+{"fn":"calculateEquation","args":["trailing.ΣΊΣΥΦΟΣ"],"ok":""}
+{"fn":"calculateEquation","args":["ΣΊΣΥΦΟΣ日本語のテキスト"],"ok":""}
+{"fn":"calculateEquation","args":["é./x/**/*.json"],"ok":""}
+{"fn":"calculateEquation","args":["straßehello"],"ok":""}
+{"fn":"calculateEquation","args":["\ud83d\ude00  padded  "],"ok":""}
+{"fn":"calculateEquation","args":["aa:b:c"],"ok":""}
+{"fn":"calculateEquation","args":["{name} has {count} itemsé"],"ok":""}
+{"fn":"calculateEquation","args":["straßea:b:c"],"ok":""}
+{"fn":"calculateEquation","args":["aünïcödé"],"ok":""}
+{"fn":"calculateEquation","args":["tab\tseparatedab"],"ok":""}
+{"fn":"calculateEquation","args":["tab\tseparatedemoji \ud83d\udc4d\ud83c\udffd mix"],"ok":""}
+{"fn":"calculateEquation","args":["aba:b:c"],"ok":""}
+{"fn":"calculateEquation","args":["HELLOHello World"],"ok":""}
+{"fn":"calculateEquation","args":["abcİstanbul"],"ok":""}
+{"fn":"calculateEquation","args":["ΣΊΣΥΦΟΣ﻿bom"],"ok":""}
+{"fn":"calculateEquation","args":["é:"],"ok":""}
+{"fn":"calculateEquation","args":["héllo wörld"],"ok":""}
+{"fn":"calculateEquation","args":["\ud83d\udc4d\ud83c\udffd thumbs"],"ok":""}
+{"fn":"calculateEquation","args":["日本語"],"ok":""}
+{"fn":"calculateEquation","args":["ılık ırmak"],"ok":""}
+{"fn":"calculateEquation","args":["\ud83d\udc68‍\ud83d\udc69‍\ud83d\udc67 family"],"ok":""}
+{"fn":"calculateEquation","args":["a b"],"ok":""}
+{"fn":"calculateEquation","args":["a\ud83d\ude00b"],"ok":""}
+{"fn":"calculateEquation","args":["a²b x½ y①"],"ok":""}
+{"fn":"calculateEquation","args":["aⅠb Ⅻ"],"ok":""}
+{"fn":"calculateEquation","args":["a\ud801\udc00b \ud835\udc00bc"],"ok":""}
+{"fn":"calculateEquation","args":["कि ٣٤"],"ok":""}
+{"fn":"calculateEquation","args":["1+2"],"ok":"3"}
+{"fn":"calculateEquation","args":["2*3+4"],"ok":"10"}
+{"fn":"calculateEquation","args":["2+3*4"],"ok":"14"}
+{"fn":"calculateEquation","args":["(2+3)*4"],"ok":"20"}
+{"fn":"calculateEquation","args":["10/4"],"ok":"2.5"}
+{"fn":"calculateEquation","args":["10%3"],"ok":"1"}
+{"fn":"calculateEquation","args":["2^10"],"ok":"1024"}
+{"fn":"calculateEquation","args":["2^3^2"],"ok":"512"}
+{"fn":"calculateEquation","args":["-5"],"ok":"-5"}
+{"fn":"calculateEquation","args":["--5"],"ok":"5"}
+{"fn":"calculateEquation","args":["-(2+3)"],"ok":"-5"}
+{"fn":"calculateEquation","args":["√9"],"ok":"3"}
+{"fn":"calculateEquation","args":["√2"],"ok":"1.414213562373095"}
+{"fn":"calculateEquation","args":["√(16)"],"ok":"4"}
+{"fn":"calculateEquation","args":["2^0.5"],"ok":"1.414213562373095"}
+{"fn":"calculateEquation","args":["1.5+2.25"],"ok":"3.75"}
+{"fn":"calculateEquation","args":["0.1+0.2"],"ok":"0.3"}
+{"fn":"calculateEquation","args":["1e3"],"ok":"1000"}
+{"fn":"calculateEquation","args":["1E3"],"ok":"1000"}
+{"fn":"calculateEquation","args":["1.5e-3"],"ok":"0.0015"}
+{"fn":"calculateEquation","args":["2.5e+2"],"ok":"250"}
+{"fn":"calculateEquation","args":["1000000*1000000"],"ok":"1000000000000"}
+{"fn":"calculateEquation","args":["123456789012345678"],"ok":"1.234567890123457E+17"}
+{"fn":"calculateEquation","args":["9999999999999999"],"ok":"9999999999999999"}
+{"fn":"calculateEquation","args":["99999999999999999"],"ok":"1E+17"}
+{"fn":"calculateEquation","args":["1/3"],"ok":"0.3333333333333333"}
+{"fn":"calculateEquation","args":["2/3"],"ok":"0.6666666666666667"}
+{"fn":"calculateEquation","args":["10/3"],"ok":"3.333333333333333"}
+{"fn":"calculateEquation","args":["5-8"],"ok":"-3"}
+{"fn":"calculateEquation","args":["0-0"],"ok":"0"}
+{"fn":"calculateEquation","args":["0*5"],"ok":"0"}
+{"fn":"calculateEquation","args":["5/0"],"ok":""}
+{"fn":"calculateEquation","args":["0/0"],"ok":""}
+{"fn":"calculateEquation","args":["0^0"],"ok":"1"}
+{"fn":"calculateEquation","args":["(-2)^2"],"ok":"4"}
+{"fn":"calculateEquation","args":["(-2)^3"],"ok":"-8"}
+{"fn":"calculateEquation","args":["2^-2"],"ok":"0.25"}
+{"fn":"calculateEquation","args":["2^(-2)"],"ok":"0.25"}
+{"fn":"calculateEquation","args":["1e308*10"],"ok":"1E+309"}
+{"fn":"calculateEquation","args":["1e-10"],"ok":"0.0000000001"}
+{"fn":"calculateEquation","args":["0.000001"],"ok":"0.000001"}
+{"fn":"calculateEquation","args":["100000000000000000000"],"ok":"1E+20"}
+{"fn":"calculateEquation","args":["1==1"],"ok":"1"}
+{"fn":"calculateEquation","args":["1==2"],"ok":"0"}
+{"fn":"calculateEquation","args":["1!=2"],"ok":"1"}
+{"fn":"calculateEquation","args":["1!=1"],"ok":"0"}
+{"fn":"calculateEquation","args":["3>2"],"ok":"1"}
+{"fn":"calculateEquation","args":["2>3"],"ok":"0"}
+{"fn":"calculateEquation","args":["3>=3"],"ok":"1"}
+{"fn":"calculateEquation","args":["2>=3"],"ok":"0"}
+{"fn":"calculateEquation","args":["2<3"],"ok":"1"}
+{"fn":"calculateEquation","args":["3<2"],"ok":"0"}
+{"fn":"calculateEquation","args":["2<=2"],"ok":"1"}
+{"fn":"calculateEquation","args":["3<=2"],"ok":"0"}
+{"fn":"calculateEquation","args":["1&&1"],"ok":"1"}
+{"fn":"calculateEquation","args":["1&&0"],"ok":"0"}
+{"fn":"calculateEquation","args":["0&&1"],"ok":"0"}
+{"fn":"calculateEquation","args":["0||0"],"ok":"0"}
+{"fn":"calculateEquation","args":["0||5"],"ok":"1"}
+{"fn":"calculateEquation","args":["1||0"],"ok":"1"}
+{"fn":"calculateEquation","args":["1>0&&2>1"],"ok":"1"}
+{"fn":"calculateEquation","args":["0||0&&1"],"ok":"0"}
+{"fn":"calculateEquation","args":["(1||0)&&0"],"ok":"0"}
+{"fn":"calculateEquation","args":["x=5"],"ok":"5"}
+{"fn":"calculateEquation","args":["x=5+3"],"ok":"8"}
+{"fn":"calculateEquation","args":["pi"],"ok":"3.141592653589793"}
+{"fn":"calculateEquation","args":["e"],"ok":"2.718281828459045"}
+{"fn":"calculateEquation","args":["pi*2"],"ok":"6.283185307179586"}
+{"fn":"calculateEquation","args":["e^2"],"ok":"7.389056098930649"}
+{"fn":"calculateEquation","args":["PI"],"ok":"3.141592653589793"}
+{"fn":"calculateEquation","args":["E"],"ok":"2.718281828459045"}
+{"fn":"calculateEquation","args":["Pi"],"ok":"3.141592653589793"}
+{"fn":"calculateEquation","args":["abs(-5)"],"ok":"5"}
+{"fn":"calculateEquation","args":["abs(5)"],"ok":"5"}
+{"fn":"calculateEquation","args":["abs(0)"],"ok":"0"}
+{"fn":"calculateEquation","args":["sum(1,2,3)"],"ok":"6"}
+{"fn":"calculateEquation","args":["sum(5)"],"ok":"5"}
+{"fn":"calculateEquation","args":["floor(2.7)"],"ok":"2"}
+{"fn":"calculateEquation","args":["floor(-2.7)"],"ok":"-3"}
+{"fn":"calculateEquation","args":["ceil(2.3)"],"ok":"3"}
+{"fn":"calculateEquation","args":["ceil(-2.3)"],"ok":"-2"}
+{"fn":"calculateEquation","args":["round(2.5)"],"ok":"2"}
+{"fn":"calculateEquation","args":["round(2.4)"],"ok":"2"}
+{"fn":"calculateEquation","args":["round(2.567,2)"],"ok":"2.57"}
+{"fn":"calculateEquation","args":["round(123.456,1)"],"ok":"123.5"}
+{"fn":"calculateEquation","args":["min(1,2,3)"],"ok":"1"}
+{"fn":"calculateEquation","args":["max(1,2,3)"],"ok":"3"}
+{"fn":"calculateEquation","args":["min(5)"],"ok":"5"}
+{"fn":"calculateEquation","args":["max(-1,-5)"],"ok":"-1"}
+{"fn":"calculateEquation","args":["if(1,10,20)"],"ok":"10"}
+{"fn":"calculateEquation","args":["if(0,10,20)"],"ok":"20"}
+{"fn":"calculateEquation","args":["if(1>0,7,8)"],"ok":"7"}
+{"fn":"calculateEquation","args":["if(2<1,7,8)"],"ok":"8"}
+{"fn":"calculateEquation","args":[""],"ok":""}
+{"fn":"calculateEquation","args":[" "],"ok":""}
+{"fn":"calculateEquation","args":["  2 + 3  "],"ok":"5"}
+{"fn":"calculateEquation","args":["2+"],"ok":""}
+{"fn":"calculateEquation","args":["*2"],"ok":""}
+{"fn":"calculateEquation","args":["(2+3"],"ok":""}
+{"fn":"calculateEquation","args":["2+3)"],"ok":""}
+{"fn":"calculateEquation","args":["2^^3"],"ok":""}
+{"fn":"calculateEquation","args":["2**3"],"ok":""}
+{"fn":"calculateEquation","args":["2//3"],"ok":""}
+{"fn":"calculateEquation","args":["2..3"],"ok":""}
+{"fn":"calculateEquation","args":[".5"],"ok":"0.5"}
+{"fn":"calculateEquation","args":["5."],"ok":"5"}
+{"fn":"calculateEquation","args":["1,000"],"ok":""}
+{"fn":"calculateEquation","args":["2+3*"],"ok":""}
+{"fn":"calculateEquation","args":["((2))"],"ok":"2"}
+{"fn":"calculateEquation","args":["(((1+2)))"],"ok":"3"}
+{"fn":"calculateEquation","args":["abc(1)"],"ok":""}
+{"fn":"calculateEquation","args":["unknown(1)"],"ok":""}
+{"fn":"calculateEquation","args":["unknownvar"],"ok":""}
+{"fn":"calculateEquation","args":["abs()"],"ok":""}
+{"fn":"calculateEquation","args":["abs(1,2)"],"ok":""}
+{"fn":"calculateEquation","args":["sum()"],"ok":""}
+{"fn":"calculateEquation","args":["min()"],"ok":""}
+{"fn":"calculateEquation","args":["max()"],"ok":""}
+{"fn":"calculateEquation","args":["round()"],"ok":""}
+{"fn":"calculateEquation","args":["round(1,2,3)"],"ok":""}
+{"fn":"calculateEquation","args":["if(1,2)"],"ok":""}
+{"fn":"calculateEquation","args":["if(1)"],"ok":""}
+{"fn":"calculateEquation","args":["floor(1,2)"],"ok":""}
+{"fn":"calculateEquation","args":["1=2"],"ok":""}
+{"fn":"calculateEquation","args":["2=2"],"ok":""}
+{"fn":"calculateEquation","args":["(1)=2"],"ok":""}
+{"fn":"calculateEquation","args":["x=5+"],"ok":""}
+{"fn":"calculateEquation","args":["=5"],"ok":""}
+{"fn":"calculateEquation","args":["1;2"],"ok":""}
+{"fn":"calculateEquation","args":["2+3;"],"ok":""}
+{"fn":"calculateEquation","args":["√"],"ok":""}
+{"fn":"calculateEquation","args":["√-1"],"ok":""}
+{"fn":"calculateEquation","args":["√(-4)"],"ok":""}
+{"fn":"calculateEquation","args":["(-8)^(1/3)"],"ok":""}
+{"fn":"calculateEquation","args":["2^100"],"ok":"1.267650600228229E+30"}
+{"fn":"calculateEquation","args":["10^20"],"ok":"1E+20"}
+{"fn":"calculateEquation","args":["0.5^2"],"ok":"0.25"}
+{"fn":"calculateEquation","args":["1e"],"ok":""}
+{"fn":"calculateEquation","args":["1e+"],"ok":""}
+{"fn":"calculateEquation","args":["1e-"],"ok":""}
+{"fn":"calculateEquation","args":["12e34"],"ok":"1.2E+35"}
+{"fn":"calculateEquation","args":[".e5"],"ok":""}
+{"fn":"calculateEquation","args":["1.2.3"],"ok":""}
+{"fn":"calculateEquation","args":["123abc"],"ok":""}
+{"fn":"calculateEquation","args":["2x"],"ok":""}
+{"fn":"calculateEquation","args":["x2"],"ok":""}
+{"fn":"calculateEquation","args":["2(3)"],"ok":""}
+{"fn":"calculateEquation","args":["(2)(3)"],"ok":""}
+{"fn":"calculateEquation","args":["2pi"],"ok":""}
+{"fn":"calculateEquation","args":["pi2"],"ok":""}
+{"fn":"calculateEquation","args":["1_000"],"ok":""}
+{"fn":"calculateEquation","args":["1'000"],"ok":""}
+{"fn":"calculateEquation","args":["1,5+1,5"],"ok":""}
+{"fn":"calculateEquation","args":["5 % 2"],"ok":"1"}
+{"fn":"calculateEquation","args":["100%"],"ok":""}
+{"fn":"calculateEquation","args":["5!"],"ok":""}
+{"fn":"calculateEquation","args":["2^3*4"],"ok":"32"}
+{"fn":"calculateEquation","args":["4*2^3"],"ok":"32"}
+{"fn":"calculateEquation","args":["10-2-3"],"ok":"5"}
+{"fn":"calculateEquation","args":["100/10/2"],"ok":"5"}
+{"fn":"calculateEquation","args":["2^3^2^1"],"ok":"512"}
+{"fn":"calculateEquation","args":["0.1*3"],"ok":"0.3"}
+{"fn":"calculateEquation","args":["1/7"],"ok":"0.1428571428571429"}
+{"fn":"calculateEquation","args":["22/7"],"ok":"3.142857142857143"}
+{"fn":"calculateEquation","args":["355/113"],"ok":"3.141592920353982"}
+{"fn":"calculateEquation","args":["1.7976931348623157e308"],"ok":"1.797693134862316E+308"}
+{"fn":"calculateEquation","args":["5e-324"],"ok":"0.000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000005"}
+{"fn":"calculateEquation","args":["123456789.123456789"],"ok":"123456789.1234568"}
+{"fn":"calculateEquation","args":["abs(-0.5)"],"ok":"0.5"}
+{"fn":"calculateEquation","args":["floor(0.5)"],"ok":"0"}
+{"fn":"calculateEquation","args":["ceil(0.5)"],"ok":"1"}
+{"fn":"calculateEquation","args":["round(-2.5)"],"ok":"-2"}
+{"fn":"calculateEquation","args":["round(-2.567,2)"],"ok":"-2.57"}
+{"fn":"calculateEquation","args":["min(3,1,2)"],"ok":"1"}
+{"fn":"calculateEquation","args":["max(3,1,2)"],"ok":"3"}
+{"fn":"calculateEquation","args":["sum(0.1,0.2)"],"ok":"0.3"}
+{"fn":"calculateEquation","args":["if(0.5,1,2)"],"ok":"1"}
+{"fn":"calculateEquation","args":["if(-1,1,2)"],"ok":"1"}
+{"fn":"calculateEquation","args":["2>1==1"],"ok":"1"}
+{"fn":"calculateEquation","args":["1+2==3"],"ok":"1"}
+{"fn":"calculateEquation","args":["(1+2)*3==9"],"ok":"1"}
+{"fn":"calculateEquation","args":["1<2<3"],"ok":"1"}
+{"fn":"calculateEquation","args":["5%3==2"],"ok":"1"}
+{"fn":"calculateEquation","args":["9999999999999999+1"],"ok":"1E+16"}
+{"fn":"calculateEquation","args":["9999999999999999*2"],"ok":"2E+16"}
+{"fn":"calculateEquation","args":["1e16"],"ok":"1E+16"}
+{"fn":"calculateEquation","args":["1e16+1"],"ok":"1E+16"}
+{"fn":"calculateEquation","args":["1234567890123456.7"],"ok":"1234567890123457"}
+{"fn":"calculateEquation","args":["0.0000000000000001"],"ok":"0.0000000000000001"}
+{"fn":"calculateEquation","args":["√2+√3"],"ok":"3.146264369941972"}
+{"fn":"calculateEquation","args":["2^0.5*2^0.5"],"ok":"2"}
+{"fn":"calculateEquation","args":["(2^3)^2"],"ok":"64"}
+{"fn":"calculateEquation","args":["2^(3^2)"],"ok":"512"}
+{"fn":"calculateEquation","args":["-(2^2)"],"ok":"-4"}
+{"fn":"calculateEquation","args":["(-2)^2"],"ok":"4"}
+{"fn":"calculateEquation","args":["-2^2"],"ok":"-4"}
+{"fn":"calculateEquation","args":["1 + 2 * 3 - 4 / 5"],"ok":"6.2"}
+{"fn":"calculateEquation","args":["(1+2)*(3+4)"],"ok":"21"}
+{"fn":"calculateEquation","args":["((1))"],"ok":"1"}
+{"fn":"calculateEquation","args":["((((5))))"],"ok":"5"}
+{"fn":"calculateEquation","args":["10 % 3 + 1"],"ok":"2"}
+{"fn":"calculateEquation","args":["2^10 % 100"],"ok":"24"}
+{"fn":"calculateEquation","args":["1e100"],"ok":"1E+100"}
+{"fn":"calculateEquation","args":["1e100*1e100"],"ok":"1E+200"}
+{"fn":"calculateEquation","args":["1e-100"],"ok":"0.0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001"}
+{"fn":"calculateEquation","args":["123456789012345678901234567890"],"ok":"1.234567890123457E+29"}
+{"fn":"calculateEquation","args":["0.30000000000000004"],"ok":"0.3"}
+{"fn":"calculateEquation","args":["a=3"],"ok":"3"}
+{"fn":"calculateEquation","args":["b=4"],"ok":"4"}
+{"fn":"calculateEquation","args":["x=2"],"ok":"2"}
+{"fn":"calculateEquation","args":["x"],"ok":""}
+{"fn":"calculateEquation","args":["abs(-9223372036854775808)"],"ok":"9.223372036854776E+18"}
+{"fn":"calculateEquation","args":["round(2.675,2)"],"ok":"2.68"}
+{"fn":"calculateEquation","args":["round(1.005,2)"],"ok":"1"}
+{"fn":"calculateEquation","args":["1.0==1"],"ok":"0"}
+{"fn":"calculateEquation","args":["1.00==1.0"],"ok":"0"}
+{"fn":"calculateEquation","args":["1.0==1.0"],"ok":"1"}
+{"fn":"calculateEquation","args":["1==1.0"],"ok":"0"}
+{"fn":"calculateEquation","args":["0.0==0"],"ok":"0"}
+{"fn":"calculateEquation","args":["2.50==2.5"],"ok":"0"}
+{"fn":"calculateEquation","args":["1.0!=1"],"ok":"1"}
+{"fn":"calculateEquation","args":["0.50+0"],"ok":"0.5"}
+{"fn":"calculateEquation","args":["1.50*2"],"ok":"3"}
+{"fn":"calculateEquation","args":["1.0>0.99"],"ok":"1"}
+{"fn":"calculateEquation","args":["(x=5)+x"],"ok":"10"}
+{"fn":"calculateEquation","args":["(x=5)*(x+1)"],"ok":"30"}
+{"fn":"calculateEquation","args":["(x=3)+2"],"ok":"5"}
+{"fn":"calculateEquation","args":["X=5"],"ok":"5"}
+{"fn":"calculateEquation","args":["_x=5"],"ok":"5"}
+{"fn":"calculateEquation","args":["_=5"],"ok":"5"}
+{"fn":"calculateEquation","args":["_x"],"ok":""}
+{"fn":"calculateEquation","args":["_"],"ok":""}
+{"fn":"calculateEquation","args":["pi3"],"ok":""}
+{"fn":"calculateEquation","args":["e2"],"ok":""}
+{"fn":"calculateEquation","args":["if(1,1/0,2)"],"ok":""}
+{"fn":"calculateEquation","args":["if(0,1/0,2)"],"ok":""}
+{"fn":"calculateEquation","args":["if(1,2,1/0)"],"ok":""}
+{"fn":"calculateEquation","args":["round(2.5,-1)"],"ok":"0"}
+{"fn":"calculateEquation","args":["round(123.456,-1)"],"ok":"120"}
+{"fn":"calculateEquation","args":["round(2.5,0.5)"],"ok":"2"}
+{"fn":"calculateEquation","args":["round(2.5,100000000000000000000)"],"ok":""}
+{"fn":"calculateEquation","args":["round(2.5,2147483647)"],"ok":""}
+{"fn":"calculateEquation","args":["2^2147483647"],"ok":""}
+{"fn":"calculateEquation","args":["2^10000000000"],"ok":""}
+{"fn":"calculateEquation","args":["10^10000000000"],"ok":""}
+{"fn":"calculateEquation","args":["1e999999999999"],"ok":""}
+{"fn":"calculateEquation","args":["0.0000000000000000000000000000000000000001"],"ok":"0.0000000000000000000000000000000000000001"}
+{"fn":"calculateEquation","args":["√0"],"ok":"0"}
+{"fn":"calculateEquation","args":["√1"],"ok":"1"}
+{"fn":"calculateEquation","args":["√1000000"],"ok":"1000"}
+{"fn":"calculateEquation","args":["√0.25"],"ok":"0.5"}
+{"fn":"calculateEquation","args":["0.25^0.5"],"ok":"0.5"}
+{"fn":"calculateEquation","args":["4^0.5"],"ok":"2"}
+{"fn":"calculateEquation","args":["9^0.5"],"ok":"3"}
+{"fn":"calculateEquation","args":["16^0.25"],"ok":"2"}
+{"fn":"calculateEquation","args":["2^1.5"],"ok":"2.82842712474619"}
+{"fn":"calculateEquation","args":["3^2.5"],"ok":"15.58845726811989"}
+{"fn":"calculateEquation","args":["2^0.3333333333333333333333333333333333"],"ok":"1.259921049894873"}
+{"fn":"calculateEquation","args":["-10%3"],"ok":"-1"}
+{"fn":"calculateEquation","args":["10%-3"],"ok":"1"}
+{"fn":"calculateEquation","args":["-10%-3"],"ok":"-1"}
+{"fn":"calculateEquation","args":["5.5%2"],"ok":"1.5"}
+{"fn":"calculateEquation","args":["10.5%3"],"ok":"1.5"}
+{"fn":"calculateEquation","args":["-10.5%3"],"ok":"-1.5"}
+{"fn":"calculateEquation","args":["1e-10+1"],"ok":"1.0000000001"}
+{"fn":"calculateEquation","args":["1.0000000001"],"ok":"1.0000000001"}
+{"fn":"calculateEquation","args":["1e5+1"],"ok":"100001"}
+{"fn":"calculateEquation","args":["1E5"],"ok":"100000"}
+{"fn":"calculateEquation","args":["2.5e2*2"],"ok":"500"}
+{"fn":"calculateEquation","args":["12e34"],"ok":"1.2E+35"}
+{"fn":"calculateEquation","args":["1e5e6"],"ok":""}
+{"fn":"calculateEquation","args":["1..2"],"ok":""}
+{"fn":"calculateEquation","args":["0x10"],"ok":""}
+{"fn":"calculateEquation","args":["2+3*4^2"],"ok":"50"}
+{"fn":"calculateEquation","args":["2^3*4"],"ok":"32"}
+{"fn":"calculateEquation","args":["---5"],"ok":"-5"}
+{"fn":"calculateEquation","args":["√√16"],"ok":"2"}
+{"fn":"calculateEquation","args":["√√√256"],"ok":"2"}
+{"fn":"calculateEquation","args":["5*-3"],"ok":"-15"}
+{"fn":"calculateEquation","args":["5/-2"],"ok":"-2.5"}
+{"fn":"calculateEquation","args":["5+-3"],"ok":"2"}
+{"fn":"calculateEquation","args":["5--3"],"ok":"8"}
+{"fn":"calculateEquation","args":["2^-2^2"],"ok":"0.0625"}
+{"fn":"calculateEquation","args":["2^2^3"],"ok":"256"}
+{"fn":"calculateEquation","args":["()"],"ok":""}
+{"fn":"calculateEquation","args":["f(1)"],"ok":""}
+{"fn":"calculateEquation","args":["sum(1,2,3,4,5)"],"ok":"15"}
+{"fn":"calculateEquation","args":["min(1.5,1.05)"],"ok":"1.05"}
+{"fn":"calculateEquation","args":["max(1.5,1.05)"],"ok":"1.5"}
+{"fn":"calculateEquation","args":["abs(0-0.001)"],"ok":"0.001"}
+{"fn":"calculateEquation","args":["1e16+0.5"],"ok":"1E+16"}
+{"fn":"calculateEquation","args":["0.1+0.2==0.3"],"ok":"1"}
+{"fn":"calculateEquation","args":["0.3-0.1"],"ok":"0.2"}
+{"fn":"calculateEquation","args":["0.3-0.2"],"ok":"0.1"}
+{"fn":"calculateEquation","args":["2.675"],"ok":"2.675"}
+{"fn":"calculateEquation","args":["1.005"],"ok":"1.005"}
+{"fn":"calculateEquation","args":["100/7"],"ok":"14.28571428571429"}
+{"fn":"calculateEquation","args":["1000/3"],"ok":"333.3333333333333"}
+{"fn":"calculateEquation","args":["2/0.5"],"ok":"4"}
+{"fn":"calculateEquation","args":["9999999999999999.5"],"ok":"1E+16"}
+{"fn":"calculateEquation","args":["9999999999999998.5"],"ok":"9999999999999998"}
+{"fn":"calculateEquation","args":["123.456e2"],"ok":"12345.6"}
+{"fn":"calculateEquation","args":["123.456e-2"],"ok":"1.23456"}
+{"fn":"calculateEquation","args":["0.000123456"],"ok":"0.000123456"}
+{"fn":"calculateEquation","args":["1234567890123456789"],"ok":"1.234567890123457E+18"}
+{"fn":"calculateEquation","args":["2^(1/2)"],"ok":"1.414213562373095"}
+{"fn":"calculateEquation","args":["(2^3)^2"],"ok":"64"}
+{"fn":"calculateEquation","args":["2^(3^2)"],"ok":"512"}
+{"fn":"calculateEquation","args":["-(2^2)"],"ok":"-4"}
+{"fn":"calculateEquation","args":["-2^2"],"ok":"-4"}
+{"fn":"calculateEquation","args":["√(2)^2"],"ok":"2"}
+{"fn":"calculateEquation","args":["√4+√9"],"ok":"5"}
+{"fn":"calculateEquation","args":["3^3^3"],"ok":"7625597484987"}
+{"fn":"calculateEquation","args":["1&&2"],"ok":"1"}
+{"fn":"calculateEquation","args":["0&&2"],"ok":"0"}
+{"fn":"calculateEquation","args":["2||0"],"ok":"1"}
+{"fn":"calculateEquation","args":["5>3&&2<4"],"ok":"1"}
+{"fn":"calculateEquation","args":["5>3||2>4"],"ok":"1"}
+{"fn":"calculateEquation","args":["!(1)"],"ok":""}
+{"fn":"calculateEquation","args":["1==1&&2==2"],"ok":"1"}
