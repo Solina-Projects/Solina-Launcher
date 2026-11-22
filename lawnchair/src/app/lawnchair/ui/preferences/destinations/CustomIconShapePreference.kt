@@ -127,6 +127,9 @@ fun CustomIconShapePreference(
         IconShapePreview(
             modifier = Modifier.padding(top = 12.dp),
             iconShape = selectedIconShape.value,
+            // The preview badge morphs into a star while the edited shape
+            // differs from the applied one.
+            morphToStar = !selectedIconShapeApplied.value,
         )
 
         IconShapeCornerPreferenceGroup(

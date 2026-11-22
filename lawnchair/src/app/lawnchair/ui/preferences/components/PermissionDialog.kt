@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material.icons.rounded.Close
@@ -36,6 +37,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.DialogProperties
 import app.lawnchair.ui.util.isPlayStoreFlavor
 import app.lawnchair.util.openAppPermissionSettings
 import app.lawnchair.util.requestManageAllFilesAccessPermission
@@ -44,6 +46,16 @@ import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
 import com.google.accompanist.permissions.rememberPermissionState
 import com.google.accompanist.permissions.shouldShowRationale
+
+/**
+ * Shared window properties for the permission dialogs: the screen behind the
+ * dialog is blurred instead of only dimmed. No-op below Android 12.
+ */
+private val permissionDialogProperties = DialogProperties(
+    blurBehindRadius = 16.dp,
+    scrimAlpha = 0.5f,
+    windowShape = RoundedCornerShape(28.dp),
+)
 
 /**
  * A dialog that requests a permission.
@@ -69,6 +81,7 @@ fun PermissionDialog(
     AlertDialog(
         onDismissRequest = onDismiss,
         modifier = modifier,
+        properties = permissionDialogProperties,
         title = { Text(title) },
         text = { Text(text) },
         confirmButton = {
@@ -117,6 +130,7 @@ fun WallpaperAccessPermissionDialog(
             AlertDialog(
                 onDismissRequest = onDismiss,
                 modifier = modifier,
+                properties = permissionDialogProperties,
                 title = {
                     Text(stringResource(R.string.manage_storage_access_denied_title))
                 },
@@ -141,6 +155,7 @@ fun WallpaperAccessPermissionDialog(
                 AlertDialog(
                     onDismissRequest = onDismiss,
                     modifier = modifier,
+                    properties = permissionDialogProperties,
                     title = {
                         Text(stringResource(R.string.permission_desc_wallpaper_multiple))
                     },

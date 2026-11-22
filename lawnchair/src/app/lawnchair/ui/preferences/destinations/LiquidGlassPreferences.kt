@@ -3,11 +3,16 @@ package app.lawnchair.ui.preferences.destinations
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.FlexBox
+import androidx.compose.foundation.layout.FlexBoxConfig
+import androidx.compose.foundation.layout.FlexDirection
+import androidx.compose.foundation.layout.FlexWrap
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -26,10 +31,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.blur.BlurRadiusSpec
+import androidx.compose.ui.graphics.blur.BlurStop
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.platform.LocalContext
@@ -139,6 +147,13 @@ fun LiquidGlassPreferences(
                     adapter = prefs.liquidGlassTintSwatch.getAdapter(),
                     entries = swatchEntries,
                     label = stringResource(id = R.string.liquid_glass_tint_swatch_label),
+                )
+                LiquidGlassTintSwatchGrid(
+                    entries = swatchEntries,
+                    selectedSwatch = tintSwatch,
+                    onSelectSwatch = { swatchId ->
+                        prefs.liquidGlassTintSwatch.getAdapter().onChange(newValue = swatchId)
+                    },
                 )
             }
 
@@ -288,7 +303,21 @@ private fun LiquidGlassLivePreviewCard(
                     ),
                 ),
         ) {
-            Canvas(modifier = Modifier.fillMaxSize()) {
+            Canvas(
+                // Progressive blur: the backdrop orbs stay sharp at the top and
+                // soften toward the bottom edge of the preview card.
+                // No-op below Android 13.
+                modifier = Modifier
+                    .fillMaxSize()
+                    .blur {
+                        blurRadiusSpec = BlurRadiusSpec.verticalGradient(
+                            listOf(
+                                BlurStop(fraction = 0.55f, radius = 0.dp),
+                                BlurStop(fraction = 1f, radius = 12.dp),
+                            ),
+                        )
+                    },
+            ) {
                 // Colorful backdrop orbs so optical refraction, bevel, and rim light stand out vividly
                 drawCircle(
                     brush = Brush.radialGradient(
@@ -317,7 +346,9 @@ private fun LiquidGlassLivePreviewCard(
                     radius = size.minDimension * 0.48f,
                     center = Offset(size.width * 0.50f, size.height * 0.78f),
                 )
+            }
 
+            Canvas(modifier = Modifier.fillMaxSize()) {
                 val densityScale = density
                 val hPad = 20.dp.toPx()
 
@@ -503,4 +534,72 @@ private fun LiquidGlassPresetRow(
             }
         }
     }
+}
+
+/**
+ * A wrapping color grid of the liquid glass tint swatches, laid out with the
+ * stable [FlexBox] layout so swatches flow onto multiple lines on narrow
+ * screens. Tapping a swatch applies it immediately.
+ */
+@Composable
+private fun LiquidGlassTintSwatchGrid(
+    entries: List<ListPreferenceEntry<String>>,
+    selectedSwatch: String,
+    onSelectSwatch: (String) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val context = LocalContext.current
+    val isDark = LiquidGlassStyleHelper.isDarkConfiguration(context)
+    val accentColor = remember(context) { ColorTokens.ColorAccent.resolveColor(context) }
+
+    FlexBox(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 8.dp),
+        config = FlexBoxConfig {
+            direction(FlexDirection.Row)
+            wrap(FlexWrap.Wrap)
+            gap(12.dp)
+        },
+    ) {
+        entries.forEach { entry ->
+            LiquidGlassSwatchDot(
+                entry = entry,
+                isSelected = entry.value == selectedSwatch,
+                isDark = isDark,
+                accentColor = accentColor,
+                onSelect = { onSelectSwatch(entry.value) },
+            )
+        }
+    }
+}
+
+@Composable
+private fun LiquidGlassSwatchDot(
+    entry: ListPreferenceEntry<String>,
+    isSelected: Boolean,
+    isDark: Boolean,
+    accentColor: Int,
+    onSelect: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val tint = remember(entry.value, isDark, accentColor) {
+        Color(LiquidGlassStyleHelper.resolveTintColor(entry.value, isDark, 0, accentColor))
+    }
+    Box(
+        modifier = modifier
+            .size(40.dp)
+            .clip(CircleShape)
+            .background(tint)
+            .border(
+                width = if (isSelected) 2.dp else 1.dp,
+                color = if (isSelected) {
+                    MaterialTheme.colorScheme.primary
+                } else {
+                    MaterialTheme.colorScheme.outlineVariant
+                },
+                shape = CircleShape,
+            )
+            .clickable { onSelect() },
+    )
 }

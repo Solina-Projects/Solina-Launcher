@@ -18,8 +18,14 @@ package app.lawnchair.ui.preferences.destinations
 
 import android.content.Context
 import androidx.annotation.Keep
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CornerRounding
+import androidx.compose.foundation.shape.MorphPolygonShape
+import androidx.compose.foundation.shape.PolygonShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.Edit
@@ -163,7 +169,10 @@ private fun ShapeTabContent(currentTab: ShapeRoute) {
                     )
                 },
                 endWidget = {
-                    IconShapePreview(iconShape = item.value)
+                    IconShapePreview(
+                        iconShape = item.value,
+                        morphToStar = item.value == shapeAdapter.state.value,
+                    )
                 },
                 onClick = if (item.enabled) {
                     { shapeAdapter.onChange(newValue = item.value) }
@@ -191,7 +200,10 @@ private fun CustomIconShapePreferenceOption(
             )
         },
         endWidget = {
-            IconShapePreview(iconShape = customIconShape)
+            IconShapePreview(
+                iconShape = customIconShape,
+                morphToStar = IconShape.isCustomShape(iconShapeAdapter.state.value),
+            )
         },
         onClick = {
             iconShapeAdapter.onChange(newValue = customIconShape)
@@ -236,6 +248,9 @@ private fun ModifyCustomIconShapePreference(
 
 /**
  * Draws a preview of an [IconShape].
+ *
+ * When [morphToStar] is true, the badge behind the shape morphs from a circle
+ * into a star, highlighting the selected (or edited, not yet applied) shape.
  */
 @Composable
 fun IconShapePreview(
@@ -243,38 +258,63 @@ fun IconShapePreview(
     modifier: Modifier = Modifier,
     strokeColor: Color = MaterialTheme.colorScheme.primary,
     fillColor: Color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.1f),
+    morphToStar: Boolean = false,
 ) {
     val path = iconShape.getMaskPath().asComposePath()
+    val morphProgress by animateFloatAsState(
+        targetValue = if (morphToStar) 1f else 0f,
+        label = "iconShapeMorph",
+    )
+    val morphShape = remember {
+        MorphPolygonShape(
+            start = PolygonShape.circle(),
+            end = PolygonShape.star(
+                numPoints = 5,
+                innerRadiusRatio = 0.55f,
+                outerRounding = CornerRounding.fraction(0.35f),
+            ),
+            progress = { morphProgress },
+        )
+    }
 
-    Canvas(
-        modifier = modifier.size(48.dp),
+    Box(
+        modifier = modifier
+            .size(48.dp)
+            .background(
+                color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.35f),
+                shape = morphShape,
+            ),
     ) {
-        val pathBounds = path.getBounds()
-        if (pathBounds.width <= 0f || pathBounds.height <= 0f) return@Canvas
+        Canvas(
+            modifier = Modifier.size(48.dp),
+        ) {
+            val pathBounds = path.getBounds()
+            if (pathBounds.width <= 0f || pathBounds.height <= 0f) return@Canvas
 
-        val strokeWidth = 4f
-        val fitScale = minOf(
-            (size.width - strokeWidth) / (pathBounds.width + strokeWidth),
-            (size.height - strokeWidth) / (pathBounds.height + strokeWidth),
-        )
-        if (fitScale <= 0f) return@Canvas
+            val strokeWidth = 4f
+            val fitScale = minOf(
+                (size.width - strokeWidth) / (pathBounds.width + strokeWidth),
+                (size.height - strokeWidth) / (pathBounds.height + strokeWidth),
+            )
+            if (fitScale <= 0f) return@Canvas
 
-        val offset = Offset(
-            x = (size.width - pathBounds.width * fitScale) / 2f - pathBounds.left * fitScale,
-            y = (size.height - pathBounds.height * fitScale) / 2f - pathBounds.top * fitScale,
-        )
+            val offset = Offset(
+                x = (size.width - pathBounds.width * fitScale) / 2f - pathBounds.left * fitScale,
+                y = (size.height - pathBounds.height * fitScale) / 2f - pathBounds.top * fitScale,
+            )
 
-        translate(left = offset.x, top = offset.y) {
-            scale(scaleX = fitScale, scaleY = fitScale, pivot = Offset.Zero) {
-                drawPath(
-                    path = path,
-                    color = fillColor,
-                )
-                drawPath(
-                    path = path,
-                    color = strokeColor,
-                    style = Stroke(width = strokeWidth),
-                )
+            translate(left = offset.x, top = offset.y) {
+                scale(scaleX = fitScale, scaleY = fitScale, pivot = Offset.Zero) {
+                    drawPath(
+                        path = path,
+                        color = fillColor,
+                    )
+                    drawPath(
+                        path = path,
+                        color = strokeColor,
+                        style = Stroke(width = strokeWidth),
+                    )
+                }
             }
         }
     }
