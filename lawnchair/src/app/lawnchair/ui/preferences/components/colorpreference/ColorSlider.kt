@@ -14,11 +14,12 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberSliderState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -47,6 +48,15 @@ fun RgbColorSlider(
     val mMSDLPlayerWrapper = MSDLPlayerWrapper.INSTANCE.get(LocalContext.current)
     val step = 0f
     val rgbRange = 0f..255f
+    val sliderState = rememberSliderState(
+        value = value.toFloat(),
+        steps = getSteps(rgbRange, step),
+        trackRange = rgbRange,
+    )
+    DisposableEffect(value) {
+        sliderState.value = value.toFloat()
+        onDispose { }
+    }
 
     PreferenceTemplate(
         modifier = modifier,
@@ -80,13 +90,12 @@ fun RgbColorSlider(
                         .background(colorStart),
                 )
                 Slider(
-                    value = value.toFloat(),
+                    state = sliderState,
                     onValueChange = {
                         mMSDLPlayerWrapper.playToken(MSDLToken.DRAG_INDICATOR_CONTINUOUS)
+                        sliderState.value = it
                         onValueChange(it)
                     },
-                    valueRange = rgbRange,
-                    steps = getSteps(rgbRange, step),
                     modifier = Modifier
                         .height(24.dp)
                         .weight(1f)
@@ -127,6 +136,16 @@ fun HsbColorSlider(
         HsbSliderType.HUE -> stringResource(id = R.string.hsb_hue)
         HsbSliderType.SATURATION -> stringResource(id = R.string.hsb_saturation)
         HsbSliderType.BRIGHTNESS -> stringResource(id = R.string.hsb_brightness)
+    }
+
+    val sliderState = rememberSliderState(
+        value = value,
+        steps = getSteps(range, step),
+        trackRange = range,
+    )
+    DisposableEffect(value) {
+        sliderState.value = value
+        onDispose { }
     }
 
     PreferenceTemplate(
@@ -180,14 +199,13 @@ fun HsbColorSlider(
                     )
                 }
                 Slider(
-                    value = value,
+                    state = sliderState,
                     onValueChange = {
                         mMSDLPlayerWrapper.playToken(MSDLToken.DRAG_INDICATOR_CONTINUOUS)
+                        sliderState.value = it
                         onValueChange(it)
                     },
                     onValueChangeFinished = { },
-                    valueRange = range,
-                    steps = getSteps(range, step),
                     colors = SliderDefaults.colors(),
                     modifier = Modifier
                         .height(24.dp)

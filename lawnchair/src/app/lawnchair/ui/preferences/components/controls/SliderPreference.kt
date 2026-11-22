@@ -36,13 +36,12 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberSliderState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -143,7 +142,11 @@ private fun SliderPreference(
     showUnit: String = "",
     enabled: Boolean = true,
 ) {
-    var sliderValue by remember { mutableFloatStateOf(value) }
+    val sliderState = rememberSliderState(
+        value = value,
+        steps = getSteps(valueRange, step),
+        trackRange = valueRange,
+    )
     var thresholdReached by remember { mutableStateOf<SliderThreshold?>(null) }
     val mMSDLPlayerWrapper = MSDLPlayerWrapper.INSTANCE.get(LocalContext.current)
     val stepperEnabled by preferenceManager().settingsStepperSliders.observeAsState()
@@ -154,12 +157,12 @@ private fun SliderPreference(
     }
 
     DisposableEffect(value) {
-        sliderValue = value
+        sliderState.value = value
         thresholdReached = null
         onDispose { }
     }
 
-    val snappedValue = snapSliderValue(valueRange.start, sliderValue, step)
+    val snappedValue = snapSliderValue(valueRange.start, sliderState.value, step)
     val formattedValue = if (showAsPercentage) {
         stringResource(
             id = R.string.n_percent,
@@ -200,7 +203,7 @@ private fun SliderPreference(
                                         (snappedValue - step).coerceIn(valueRange.start, valueRange.endInclusive),
                                         step,
                                     )
-                                    sliderValue = next
+                                    sliderState.value = next
                                     mMSDLPlayerWrapper.playToken(MSDLToken.TAP_LOW_EMPHASIS)
                                     onValueChangeFinished(next)
                                 },
@@ -234,7 +237,7 @@ private fun SliderPreference(
                                         (snappedValue + step).coerceIn(valueRange.start, valueRange.endInclusive),
                                         step,
                                     )
-                                    sliderValue = next
+                                    sliderState.value = next
                                     mMSDLPlayerWrapper.playToken(MSDLToken.TAP_LOW_EMPHASIS)
                                     onValueChangeFinished(next)
                                 },
@@ -247,11 +250,11 @@ private fun SliderPreference(
         modifier = modifier,
         description = {
             Slider(
-                value = sliderValue,
+                state = sliderState,
                 onValueChange = { newValue ->
-                    val previousStepped = snapSliderValue(valueRange.start, sliderValue, step)
+                    val previousStepped = snapSliderValue(valueRange.start, sliderState.value, step)
                     val newStepped = snapSliderValue(valueRange.start, newValue, step)
-                    sliderValue = newValue
+                    sliderState.value = newValue
 
                     if (newStepped == valueRange.start && thresholdReached != SliderThreshold.START) {
                         thresholdReached = SliderThreshold.START
@@ -281,9 +284,7 @@ private fun SliderPreference(
                         }
                     }
                 },
-                onValueChangeFinished = { onValueChangeFinished(sliderValue) },
-                valueRange = valueRange,
-                steps = getSteps(valueRange, step),
+                onValueChangeFinished = { onValueChangeFinished(sliderState.value) },
                 modifier = Modifier
                     .padding(top = 4.dp, bottom = 8.dp)
                     .height(24.dp),
