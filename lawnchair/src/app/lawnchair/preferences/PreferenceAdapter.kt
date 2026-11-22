@@ -20,7 +20,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
-import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.computedStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -165,7 +165,7 @@ private class TransformPreferenceAdapter<T, R>(
     private val transformGet: (T) -> R,
     private val transformSet: (R) -> T,
 ) : PreferenceAdapter<R> {
-    override val state = derivedStateOf { transformGet(parent.state.value) }
+    override val state = computedStateOf { transformGet(parent.state.value) }
 
     override fun onChange(newValue: R) {
         parent.onChange(transformSet(newValue))

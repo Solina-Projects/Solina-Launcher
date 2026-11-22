@@ -30,6 +30,10 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.input.TextFieldLineLimits
+import androidx.compose.foundation.text.input.TextFieldState
+import androidx.compose.foundation.text.input.clearText
+import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Build
 import androidx.compose.material.icons.rounded.Close
@@ -163,7 +167,8 @@ fun PreferencesDashboard(
     val deckLayout = prefs2.deckLayout.getAdapter()
     val isSmartspaceEnabled = prefs2.enableSmartspace.firstCached()
 
-    var searchQuery by rememberSaveable { mutableStateOf("") }
+    val searchFieldState = rememberTextFieldState()
+    val searchQuery = searchFieldState.text.toString()
     var showCustomizerPanel by rememberSaveable { mutableStateOf(false) }
 
     val aboutDescription = if (prefs.hideVersionInfo.get()) {
@@ -362,8 +367,7 @@ fun PreferencesDashboard(
         AnimatedVisibility(visible = showSearchBar) {
             Column {
                 DashboardSearchBar(
-                    query = searchQuery,
-                    onQueryChange = { searchQuery = it },
+                    state = searchFieldState,
                 )
                 Spacer(modifier = Modifier.height(10.dp))
             }
@@ -635,8 +639,7 @@ private fun DashboardQuickSettingsButton(
 
 @Composable
 private fun DashboardSearchBar(
-    query: String,
-    onQueryChange: (String) -> Unit,
+    state: TextFieldState,
     modifier: Modifier = Modifier,
 ) {
     Surface(
@@ -660,7 +663,7 @@ private fun DashboardSearchBar(
             )
             Spacer(modifier = Modifier.width(12.dp))
             Box(modifier = Modifier.weight(1f)) {
-                if (query.isEmpty()) {
+                if (state.text.isEmpty()) {
                     Text(
                         text = stringResource(R.string.settings_search_placeholder),
                         style = MaterialTheme.typography.bodyMedium,
@@ -668,9 +671,8 @@ private fun DashboardSearchBar(
                     )
                 }
                 BasicTextField(
-                    value = query,
-                    onValueChange = onQueryChange,
-                    singleLine = true,
+                    state = state,
+                    lineLimits = TextFieldLineLimits.SingleLine,
                     textStyle = MaterialTheme.typography.bodyMedium.copy(
                         color = MaterialTheme.colorScheme.onSurface,
                     ),
@@ -678,14 +680,14 @@ private fun DashboardSearchBar(
                     modifier = Modifier.fillMaxWidth(),
                 )
             }
-            if (query.isNotEmpty()) {
+            if (state.text.isNotEmpty()) {
                 Box(
                     contentAlignment = Alignment.Center,
                     modifier = Modifier
                         .size(24.dp)
                         .clip(CircleShape)
                         .background(MaterialTheme.colorScheme.surfaceVariant)
-                        .clickable { onQueryChange("") },
+                        .clickable { state.clearText() },
                 ) {
                     Icon(
                         imageVector = Icons.Rounded.Close,

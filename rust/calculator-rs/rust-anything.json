@@ -1,0 +1,33 @@
+{
+  "schema": "rust-anything/bridge@1",
+  "root": "/home/hatch/workspace/solina-launcher-rust",
+  "unit": "calc/",
+  "language": "kotlin",
+  "kind": "ffi",
+  "crate_name": "calc-rs",
+  "exports": [
+    {
+      "name": "calculateEquation",
+      "file": "calc/FrontDoor.kt",
+      "line": 14,
+      "params": [
+        {
+          "name": "query",
+          "ts_type": "string",
+          "optional": false,
+          "rest": false,
+          "native_type": "String"
+        }
+      ],
+      "returns": "string",
+      "is_async": false,
+      "is_generator": false,
+      "type_params": [],
+      "uses_instanceof": false,
+      "native_return": "String",
+      "prototype": "app.lawnchair.search.algorithms.data.calculator.FrontDoorKt.calculateEquation(String query)"
+    }
+  ],
+  "classes": [],
+  "js_only": []
+}

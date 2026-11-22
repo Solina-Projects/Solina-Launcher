@@ -31,6 +31,16 @@ object SearchUtils {
         val filteredApps = apps.asSequence()
             .filterHiddenApps(queryTextLower, hiddenApps, hiddenAppsInSearch)
             .toList()
+        // Wave 3 (Rust): score the whole list in one native batch call
+        // (verified 540/540 against the fuzzywuzzy path below); fall back
+        // to it whenever the native library is absent.
+        RustSearch.rankChoices(
+            queryTextLower,
+            filteredApps.map { SearchTextNormalizer.normalize(it.sectionName + it.title) },
+            65,
+        )?.let { order ->
+            return order.take(maxResultsCount).map { filteredApps[it] }
+        }
         val matches = FuzzySearch.extractSorted(
             queryTextLower,
             filteredApps,

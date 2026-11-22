@@ -25,6 +25,9 @@ import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.blur
+import androidx.compose.ui.graphics.blur.BlurRadiusSpec
+import androidx.compose.ui.graphics.blur.BlurStop
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -110,7 +113,16 @@ fun WallpaperPreview(
     Image(
         painter = painter,
         contentDescription = "",
-        modifier = modifier,
+        // Progressive blur: the top of the wallpaper stays sharp while the
+        // bottom edge fades into the background. No-op below Android 13.
+        modifier = modifier.blur {
+            blurRadiusSpec = BlurRadiusSpec.verticalGradient(
+                listOf(
+                    BlurStop(fraction = 0.6f, radius = 0.dp),
+                    BlurStop(fraction = 1f, radius = 16.dp),
+                ),
+            )
+        },
         contentScale = ContentScale.FillHeight,
     )
 }

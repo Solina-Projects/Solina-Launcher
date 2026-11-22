@@ -1,5 +1,6 @@
 package app.lawnchair.search.algorithms.engine.provider.apps
 
+import app.lawnchair.search.algorithms.RustSearch
 import java.text.Normalizer
 import java.util.Locale
 
@@ -11,6 +12,9 @@ object SearchTextNormalizer {
     private val spaces = Regex("\\s+")
 
     fun normalize(value: String): String {
+        // Wave 3 (Rust): the native port is verified 540/540 against this
+        // body; fall back to it whenever the native library is absent.
+        RustSearch.normalizeSearchText(value)?.let { return it }
         val input = Normalizer.normalize(value, Normalizer.Form.NFKD)
         val canonical = StringBuilder(input.length)
         var previousBaseScript = Character.UnicodeScript.COMMON

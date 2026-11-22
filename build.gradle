@@ -130,7 +130,7 @@ final def buildCommit = providers.exec {
 }.standardOutput.asText.get().trim()
 
 // Keep the user-facing version consistent across the installer and launcher UI.
-final def versionDisplayName = "1.1.0"
+final def versionDisplayName = "1.5.0"
 final def majorVersion = "1"
 
 final def quickstepMinSdk = "29"
@@ -140,7 +140,7 @@ android {
     namespace "com.android.launcher3"
     defaultConfig {
         /*
-         * Solina Launcher 1.1.0
+         * Solina Launcher 1.5.0
          */
         versionCode 16_00_02_01_00
         versionName "${versionDisplayName}"
@@ -300,6 +300,9 @@ android {
             aidl.srcDirs = ['lawnchair/aidl']
             res.srcDirs = ['lawnchair/res', 'platform_frameworks_libs_systemui/animationlib/res']
             manifest.srcFile "lawnchair/AndroidManifest.xml"
+            // Wave 3 (Rust): the native search/calculator libraries, built
+            // by the buildRustNativeLibs task into rust/jniLibs.
+            jniLibs.srcDirs = ['rust/jniLibs']
             assets {
                 srcDirs 'lawnchair/assets'
             }
@@ -334,6 +337,49 @@ android {
             manifest.srcFile "quickstep/AndroidManifest.xml"
         }
     }
+}
+
+// Wave 3 (Rust): build the native search/calculator libraries (calc-rs,
+// search-rs) into rust/jniLibs when the toolchain is present. CI has no
+// NDK or Rust toolchain, so the task is a no-op there and the app falls
+// back to the Kotlin implementations at runtime. The .so files are never
+// committed; to build them in CI too, add the NDK + Rust setup steps to
+// .github/workflows/ci.yml (see rust/README.md).
+tasks.register('buildRustNativeLibs', Exec) {
+    description = 'Builds the Rust native libraries for Android when cargo, rust-anything and the NDK are available; no-op otherwise.'
+    inputs.dir('rust/calculator-rs/src')
+    inputs.dir('rust/search-rs/src')
+    inputs.file('rust/calculator-rs/Cargo.toml')
+    inputs.file('rust/calculator-rs/Cargo.lock')
+    inputs.file('rust/calculator-rs/rust-anything.json')
+    inputs.file('rust/search-rs/Cargo.toml')
+    inputs.file('rust/search-rs/Cargo.lock')
+    inputs.file('rust/search-rs/rust-anything.json')
+    outputs.dir('rust/jniLibs')
+    workingDir rootDir
+    commandLine 'sh', '-c', '''
+        if ! command -v cargo >/dev/null 2>&1 || ! command -v rust-anything >/dev/null 2>&1; then
+            echo "buildRustNativeLibs: cargo or rust-anything not found, skipping Rust build (Kotlin fallback will be used)."
+            exit 0
+        fi
+        if [ -n "$ANDROID_NDK_HOME" ] && [ -d "$ANDROID_NDK_HOME" ]; then
+            NDK="$ANDROID_NDK_HOME"
+        elif [ -n "$ANDROID_HOME" ]; then
+            NDK="$(ls -d "$ANDROID_HOME"/ndk/*/ 2>/dev/null | sort -V | tail -n 1)"
+        fi
+        if [ -z "$NDK" ] || [ ! -d "$NDK" ]; then
+            echo "buildRustNativeLibs: NDK not found, skipping Rust build (Kotlin fallback will be used)."
+            exit 0
+        fi
+        for crate in rust/calculator-rs rust/search-rs; do
+            echo "buildRustNativeLibs: building $crate..."
+            rust-anything build --profile android --abi arm64-v8a --abi armeabi-v7a --api 26 --ndk "$NDK" --jni-libs "$PWD/rust/jniLibs" "$PWD/$crate" || exit 1
+        done
+    '''
+}
+
+tasks.named('preBuild').configure {
+    dependsOn('buildRustNativeLibs')
 }
 
 androidComponents {

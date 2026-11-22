@@ -2,6 +2,7 @@ package app.lawnchair.search.algorithms.engine.provider
 
 import android.content.Context
 import app.lawnchair.preferences.PreferenceManager
+import app.lawnchair.search.algorithms.RustSearch
 import app.lawnchair.search.algorithms.data.Calculation
 import app.lawnchair.search.algorithms.data.calculator.Expressions
 import app.lawnchair.search.algorithms.engine.SearchProvider
@@ -39,6 +40,16 @@ object CalculatorSearchProvider : SearchProvider {
     private fun calculateEquationFromString(
         query: String,
     ): Calculation {
+        // Wave 3 (Rust): the native port is verified 531/531 against the
+        // Kotlin body below; fall back to it whenever the native library
+        // is absent or the calculation is invalid.
+        RustSearch.calculateEquation(query)?.let { result ->
+            return Calculation(
+                equation = query,
+                result = result,
+                isValid = true,
+            )
+        }
         return try {
             val evaluatedValue = Expressions().eval(query)
             val roundedValue = evaluatedValue.round(MathContext.DECIMAL64)

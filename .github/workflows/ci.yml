@@ -49,6 +49,21 @@ jobs:
       - uses: gradle/actions/setup-gradle@v6
         with:
           cache-encryption-key: Da25KUVSE5jbGds2zXmfXw==
+      - name: Set up Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: aarch64-linux-android,armv7-linux-androideabi
+      - name: Set up Android NDK
+        uses: android-actions/setup-android@v3
+        with:
+          packages: 'ndk;28.0.13004108'
+      - name: Install rust-anything
+        shell: bash
+        run: |
+          curl -sL -o /tmp/rust-anything.tar.gz https://github.com/erkamyaman/rust-anything/releases/download/v2.1.0/rust-anything-v2.1.0-x86_64-unknown-linux-gnu.tar.gz
+          tar -xzf /tmp/rust-anything.tar.gz -C /tmp
+          sudo install -m 755 /tmp/rust-anything-v2.1.0-x86_64-unknown-linux-gnu/rust-anything /usr/local/bin/rust-anything
+          rust-anything --version
       - name: Write signing information
         if: github.repository_owner == 'Solina-Projects'
         env:
