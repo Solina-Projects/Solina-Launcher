@@ -121,6 +121,10 @@ fun LiquidGlassPreferences(
         )
     }
 
+    // Hoisted: getAdapter() is @Composable, so it must be called here in the
+    // composable scope — not inside the onSelectSwatch click callback below.
+    val tintSwatchAdapter = prefs.liquidGlassTintSwatch.getAdapter()
+
     PreferenceLayout(
         label = stringResource(id = R.string.liquid_glass_studio_title),
         backArrowVisible = !LocalIsExpandedScreen.current,
@@ -144,7 +148,7 @@ fun LiquidGlassPreferences(
                     },
                 )
                 ListPreference(
-                    adapter = prefs.liquidGlassTintSwatch.getAdapter(),
+                    adapter = tintSwatchAdapter,
                     entries = swatchEntries,
                     label = stringResource(id = R.string.liquid_glass_tint_swatch_label),
                 )
@@ -152,7 +156,7 @@ fun LiquidGlassPreferences(
                     entries = swatchEntries,
                     selectedSwatch = tintSwatch,
                     onSelectSwatch = { swatchId ->
-                        prefs.liquidGlassTintSwatch.getAdapter().onChange(newValue = swatchId)
+                        tintSwatchAdapter.onChange(newValue = swatchId)
                     },
                 )
             }
