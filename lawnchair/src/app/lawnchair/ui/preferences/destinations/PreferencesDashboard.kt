@@ -992,4 +992,3 @@ fun openAppInfo(context: Context) {
     val componentName = ComponentName(context, SolinaLauncher::class.java)
     launcherApps?.startAppDetailsActivity(componentName, Process.myUserHandle(), null, null)
 }
-
